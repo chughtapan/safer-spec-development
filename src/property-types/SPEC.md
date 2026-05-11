@@ -1,6 +1,23 @@
 ---
 folder: src/property-types
 format-version: 0.1.0
+generatedAtSha: f0f7a1254e72ac16950c26f00001e1ac54ab2558
+generatedFrom:
+  jsdoc: ts-morph + @microsoft/tsdoc
+  exports: ts-morph getExportedDeclarations
+  schemas:
+  properties:
+    - fast-check
+  eslint: eslint-plugin-agent-code-guard
+coverage:
+  kindCoverage: 0
+  classifierCoverage: null
+  preconditionPassRate: null
+  branchCoverageFromSpecTests: null
+thresholds:
+  kindCoverage: 1
+  classifierCoverage: 0.8
+  preconditionPassRate: 0.9
 ---
 
 # SPEC
@@ -11,7 +28,7 @@ Closed taxonomy of property assertion types. Terminal domain — no upward depen
 
 The 9 OOPSLA-significant property types (Roundtrip, Inclusion, Exception Raising, …). Source: Ravi & Coblenz, OOPSLA 2025 (12 categories), filtered to the 9 statistically significant ones. Dropped: Generated-Expression Bounds Checking (p=0.0627), Generated-Expression Non-Equality (p=0.3299), Constant Inclusion (p=0.8969).
 
-The codemod assumes ALL property types apply to every export by default. Opting out is explicit via per-export `@specSkip "<PropertyType>" reason: <why>` directives. There is no built-in matrix mapping export shapes to required property types — that prescription belongs in the author's `@specSkip` reasons, not in the tool.
+The codemod assumes ALL property types apply to every export by default. Opting out is explicit via per-export `@spec.skip "<PropertyType>" reason: <why>` directives. There is no built-in matrix mapping export shapes to required property types — that prescription belongs in the author's `@spec.skip` reasons, not in the tool.
 
 Per-repo extension via `safer-spec.config.ts` `propertyTypesExtension: PropertyType[]`.
 

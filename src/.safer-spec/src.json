@@ -1,13 +1,107 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src",
-  "purpose": "Library facade. Re-exports the test-author surface: the `itSpec` helper and the closed property-type taxonomy. The `safer-spec` binary (commands/index.ts) is the integration point for command execution (`generate`, `validate`, `init`, `doctor`, `migrate`, `explain`); those are not re-exported from this facade.\n\nThis barrel carries `@specPurpose` only. Per-export `@specAssume`, `@specGuarantee`, and `@specResidualContract` directives live on the declarations in their source modules.",
-  "exports": [],
-  "properties": [],
-  "files": {
-    "source": [
-      "src/index.ts"
-    ],
-    "test": []
+  "generatedAtSha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558",
+  "exports": [
+    {
+      "name": "ItSpec",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/it-spec.ts",
+        "line": 25,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
+    },
+    {
+      "name": "PROPERTY_TYPES",
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/property-types/index.ts",
+        "line": 27,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
+    },
+    {
+      "name": "PropertyType",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/property-types/index.ts",
+        "line": 39,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
+    },
+    {
+      "name": "itSpec",
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/it-spec.ts",
+        "line": 54,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
+    }
+  ],
+  "coverage": {
+    "kindCoverage": 0
+  },
+  "thresholds": {
+    "kindCoverage": 1,
+    "classifierCoverage": 0.8,
+    "preconditionPassRate": 0.9
   }
 }

@@ -1,146 +1,61 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/commands",
-  "purpose": "CLI binary. Composes the six subcommands (`init`, `generate`, `validate`, `doctor`, `explain`, `migrate`) into the top-level `safer-spec` Command, then translates each tagged failure into `process.exit(N)` at the runtime boundary.\n\nExit-code mapping at this boundary:\n- `MissingSpecPropertyError` → exit 11\n- `MissingStubError`         → exit 12\n- `MissingImplError`         → exit 13\n- `CliUsageError`            → exit 2 (POSIX usage convention)\n- any other defect / failure → `NodeRuntime.runMain` default (non-zero)\n\nTagged errors `CliExitCode` and `CliUsageError` are co-located here.",
+  "generatedAtSha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558",
   "exports": [
     {
       "name": "CliExitCode",
-      "kind": "class",
-      "signature": "export class CliExitCode extends Data.TaggedError(\"CliExitCode\")<{\n  readonly code: number;\n}> { /* ... */ }",
-      "description": "",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
       "sourceRef": {
-        "path": "src/commands/index.ts",
-        "line": 37
-      },
-      "assumes": [],
-      "guarantees": [],
-      "residualContract": null,
-      "skipped": []
+        "path": "/src/commands/index.ts",
+        "line": 37,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
     },
     {
       "name": "CliUsageError",
-      "kind": "class",
-      "signature": "export class CliUsageError extends Data.TaggedError(\"CliUsageError\")<{\n  readonly subcommand: string;\n  readonly reason: string;\n}> { /* ... */ }",
-      "description": "",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
       "sourceRef": {
-        "path": "src/commands/index.ts",
-        "line": 41
-      },
-      "assumes": [],
-      "guarantees": [],
-      "residualContract": null,
-      "skipped": []
+        "path": "/src/commands/index.ts",
+        "line": 41,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
     }
   ],
-  "properties": [
-    {
-      "id": "cli-validate-rejects-conflicting-flags",
-      "propertyType": "Exception Raising",
-      "exports": [
-        "validate"
-      ],
-      "claim": "--planned and --implemented passed together fail with CliUsageError exit code 2",
-      "sourceRef": {
-        "path": "src/commands/__tests__/cli.spec.test.ts",
-        "line": 20
-      },
-      "stubbed": true
-    },
-    {
-      "id": "cli-validate-exit-code-contract",
-      "propertyType": "Exception Raising",
-      "exports": [
-        "validate"
-      ],
-      "claim": "ValidateGapError tags propagate to process.exit(N) with N in {11, 12, 13}",
-      "sourceRef": {
-        "path": "src/commands/__tests__/cli.spec.test.ts",
-        "line": 31
-      },
-      "stubbed": true
-    },
-    {
-      "id": "validate-gate-determ",
-      "propertyType": "Roundtrip",
-      "exports": [
-        "validate"
-      ],
-      "claim": "two validate runs at the same tree SHA produce byte-identical reports modulo generated-at-sha",
-      "sourceRef": {
-        "path": "src/commands/__tests__/validate.spec.test.ts",
-        "line": 17
-      },
-      "stubbed": true
-    },
-    {
-      "id": "validate-emits-gap-cls",
-      "propertyType": "Exception Raising",
-      "exports": [
-        "validate"
-      ],
-      "claim": "every gate failure emits a typed ValidateError with gapClass in {11, 12, 13}",
-      "sourceRef": {
-        "path": "src/commands/__tests__/validate.spec.test.ts",
-        "line": 28
-      },
-      "stubbed": true
-    },
-    {
-      "id": "validate-diagnostic-shape",
-      "propertyType": "Typechecking",
-      "exports": [
-        "validate",
-        "formatDiagnostic"
-      ],
-      "claim": "every emitted diagnostic conforms to {problem, cause, fix, docsLink}",
-      "sourceRef": {
-        "path": "src/commands/__tests__/validate.spec.test.ts",
-        "line": 39
-      },
-      "stubbed": true
-    },
-    {
-      "id": "properties-table-self-host",
-      "propertyType": "Inclusion",
-      "exports": [
-        "validate"
-      ],
-      "claim": "the codemod's own SPEC.md ## Properties table equals what generate would emit from this codemod's test JSDoc",
-      "sourceRef": {
-        "path": "src/commands/__tests__/validate.spec.test.ts",
-        "line": 50
-      },
-      "stubbed": true
-    },
-    {
-      "id": "properties-table-self-host-bodied",
-      "propertyType": "Inclusion",
-      "exports": [
-        "validate"
-      ],
-      "claim": "every itSpec.prop in the codemod's own tree has a non-empty fast-check body (no it.todo, no empty body)",
-      "sourceRef": {
-        "path": "src/commands/__tests__/validate.spec.test.ts",
-        "line": 61
-      },
-      "stubbed": true
-    }
-  ],
-  "files": {
-    "source": [
-      "src/commands/doctor.ts",
-      "src/commands/explain.ts",
-      "src/commands/generate.ts",
-      "src/commands/index.ts",
-      "src/commands/init.ts",
-      "src/commands/migrate.ts",
-      "src/commands/validate-pipeline.ts",
-      "src/commands/validate.ts",
-      "src/commands/version.ts"
-    ],
-    "test": [
-      "src/commands/__tests__/cli.spec.test.ts",
-      "src/commands/__tests__/validate.spec.test.ts"
-    ]
+  "coverage": {
+    "kindCoverage": 0
+  },
+  "thresholds": {
+    "kindCoverage": 1,
+    "classifierCoverage": 0.8,
+    "preconditionPassRate": 0.9
   }
 }

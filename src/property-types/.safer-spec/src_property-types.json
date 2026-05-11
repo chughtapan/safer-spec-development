@@ -1,50 +1,66 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/property-types",
-  "purpose": "Closed taxonomy of property assertion types. Terminal domain — no upward dependencies.\n\nThe 9 OOPSLA-significant property types (Roundtrip, Inclusion, Exception Raising, …). Source: Ravi & Coblenz, OOPSLA 2025 (12 categories), filtered to the 9 statistically significant ones. Dropped: Generated-Expression Bounds Checking (p=0.0627), Generated-Expression Non-Equality (p=0.3299), Constant Inclusion (p=0.8969).\n\nThe codemod assumes ALL property types apply to every export by default. Opting out is explicit via per-export `@specSkip \"<PropertyType>\" reason: <why>` directives. There is no built-in matrix mapping export shapes to required property types — that prescription belongs in the author's `@specSkip` reasons, not in the tool.\n\nPer-repo extension via `safer-spec.config.ts` `propertyTypesExtension: PropertyType[]`.",
+  "generatedAtSha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558",
   "exports": [
     {
       "name": "PROPERTY_TYPES",
-      "kind": "const",
-      "signature": "export const PROPERTY_TYPES = [\n  \"Roundtrip\",\n  \"Partial Roundtrip\",\n  \"Commutative Paths\",\n  \"Constant Equality\",\n  \"Constant Bounds Checking\",\n  \"Constant Non-Equality\",\n  \"Typechecking\",\n  \"Inclusion\",\n  \"Exception Raising\",\n] as const;",
-      "description": "",
-      "sourceRef": {
-        "path": "src/property-types/index.ts",
-        "line": 27
-      },
-      "assumes": [],
-      "guarantees": [
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [
         {
           "claim": "membership order is stable across versions; the index of each property type is part of the contract",
           "reason": "per-repo `propertyTypesExtension` appends only; never reorders."
         }
       ],
-      "residualContract": {
-        "_tag": "none",
-        "reason": "shape captured by `as const` tuple."
-      },
-      "skipped": []
+      "sourceRef": {
+        "path": "src/property-types/index.ts",
+        "line": 27,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
     },
     {
       "name": "PropertyType",
-      "kind": "type",
-      "signature": "export type PropertyType = (typeof PROPERTY_TYPES)[number];",
-      "description": "",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
       "sourceRef": {
         "path": "src/property-types/index.ts",
-        "line": 39
-      },
-      "assumes": [],
-      "guarantees": [],
-      "residualContract": null,
-      "skipped": []
+        "line": 39,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
     }
   ],
-  "properties": [],
-  "files": {
-    "source": [
-      "src/property-types/index.ts"
-    ],
-    "test": []
+  "coverage": {
+    "kindCoverage": 0
+  },
+  "thresholds": {
+    "kindCoverage": 1,
+    "classifierCoverage": 0.8,
+    "preconditionPassRate": 0.9
   }
 }

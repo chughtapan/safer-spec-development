@@ -1,6 +1,23 @@
 ---
 folder: src/commands
 format-version: 0.1.0
+generatedAtSha: f0f7a1254e72ac16950c26f00001e1ac54ab2558
+generatedFrom:
+  jsdoc: ts-morph + @microsoft/tsdoc
+  exports: ts-morph getExportedDeclarations
+  schemas:
+  properties:
+    - fast-check
+  eslint: eslint-plugin-agent-code-guard
+coverage:
+  kindCoverage: 0
+  classifierCoverage: null
+  preconditionPassRate: null
+  branchCoverageFromSpecTests: null
+thresholds:
+  kindCoverage: 1
+  classifierCoverage: 0.8
+  preconditionPassRate: 0.9
 ---
 
 # SPEC
@@ -20,7 +37,7 @@ Tagged errors `CliExitCode` and `CliUsageError` are co-located here.
 
 ## Public surface
 
-### [`CliExitCode`](./index.ts#L37)
+### [`CliExitCode`](/src/commands/index.ts#L37)
 
 ```ts
 export class CliExitCode extends Data.TaggedError("CliExitCode")<{
@@ -28,7 +45,7 @@ export class CliExitCode extends Data.TaggedError("CliExitCode")<{
 }> { /* ... */ }
 ```
 
-### [`CliUsageError`](./index.ts#L41)
+### [`CliUsageError`](/src/commands/index.ts#L41)
 
 ```ts
 export class CliUsageError extends Data.TaggedError("CliUsageError")<{
@@ -47,6 +64,7 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
 - `src/commands/index.ts`
 - `src/commands/init.ts`
 - `src/commands/migrate.ts`
+- `src/commands/project-context.ts`
 - `src/commands/validate-pipeline.ts`
 - `src/commands/validate.ts`
 - `src/commands/version.ts`

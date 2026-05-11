@@ -1,6 +1,23 @@
 ---
 folder: src/spec
 format-version: 0.1.0
+generatedAtSha: f0f7a1254e72ac16950c26f00001e1ac54ab2558
+generatedFrom:
+  jsdoc: ts-morph + @microsoft/tsdoc
+  exports: ts-morph getExportedDeclarations
+  schemas:
+  properties:
+    - fast-check
+  eslint: eslint-plugin-agent-code-guard
+coverage:
+  kindCoverage: 0
+  classifierCoverage: null
+  preconditionPassRate: null
+  branchCoverageFromSpecTests: null
+thresholds:
+  kindCoverage: 1
+  classifierCoverage: 0.8
+  preconditionPassRate: 0.9
 ---
 
 # SPEC
@@ -11,7 +28,60 @@ Spec domain barrel. Anchors `src/spec/SPEC.md` (codemod requires every folder wi
 
 ## Public surface
 
-_No exports._
+### [`ItSpec`](./it-spec.ts#L25)
+
+```ts
+export interface ItSpec {
+  /**
+   * @spec.assume "first positional `id` arg matches the `@spec.property` JSDoc directive value above the call site"
+   *   reason: cross-check enforced by `validate --implemented`; mismatch
+   *           is exit code 11 (MISSING_SPEC_PROPERTY).
+   * @spec.guarantee "registers the property as a Vitest todo placeholder under `id`"
+   *   reason: side-effect contract; the call mutates Vitest's collector,
+   *           observable only at runtime.
+   * @spec.residual-contract none
+   *   reason: shape and refinements captured by parameter types.
+   */
+  todo(id: string, meta: PropertyMeta): void;
+
+  /**
+   * @spec.assume "JSDoc directives above this call match `id`, `meta.type`, and `meta.exports` member names"
+   *   reason: cross-check enforced by `validate --implemented`.
+   * @spec.guarantee "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`"
+   *   reason: side-effect contract; runtime registration with Vitest.
+   * @spec.residual-contract "fast-check seed and numRuns are inherited from Vitest config; no override here"
+   *   reason: behavioral residue beyond the call signature.
+   */
+  prop<T>(
+    id: string,
+    meta: PropertyMeta,
+    arb: fc.Arbitrary<T>,
+    body: (sample: T) => void | Promise<void>,
+  ): void;
+}
+```
+
+### [`itSpec`](./it-spec.ts#L54)
+
+```ts
+export const itSpec: ItSpec = {
+  todo(id: string, _meta: PropertyMeta): void {
+    it.todo(id);
+  },
+  prop<T>(
+    id: string,
+    _meta: PropertyMeta,
+    _arb: fc.Arbitrary<T>,
+    _body: (sample: T) => void | Promise<void>,
+  ): void {
+    // Registers as a Vitest placeholder until property execution is wired.
+    // `validate --implemented` reports MISSING_IMPL (13) for promoted
+    // properties that still lack a real body.
+    it.todo(id);
+  },
+};
+```
+
 ## Files
 
 - `src/spec/__tests__/emit.spec.test.ts`

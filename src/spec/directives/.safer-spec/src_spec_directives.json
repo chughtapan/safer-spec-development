@@ -1,66 +1,204 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/directives",
-  "purpose": "Directive grammar entry point. Walks TypeScript source via ts-morph and dispatches each parsed TSDoc block (via `tsdoc-bridge`) to its per-population parser. Returns the typed `LocatedDirective` stream.\n\nThe population modules (`file-level`, `per-export`, `per-test`) co-locate each directive's Schema with its parse function. The `tsdoc-bridge` module owns the TSDoc configuration and the byte-accurate body extraction.",
+  "generatedAtSha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558",
   "exports": [
     {
+      "name": "DIRECTIVE_BODY_MAX_CHARS",
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/directives/shared.ts",
+        "line": 19,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
+    },
+    {
+      "name": "JsDocDirectiveOverflowError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/directives/shared.ts",
+        "line": 30,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
+    },
+    {
+      "name": "JsDocDirectiveParseError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/directives/shared.ts",
+        "line": 40,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
+    },
+    {
+      "name": "JsDocUnknownDirectiveError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/directives/shared.ts",
+        "line": 49,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
+    },
+    {
+      "name": "ParseError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/directives/shared.ts",
+        "line": 57,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
+    },
+    {
       "name": "Directive",
-      "kind": "type",
-      "signature": "export type Directive =\n  | PurposeDirective\n  | IgnoreFileDirective\n  | AssumeDirective\n  | GuaranteeDirective\n  | ResidualContractDirective\n  | SkipDirective\n  | IgnoreExportDirective\n  | PropertyDirective\n  | TypeDirective\n  | ExportsDirective\n  | ClaimDirective;",
-      "description": "",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/directives/index.ts",
-        "line": 67
-      },
-      "assumes": [],
-      "guarantees": [],
-      "residualContract": null,
-      "skipped": []
+        "line": 67,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
     },
     {
       "name": "LocatedDirective",
-      "kind": "interface",
-      "signature": "export interface LocatedDirective {\n  readonly directive: Directive;\n  readonly location: DirectiveLocation;\n}",
-      "description": "",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/directives/index.ts",
-        "line": 87
-      },
-      "assumes": [],
-      "guarantees": [],
-      "residualContract": null,
-      "skipped": []
+        "line": 87,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
     },
     {
       "name": "parseFileDirectives",
-      "kind": "function",
-      "signature": "export const parseFileDirectives = (\n  path: string,\n  source: string,\n): Effect.Effect<ReadonlyArray<LocatedDirective>, ParseError> => /* ... */",
-      "description": "",
-      "sourceRef": {
-        "path": "src/spec/directives/index.ts",
-        "line": 225
-      },
-      "assumes": [],
-      "guarantees": [
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [
         {
           "claim": "every emitted directive validates against the closed grammar before downstream consumption",
           "reason": "trust-boundary; agents consume parsed directive bodies as context."
         }
       ],
-      "residualContract": null,
-      "skipped": []
+      "sourceRef": {
+        "path": "src/spec/directives/index.ts",
+        "line": 225,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
     }
   ],
-  "properties": [],
-  "files": {
-    "source": [
-      "src/spec/directives/file-level.ts",
-      "src/spec/directives/index.ts",
-      "src/spec/directives/per-export.ts",
-      "src/spec/directives/per-test.ts",
-      "src/spec/directives/shared.ts",
-      "src/spec/directives/tsdoc-bridge.ts"
-    ],
-    "test": []
+  "coverage": {
+    "kindCoverage": 0
+  },
+  "thresholds": {
+    "kindCoverage": 1,
+    "classifierCoverage": 0.8,
+    "preconditionPassRate": 0.9
   }
 }

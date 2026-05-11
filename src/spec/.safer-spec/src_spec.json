@@ -1,331 +1,61 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec",
-  "purpose": "Spec domain barrel. Anchors `src/spec/SPEC.md` (codemod requires every folder with a SPEC to expose an `index.ts` barrel) and re-exports the test-author surface (`itSpec`, `ItSpec`) consumed by the package facade. The richer spec-format machinery (directive parser, emitter, sidecar writer, link resolver) is consumed directly by `commands/` via path aliases; routing it through this barrel would be ceremony without a caller.",
-  "exports": [],
-  "properties": [
+  "generatedAtSha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558",
+  "exports": [
     {
-      "id": "emit-sha-stable",
-      "propertyType": "Roundtrip",
-      "exports": [
-        "emitMarkdown"
+      "name": "ItSpec",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
       ],
-      "claim": "two emit calls with the same artifact produce byte-identical strings modulo generated-at-sha",
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
       "sourceRef": {
-        "path": "src/spec/__tests__/emit.spec.test.ts",
-        "line": 16
-      },
-      "stubbed": true
+        "path": "src/spec/it-spec.ts",
+        "line": 25,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
     },
     {
-      "id": "emit-section-order-fixed",
-      "propertyType": "Inclusion",
-      "exports": [
-        "emitMarkdown"
+      "name": "itSpec",
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
       ],
-      "claim": "emitted markdown contains all canonical sections in the fixed order Purpose → Public Surface → Files → Properties → Architecture",
+      "observedPropertyTypes": [],
+      "residualAssumes": [],
+      "residualGuarantees": [],
       "sourceRef": {
-        "path": "src/spec/__tests__/emit.spec.test.ts",
-        "line": 27
-      },
-      "stubbed": true
-    },
-    {
-      "id": "emit-canonical-line-endings",
-      "propertyType": "Constant Equality",
-      "exports": [
-        "emitMarkdown"
-      ],
-      "claim": "emitted markdown uses LF line endings exclusively; trailing whitespace is trimmed",
-      "sourceRef": {
-        "path": "src/spec/__tests__/emit.spec.test.ts",
-        "line": 38
-      },
-      "stubbed": true
-    },
-    {
-      "id": "emit-frontmatter-roundtrips",
-      "propertyType": "Roundtrip",
-      "exports": [
-        "emitMarkdown"
-      ],
-      "claim": "YAML frontmatter parsed from emitMarkdown output round-trips back to the same SpecFrontmatter shape",
-      "sourceRef": {
-        "path": "src/spec/__tests__/emit.spec.test.ts",
-        "line": 49
-      },
-      "stubbed": true
-    },
-    {
-      "id": "emit-public-surface-source-order",
-      "propertyType": "Inclusion",
-      "exports": [
-        "emitMarkdown"
-      ],
-      "claim": "Public surface section lists exports in source-order (matching the file's declaration order)",
-      "sourceRef": {
-        "path": "src/spec/__tests__/emit.spec.test.ts",
-        "line": 60
-      },
-      "stubbed": true
-    },
-    {
-      "id": "emit-files-section-lex-sorted",
-      "propertyType": "Inclusion",
-      "exports": [
-        "emitMarkdown"
-      ],
-      "claim": "Files section lists sibling filenames in lexicographic order",
-      "sourceRef": {
-        "path": "src/spec/__tests__/emit.spec.test.ts",
-        "line": 71
-      },
-      "stubbed": true
-    },
-    {
-      "id": "emit-residual-bodies-escaped",
-      "propertyType": "Constant Bounds Checking",
-      "exports": [
-        "emitMarkdown"
-      ],
-      "claim": "residual-contract bodies emitted into markdown go through escapeForMarkdown; no injection",
-      "sourceRef": {
-        "path": "src/spec/__tests__/emit.spec.test.ts",
-        "line": 82
-      },
-      "stubbed": true
-    },
-    {
-      "id": "frontmatter-roundtrip",
-      "propertyType": "Roundtrip",
-      "exports": [
-        "decodeSpecFrontmatter"
-      ],
-      "claim": "YAML emit(decode(yaml)) is byte-equal to the original well-formed yaml frontmatter block",
-      "sourceRef": {
-        "path": "src/spec/__tests__/frontmatter.spec.test.ts",
-        "line": 16
-      },
-      "stubbed": true
-    },
-    {
-      "id": "frontmatter-rejects-malformed",
-      "propertyType": "Exception Raising",
-      "exports": [
-        "decodeSpecFrontmatter"
-      ],
-      "claim": "malformed YAML fails on the Effect error channel with a typed ParseError, never throws",
-      "sourceRef": {
-        "path": "src/spec/__tests__/frontmatter.spec.test.ts",
-        "line": 27
-      },
-      "stubbed": true
-    },
-    {
-      "id": "frontmatter-decoded-shape",
-      "propertyType": "Typechecking",
-      "exports": [
-        "decodeSpecFrontmatter"
-      ],
-      "claim": "decoded frontmatter matches the declared SpecFrontmatter type at every branch",
-      "sourceRef": {
-        "path": "src/spec/__tests__/frontmatter.spec.test.ts",
-        "line": 38
-      },
-      "stubbed": true
-    },
-    {
-      "id": "link-resolver-intra-file-anchor-pinned",
-      "propertyType": "Inclusion",
-      "exports": [
-        "resolveSymbol"
-      ],
-      "claim": "every intra-file resolution returns href with a non-null sha-pinned anchor",
-      "sourceRef": {
-        "path": "src/spec/__tests__/link-resolver.spec.test.ts",
-        "line": 16
-      },
-      "stubbed": true
-    },
-    {
-      "id": "link-resolver-fails-internal-misses",
-      "propertyType": "Exception Raising",
-      "exports": [
-        "resolveSymbol"
-      ],
-      "claim": "unresolved internal references fail with LinkResolutionError; external misses return UnresolvedExternal",
-      "sourceRef": {
-        "path": "src/spec/__tests__/link-resolver.spec.test.ts",
-        "line": 27
-      },
-      "stubbed": true
-    },
-    {
-      "id": "jsdoc-parser-rejects-unknown-directive",
-      "propertyType": "Exception Raising",
-      "exports": [
-        "parseFileDirectives"
-      ],
-      "claim": "unknown @spec.* directive names fail with JsDocUnknownDirectiveError on the Effect error channel",
-      "sourceRef": {
-        "path": "src/spec/__tests__/parser.spec.test.ts",
-        "line": 23
-      },
-      "stubbed": true
-    },
-    {
-      "id": "jsdoc-parser-ast-typechecks",
-      "propertyType": "Typechecking",
-      "exports": [
-        "parseFileDirectives"
-      ],
-      "claim": "every parsed directive matches the closed Directive union shape",
-      "sourceRef": {
-        "path": "src/spec/__tests__/parser.spec.test.ts",
-        "line": 34
-      },
-      "stubbed": true
-    },
-    {
-      "id": "jsdoc-parser-enforces-body-cap",
-      "propertyType": "Constant Bounds Checking",
-      "exports": [
-        "parseFileDirectives",
-        "enforceLengthCap"
-      ],
-      "claim": "directive bodies longer than DIRECTIVE_BODY_MAX_CHARS fail with JsDocDirectiveOverflowError",
-      "sourceRef": {
-        "path": "src/spec/__tests__/parser.spec.test.ts",
-        "line": 45
-      },
-      "stubbed": true
-    },
-    {
-      "id": "jsdoc-escape-markdown-safe",
-      "propertyType": "Constant Bounds Checking",
-      "exports": [
-        "escapeForMarkdown"
-      ],
-      "claim": "escaped output never introduces new markdown syntactic structure (backticks, code-fences, link syntax)",
-      "sourceRef": {
-        "path": "src/spec/__tests__/parser.spec.test.ts",
-        "line": 56
-      },
-      "stubbed": true
-    },
-    {
-      "id": "jsdoc-escape-yaml-safe",
-      "propertyType": "Constant Bounds Checking",
-      "exports": [
-        "escapeForYaml"
-      ],
-      "claim": "escaped output never introduces new YAML syntactic structure (quotes, colons, leading dashes)",
-      "sourceRef": {
-        "path": "src/spec/__tests__/parser.spec.test.ts",
-        "line": 67
-      },
-      "stubbed": true
-    },
-    {
-      "id": "jsdoc-escape-json-safe",
-      "propertyType": "Constant Bounds Checking",
-      "exports": [
-        "escapeForJson"
-      ],
-      "claim": "escaped output never introduces new JSON syntactic structure (quotes, backslashes, control chars)",
-      "sourceRef": {
-        "path": "src/spec/__tests__/parser.spec.test.ts",
-        "line": 78
-      },
-      "stubbed": true
-    },
-    {
-      "id": "sidecar-writer-roundtrip",
-      "propertyType": "Roundtrip",
-      "exports": [
-        "serializeSidecar",
-        "decodeSpecArtifact"
-      ],
-      "claim": "decode(parse(serialize(artifact))) returns the original artifact at every well-formed input",
-      "sourceRef": {
-        "path": "src/spec/__tests__/sidecar-writer.spec.test.ts",
-        "line": 17
-      },
-      "stubbed": true
-    },
-    {
-      "id": "sidecar-writer-atomic-on-failure",
-      "propertyType": "Exception Raising",
-      "exports": [
-        "writeSidecar"
-      ],
-      "claim": "partial sidecars are not left on disk on filesystem failures",
-      "sourceRef": {
-        "path": "src/spec/__tests__/sidecar-writer.spec.test.ts",
-        "line": 28
-      },
-      "stubbed": true
-    },
-    {
-      "id": "sidecar-roundtrip",
-      "propertyType": "Roundtrip",
-      "exports": [
-        "decodeSpecArtifact"
-      ],
-      "claim": "encode(decode(json)) is byte-equal to the original well-formed json",
-      "sourceRef": {
-        "path": "src/spec/__tests__/sidecar.spec.test.ts",
-        "line": 19
-      },
-      "stubbed": true
-    },
-    {
-      "id": "sidecar-rejects-malformed",
-      "propertyType": "Exception Raising",
-      "exports": [
-        "decodeSpecArtifact"
-      ],
-      "claim": "malformed input fails on the Effect error channel with a typed ParseError, never throws",
-      "sourceRef": {
-        "path": "src/spec/__tests__/sidecar.spec.test.ts",
-        "line": 30
-      },
-      "stubbed": true
-    },
-    {
-      "id": "sidecar-decoded-shape",
-      "propertyType": "Typechecking",
-      "exports": [
-        "decodeSpecArtifact"
-      ],
-      "claim": "decoded artifact matches the declared SpecArtifact type at every branch of the union",
-      "sourceRef": {
-        "path": "src/spec/__tests__/sidecar.spec.test.ts",
-        "line": 41
-      },
-      "stubbed": true
+        "path": "src/spec/it-spec.ts",
+        "line": 54,
+        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+      }
     }
   ],
-  "files": {
-    "source": [
-      "src/spec/emit.ts",
-      "src/spec/escape.ts",
-      "src/spec/frontmatter.ts",
-      "src/spec/index.ts",
-      "src/spec/it-spec.ts",
-      "src/spec/link-resolver.ts",
-      "src/spec/sidecar-writer.ts",
-      "src/spec/sidecar.ts",
-      "src/spec/source-exports.ts",
-      "src/spec/todos.ts"
-    ],
-    "test": [
-      "src/spec/__tests__/emit.spec.test.ts",
-      "src/spec/__tests__/frontmatter.spec.test.ts",
-      "src/spec/__tests__/link-resolver.spec.test.ts",
-      "src/spec/__tests__/parser.spec.test.ts",
-      "src/spec/__tests__/sidecar-writer.spec.test.ts",
-      "src/spec/__tests__/sidecar.spec.test.ts"
-    ]
+  "coverage": {
+    "kindCoverage": 0
+  },
+  "thresholds": {
+    "kindCoverage": 1,
+    "classifierCoverage": 0.8,
+    "preconditionPassRate": 0.9
   }
 }
