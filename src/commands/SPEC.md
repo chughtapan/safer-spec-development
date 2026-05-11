@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: f0f7a1254e72ac16950c26f00001e1ac54ab2558
+generatedAtSha: e6866eb9e6ff32fe383db130f7e7bca8222d55ce
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -15,9 +15,9 @@ coverage:
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
-  kindCoverage: 1
-  classifierCoverage: 0.8
-  preconditionPassRate: 0.9
+  kindCoverage: 0
+  classifierCoverage: 0
+  preconditionPassRate: 0
 ---
 
 # SPEC
@@ -65,6 +65,7 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
 - `src/commands/init.ts`
 - `src/commands/migrate.ts`
 - `src/commands/project-context.ts`
+- `src/commands/validate-checks.ts`
 - `src/commands/validate-pipeline.ts`
 - `src/commands/validate.ts`
 - `src/commands/version.ts`

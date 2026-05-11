@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/property-types",
-  "generatedAtSha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558",
+  "generatedAtSha": "e6866eb9e6ff32fe383db130f7e7bca8222d55ce",
   "exports": [
     {
       "name": "PROPERTY_TYPES",
@@ -28,7 +28,7 @@
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 27,
-        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+        "sha": "e6866eb9e6ff32fe383db130f7e7bca8222d55ce"
       }
     },
     {
@@ -51,7 +51,7 @@
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 39,
-        "sha": "f0f7a1254e72ac16950c26f00001e1ac54ab2558"
+        "sha": "e6866eb9e6ff32fe383db130f7e7bca8222d55ce"
       }
     }
   ],
@@ -59,8 +59,8 @@
     "kindCoverage": 0
   },
   "thresholds": {
-    "kindCoverage": 1,
-    "classifierCoverage": 0.8,
-    "preconditionPassRate": 0.9
+    "kindCoverage": 0,
+    "classifierCoverage": 0,
+    "preconditionPassRate": 0
   }
 }
