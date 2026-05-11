@@ -103,8 +103,11 @@ export const unquote = (s: string): string => {
 };
 
 /**
- * Split a body into (head, reason) at the first `reason:` line. Both
- * parts are normalized to single-line form: continuation indentation
+ * Split a body into (head, reason) at the first `reason:` keyword. Both
+ * inline form (`@spec.skip "X" reason: <why>`, single line) and the
+ * multi-line form (`@spec.skip "X"\n  reason: <why>`) are accepted.
+ *
+ * Parts are normalized to single-line form: continuation indentation
  * from JSDoc source (extra spaces after `* `) is collapsed so the
  * rendered SPEC.md doesn't carry whitespace residue from the comment
  * formatting.
@@ -112,14 +115,59 @@ export const unquote = (s: string): string => {
 export const splitReason = (
   rawBody: string,
 ): { readonly head: string; readonly reason: string } => {
-  const m = /\n[\t ]*reason:[\t ]*/.exec(rawBody);
-  if (m === null || m.index === undefined) {
+  const idx = findReasonIndex(rawBody);
+  if (idx === null) {
     return { head: collapseWhitespace(rawBody), reason: "" };
   }
   return {
-    head: collapseWhitespace(rawBody.slice(0, m.index)),
-    reason: collapseWhitespace(rawBody.slice(m.index + m[0].length)),
+    head: collapseWhitespace(rawBody.slice(0, idx.start)),
+    reason: collapseWhitespace(rawBody.slice(idx.afterColon)),
   };
 };
+
+const REASON_KEY = "reason:";
+
+// Linear scan for `reason:` preceded by either a newline (with optional
+// indent) or one-or-more spaces. Returns the start of the boundary plus
+// the offset just past the colon and any post-colon whitespace.
+// Linear-time so it doesn't trigger sonarjs/slow-regex.
+const findReasonIndex = (
+  body: string,
+): { readonly start: number; readonly afterColon: number } | null => {
+  let i = 0;
+  while (i < body.length) {
+    const found = body.indexOf(REASON_KEY, i);
+    if (found < 0) return null;
+    const boundary = scanBoundaryBefore(body, found);
+    if (boundary !== null) {
+      const afterColon = skipPostColonWhitespace(body, found + REASON_KEY.length);
+      return { start: boundary, afterColon };
+    }
+    i = found + 1;
+  }
+  return null;
+};
+
+// True boundary = either a newline with any number of horizontal-whitespace
+// chars after it, OR one-or-more spaces inline. Returns the index where the
+// boundary starts (caller slices `head = body[..start]`).
+const scanBoundaryBefore = (body: string, found: number): number | null => {
+  let i = found - 1;
+  // Step over horizontal whitespace right before `reason:`.
+  while (i >= 0 && isHWhite(body.charCodeAt(i))) i -= 1;
+  // We need at least one such whitespace char OR a newline at the boundary.
+  if (i + 1 === found) return null; // no whitespace at all
+  if (i < 0 || body.charCodeAt(i) === 10 /* "\n" */) return i + 1 > 0 ? i + 1 : 0;
+  // Inline form: at least one space consumed; that's enough.
+  return i + 1;
+};
+
+const skipPostColonWhitespace = (body: string, start: number): number => {
+  let i = start;
+  while (i < body.length && isHWhite(body.charCodeAt(i))) i += 1;
+  return i;
+};
+
+const isHWhite = (ch: number): boolean => ch === 9 /* "\t" */ || ch === 32; /* " " */
 
 const collapseWhitespace = (s: string): string => s.replace(/\s+/g, " ").trim();

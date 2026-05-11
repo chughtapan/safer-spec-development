@@ -38,6 +38,42 @@ const DEFAULT_THRESHOLDS = {
   preconditionPassRate: 0,
 } as const;
 
+/**
+ * Normalize the user-supplied `--folder` value into a path the codemod
+ * stores as artifact identity (frontmatter `folder:`, sidecar slug,
+ * drift-check key). Strips leading `./` and trailing path separators so
+ * authoring conveniences don't manifest as false drift.
+ */
+export const normalizeFolder = (folder: string): string => {
+  const start = skipLeadingDotSlash(folder);
+  const end = stripTrailingSep(folder, start);
+  return start === 0 && end === folder.length ? folder : folder.slice(start, end);
+};
+
+const SLASH = 47;
+const BACKSLASH = 92;
+const DOT = 46;
+
+const skipLeadingDotSlash = (s: string): number => {
+  let i = 0;
+  while (i + 1 < s.length && s.charCodeAt(i) === DOT) {
+    const next = s.charCodeAt(i + 1);
+    if (next !== SLASH && next !== BACKSLASH) break;
+    i += 2;
+  }
+  return i;
+};
+
+const stripTrailingSep = (s: string, start: number): number => {
+  let end = s.length;
+  while (end > start) {
+    const ch = s.charCodeAt(end - 1);
+    if (ch !== SLASH && ch !== BACKSLASH) break;
+    end -= 1;
+  }
+  return end;
+};
+
 const isTsSource = (name: string): boolean =>
   name.endsWith(".ts") && !name.endsWith(".d.ts") && !name.endsWith(".spec.test.ts");
 const SKIP_DIRS = new Set(["node_modules", "dist"]);

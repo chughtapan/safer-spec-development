@@ -26,6 +26,7 @@
 
 import { FileSystem, Path } from "@effect/platform";
 import { Effect, Option } from "effect";
+import { normalizeFolder } from "@safer/commands/project-context.js";
 import {
   buildSpecMeta,
   collectFolderInputs,
@@ -120,16 +121,6 @@ const validateFolders = (
     }
     return out;
   });
-
-const normalizeFolder = (folder: string): string => {
-  let end = folder.length;
-  while (end > 0) {
-    const ch = folder.charCodeAt(end - 1);
-    if (ch !== 47 && ch !== 92) break; // "/" = 47, "\" = 92
-    end -= 1;
-  }
-  return end === folder.length ? folder : folder.slice(0, end);
-};
 
 const resolveFolders = (
   fs: FileSystem.FileSystem,

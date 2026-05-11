@@ -19,6 +19,7 @@
 
 import { FileSystem, Path } from "@effect/platform";
 import { Brand, Data, Effect, Option } from "effect";
+import { normalizeFolder } from "@safer/commands/project-context.js";
 import {
   parseFileDirectives,
   type LocatedDirective,
@@ -227,16 +228,6 @@ const writeOutputs = (
     return [specPath, sidecarPath];
   });
 
-const normalizeFolder = (folder: string): string => {
-  let end = folder.length;
-  while (end > 0) {
-    const ch = folder.charCodeAt(end - 1);
-    if (ch !== 47 && ch !== 92) break; // "/" = 47, "\" = 92
-    end -= 1;
-  }
-  return end === folder.length ? folder : folder.slice(0, end);
-};
-
 const checkInputs = (
   input: GenerateInput,
 ): Effect.Effect<FolderPath, GenerateError> => {
@@ -275,7 +266,10 @@ const buildAnalysis = (
   Effect.gen(function* () {
     const entries = yield* fs
       .readDirectory(folder)
-      .pipe(Effect.mapError(ioToGenerate(folder, folder)));
+      .pipe(
+        Effect.map((es) => [...es].sort()),
+        Effect.mapError(ioToGenerate(folder, folder)),
+      );
     const { sources, tests } = yield* collectFolderFiles(fs, path, folder, entries);
     const indexFilePath = sources.find(
       (p) => path.basename(p) === "index.ts",

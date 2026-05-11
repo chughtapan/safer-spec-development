@@ -117,26 +117,34 @@ const FILE_LEVEL_OR_PER_TEST = new Set<Directive["_tag"]>([
 const isFileLevelOrPerTest = (d: Directive): boolean =>
   FILE_LEVEL_OR_PER_TEST.has(d._tag);
 
+// Variable statements hold their declarations as direct children of a
+// VariableDeclarationList; we use getChildrenOfKind (NOT
+// getDescendantsOfKind) so local `const`s inside an exported function/class
+// body don't get picked up.
+const firstVarDeclName = (parent: Node): string | null => {
+  for (const list of parent.getChildrenOfKind(SyntaxKind.VariableDeclarationList)) {
+    for (const d of list.getChildrenOfKind(SyntaxKind.VariableDeclaration)) {
+      const n = d.getName();
+      if (n.length > 0) return n;
+    }
+  }
+  return null;
+};
+
+// Function/class/type aliases carry their own name on the parent. ts-morph's
+// NameableNode/NamedNode share `getName()`; the base `Node` doesn't expose
+// it. Feature-probe to avoid an unsound cast.
+const namedNodeName = (parent: Node): string | null => {
+  const probe = parent as { readonly getName?: () => string | undefined };
+  if (typeof probe.getName !== "function") return null;
+  const n = probe.getName();
+  return n !== undefined && n.length > 0 ? n : null;
+};
+
 const enclosingExportName = (jsdoc: JSDoc): string | null => {
   const parent = jsdoc.getParent() as Node | undefined;
   if (parent === undefined) return null;
-  // Variable statements hold one or more variable declarations; the export
-  // name lives on the inner declaration. Function/class/type aliases carry
-  // their own name on the parent itself.
-  const varDecls = parent.getDescendantsOfKind(SyntaxKind.VariableDeclaration);
-  if (varDecls.length > 0) {
-    const n = varDecls[0]!.getName();
-    if (n.length > 0) return n;
-  }
-  // ts-morph's NameableNode/NamedNode share a `getName()` method, but the
-  // base `Node` type doesn't expose it. Probe by feature without an
-  // unsound cast: only call `getName` if the runtime shape has it.
-  const probe = parent as { readonly getName?: () => string | undefined };
-  if (typeof probe.getName === "function") {
-    const n = probe.getName();
-    if (n !== undefined && n.length > 0) return n;
-  }
-  return null;
+  return firstVarDeclName(parent) ?? namedNodeName(parent);
 };
 
 interface JsDocCtx {
