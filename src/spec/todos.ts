@@ -184,7 +184,16 @@ const checkType = (
   ctx: CrossCheckCtx,
 ): ItSpecIssue | null => {
   const expr = optsProperty(call, "type");
-  if (expr === null) return null;
+  // Treat absent opts.type as a mismatch: validate's JSDoc↔runtime gate
+  // exists so generated rows cannot use a JSDoc claim that runtime metadata
+  // never asserted. Falling through here let malformed metadata silently
+  // ship the JSDoc value as truth.
+  if (expr === null) {
+    return mismatch(
+      ctx,
+      `JSDoc @spec.type "${found.type.propertyType}" vs itSpec opts.type <absent> (must be a string literal so validate can cross-check)`,
+    );
+  }
   const value = stringLiteralText(expr);
   if (value === null) {
     return mismatch(
