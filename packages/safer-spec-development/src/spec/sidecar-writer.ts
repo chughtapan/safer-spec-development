@@ -1,7 +1,7 @@
 /**
  * @spec.purpose Writes `.safer-spec/<folder>.json` sidecar files. Sanitizes
- *   every string field on emit (size cap + escape) per the design doc's
- *   trust-boundary section.
+ *   every string field on emit (size cap + escape) at the sidecar trust
+ *   boundary.
  *
  *   Tagged error `SidecarWriteError` is co-located here (this is the file
  *   that emits it via Effect.fail on filesystem failures).
@@ -18,7 +18,7 @@ import { Data, Effect } from "effect";
 import {
   type SidecarSchemaError,
   type SpecArtifact,
-} from "@safer/sidecar/schema.js";
+} from "@safer/spec/sidecar.js";
 
 export class SidecarWriteError extends Data.TaggedError("SidecarWriteError")<{
   readonly folder: string;

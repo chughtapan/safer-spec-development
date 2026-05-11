@@ -5,13 +5,11 @@
     "rootDir": "./src",
     "baseUrl": ".",
     "paths": {
-      "@safer/kinds/*": ["./src/kinds/*"],
+      "@safer/property-types/*": ["./src/property-types/*"],
       "@safer/authoring/*": ["./src/authoring/*"],
       "@safer/spec/*": ["./src/spec/*"],
       "@safer/source/*": ["./src/source/*"],
-      "@safer/sidecar/*": ["./src/sidecar/*"],
-      "@safer/modes/*": ["./src/modes/*"],
-      "@safer/cli/*": ["./src/cli/*"]
+      "@safer/commands/*": ["./src/commands/*"]
     }
   },
   "include": ["src/**/*"]

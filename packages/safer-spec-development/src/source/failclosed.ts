@@ -6,22 +6,22 @@
  *   No silent misclassification.
  *
  * @spec.guarantee The resolver never returns a candidate set without raising
- *   `AmbiguousKindError` when multiple kinds are plausible for the same export.
+ *   `AmbiguousPropertyTypeError` when multiple kinds are plausible for the same export.
  *   reason: silent misclassification produces drift the validate-gate cannot
  *           catch.
  */
 
 import { Effect } from "effect";
-import type { Kind } from "@safer/kinds/index.js";
+import type { PropertyType } from "@safer/property-types/index.js";
 import {
-  AmbiguousKindError,
+  AmbiguousPropertyTypeError,
   UnknownExportShapeError,
-} from "@safer/source/kind-detector.js";
+} from "@safer/source/shape-detector.js";
 
 interface AmbiguityReport {
   readonly path: string;
   readonly exportName: string;
-  readonly candidates: ReadonlyArray<Kind>;
+  readonly candidates: ReadonlyArray<PropertyType>;
   readonly reason: string;
 }
 
@@ -57,7 +57,7 @@ export const raiseUnknownExportShape = (
  * @spec.residual-contract none
  *   reason: shape captured by signature.
  */
-export const raiseAmbiguousKind = (
+export const raiseAmbiguousPropertyType = (
   _report: AmbiguityReport,
-): Effect.Effect<never, AmbiguousKindError> =>
-  Effect.die(new Error("Not implemented: raiseAmbiguousKind"));
+): Effect.Effect<never, AmbiguousPropertyTypeError> =>
+  Effect.die(new Error("Not implemented: raiseAmbiguousPropertyType"));

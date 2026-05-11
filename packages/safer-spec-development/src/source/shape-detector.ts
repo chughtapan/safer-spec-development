@@ -1,5 +1,5 @@
-/* eslint-disable max-classes-per-file -- the kind-detector emits two
-   closely-related tagged errors (UnknownExportShape, AmbiguousKind);
+/* eslint-disable max-classes-per-file -- the shape-detector emits two
+   closely-related tagged errors (UnknownExportShape, AmbiguousPropertyType);
    co-locating them with their producer is per-domain ownership. */
 /**
  * @spec.purpose
@@ -8,17 +8,17 @@
  *   by return type; types/interfaces; branded primitives). The applicability
  *   module consumes this shape to derive required-kind sets.
  *
- *   Tagged errors `UnknownExportShapeError` and `AmbiguousKindError` are
- *   co-located here — the kind-detector emits them on shape-classification
+ *   Tagged errors `UnknownExportShapeError` and `AmbiguousPropertyTypeError` are
+ *   co-located here — the shape-detector emits them on shape-classification
  *   failures.
  *
  * @spec.guarantee Fail-closed on ambiguous types: emits
- *   `UnknownExportShapeError` or `AmbiguousKindError` rather than guessing.
+ *   `UnknownExportShapeError` or `AmbiguousPropertyTypeError` rather than guessing.
  *   reason: silent misclassification drift the validate-gate cannot catch.
  */
 
 import { Data, Effect } from "effect";
-import type { Kind } from "@safer/kinds/index.js";
+import type { ExportShape, PropertyType } from "@safer/property-types/index.js";
 
 export class UnknownExportShapeError extends Data.TaggedError(
   "UnknownExportShapeError",
@@ -28,19 +28,11 @@ export class UnknownExportShapeError extends Data.TaggedError(
   readonly reason: string;
 }> {}
 
-export class AmbiguousKindError extends Data.TaggedError("AmbiguousKindError")<{
+export class AmbiguousPropertyTypeError extends Data.TaggedError("AmbiguousPropertyTypeError")<{
   readonly path: string;
   readonly exportName: string;
-  readonly candidates: ReadonlyArray<Kind>;
+  readonly candidates: ReadonlyArray<PropertyType>;
 }> {}
-
-export type ExportShape =
-  | "Schema"
-  | "RpcDefinition"
-  | "function"
-  | "type"
-  | "Branded"
-  | "unknown";
 
 export interface DetectedExport {
   readonly name: string;
@@ -50,10 +42,10 @@ export interface DetectedExport {
     readonly line: number;
     readonly sha: string;
   };
-  readonly observedKinds: ReadonlyArray<Kind>;
+  readonly observedPropertyTypes: ReadonlyArray<PropertyType>;
 }
 
-type DetectError = UnknownExportShapeError | AmbiguousKindError;
+type DetectError = UnknownExportShapeError | AmbiguousPropertyTypeError;
 
 /**
  * @spec.guarantee "every detected export carries a non-null `shape`; the catchall is `\"unknown\"` and triggers `UnknownExportShapeError` upstream"

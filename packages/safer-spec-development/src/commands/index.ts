@@ -24,18 +24,18 @@
 import { Args, Command, Options } from "@effect/cli";
 import { NodeContext, NodeRuntime } from "@effect/platform-node";
 import { Data, Effect } from "effect";
-import { doctor } from "@safer/modes/doctor.js";
-import { explain } from "@safer/modes/explain.js";
-import { generate } from "@safer/modes/generate.js";
-import { init } from "@safer/modes/init.js";
-import { migrate } from "@safer/modes/migrate.js";
+import { doctor } from "@safer/commands/doctor.js";
+import { explain } from "@safer/commands/explain.js";
+import { generate } from "@safer/commands/generate.js";
+import { init } from "@safer/commands/init.js";
+import { migrate } from "@safer/commands/migrate.js";
 import {
   formatDiagnostic,
   validate,
   VALIDATE_GAP_EXIT_CODES,
   type ValidateGapError,
-} from "@safer/modes/validate.js";
-import { SPEC_FORMAT_VERSION } from "@safer/modes/version.js";
+} from "@safer/commands/validate.js";
+import { SPEC_FORMAT_VERSION } from "@safer/commands/version.js";
 
 export class CliExitCode extends Data.TaggedError("CliExitCode")<{
   readonly code: number;

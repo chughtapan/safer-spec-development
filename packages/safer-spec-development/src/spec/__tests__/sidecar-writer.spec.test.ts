@@ -5,27 +5,27 @@
  */
 
 import { itSpec } from "@safer/authoring/index.js";
-import { decodeSpecArtifact } from "@safer/sidecar/schema.js";
-import { serializeSidecar, writeSidecar } from "@safer/sidecar/writer.js";
+import { decodeSpecArtifact } from "@safer/spec/sidecar.js";
+import { serializeSidecar, writeSidecar } from "@safer/spec/sidecar-writer.js";
 
 /**
  * @spec.property sidecar-writer-roundtrip
- * @spec.kind Roundtrip
+ * @spec.type Roundtrip
  * @spec.exports serializeSidecar, decodeSpecArtifact
  * @spec.claim decode(parse(serialize(artifact))) returns the original artifact at every well-formed input
  */
 itSpec.todo("sidecar-writer-roundtrip", {
-  kind: "Roundtrip",
+  type: "Roundtrip",
   exports: [serializeSidecar, decodeSpecArtifact],
 });
 
 /**
  * @spec.property sidecar-writer-atomic-on-failure
- * @spec.kind Exception Raising
+ * @spec.type Exception Raising
  * @spec.exports writeSidecar
  * @spec.claim partial sidecars are not left on disk on filesystem failures
  */
 itSpec.todo("sidecar-writer-atomic-on-failure", {
-  kind: "Exception Raising",
+  type: "Exception Raising",
   exports: [writeSidecar],
 });

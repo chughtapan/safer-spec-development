@@ -2,11 +2,10 @@ import guard from "eslint-plugin-agent-code-guard";
 import importPlugin from "eslint-plugin-import";
 import tsParser from "@typescript-eslint/parser";
 
-// Severity promotion: `warn` rules in this repo are documented architectural
-// drift signals (PRINCIPLES.md Principle 7: stop rules are literal). Promoting
-// warn → error at the config level keeps the gate inside the config, not at
-// the CLI flag, so the gate is the same in every environment that loads the
-// config.
+// Severity promotion: `warn` rules in this repo are architectural drift
+// signals. Promoting warn to error at the config level keeps the gate inside
+// the config, not at the CLI flag, so the gate is the same in every
+// environment that loads the config.
 const promoteWarnToError = (rules) =>
   Object.fromEntries(
     Object.entries(rules).map(([k, v]) => {
@@ -71,28 +70,22 @@ const ARCHITECTURE_OPTIONS = {
   ],
   layers: [
     {
-      name: "entrypoint",
-      folders: ["cli"],
+      name: "commands",
+      folders: ["commands"],
       reason:
-        "CLI binary composition root; orchestrates modes and translates exit codes",
-    },
-    {
-      name: "modes",
-      folders: ["modes"],
-      reason:
-        "codemod mode entrypoints (generate, validate, init, doctor, migrate, explain); orchestrate the spec/source/sidecar peer domains",
+        "the six @effect/cli Command entries (generate, validate, init, doctor, migrate, explain) plus the binary composition root (index.ts) and format-version constant; the binary lives alongside its commands",
     },
     {
       name: "domains",
-      folders: ["spec", "source", "sidecar"],
+      folders: ["spec", "source"],
       reason:
-        "peer domains; each owns one knowledge area (SPEC.md artifact, TypeScript source analysis, sidecar JSON). They do not depend on each other; modes orchestrate them",
+        "peer domains; spec owns the codemod's output artifact (SPEC.md markdown AND .safer-spec sidecar JSON — two serializations of the same data); source owns TypeScript source analysis. They do not depend on each other; commands orchestrate them",
     },
     {
       name: "terminals",
-      folders: ["kinds", "authoring"],
+      folders: ["property-types", "authoring"],
       reason:
-        "no upward deps; kinds is the closed Kind enum, authoring is the itSpec helper",
+        "no upward deps; property-types is the closed taxonomy (PropertyType, ExportShape, APPLICABILITY_MATRIX), authoring is the itSpec helper",
     },
   ],
   packageRuntime: "node",
@@ -145,7 +138,7 @@ export default [
       // word "todo" throughout JSDoc to describe the placeholder state of
       // stubbed properties. The rule treats lowercase "todo" in comments
       // as a stale-task marker; here it is the cited Vitest API name and
-      // a domain term ("a property in todo state until the implementer
+      // a domain term ("a property in todo state until the implementation
       // fills the body"). Replacing every reference would obscure the
       // contract the codemod's design depends on.
       "sonarjs/todo-tag": "off",

@@ -1,7 +1,7 @@
 /**
  * @spec.purpose SPEC.md frontmatter contract — Effect Schema for the YAML
  *   block emitted at the top of each generated SPEC.md. Coverage fields are
- *   nullable for `--planned` (architect-PR) state where classifier and
+ *   nullable for `--planned` state where classifier and
  *   precondition numbers are not yet observable.
  *
  *   Schema constructor is private to this module; the public boundary is
@@ -48,7 +48,7 @@ export type SpecFrontmatter = Schema.Schema.Type<typeof SpecFrontmatterSchemaInn
 /**
  * @spec.guarantee "rejects malformed input with a typed `ParseError`; never throws"
  *   reason: trust-boundary; the validate gate reads YAML from disk.
- * @spec.residual-contract "coverage fields are nullable for `--planned` (architect-PR) state where classifier and precondition numbers are not yet observable"
+ * @spec.residual-contract "coverage fields are nullable for `--planned` state where classifier and precondition numbers are not yet observable"
  *   reason: lifecycle contract; behavioral residue not encoded in the
  *           Schema's null-permissive shape.
  */

@@ -47,8 +47,7 @@ type LinkOutcome = LinkResolution | UnresolvedExternal;
  *   reason: external misses are silent by design; only internal drift
  *           fails the build.
  * @spec.residual-contract "anchor sha is the git short-sha at the time the link is rendered; downstream readers can resolve via `git show <sha>:<path>`"
- *   reason: durability contract for code-reference pinning per
- *           PRINCIPLES.md "Code references are pinned".
+ *   reason: durability contract for code-reference pinning.
  */
 export const resolveSymbol = (
   _symbol: string,

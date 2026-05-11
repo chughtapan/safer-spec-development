@@ -7,10 +7,10 @@
  *
  *   `validate --implemented` performs four cross-checks:
  *     (a) Every `itSpec.prop`/`itSpec.todo` call site has the four required
- *         JSDoc directives (`@spec.property`, `@spec.kind`, `@spec.exports`,
+ *         JSDoc directives (`@spec.property`, `@spec.type`, `@spec.exports`,
  *         `@spec.claim`). Missing → `MissingStubError`.
  *     (b) JSDoc directive values match the runtime `meta` argument
- *         (id ↔ `@spec.property`, kind ↔ `@spec.kind`, exports member names
+ *         (id ↔ `@spec.property`, kind ↔ `@spec.type`, exports member names
  *         ↔ `@spec.exports`). Mismatch → `MissingSpecPropertyError`.
  *     (c) Committed SPEC.md `## Properties` table is byte-equal to the
  *         re-generated table (the table is GENERATED from test JSDoc; hand
@@ -25,7 +25,7 @@
  *   MissingImplError → 13).
  *
  *   `--planned` mode: kind-metadata-only check; classifier-coverage and
- *   precondition-pass-rate gates are skipped. Architect-PR-tolerant.
+ *   precondition-pass-rate gates are skipped.
  *
  *   `--implemented` mode: full gate including (a) — (d).
  *
@@ -74,9 +74,9 @@ class MissingSpecPropertyError extends Data.TaggedError(
 
 /**
  * @spec.guarantee "emitted when an itSpec call site lacks the four required JSDoc directives, or when no itSpec call exists for a Properties row"
- *   reason: architect-tier ratchet; cli translates this tag to exit code 12.
+ *   reason: stub-tier ratchet; cli translates this tag to exit code 12.
  * @spec.residual-contract "diagnostic.location names the call site (file:line)"
- *   reason: trust contract for routing the architect re-dispatch.
+ *   reason: trust contract for routing the next remediation step.
  */
 class MissingStubError extends Data.TaggedError(
   "MissingStubError",
@@ -84,9 +84,9 @@ class MissingStubError extends Data.TaggedError(
 
 /**
  * @spec.guarantee "emitted when an itSpec.prop call has an empty fast-check body or has been left as itSpec.todo despite the property graduating to implemented state"
- *   reason: implementer-tier BLOCK; cli translates this tag to exit code 13.
+ *   reason: implementation-tier block; cli translates this tag to exit code 13.
  * @spec.residual-contract "diagnostic.cause names the reason the body is empty"
- *   reason: trust contract for routing the implementer re-dispatch.
+ *   reason: trust contract for routing the next remediation step.
  */
 class MissingImplError extends Data.TaggedError(
   "MissingImplError",

@@ -8,7 +8,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "safer-spec": "./dist/cli/index.js"
+    "safer-spec": "./dist/commands/index.js"
   },
   "exports": {
     ".": {

@@ -6,7 +6,7 @@
  *
  *   The `## Properties` table is extracted from tests: each
  *   `itSpec.prop`/`itSpec.todo` call site contributes one row sourced from
- *   `@spec.property`, `@spec.kind`, `@spec.exports`, and `@spec.claim`.
+ *   `@spec.property`, `@spec.type`, `@spec.exports`, and `@spec.claim`.
  *   Other sections are emitted from source-side JSDoc, kind detection, and
  *   applicability output.
  *

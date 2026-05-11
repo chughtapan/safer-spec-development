@@ -15,9 +15,9 @@
  */
 
 import { Data, Effect, ParseResult, Schema } from "effect";
-import { KINDS } from "@safer/kinds/index.js";
+import { PROPERTY_TYPES } from "@safer/property-types/index.js";
 
-const KindSchema = Schema.Literal(...KINDS);
+const KindSchema = Schema.Literal(...PROPERTY_TYPES);
 
 const ResidualEntrySchema = Schema.Struct({
   claim: Schema.String.pipe(Schema.maxLength(500)),
@@ -34,8 +34,8 @@ const SpecExportEntrySchemaInner = Schema.Struct({
     "Branded",
     "unknown",
   ),
-  requiredKinds: Schema.Array(KindSchema),
-  observedKinds: Schema.Array(KindSchema),
+  requiredPropertyTypes: Schema.Array(KindSchema),
+  observedPropertyTypes: Schema.Array(KindSchema),
   residualAssumes: Schema.Array(ResidualEntrySchema),
   residualGuarantees: Schema.Array(ResidualEntrySchema),
   sourceRef: Schema.Struct({

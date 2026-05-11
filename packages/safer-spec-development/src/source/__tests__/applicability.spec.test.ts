@@ -9,22 +9,22 @@ import { resolveExport, APPLICABILITY_MATRIX } from "@safer/source/applicability
 
 /**
  * @spec.property applicability-matrix-closed
- * @spec.kind Inclusion
+ * @spec.type Inclusion
  * @spec.exports APPLICABILITY_MATRIX
  * @spec.claim every ExportShape value has exactly one row in the matrix
  */
 itSpec.todo("applicability-matrix-closed", {
-  kind: "Inclusion",
+  type: "Inclusion",
   exports: [APPLICABILITY_MATRIX],
 });
 
 /**
  * @spec.property applicability-resolve-export-typechecks
- * @spec.kind Typechecking
+ * @spec.type Typechecking
  * @spec.exports resolveExport
- * @spec.claim resolveExport returns ResolvedExport with requiredKinds + skippedKinds + missingKinds covering the matrix row
+ * @spec.claim resolveExport returns ResolvedExport with requiredPropertyTypes + skippedPropertyTypes + missingPropertyTypes covering the matrix row
  */
 itSpec.todo("applicability-resolve-export-typechecks", {
-  kind: "Typechecking",
+  type: "Typechecking",
   exports: [resolveExport],
 });

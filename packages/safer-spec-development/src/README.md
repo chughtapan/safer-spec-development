@@ -2,37 +2,36 @@
 
 Per-folder SPEC.md TypeScript codemod. Generates structured specs from
 source + JSDoc directives + Effect Schema + fast-check property tests;
-validates the resulting artifact against kind-coverage,
-classifier-coverage, and precondition-pass-rate gates.
+validates the resulting artifact against property-type coverage,
+classifier coverage, and precondition pass-rate gates.
 
-## Folder boundary (domain decomposition)
+## Folder boundary
 
-| Layer       | Folder              | Responsibility                                                                                              |
-|-------------|---------------------|-------------------------------------------------------------------------------------------------------------|
-| entrypoint  | `cli/`              | `safer-spec` binary; composes mode entries; co-locates `CliExitCode` + `CliUsageError` tagged errors        |
-| modes       | `modes/`            | Six mode entries (`generate`, `validate`, `init`, `doctor`, `migrate`, `explain`) + their tagged errors + `SPEC_FORMAT_VERSION` |
-| domains     | `spec/`             | SPEC.md artifact (directive grammar, parser, frontmatter, emitter, escape) + their tagged errors            |
-|             | `source/`           | TypeScript source analysis (kind detection, applicability matrix, link resolver) + their tagged errors      |
-|             | `sidecar/`          | `.safer-spec/<folder>.json` JSON artifact (Schema, decode boundary, writer) + their tagged errors           |
-| terminals   | `kinds/`            | Closed `Kind` enum + `KINDS` array (OOPSLA 9-kind taxonomy)                                                 |
-|             | `authoring/`        | Author-facing `itSpec` test helper                                                                          |
+| Layer       | Folder            | Responsibility                                                                                                       |
+|-------------|-------------------|----------------------------------------------------------------------------------------------------------------------|
+| commands    | `commands/`       | `safer-spec` binary + the six @effect/cli Commands it composes (`generate`, `validate`, `init`, `doctor`, `migrate`, `explain`) + `SPEC_FORMAT_VERSION` |
+| domains     | `spec/`           | Spec output artifact — directive grammar + parser, escape helpers, markdown emitter (`emit.ts`, `frontmatter.ts`) AND JSON sidecar (`sidecar.ts`, `sidecar-writer.ts`). Two serializations of the same data. |
+|             | `source/`         | TypeScript source analysis (shape detector, applicability resolver, link resolver)                                   |
+| terminals   | `property-types/` | Closed taxonomy: `PropertyType` (9 OOPSLA assertion kinds), `ExportShape` (6 source shapes), `APPLICABILITY_MATRIX`   |
+|             | `authoring/`      | Author-facing `itSpec` test helper                                                                                   |
 
 `src/index.ts` is the curated library facade. It re-exports the small
-public contract (`KINDS`, `Kind`, `itSpec`, `ItSpec`). CLI modes stay behind
-the `safer-spec` binary unless a concrete programmatic consumer needs a
-subpath export.
+public contract (`PROPERTY_TYPES`, `PropertyType`, `itSpec`, `ItSpec`).
+Library consumers are test authors; CI integrators run the `safer-spec`
+binary.
 
-## Why domain decomposition (not functional layers)
+## Domain decomposition
 
-Functional layers (parser / emitter / detector / etc.) group "things that
-DO similar things." Domain decomposition groups "things that KNOW about
-the same artifact": JSDoc parser + emitter + frontmatter + escape all
-share knowledge of the SPEC.md format, so they live under `spec/`.
-ts-morph kind detection + applicability + link resolution all share
-TypeScript-source-analysis knowledge, so they live under `source/`.
+Domains group files that share knowledge of the same artifact:
+- `spec/` knows about the codemod's two output formats. The directive
+  grammar parsed from source feeds both the markdown emitter and the
+  sidecar JSON; they share escape helpers and `PROPERTY_TYPES` references.
+- `source/` knows about TypeScript source analysis via ts-morph: shape
+  detection, applicability resolution, link resolution. Independent of
+  what the codemod outputs.
 
-Files in the same domain change together. Domain boundaries are where
-contracts are defined.
+Tagged errors are co-located with the file that emits them; there is no
+shared `errors/` folder.
 
 ## Path aliases
 
@@ -42,26 +41,25 @@ configured once in `tsconfig.json` and read by:
 - `tsc-alias` at build time (rewrites aliases to relative paths in `dist/`).
 - Vitest at test time (via `vite-tsconfig-paths` plugin in `vitest.config.ts`).
 
-`src/index.ts` is the one exception: it uses `./` downward-relative paths
-so the package facade is visibly a composition of subdomains, no alias
-indirection.
+`src/index.ts` uses `./` downward-relative paths so the package facade
+is visibly a composition of subdomains.
 
 ## Implementation boundary
 
-Some mode and analyzer entrypoints are contract-first stubs that currently
-fail with `Effect.die`. Their signatures, tagged errors, and JSDoc contracts
-define the integration surface; runtime behavior belongs behind those same
-boundaries.
+Command and analyzer entrypoints are contract-first: their signatures,
+tagged errors, and JSDoc contracts define the integration surface.
+Stub bodies fail with `Effect.die` until the implementer wires the
+runtime behavior.
 
 ## Per-export directive discipline
 
 Generated specs use three directive populations:
 - File-level barrels (`index.ts`) carry `@spec.purpose` only.
 - Per-export declarations carry `@spec.assume` / `@spec.guarantee` /
-  `@spec.residual-contract` (one of these is required) + optional
+  `@spec.residual-contract` (one required) + optional
   `@spec.skip` / `@spec.ignore-export`.
 - Per-test (above each `itSpec.prop`/`itSpec.todo` call) carries
-  `@spec.property` / `@spec.kind` / `@spec.exports` / `@spec.claim`.
+  `@spec.property` / `@spec.type` / `@spec.exports` / `@spec.claim`.
 
 The `validate --implemented` gate cross-checks JSDoc against runtime
 metadata and against the regenerated SPEC.md.

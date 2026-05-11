@@ -6,7 +6,7 @@
  *   metadata back from each call site at codemod time (via #spec/todos.js).
  *
  *   Every `itSpec.prop`/`itSpec.todo` call carries four required JSDoc
- *   directives above it (`@spec.property`, `@spec.kind`, `@spec.exports`,
+ *   directives above it (`@spec.property`, `@spec.type`, `@spec.exports`,
  *   `@spec.claim`). `generate` walks `*.spec.test.ts` files, parses these
  *   directives, and emits the colocated SPEC.md `## Properties` table from
  *   the tests. The runtime `meta` argument carries the same metadata for
@@ -15,10 +15,10 @@
 
 import type * as fc from "fast-check";
 import { it } from "vitest";
-import type { Kind } from "@safer/kinds/index.js";
+import type { PropertyType } from "@safer/property-types/index.js";
 
 interface PropertyMeta {
-  readonly kind: Kind;
+  readonly type: PropertyType;
   readonly exports: ReadonlyArray<unknown>;
 }
 
@@ -36,7 +36,7 @@ export interface ItSpec {
   todo(id: string, meta: PropertyMeta): void;
 
   /**
-   * @spec.assume "JSDoc directives above this call match `id`, `meta.kind`, and `meta.exports` member names"
+   * @spec.assume "JSDoc directives above this call match `id`, `meta.type`, and `meta.exports` member names"
    *   reason: cross-check enforced by `validate --implemented`.
    * @spec.guarantee "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`"
    *   reason: side-effect contract; runtime registration with Vitest.

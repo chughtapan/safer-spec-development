@@ -16,14 +16,14 @@
  *         reason: <why it isn't in the return type>
  *       @spec.residual-contract <none | "named contract">
  *         reason: <why>
- *       @spec.skip "<Kind>"                    (escape hatch, per-kind)
+ *       @spec.skip "<PropertyType>"                    (escape hatch, per-kind)
  *         reason: <why this kind is not applicable to this export>
  *       @spec.ignore-export <Name>             (escape hatch)
  *         reason: <why>
  *
  *     Per-test (above each `itSpec.prop`/`itSpec.todo` call):
  *       @spec.property <id>
- *       @spec.kind <Kind>
+ *       @spec.type <PropertyType>
  *       @spec.exports <symbol-names>
  *       @spec.claim <one-line>
  *
@@ -38,11 +38,11 @@
  */
 
 import { Data, Effect, Schema } from "effect";
-import { KINDS } from "@safer/kinds/index.js";
+import { PROPERTY_TYPES } from "@safer/property-types/index.js";
 
 export const DIRECTIVE_BODY_MAX_CHARS = 500;
 
-const KindSchema = Schema.Literal(...KINDS);
+const KindSchema = Schema.Literal(...PROPERTY_TYPES);
 
 // File-level directives (on index.ts barrels).
 const PurposeDirectiveSchema = Schema.Struct({

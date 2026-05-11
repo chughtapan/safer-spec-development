@@ -18,8 +18,8 @@
  */
 
 import { Effect } from "effect";
-import type { GenerateError } from "@safer/modes/generate.js";
-import type { SpecArtifact } from "@safer/sidecar/schema.js";
+import type { GenerateError } from "@safer/commands/generate.js";
+import type { SpecArtifact } from "@safer/spec/sidecar.js";
 import type { SpecFrontmatter } from "@safer/spec/frontmatter.js";
 
 export interface EmittedSpec {

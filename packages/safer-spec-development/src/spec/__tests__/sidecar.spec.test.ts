@@ -8,37 +8,37 @@
  */
 
 import { itSpec } from "@safer/authoring/index.js";
-import { decodeSpecArtifact } from "@safer/sidecar/schema.js";
+import { decodeSpecArtifact } from "@safer/spec/sidecar.js";
 
 /**
  * @spec.property sidecar-roundtrip
- * @spec.kind Roundtrip
+ * @spec.type Roundtrip
  * @spec.exports decodeSpecArtifact
  * @spec.claim encode(decode(json)) is byte-equal to the original well-formed json
  */
 itSpec.todo("sidecar-roundtrip", {
-  kind: "Roundtrip",
+  type: "Roundtrip",
   exports: [decodeSpecArtifact],
 });
 
 /**
  * @spec.property sidecar-rejects-malformed
- * @spec.kind Exception Raising
+ * @spec.type Exception Raising
  * @spec.exports decodeSpecArtifact
  * @spec.claim malformed input fails on the Effect error channel with a typed ParseError, never throws
  */
 itSpec.todo("sidecar-rejects-malformed", {
-  kind: "Exception Raising",
+  type: "Exception Raising",
   exports: [decodeSpecArtifact],
 });
 
 /**
  * @spec.property sidecar-decoded-shape
- * @spec.kind Typechecking
+ * @spec.type Typechecking
  * @spec.exports decodeSpecArtifact
  * @spec.claim decoded artifact matches the declared SpecArtifact type at every branch of the union
  */
 itSpec.todo("sidecar-decoded-shape", {
-  kind: "Typechecking",
+  type: "Typechecking",
   exports: [decodeSpecArtifact],
 });

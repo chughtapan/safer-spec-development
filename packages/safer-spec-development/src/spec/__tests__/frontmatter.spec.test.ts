@@ -9,33 +9,33 @@ import { decodeSpecFrontmatter } from "@safer/spec/frontmatter.js";
 
 /**
  * @spec.property frontmatter-roundtrip
- * @spec.kind Roundtrip
+ * @spec.type Roundtrip
  * @spec.exports decodeSpecFrontmatter
  * @spec.claim YAML emit(decode(yaml)) is byte-equal to the original well-formed yaml frontmatter block
  */
 itSpec.todo("frontmatter-roundtrip", {
-  kind: "Roundtrip",
+  type: "Roundtrip",
   exports: [decodeSpecFrontmatter],
 });
 
 /**
  * @spec.property frontmatter-rejects-malformed
- * @spec.kind Exception Raising
+ * @spec.type Exception Raising
  * @spec.exports decodeSpecFrontmatter
  * @spec.claim malformed YAML fails on the Effect error channel with a typed ParseError, never throws
  */
 itSpec.todo("frontmatter-rejects-malformed", {
-  kind: "Exception Raising",
+  type: "Exception Raising",
   exports: [decodeSpecFrontmatter],
 });
 
 /**
  * @spec.property frontmatter-decoded-shape
- * @spec.kind Typechecking
+ * @spec.type Typechecking
  * @spec.exports decodeSpecFrontmatter
  * @spec.claim decoded frontmatter matches the declared SpecFrontmatter type at every branch
  */
 itSpec.todo("frontmatter-decoded-shape", {
-  kind: "Typechecking",
+  type: "Typechecking",
   exports: [decodeSpecFrontmatter],
 });

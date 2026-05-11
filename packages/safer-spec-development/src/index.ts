@@ -18,5 +18,5 @@
  *   declarations in their source modules.
  */
 
-export { KINDS, type Kind } from "./kinds/index.js";
+export { PROPERTY_TYPES, type PropertyType } from "./property-types/index.js";
 export { itSpec, type ItSpec } from "./authoring/index.js";

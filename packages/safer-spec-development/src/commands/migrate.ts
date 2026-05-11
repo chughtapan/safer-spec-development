@@ -2,8 +2,8 @@
  * @spec.purpose
  *   `migrate` mode entrypoint. Walks SPEC.md + config files for
  *   format-version transitions; emits a diff for human review; idempotent.
- *   Deprecation policy per design doc: format-version bumps signposted in
- *   CHANGELOG ≥1 version ahead.
+ *   Format-version bumps are signposted in CHANGELOG before migration support
+ *   changes.
  *
  *   Tagged error `MigrateError` is co-located here.
  */
