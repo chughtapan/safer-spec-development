@@ -151,15 +151,18 @@ const findReasonIndex = (
 // True boundary = either a newline with any number of horizontal-whitespace
 // chars after it, OR one-or-more spaces inline. Returns the index where the
 // boundary starts (caller slices `head = body[..start]`).
+const isLeftEdge = (body: string, i: number): boolean =>
+  i < 0 || body.charCodeAt(i) === 10; // newline or start-of-buffer
+
+// Boundary is valid if EITHER we consumed ≥1 horizontal-whitespace char
+// (inline form: `claim" reason: y`) OR a newline / start-of-buffer sits
+// immediately before the run (bare-newline form: `claim"\nreason: y`).
 const scanBoundaryBefore = (body: string, found: number): number | null => {
   let i = found - 1;
-  // Step over horizontal whitespace right before `reason:`.
   while (i >= 0 && isHWhite(body.charCodeAt(i))) i -= 1;
-  // We need at least one such whitespace char OR a newline at the boundary.
-  if (i + 1 === found) return null; // no whitespace at all
-  if (i < 0 || body.charCodeAt(i) === 10 /* "\n" */) return i + 1 > 0 ? i + 1 : 0;
-  // Inline form: at least one space consumed; that's enough.
-  return i + 1;
+  const consumed = i + 1 < found;
+  if (!consumed && !isLeftEdge(body, i)) return null;
+  return Math.max(i + 1, 0);
 };
 
 const skipPostColonWhitespace = (body: string, start: number): number => {

@@ -1,7 +1,7 @@
 ---
 folder: src/spec/directives
 format-version: 0.1.0
-generatedAtSha: 5fc12bd80eeb86d3886af88501af5b0242c0ee82
+generatedAtSha: 5d7aa6c6b788bb27401bb79091f3b5ee6927ed1a
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -114,7 +114,7 @@ export interface LocatedDirective {
 }
 ```
 
-### [`parseFileDirectives`](./index.ts#L233)
+### [`parseFileDirectives`](./index.ts#L247)
 
 ```ts
 export const parseFileDirectives = (

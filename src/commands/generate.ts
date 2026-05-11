@@ -33,22 +33,23 @@ import {
   uniqueExternalSources,
   type DeclaredExport,
 } from "@safer/spec/source-exports.js";
+import { extractProperties } from "@safer/spec/todos.js";
 import {
   buildSpecMeta,
+  discoverFolders,
   loadProjectContext,
   type ProjectContext,
 } from "@safer/commands/validate-pipeline.js";
-import { extractProperties } from "@safer/spec/todos.js";
 
-export type FolderPath = string & Brand.Brand<"FolderPath">;
+type FolderPath = string & Brand.Brand<"FolderPath">;
 const FolderPath = Brand.nominal<FolderPath>();
 
-export class GenerateError extends Data.TaggedError("GenerateError")<{
+class GenerateError extends Data.TaggedError("GenerateError")<{
   readonly folder: FolderPath;
   readonly reason: string;
 }> {}
 
-export class GenerateIOError extends Data.TaggedError("GenerateIOError")<{
+class GenerateIOError extends Data.TaggedError("GenerateIOError")<{
   readonly folder: FolderPath;
   readonly path: string;
   readonly cause: string;
@@ -72,40 +73,34 @@ type DirectiveParseError =
   | JsDocDirectiveOverflowError
   | JsDocDirectiveParseError
   | JsDocUnknownDirectiveError;
+type GenerateAnyError = GenerateError | GenerateIOError | DirectiveParseError;
 
-const isTestFile = (name: string): boolean => name.endsWith(".spec.test.ts");
-const isSourceFile = (name: string): boolean =>
-  name.endsWith(".ts") && !isTestFile(name) && !name.endsWith(".d.ts");
+const isTestFile = (n: string): boolean => n.endsWith(".spec.test.ts");
+const isSourceFile = (n: string): boolean =>
+  n.endsWith(".ts") && !isTestFile(n) && !n.endsWith(".d.ts");
 
 const folderSlug = (folder: FolderPath): string =>
   folder.replace(/^\.\//, "").replace(/\//g, "_");
 
-const isErrorLike = (e: unknown): e is { readonly message: string } => {
-  if (typeof e !== "object" || e === null) return false;
-  if (!("message" in e)) return false;
-  return typeof (e as { message: unknown }).message === "string";
+const causeOf = (e: unknown): string => {
+  if (typeof e === "object" && e !== null && "message" in e) {
+    const m = (e as { message: unknown }).message;
+    if (typeof m === "string") return m;
+  }
+  return String(e);
 };
-
-const causeOf = (e: unknown): string => (isErrorLike(e) ? e.message : String(e));
 
 const ioToGenerate =
   (folder: FolderPath, path: string) =>
   (e: unknown): GenerateIOError =>
     new GenerateIOError({ folder, path, cause: causeOf(e) });
 
-/**
- * Wraps `fs.readDirectory` with two guarantees:
- *  - Returns `[]` on read failure (treats missing/inaccessible dirs as empty).
- *  - Returns entries in lexicographic order (Node's underlying `readdir` is
- *    filesystem-dependent; sorting here keeps generate output SHA-stable
- *    across CI/dev filesystems).
- */
 const readDirSafe = (
   fs: FileSystem.FileSystem,
   dir: string,
 ): Effect.Effect<ReadonlyArray<string>, never> =>
   fs.readDirectory(dir).pipe(
-    Effect.map((entries) => [...entries].sort()),
+    Effect.map((es) => [...es].sort()),
     Effect.catchAll(() => Effect.succeed([] as ReadonlyArray<string>)),
   );
 
@@ -123,10 +118,9 @@ const collectFolderFiles = (
       if (isSourceFile(name)) sources.push(full);
       else if (isTestFile(name)) tests.push(full);
     }
-    const testsSubdir = path.join(folder, "__tests__");
-    const subEntries = yield* readDirSafe(fs, testsSubdir);
+    const subEntries = yield* readDirSafe(fs, path.join(folder, "__tests__"));
     for (const name of subEntries) {
-      if (isTestFile(name)) tests.push(path.join(testsSubdir, name));
+      if (isTestFile(name)) tests.push(path.join(folder, "__tests__", name));
     }
     return { sources, tests };
   });
@@ -135,22 +129,17 @@ const parseSources = (
   fs: FileSystem.FileSystem,
   folder: FolderPath,
   sources: ReadonlyArray<string>,
-): Effect.Effect<
-  ReadonlyArray<LocatedDirective>,
-  GenerateIOError | DirectiveParseError
-> =>
+): Effect.Effect<ReadonlyArray<LocatedDirective>, GenerateIOError | DirectiveParseError> =>
   Effect.gen(function* () {
-    const allDirectives: LocatedDirective[] = [];
+    const out: LocatedDirective[] = [];
     for (const filePath of sources) {
       const source = yield* fs
         .readFileString(filePath)
         .pipe(Effect.mapError(ioToGenerate(folder, filePath)));
-      const fileDirectives = yield* parseFileDirectives(filePath, source);
-      allDirectives.push(...fileDirectives);
+      out.push(...(yield* parseFileDirectives(filePath, source)));
     }
-    return allDirectives;
+    return out;
   });
-
 
 const collectIndexDeclarations = (
   fs: FileSystem.FileSystem,
@@ -176,20 +165,59 @@ const parseTests = (
   fs: FileSystem.FileSystem,
   folder: FolderPath,
   tests: ReadonlyArray<string>,
-): Effect.Effect<
-  ReadonlyArray<PropertyRow>,
-  GenerateIOError | DirectiveParseError
-> =>
+): Effect.Effect<ReadonlyArray<PropertyRow>, GenerateIOError | DirectiveParseError> =>
   Effect.gen(function* () {
     const rows: PropertyRow[] = [];
     for (const filePath of tests) {
       const source = yield* fs
         .readFileString(filePath)
         .pipe(Effect.mapError(ioToGenerate(folder, filePath)));
-      const testDirectives = yield* parseFileDirectives(filePath, source);
-      rows.push(...extractProperties(filePath, source, testDirectives).rows);
+      const dirs = yield* parseFileDirectives(filePath, source);
+      rows.push(...extractProperties(filePath, source, dirs).rows);
     }
     return rows;
+  });
+
+const buildAnalysis = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  folder: FolderPath,
+  ctx: ProjectContext,
+): Effect.Effect<FolderAnalysis, GenerateAnyError> =>
+  Effect.gen(function* () {
+    const entries = yield* fs
+      .readDirectory(folder)
+      .pipe(
+        Effect.map((es) => [...es].sort()),
+        Effect.mapError(ioToGenerate(folder, folder)),
+      );
+    const { sources, tests } = yield* collectFolderFiles(fs, path, folder, entries);
+    const indexFilePath = sources.find((p) => path.basename(p) === "index.ts");
+    if (indexFilePath === undefined) {
+      return yield* Effect.fail(
+        new GenerateError({
+          folder,
+          reason: "folder has no `index.ts` barrel; folder spec requires one",
+        }),
+      );
+    }
+    const declarations = yield* collectIndexDeclarations(fs, folder, indexFilePath, ctx);
+    // Cross-folder re-exports: a barrel importing `{ X } from "../other"`
+    // needs X's source parsed too, else its `@spec.guarantee` etc. drop.
+    const externalSources = uniqueExternalSources(declarations, sources);
+    const directives = [
+      ...(yield* parseSources(fs, folder, sources)),
+      ...(yield* parseSources(fs, folder, externalSources)),
+    ];
+    const properties = yield* parseTests(fs, folder, tests);
+    return {
+      folder,
+      purpose: findPurpose(directives, indexFilePath),
+      exports: buildExportEntries(declarations, directives),
+      properties,
+      sourceFiles: sources,
+      testFiles: tests,
+    };
   });
 
 interface WriteCtx {
@@ -222,83 +250,26 @@ const writeOutputs = (
     return [specPath, sidecarPath];
   });
 
-const checkInputs = (
+const resolveFolders = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
   input: GenerateInput,
-): Effect.Effect<FolderPath, GenerateError> => {
-  if (Option.isNone(input.folder)) {
-    return Effect.fail(
-      new GenerateError({
-        folder: FolderPath("<none>"),
-        reason: "first slice requires --folder <path>",
-      }),
-    );
-  }
-  const folder = FolderPath(normalizeFolder(input.folder.value));
+): Effect.Effect<ReadonlyArray<FolderPath>, GenerateError> => {
   if (input.watch) {
+    const folder = Option.isSome(input.folder)
+      ? FolderPath(normalizeFolder(input.folder.value))
+      : FolderPath("<none>");
     return Effect.fail(
       new GenerateError({ folder, reason: "--watch not yet implemented" }),
     );
   }
-  return Effect.succeed(folder);
+  if (Option.isSome(input.folder)) {
+    return Effect.succeed([FolderPath(normalizeFolder(input.folder.value))]);
+  }
+  return discoverFolders(fs, path, "src").pipe(
+    Effect.map((discovered) => discovered.map(FolderPath)),
+  );
 };
-
-/**
- * @spec.guarantee "two generate calls at the same source state produce byte-identical SPEC.md + sidecar"
- *   reason: roundtrip contract; validate's drift check relies on it.
- * @spec.residual-contract "this slice supports `--folder X` only; whole-tree walk and `--watch` are not yet implemented"
- *   reason: scope-of-this-slice contract.
- */
-const buildAnalysis = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  folder: FolderPath,
-  ctx: ProjectContext,
-): Effect.Effect<
-  FolderAnalysis,
-  GenerateError | GenerateIOError | DirectiveParseError
-> =>
-  Effect.gen(function* () {
-    const entries = yield* fs
-      .readDirectory(folder)
-      .pipe(
-        Effect.map((es) => [...es].sort()),
-        Effect.mapError(ioToGenerate(folder, folder)),
-      );
-    const { sources, tests } = yield* collectFolderFiles(fs, path, folder, entries);
-    const indexFilePath = sources.find(
-      (p) => path.basename(p) === "index.ts",
-    );
-    if (indexFilePath === undefined) {
-      return yield* Effect.fail(
-        new GenerateError({
-          folder,
-          reason: "folder has no `index.ts` barrel; folder spec requires one",
-        }),
-      );
-    }
-    const declarations = yield* collectIndexDeclarations(
-      fs,
-      folder,
-      indexFilePath,
-      ctx,
-    );
-    // Parse directives from BOTH local sources AND any cross-folder
-    // declaration source files. A barrel re-exporting `import { X } from
-    // "../other-folder"` would otherwise drop X's `@spec.guarantee` etc.
-    const externalSources = uniqueExternalSources(declarations, sources);
-    const localDirectives = yield* parseSources(fs, folder, sources);
-    const externalDirectives = yield* parseSources(fs, folder, externalSources);
-    const directives = [...localDirectives, ...externalDirectives];
-    const properties = yield* parseTests(fs, folder, tests);
-    return {
-      folder,
-      purpose: findPurpose(directives, indexFilePath),
-      exports: buildExportEntries(declarations, directives),
-      properties,
-      sourceFiles: sources,
-      testFiles: tests,
-    };
-  });
 
 const renderSidecar = (
   artifact: SpecArtifact,
@@ -317,27 +288,43 @@ export const generate = (
   input: GenerateInput,
 ): Effect.Effect<
   GenerateResult,
-  GenerateError | GenerateIOError | DirectiveParseError,
+  GenerateAnyError,
   FileSystem.FileSystem | Path.Path
 > =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
-    const folder = yield* checkInputs(input);
-    const ctx = yield* loadProjectContext(fs, path, ".").pipe(
-      Effect.catchTag("ProjectContextError", (e) => Effect.die(new Error(`failed to load project context: ${e.cause}`))),
-    );
-    const analysis = yield* buildAnalysis(fs, path, folder, ctx);
-    const meta = buildSpecMeta(analysis, ctx);
-    const markdown = emitMarkdown(analysis, meta);
-    const artifact = buildSpecArtifact(analysis, meta);
-    const sidecarJson = yield* renderSidecar(artifact, folder);
-
-    if (!input.write || input.dryRun) {
-      yield* Effect.log(`--- SPEC.md ---\n${markdown}`);
-      yield* Effect.log(`--- sidecar ---\n${sidecarJson}`);
-      return { foldersTouched: [folder], filesWritten: [], diff: `${markdown}\n${sidecarJson}` };
+    const folders = yield* resolveFolders(fs, path, input);
+    if (folders.length === 0) {
+      return yield* Effect.fail(
+        new GenerateError({
+          folder: FolderPath("<none>"),
+          reason: "no folders to generate (none under `src` contain `index.ts`)",
+        }),
+      );
     }
-    const filesWritten = yield* writeOutputs({ fs, path, folder, markdown, sidecarJson });
-    return { foldersTouched: [folder], filesWritten, diff: `wrote ${filesWritten.length} files for ${folder}` };
+    const ctx = yield* loadProjectContext(fs, path, ".").pipe(
+      Effect.catchTag("ProjectContextError", (e) =>
+        Effect.die(new Error(`failed to load project context: ${e.cause}`)),
+      ),
+    );
+    const written: string[] = [];
+    for (const folder of folders) {
+      const analysis = yield* buildAnalysis(fs, path, folder, ctx);
+      const meta = buildSpecMeta(analysis, ctx);
+      const markdown = emitMarkdown(analysis, meta);
+      const sidecarJson = yield* renderSidecar(buildSpecArtifact(analysis, meta), folder);
+      if (!input.write || input.dryRun) {
+        yield* Effect.log(`--- SPEC.md (${folder}) ---\n${markdown}`);
+        yield* Effect.log(`--- sidecar (${folder}) ---\n${sidecarJson}`);
+      } else {
+        const w = yield* writeOutputs({ fs, path, folder, markdown, sidecarJson });
+        written.push(...w);
+      }
+    }
+    return {
+      foldersTouched: folders,
+      filesWritten: written,
+      diff: `wrote ${written.length} files across ${folders.length} folders`,
+    };
   }).pipe(Effect.withSpan("commands/generate"));

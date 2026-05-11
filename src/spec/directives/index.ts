@@ -11,7 +11,7 @@
  */
 
 import { Effect } from "effect";
-import { Project, SyntaxKind, type JSDoc, type Node } from "ts-morph";
+import { Node as TsNode, Project, SyntaxKind, type JSDoc, type Node } from "ts-morph";
 import {
   type ParseCtx,
   type ParseError,
@@ -141,10 +141,24 @@ const namedNodeName = (parent: Node): string | null => {
   return n !== undefined && n.length > 0 ? n : null;
 };
 
+// Anonymous default exports (`export default function () {}`,
+// `export default class {}`, `export default <expr>`) carry no name on
+// the declaration node, so namedNodeName/firstVarDeclName both fall
+// through. ts-morph's `getExportedDeclarations()` maps these under the
+// public name `default`; returning that string here lets directive
+// lookup in `buildExportEntries` reach the matching entry.
+const isDefaultExport = (node: Node): boolean => {
+  if (TsNode.isExportAssignment(node)) return true;
+  const probe = node as { readonly hasDefaultKeyword?: () => boolean };
+  return typeof probe.hasDefaultKeyword === "function" && probe.hasDefaultKeyword();
+};
+
 const enclosingExportName = (jsdoc: JSDoc): string | null => {
   const parent = jsdoc.getParent() as Node | undefined;
   if (parent === undefined) return null;
-  return firstVarDeclName(parent) ?? namedNodeName(parent);
+  const direct = firstVarDeclName(parent) ?? namedNodeName(parent);
+  if (direct !== null) return direct;
+  return isDefaultExport(parent) ? "default" : null;
 };
 
 interface JsDocCtx {
