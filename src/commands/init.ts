@@ -1,6 +1,6 @@
 /**
  * @spec.purpose
- *   `init` mode entrypoint. Scaffolds first SPEC.md + stub `*.spec.test.ts` +
+ *   `init` command entrypoint. Scaffolds first SPEC.md + stub `*.spec.test.ts` +
  *   `safer-spec.config.{ts,json}` in a fresh repo. Picks a leaf folder with
  *   `index.ts` if no folder given. Lenient starter thresholds. Targets
  *   TTHW <10 minutes.

@@ -1,6 +1,6 @@
 /**
  * @spec.purpose
- *   `migrate` mode entrypoint. Walks SPEC.md + config files for
+ *   `migrate` command entrypoint. Walks SPEC.md + config files for
  *   format-version transitions; emits a diff for human review; idempotent.
  *   Format-version bumps are signposted in CHANGELOG before migration support
  *   changes.

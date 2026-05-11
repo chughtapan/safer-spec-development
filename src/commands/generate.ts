@@ -1,6 +1,6 @@
 /**
  * @spec.purpose
- *   `generate` mode entrypoint. Walks `src/**` (source) AND `**\/*.spec.test.ts`
+ *   `generate` command entrypoint. Walks `src/**` (source) AND `**\/*.spec.test.ts`
  *   (tests), parses JSDoc directives on both surfaces, and emits per-folder
  *   SPEC.md plus `.safer-spec/<folder>.json` structured sidecar.
  *

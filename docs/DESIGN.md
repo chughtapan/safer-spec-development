@@ -19,8 +19,8 @@ generated artifacts drift from either source of truth.
 - Generate one `SPEC.md` for each source folder that exposes an `index.ts`.
 - Keep behavioral contracts close to the export they describe through
   `@spec.*` JSDoc directives.
-- Require property-test coverage for the kinds that apply to each export
-  shape.
+- Default every export to requiring all property types; opting out of a
+  property type is explicit via `@spec.skip "<PropertyType>" reason: <why>`.
 - Keep generated markdown deterministic so `validate` can compare committed
   output against regenerated output.
 - Emit structured JSON so downstream agents do not need to scrape prose.
@@ -33,8 +33,8 @@ The markdown file is the reader-facing artifact. It contains frontmatter and
 canonical sections:
 
 - `Purpose`: folder-level intent from `@spec.purpose`.
-- `Public surface`: exported symbols, detected shape, required kinds, observed
-  kinds, and residual contracts.
+- `Public surface`: exported symbols, observed property types, skipped
+  property types (with reasons), and residual contracts.
 - `Files`: source and test files in the folder.
 - `Properties`: property rows extracted from `itSpec.todo` and `itSpec.prop`
   call sites.
@@ -47,8 +47,8 @@ and deterministic formatting.
 
 Every generated markdown file has a paired sidecar under `.safer-spec/`. The
 sidecar is the tool-facing contract. It contains the format version, folder,
-source references, export shapes, required and observed kinds, residual
-contracts, coverage data, and thresholds.
+source references, observed and skipped property types, residual contracts,
+coverage data, and thresholds.
 
 The JSON schema lives in `src/spec/sidecar.ts`. Directive strings are
 size-capped and escaped before they are emitted.
@@ -61,12 +61,11 @@ technical layers.
 | Domain | Folder | Owns |
 |---|---|---|
 | Commands | `commands/` | `safer-spec` binary entrypoint, the six @effect/cli Commands (`init`, `generate`, `validate`, `doctor`, `migrate`, `explain`), and the format-version constant. |
-| Spec artifact | `spec/` | JSDoc directive grammar, frontmatter schema, markdown emitter, sidecar JSON schema + writer, escape helpers, and the `itSpec` authoring helper. |
-| Source analysis | `source/` | Export-shape detection, fail-closed resolution, applicability resolution, and link resolution. |
-| Terminals | `property-types/` | Closed `PropertyType` enum (9 OOPSLA assertion kinds), `ExportShape` enum (6 source shapes), and `APPLICABILITY_MATRIX` (the cross-product). |
+| Spec artifact | `spec/` | JSDoc directive grammar + parser, markdown emitter, frontmatter schema, sidecar JSON schema + writer, escape helpers, link resolver, and the `itSpec` authoring helper. |
+| Terminals | `property-types/` | Closed `PropertyType` enum (9 OOPSLA assertion kinds). |
 
-Commands orchestrate peer domains. Peer domains should not reach through
-each other's internals.
+Commands orchestrate the spec domain. The spec domain consumes the
+property-type taxonomy.
 
 ## Directive Grammar
 
@@ -149,23 +148,26 @@ ad hoc strings in comments.
 
 ## Applicability
 
-`source/shape-detector.ts` classifies each export by `ExportShape`.
-`source/applicability.ts` combines that shape with the static
-`APPLICABILITY_MATRIX` in `property-types/index.ts`.
+Every property type applies to every export by default. Opting out is
+explicit per export via:
 
-| Export shape | Required property types |
-|---|---|
-| `Schema` | `Roundtrip`, `Exception Raising`, `Typechecking` |
-| `RpcDefinition` | `Roundtrip`, `Exception Raising`; `Inclusion` when the result is a collection |
-| `function` | Determined by implementation semantics or explicit skips |
-| `type` | `Typechecking` |
-| `Branded` | none by default |
-| `unknown` | fail closed unless explicitly ignored |
+```ts
+/**
+ * @spec.skip "Roundtrip"
+ *   reason: normalization intentionally discards whitespace.
+ */
+export const NormalizedName = ...
+```
 
-Ambiguous source shapes fail closed. The detector raises
-`UnknownExportShapeError` or `AmbiguousPropertyTypeError` instead of guessing.
+The codemod records observed property types (from `itSpec` calls), skipped
+property types (from `@spec.skip` directives), and computes the gap as
+`PROPERTY_TYPES \ (observed ∪ skipped)`. The gap drives the validation
+gates below.
 
-## Modes
+No built-in classification of exports into shapes. Per-shape prescriptions,
+if a repo wants them, live in the author's `@spec.skip` reasons.
+
+## Commands
 
 | Command | Job |
 |---|---|
@@ -195,8 +197,9 @@ Each diagnostic should include a problem, cause, concrete fix, and docs link.
 
 Coverage gates:
 
-- `kind-coverage`: every required kind is covered or explicitly skipped with a
-  reason.
+- `property-type-coverage`: every property type in `PROPERTY_TYPES` is either
+  covered by an `itSpec` call targeting the export or explicitly skipped via
+  `@spec.skip "<PropertyType>" reason: <why>`.
 - `classifier-coverage`: declared partitions from property tests are exercised
   above the configured threshold.
 - `precondition-pass-rate`: generated samples should pass preconditions often

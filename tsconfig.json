@@ -21,7 +21,6 @@
     "paths": {
       "@safer/property-types/*": ["./src/property-types/*"],
       "@safer/spec/*": ["./src/spec/*"],
-      "@safer/source/*": ["./src/source/*"],
       "@safer/commands/*": ["./src/commands/*"]
     }
   },

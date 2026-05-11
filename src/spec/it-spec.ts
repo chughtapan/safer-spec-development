@@ -3,7 +3,7 @@
  *   the public surface every spec author imports to declare property
  *   stubs. Wraps Vitest's `it.todo` and `it.prop` so authors get typed
  *   `(id, opts, arb, body)` ergonomics, AND the codemod can read property
- *   metadata back from each call site at codemod time (via #spec/todos.js).
+ *   metadata back from each call site at codemod time.
  *
  *   Every `itSpec.prop`/`itSpec.todo` call carries four required JSDoc
  *   directives above it (`@spec.property`, `@spec.type`, `@spec.exports`,

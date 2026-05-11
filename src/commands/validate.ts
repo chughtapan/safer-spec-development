@@ -1,6 +1,6 @@
 /**
  * @spec.purpose
- *   `validate` mode entrypoint. Runs `generate` to memory, diffs against
+ *   `validate` command entrypoint. Runs `generate` to memory, diffs against
  *   on-disk artifacts, reads Vitest reporter sidecars, asserts the gate
  *   classes, and fails on the typed error channel with one of three
  *   tagged errors named for the gap class.
@@ -41,7 +41,7 @@
  *     ```
  */
 
-/* eslint-disable max-classes-per-file -- the validate mode's three
+/* eslint-disable max-classes-per-file -- the validate command's three
    gap-class errors are one tagged-union variant per failure class; co-locating
    them with the function that emits them is per-domain ownership. */
 

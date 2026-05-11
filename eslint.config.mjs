@@ -76,16 +76,16 @@ const ARCHITECTURE_OPTIONS = {
         "the six @effect/cli Command entries (generate, validate, init, doctor, migrate, explain) plus the binary composition root (index.ts) and format-version constant; the binary lives alongside its commands",
     },
     {
-      name: "domains",
-      folders: ["spec", "source"],
+      name: "domain",
+      folders: ["spec"],
       reason:
-        "peer domains; spec owns the codemod's output artifact (SPEC.md markdown AND .safer-spec sidecar JSON — two serializations of the same data); source owns TypeScript source analysis. They do not depend on each other; commands orchestrate them",
+        "the spec format itself — directive grammar + parser, markdown emitter, sidecar JSON, escape helpers, link resolver, and the itSpec authoring helper. Commands orchestrate this domain",
     },
     {
       name: "terminals",
       folders: ["property-types"],
       reason:
-        "no upward deps; property-types is the closed taxonomy (PropertyType, ExportShape, APPLICABILITY_MATRIX) every other domain consumes",
+        "no upward deps; property-types is the closed PropertyType taxonomy every other folder consumes",
     },
   ],
   packageRuntime: "node",

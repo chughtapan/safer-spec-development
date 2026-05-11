@@ -1,6 +1,6 @@
 /**
  * @spec.purpose
- *   `doctor` mode entrypoint. Health check of configs, deps, sidecar dir,
+ *   `doctor` command entrypoint. Health check of configs, deps, sidecar dir,
  *   format-version compatibility. Surfaces config drift and version skew
  *   before the user hits cryptic gate failures.
  *

@@ -1,27 +1,18 @@
 /**
- * @spec.purpose Closed taxonomy that defines what properties this codemod
- *   covers. Three pieces of vocabulary, all related to "what kinds of
- *   property tests apply to what kinds of source exports":
+ * @spec.purpose Closed taxonomy of property assertion types. Terminal
+ *   domain — no upward dependencies.
  *
- *     1. `PropertyType` — the 9 OOPSLA-significant property assertion types
- *        (Roundtrip, Inclusion, Exception Raising, …). The HOW: the way a
- *        property test asserts against an export.
- *     2. `ExportShape` — the 6 structural shapes a TypeScript export can
- *        take (Schema, RpcDefinition, function, type, Branded, unknown).
- *        The WHAT: the shape of the source artifact under test.
- *     3. `APPLICABILITY_MATRIX` — the cross-product: per ExportShape, the
- *        set of property types that MUST appear on the export's coverage
- *        (unless `@spec.skip`-ed with reason).
+ *   The 9 OOPSLA-significant property kinds (Roundtrip, Inclusion, Exception
+ *   Raising, …). Source: Ravi & Coblenz, OOPSLA 2025 (12 categories), filtered
+ *   to the 9 statistically significant ones. Dropped: Generated-Expression
+ *   Bounds Checking (p=0.0627), Generated-Expression Non-Equality
+ *   (p=0.3299), Constant Inclusion (p=0.8969).
  *
- *   Terminal domain — no upward dependencies. `source/` consumes
- *   `ExportShape` (its detector outputs it) and `APPLICABILITY_MATRIX` (its
- *   resolver applies it). `spec/` consumes `PropertyType` (its directive
- *   and sidecar schemas embed it as `Schema.Literal(...PROPERTY_TYPES)`).
- *
- *   `PropertyType` membership: Ravi & Coblenz, OOPSLA 2025 (12 categories),
- *   filtered to the 9 statistically significant ones. Dropped:
- *   Generated-Expression Bounds Checking (p=0.0627), Generated-Expression
- *   Non-Equality (p=0.3299), Constant Inclusion (p=0.8969).
+ *   The codemod assumes ALL property types apply to every export by default.
+ *   Opting out is explicit via per-export `@spec.skip "<PropertyType>"
+ *   reason: <why>` directives. There is no built-in matrix mapping export
+ *   shapes to required property types — that prescription belongs in the
+ *   author's `@spec.skip` reasons, not in the tool.
  *
  *   Per-repo extension via `safer-spec.config.ts`
  *   `propertyTypesExtension: PropertyType[]`.
@@ -49,62 +40,3 @@ export type PropertyType = (typeof PROPERTY_TYPES)[number];
 
 // Callers validate via `Schema.decodeUnknown(Schema.Literal(...PROPERTY_TYPES))`
 // at the boundary; no standalone predicate.
-
-export type ExportShape =
-  | "Schema"
-  | "RpcDefinition"
-  | "function"
-  | "type"
-  | "Branded"
-  | "unknown";
-
-interface ApplicabilityRow {
-  readonly shape: ExportShape;
-  readonly requiredPropertyTypes: ReadonlyArray<PropertyType>;
-  readonly conditionalPropertyTypes: ReadonlyArray<{
-    readonly propertyType: PropertyType;
-    readonly when: "result-is-collection";
-  }>;
-}
-
-/**
- * @spec.guarantee "matrix membership is closed; every ExportShape has exactly one row"
- *   reason: contract; missing rows would silently skip property-type
- *           coverage checks for that shape.
- * @spec.residual-contract "conditional property types fire only when the named condition (`result-is-collection`) holds; runtime decision is the validate gate's"
- *   reason: behavioral residue not captured in the static row data.
- */
-export const APPLICABILITY_MATRIX: ReadonlyArray<ApplicabilityRow> = [
-  {
-    shape: "Schema",
-    requiredPropertyTypes: ["Roundtrip", "Exception Raising", "Typechecking"],
-    conditionalPropertyTypes: [],
-  },
-  {
-    shape: "RpcDefinition",
-    requiredPropertyTypes: ["Roundtrip", "Exception Raising"],
-    conditionalPropertyTypes: [
-      { propertyType: "Inclusion", when: "result-is-collection" },
-    ],
-  },
-  {
-    shape: "function",
-    requiredPropertyTypes: [],
-    conditionalPropertyTypes: [],
-  },
-  {
-    shape: "type",
-    requiredPropertyTypes: ["Typechecking"],
-    conditionalPropertyTypes: [],
-  },
-  {
-    shape: "Branded",
-    requiredPropertyTypes: [],
-    conditionalPropertyTypes: [],
-  },
-  {
-    shape: "unknown",
-    requiredPropertyTypes: [],
-    conditionalPropertyTypes: [],
-  },
-];

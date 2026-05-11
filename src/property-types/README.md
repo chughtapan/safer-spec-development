@@ -1,25 +1,26 @@
-# `property-types/` — closed taxonomy + applicability matrix
+# `property-types/` — closed taxonomy of property assertion types
 
-Terminal domain. No upward dependencies. Holds the closed vocabulary
-every other domain reaches for to talk about property-based testing
-of TypeScript source.
+Terminal domain. No upward dependencies. Holds the closed vocabulary that
+every other domain reaches for to talk about property-based testing.
 
-| Export                  | Role                                                                                                                  |
-|-------------------------|-----------------------------------------------------------------------------------------------------------------------|
-| `PropertyType`          | Type alias: one of the 9 OOPSLA-significant property assertion kinds (Roundtrip, Inclusion, Exception Raising, …).    |
-| `PROPERTY_TYPES`        | `readonly tuple` of the 9 assertion-kind strings, in stable order.                                                    |
-| `ExportShape`           | Type alias: one of the 6 structural shapes a TypeScript export can take (Schema, RpcDefinition, function, type, Branded, unknown). |
-| `APPLICABILITY_MATRIX`  | Static `ReadonlyArray<ApplicabilityRow>` mapping each `ExportShape` to its required + conditional property types.     |
+| Export             | Role                                                                                                                  |
+|--------------------|-----------------------------------------------------------------------------------------------------------------------|
+| `PropertyType`     | Type alias: one of the 9 OOPSLA-significant property assertion kinds (Roundtrip, Inclusion, Exception Raising, …).    |
+| `PROPERTY_TYPES`   | `readonly tuple` of the 9 assertion-kind strings, in stable order.                                                    |
+
+## Default-all + explicit opt-out
+
+The codemod assumes ALL property types apply to every export by default.
+Opting out is explicit via per-export `@spec.skip "<PropertyType>" reason: <why>`
+directives. There is no built-in matrix mapping export shapes to required
+property types — that prescription lives in the author's `@spec.skip`
+reasons, not in the tool.
 
 ## Consumers
 
-- `spec/` embeds `PROPERTY_TYPES` into directive + sidecar schemas
+- `spec/directives.ts` embeds `PROPERTY_TYPES` into the directive grammar
   (`Schema.Literal(...PROPERTY_TYPES)`).
-- `source/shape-detector.ts` outputs `ExportShape` from ts-morph analysis.
-- `source/applicability.ts` reads `APPLICABILITY_MATRIX` to compute the
-  required-kind set for each detected export.
-- `commands/validate.ts` raises `AmbiguousPropertyTypeError` when source
-  resolution is ambiguous.
+- `spec/sidecar.ts` embeds `PROPERTY_TYPES` into the sidecar JSON schema.
 
 ## Source: OOPSLA 2025
 

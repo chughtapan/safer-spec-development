@@ -5,7 +5,7 @@
  */
 
 import { itSpec } from "@safer/spec/it-spec.js";
-import { resolveSymbol } from "@safer/source/link-resolver.js";
+import { resolveSymbol } from "@safer/spec/link-resolver.js";
 
 /**
  * @spec.property link-resolver-intra-file-anchor-pinned
