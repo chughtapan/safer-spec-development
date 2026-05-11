@@ -5,9 +5,9 @@ broken by directive population per DESIGN.md's "Section Population Rules":
 
 | File             | Population   | Directives                                                                                   |
 |------------------|--------------|----------------------------------------------------------------------------------------------|
-| `file-level.ts`  | File-level   | `@specPurpose`, `@specIgnore` (on `index.ts` barrels)                                      |
-| `per-export.ts`  | Per-export   | `@specAssume`, `@specGuarantee`, `@specResidualContract`, `@specSkip`, `@specIgnoreExport` |
-| `per-test.ts`    | Per-test     | `@specProperty`, `@specType`, `@specExports`, `@specClaim` (above each `itSpec` call)    |
+| `file-level.ts`  | File-level   | `@spec.purpose`, `@spec.ignore` (on `index.ts` barrels)                                      |
+| `per-export.ts`  | Per-export   | `@spec.assume`, `@spec.guarantee`, `@spec.residual-contract`, `@spec.skip`, `@spec.ignore-export` |
+| `per-test.ts`    | Per-test     | `@spec.property`, `@spec.type`, `@spec.exports`, `@spec.claim` (above each `itSpec` call)    |
 | `shared.ts`      | Infrastructure | Body caps, the three `ParseError` tagged-error classes, `unquote`, `splitReason`, `failParse`, `checkBodyLen` |
 | `index.ts`       | Entry        | `Directive` union, `LocatedDirective`, `parseFileDirectives` orchestrator                    |
 
@@ -19,7 +19,7 @@ function for that directive. The orchestrator (`index.ts`) holds a
 
 | Directive               | Cap                            |
 |-------------------------|--------------------------------|
-| `@specPurpose`         | `PURPOSE_BODY_MAX_CHARS` (5000) |
+| `@spec.purpose`         | `PURPOSE_BODY_MAX_CHARS` (5000) |
 | All others              | `DIRECTIVE_BODY_MAX_CHARS` (500) |
 
 The smaller cap defends against prompt-injection in directive bodies
