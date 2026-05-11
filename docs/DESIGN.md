@@ -236,5 +236,6 @@ The package facade exports only:
 - `PROPERTY_TYPES` and `PropertyType`.
 - `itSpec` and `ItSpec`.
 
-The CLI owns mode execution. Programmatic access to mode internals should use
-explicit subpath exports only when there is a real consumer that needs them.
+The CLI owns command execution. Programmatic access to command internals
+should use explicit subpath exports only when there is a real consumer
+that needs them.

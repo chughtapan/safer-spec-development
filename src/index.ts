@@ -2,7 +2,7 @@
  * @spec.purpose
  *   Library facade. Re-exports the test-author surface: the `itSpec` helper
  *   and the closed property-type taxonomy. The `safer-spec` binary
- *   (commands/index.ts) is the integration point for mode execution
+ *   (commands/index.ts) is the integration point for command execution
  *   (`generate`, `validate`, `init`, `doctor`, `migrate`, `explain`); those
  *   are not re-exported from this facade.
  *

@@ -7,11 +7,7 @@
  *   The `## Properties` table is extracted from tests: each
  *   `itSpec.prop`/`itSpec.todo` call site contributes one row sourced from
  *   `@spec.property`, `@spec.type`, `@spec.exports`, and `@spec.claim`.
- *   Other sections are emitted from source-side JSDoc, kind detection, and
- *   applicability output.
- *
- *   Composes the spec/ and source/ domains. The command is the
- *   orchestrator; the domains are the workers.
+ *   Other sections are emitted from source-side JSDoc.
  *
  *   Tagged error `GenerateError` is co-located here.
  */
