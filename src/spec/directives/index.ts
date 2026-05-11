@@ -1,5 +1,5 @@
 /**
- * @specPurpose Directive grammar entry point. Walks TypeScript source via
+ * @spec.purpose Directive grammar entry point. Walks TypeScript source via
  *   ts-morph and dispatches each parsed TSDoc block (via `tsdoc-bridge`)
  *   to its per-population parser. Returns the typed `LocatedDirective`
  *   stream.
@@ -219,7 +219,7 @@ const parseOneJsDoc = (
   });
 
 /**
- * @specGuarantee "every emitted directive validates against the closed grammar before downstream consumption"
+ * @spec.guarantee "every emitted directive validates against the closed grammar before downstream consumption"
  *   reason: trust-boundary; agents consume parsed directive bodies as context.
  */
 export const parseFileDirectives = (

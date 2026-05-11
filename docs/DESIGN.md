@@ -20,7 +20,7 @@ generated artifacts drift from either source of truth.
 - Keep behavioral contracts close to the export they describe through
   `@spec.*` JSDoc directives.
 - Default every export to requiring all property types; opting out of a
-  property type is explicit via `@specSkip "<PropertyType>" reason: <why>`.
+  property type is explicit via `@spec.skip "<PropertyType>" reason: <why>`.
 - Keep generated markdown deterministic so `validate` can compare committed
   output against regenerated output.
 - Emit structured JSON so downstream agents do not need to scrape prose.
@@ -32,7 +32,7 @@ generated artifacts drift from either source of truth.
 The markdown file is the reader-facing artifact. It contains frontmatter and
 canonical sections:
 
-- `Purpose`: folder-level intent from `@specPurpose`.
+- `Purpose`: folder-level intent from `@spec.purpose`.
 - `Public surface`: exported symbols, observed property types, skipped
   property types (with reasons), and residual contracts.
 - `Files`: source and test files in the folder.
@@ -76,11 +76,11 @@ File-level directives:
 
 ```ts
 /**
- * @specPurpose Identity RPC descriptors and schemas.
+ * @spec.purpose Identity RPC descriptors and schemas.
  */
 
 /**
- * @specIgnore
+ * @spec.ignore
  */
 ```
 
@@ -88,21 +88,21 @@ Per-export directives:
 
 ```ts
 /**
- * @specAssume "channel.connect() completed before this call"
+ * @spec.assume "channel.connect() completed before this call"
  *   reason: lifecycle ordering cannot be encoded in the parameter type.
- * @specGuarantee "validates target format before any RPC call"
+ * @spec.guarantee "validates target format before any RPC call"
  *   reason: side-effect ordering is not captured by the return type.
  */
 export const sendInvite = ...
 
 /**
- * @specSkip "Partial Roundtrip"
+ * @spec.skip "Partial Roundtrip"
  *   reason: normalization intentionally discards whitespace.
  */
 export const NormalizedName = ...
 
 /**
- * @specResidualContract none
+ * @spec.residual-contract none
  *   reason: shape and refinements are captured by Effect Schema.
  */
 export const Agent = ...
@@ -112,10 +112,10 @@ Per-test directives:
 
 ```ts
 /**
- * @specProperty agent-roundtrip
- * @specType Roundtrip
- * @specExports Agent
- * @specClaim encode(decode(agent)) preserves valid agents
+ * @spec.property agent-roundtrip
+ * @spec.type Roundtrip
+ * @spec.exports Agent
+ * @spec.claim encode(decode(agent)) preserves valid agents
  */
 itSpec.todo("agent-roundtrip", {
   type: "Roundtrip",
@@ -153,19 +153,19 @@ explicit per export via:
 
 ```ts
 /**
- * @specSkip "Roundtrip"
+ * @spec.skip "Roundtrip"
  *   reason: normalization intentionally discards whitespace.
  */
 export const NormalizedName = ...
 ```
 
 The codemod records observed property types (from `itSpec` calls), skipped
-property types (from `@specSkip` directives), and computes the gap as
+property types (from `@spec.skip` directives), and computes the gap as
 `PROPERTY_TYPES \ (observed ∪ skipped)`. The gap drives the validation
 gates below.
 
 No built-in classification of exports into shapes. Per-shape prescriptions,
-if a repo wants them, live in the author's `@specSkip` reasons.
+if a repo wants them, live in the author's `@spec.skip` reasons.
 
 ## Commands
 
@@ -199,7 +199,7 @@ Coverage gates:
 
 - `property-type-coverage`: every property type in `PROPERTY_TYPES` is either
   covered by an `itSpec` call targeting the export or explicitly skipped via
-  `@specSkip "<PropertyType>" reason: <why>`.
+  `@spec.skip "<PropertyType>" reason: <why>`.
 - `classifier-coverage`: declared partitions from property tests are exercised
   above the configured threshold.
 - `precondition-pass-rate`: generated samples should pass preconditions often

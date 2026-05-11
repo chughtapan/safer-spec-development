@@ -1,5 +1,5 @@
 /**
- * @specPurpose Shared analysis pipeline for `validate`. Walks the same
+ * @spec.purpose Shared analysis pipeline for `validate`. Walks the same
  *   inputs as `generate` (sources, tests, index barrel) and returns the
  *   `FolderAnalysis` that the markdown emitter consumes. Factored out so
  *   `validate.ts` stays focused on gate-class semantics rather than file
@@ -61,9 +61,9 @@ const isDirectory = (
   );
 
 /**
- * @specGuarantee "returns folder inputs (sources, tests, index path) or null if no index.ts barrel exists"
+ * @spec.guarantee "returns folder inputs (sources, tests, index path) or null if no index.ts barrel exists"
  *   reason: contract for validate's per-folder iteration.
- * @specResidualContract "test files under `__tests__/` are scanned as a sibling subdirectory only; nested test dirs are ignored"
+ * @spec.residual-contract "test files under `__tests__/` are scanned as a sibling subdirectory only; nested test dirs are ignored"
  *   reason: scope-of-this-slice contract.
  */
 export const collectFolderInputs = (
@@ -128,9 +128,9 @@ const parseTests = (
   });
 
 /**
- * @specGuarantee "produces the same FolderAnalysis shape that `generate` emits, so a regenerate-and-compare check is byte-deterministic"
+ * @spec.guarantee "produces the same FolderAnalysis shape that `generate` emits, so a regenerate-and-compare check is byte-deterministic"
  *   reason: roundtrip contract; validate's drift check relies on it.
- * @specResidualContract none
+ * @spec.residual-contract none
  *   reason: pure data assembly; behavior captured by signature.
  */
 export const buildFolderAnalysis = (
@@ -154,9 +154,9 @@ export const buildFolderAnalysis = (
   }).pipe(Effect.withSpan("commands/validate-pipeline/buildFolderAnalysis"));
 
 /**
- * @specGuarantee "alias for `emitMarkdown(analysis)`; isolated so validate.ts only depends on one symbol from emit"
+ * @spec.guarantee "alias for `emitMarkdown(analysis)`; isolated so validate.ts only depends on one symbol from emit"
  *   reason: surface minimization; keeps validate's import block compact.
- * @specResidualContract none
+ * @spec.residual-contract none
  *   reason: pure re-export.
  */
 export const regenerateMarkdown = (analysis: FolderAnalysis): string =>
@@ -179,9 +179,9 @@ const walkOnce = (
   });
 
 /**
- * @specGuarantee "returns every directory under `root` that contains an `index.ts` barrel"
+ * @spec.guarantee "returns every directory under `root` that contains an `index.ts` barrel"
  *   reason: contract; validate iterates this list when no `--folder` is given.
- * @specResidualContract "dot-prefixed directories and `__tests__` are skipped; symlinks are not followed"
+ * @spec.residual-contract "dot-prefixed directories and `__tests__` are skipped; symlinks are not followed"
  *   reason: scope-of-this-slice contract.
  */
 export const discoverFolders = (

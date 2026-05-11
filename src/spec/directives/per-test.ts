@@ -1,6 +1,6 @@
 /**
- * @specPurpose Per-test directives — `@specProperty`, `@specType`,
- *   `@specExports`, `@specClaim`. These attach above each
+ * @spec.purpose Per-test directives — `@spec.property`, `@spec.type`,
+ *   `@spec.exports`, `@spec.claim`. These attach above each
  *   `itSpec.prop`/`itSpec.todo` call site; the parser records
  *   `location.exportName` as `null`.
  */

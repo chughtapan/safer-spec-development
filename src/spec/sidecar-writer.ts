@@ -1,5 +1,5 @@
 /**
- * @specPurpose Writes `.safer-spec/<folder>.json` sidecar files. Sanitizes
+ * @spec.purpose Writes `.safer-spec/<folder>.json` sidecar files. Sanitizes
  *   every string field on emit (size cap + escape) at the sidecar trust
  *   boundary.
  *
@@ -11,7 +11,7 @@
  *   trailing newline. `writeSidecar` writes that JSON to
  *   `.safer-spec/<folder-slug>.json`, creating the directory on first run.
  *
- * @specGuarantee Output JSON decodes back into `SpecArtifact` via
+ * @spec.guarantee Output JSON decodes back into `SpecArtifact` via
  *   `decodeSpecArtifact`. Roundtrip property is enforced in the sidecar
  *   domain's `__tests__/`.
  *   reason: agents consume sidecar JSON; a non-roundtrip emitter would produce
@@ -46,9 +46,9 @@ const schemaErrorFor = (
   new SidecarSchemaError({ path: folder, issues: [String(err.message)] });
 
 /**
- * @specGuarantee "serialized JSON validates against the sidecar Schema; downstream `decodeSpecArtifact(parse(output))` round-trips"
+ * @spec.guarantee "serialized JSON validates against the sidecar Schema; downstream `decodeSpecArtifact(parse(output))` round-trips"
  *   reason: contract relied on by the sidecar's roundtrip property test.
- * @specResidualContract "trailing newline is appended for POSIX-friendly files; JSON itself decodes regardless"
+ * @spec.residual-contract "trailing newline is appended for POSIX-friendly files; JSON itself decodes regardless"
  *   reason: byte-level format contract beyond the Schema shape.
  */
 export const serializeSidecar = (
@@ -66,10 +66,10 @@ const writeError = (folder: string, cause: unknown): SidecarWriteError =>
   new SidecarWriteError({ folder, cause });
 
 /**
- * @specGuarantee "atomic per-file write via @effect/platform FileSystem; no partial sidecars on failure"
+ * @spec.guarantee "atomic per-file write via @effect/platform FileSystem; no partial sidecars on failure"
  *   reason: trust contract; downstream validate gate must not see
  *           half-written sidecars.
- * @specResidualContract ".safer-spec/<folder>.json directory is created if missing; pre-existing sidecar is overwritten"
+ * @spec.residual-contract ".safer-spec/<folder>.json directory is created if missing; pre-existing sidecar is overwritten"
  *   reason: side-effect contract; users see the directory created on
  *           first run.
  */

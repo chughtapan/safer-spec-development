@@ -1,6 +1,6 @@
 /**
- * @specPurpose Per-export directives — `@specAssume`, `@specGuarantee`,
- *   `@specResidualContract`, `@specSkip`, `@specIgnoreExport`.
+ * @spec.purpose Per-export directives — `@spec.assume`, `@spec.guarantee`,
+ *   `@spec.residual-contract`, `@spec.skip`, `@spec.ignore-export`.
  *   These attach to public-surface exported declarations; the parser
  *   records the declaration's name in `location.exportName`. Each
  *   directive in this population carries a required `reason:` line.

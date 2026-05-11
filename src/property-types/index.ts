@@ -1,5 +1,5 @@
 /**
- * @specPurpose Closed taxonomy of property assertion types. Terminal
+ * @spec.purpose Closed taxonomy of property assertion types. Terminal
  *   domain — no upward dependencies.
  *
  *   The 9 OOPSLA-significant property types (Roundtrip, Inclusion, Exception
@@ -9,19 +9,19 @@
  *   (p=0.3299), Constant Inclusion (p=0.8969).
  *
  *   The codemod assumes ALL property types apply to every export by default.
- *   Opting out is explicit via per-export `@specSkip "<PropertyType>"
+ *   Opting out is explicit via per-export `@spec.skip "<PropertyType>"
  *   reason: <why>` directives. There is no built-in matrix mapping export
  *   shapes to required property types — that prescription belongs in the
- *   author's `@specSkip` reasons, not in the tool.
+ *   author's `@spec.skip` reasons, not in the tool.
  *
  *   Per-repo extension via `safer-spec.config.ts`
  *   `propertyTypesExtension: PropertyType[]`.
  */
 
 /**
- * @specGuarantee "membership order is stable across versions; the index of each property type is part of the contract"
+ * @spec.guarantee "membership order is stable across versions; the index of each property type is part of the contract"
  *   reason: per-repo `propertyTypesExtension` appends only; never reorders.
- * @specResidualContract none
+ * @spec.residual-contract none
  *   reason: shape captured by `as const` tuple.
  */
 export const PROPERTY_TYPES = [

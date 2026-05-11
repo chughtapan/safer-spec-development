@@ -1,5 +1,5 @@
 /**
- * @specPurpose Property stubs for the sidecar JSON contract. Roundtrip
+ * @spec.purpose Property stubs for the sidecar JSON contract. Roundtrip
  *   covers encode/decode stability; Exception Raising covers malformed input;
  *   Typechecking verifies that decoded data matches the declared type.
  *
@@ -11,10 +11,10 @@ import { itSpec } from "@safer/spec/it-spec.js";
 import { decodeSpecArtifact } from "@safer/spec/sidecar.js";
 
 /**
- * @specProperty sidecar-roundtrip
- * @specType Roundtrip
- * @specExports decodeSpecArtifact
- * @specClaim encode(decode(json)) is byte-equal to the original well-formed json
+ * @spec.property sidecar-roundtrip
+ * @spec.type Roundtrip
+ * @spec.exports decodeSpecArtifact
+ * @spec.claim encode(decode(json)) is byte-equal to the original well-formed json
  */
 itSpec.todo("sidecar-roundtrip", {
   type: "Roundtrip",
@@ -22,10 +22,10 @@ itSpec.todo("sidecar-roundtrip", {
 });
 
 /**
- * @specProperty sidecar-rejects-malformed
- * @specType Exception Raising
- * @specExports decodeSpecArtifact
- * @specClaim malformed input fails on the Effect error channel with a typed ParseError, never throws
+ * @spec.property sidecar-rejects-malformed
+ * @spec.type Exception Raising
+ * @spec.exports decodeSpecArtifact
+ * @spec.claim malformed input fails on the Effect error channel with a typed ParseError, never throws
  */
 itSpec.todo("sidecar-rejects-malformed", {
   type: "Exception Raising",
@@ -33,10 +33,10 @@ itSpec.todo("sidecar-rejects-malformed", {
 });
 
 /**
- * @specProperty sidecar-decoded-shape
- * @specType Typechecking
- * @specExports decodeSpecArtifact
- * @specClaim decoded artifact matches the declared SpecArtifact type at every branch of the union
+ * @spec.property sidecar-decoded-shape
+ * @spec.type Typechecking
+ * @spec.exports decodeSpecArtifact
+ * @spec.claim decoded artifact matches the declared SpecArtifact type at every branch of the union
  */
 itSpec.todo("sidecar-decoded-shape", {
   type: "Typechecking",

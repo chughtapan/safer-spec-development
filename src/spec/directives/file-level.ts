@@ -1,5 +1,5 @@
 /**
- * @specPurpose File-level directives — `@specPurpose` and `@specIgnore`.
+ * @spec.purpose File-level directives — `@spec.purpose` and `@spec.ignore`.
  *   These attach to `index.ts` barrels; the parser treats their location
  *   `exportName` as `null`.
  */

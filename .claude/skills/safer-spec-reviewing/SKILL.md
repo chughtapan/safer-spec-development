@@ -87,10 +87,10 @@ implementation be brought back under the existing contract.
 
 ### JSDoc Placement
 
-- `@specPurpose` belongs at file level on the public entry file or barrel.
-- `@specAssume`, `@specGuarantee`, `@specResidualContract`,
-  `@specSkip`, and `@specIgnoreExport` belong on exported declarations.
-- `@specProperty`, `@specType`, `@specExports`, and `@specClaim` belong
+- `@spec.purpose` belongs at file level on the public entry file or barrel.
+- `@spec.assume`, `@spec.guarantee`, `@spec.residual-contract`,
+  `@spec.skip`, and `@spec.ignore-export` belong on exported declarations.
+- `@spec.property`, `@spec.type`, `@spec.exports`, and `@spec.claim` belong
   immediately above `itSpec.todo` or `itSpec.prop`.
 - Generated `SPEC.md` property rows should not be hand-edited.
 
@@ -98,10 +98,10 @@ implementation be brought back under the existing contract.
 
 For every `itSpec` call:
 
-- `@specProperty` matches the first positional id.
-- `@specType` matches `meta.type`.
-- `@specExports` matches the referenced export values by name.
-- `@specClaim` is specific, present-tense, and falsifiable.
+- `@spec.property` matches the first positional id.
+- `@spec.type` matches `meta.type`.
+- `@spec.exports` matches the referenced export values by name.
+- `@spec.claim` is specific, present-tense, and falsifiable.
 - `itSpec.prop` has meaningful arbitraries and assertions.
 - `itSpec.todo` is used only for planned evidence.
 
@@ -204,7 +204,7 @@ Order review findings by risk:
 1. Implementation or generated code violates a residual contract.
 2. Behavior changed without matching source/test JSDoc.
 3. Missing property, missing `itSpec`, or weak non-falsifiable property.
-4. Missing or vague `@specSkip` reason.
+4. Missing or vague `@spec.skip` reason.
 5. Generated artifact drift or hand-edited generated output.
 6. Historical prose that blocks cold-readability.
 

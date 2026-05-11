@@ -1,5 +1,5 @@
 /**
- * @specPurpose Sidecar JSON contract — the canonical artifact for LLM-agent
+ * @spec.purpose Sidecar JSON contract — the canonical artifact for LLM-agent
  *   consumption. Markdown SPEC.md is for humans; the sidecar is for tools.
  *   The Schema constructor stays private; `decodeSpecArtifact` is the public
  *   boundary.
@@ -8,7 +8,7 @@
  *   the sidecar domain — both the decode boundary and the writer raise it on
  *   shape violations).
  *
- * @specGuarantee All string fields are size-capped and escape-on-emit (no
+ * @spec.guarantee All string fields are size-capped and escape-on-emit (no
  *   prompt injection through residual contracts).
  *   reason: directive bodies are user-controlled JSDoc; agents read this JSON
  *           as downstream execution context.
@@ -76,10 +76,10 @@ export class SidecarSchemaError extends Data.TaggedError("SidecarSchemaError")<{
 }> {}
 
 /**
- * @specGuarantee "rejects malformed input with a typed `ParseError` rather than throwing"
+ * @spec.guarantee "rejects malformed input with a typed `ParseError` rather than throwing"
  *   reason: trust-boundary contract; the codemod's validate gate
  *           consumes the error channel, never a thrown exception.
- * @specResidualContract "decoded artifact's string fields are size-capped per the underlying Schema; the cap is enforced at decode time, not via runtime check"
+ * @spec.residual-contract "decoded artifact's string fields are size-capped per the underlying Schema; the cap is enforced at decode time, not via runtime check"
  *   reason: refinements live in the Schema constructor (private to this
  *           module); callers see the refined types post-decode.
  */

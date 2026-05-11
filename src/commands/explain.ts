@@ -1,5 +1,5 @@
 /**
- * @specPurpose
+ * @spec.purpose
  *   `explain` command entrypoint. Looks up an error code (e.g.
  *   `MISSING_SPEC_PROPERTY`, `spec-property-type-coverage`) and returns the
  *   corresponding `docs/errors.md` entry.
@@ -26,13 +26,13 @@ interface ExplainResult {
 }
 
 /**
- * @specAssume "every error code emitted by validate is documented in `docs/errors.md`; missing entries are an explain failure, not silent"
+ * @spec.assume "every error code emitted by validate is documented in `docs/errors.md`; missing entries are an explain failure, not silent"
  *   reason: trust contract; users hit explain when they cannot decode a
  *           diagnostic.
- * @specGuarantee "the returned `entry` is the exact docs section text, not summarized"
+ * @spec.guarantee "the returned `entry` is the exact docs section text, not summarized"
  *   reason: reads the docs file verbatim; downstream UIs render it
  *           unchanged.
- * @specResidualContract none
+ * @spec.residual-contract none
  *   reason: pure read; behavior fully captured by the Effect signature.
  */
 export const explain = (

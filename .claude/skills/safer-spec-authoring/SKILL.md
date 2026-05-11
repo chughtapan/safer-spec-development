@@ -38,7 +38,7 @@ hand-edit them to change the contract.
    side effects, failure channels, ordering, persistence, determinism,
    normalization, or trust-boundary behavior.
 4. For each built-in `PropertyType`, add a property or an explicit
-   `@specSkip "<PropertyType>" reason: <why>`.
+   `@spec.skip "<PropertyType>" reason: <why>`.
 5. Use `itSpec.todo` when the property is planned and `itSpec.prop` when the
    property has real arbitraries and assertions.
 6. Generate artifacts, then validate the level of evidence you have.
@@ -51,14 +51,14 @@ implementation can be generated or reviewed against it.
 
 | Need | Put it here |
 |---|---|
-| Folder purpose | `@specPurpose` on the folder barrel or public entry file. |
-| Residual export behavior | `@specAssume`, `@specGuarantee`, or `@specResidualContract` on the exported declaration. |
-| No residual behavior | `@specResidualContract none` with a concrete `reason:`. |
-| Property identity | `@specProperty` above the matching `itSpec` call. |
-| Property category | `@specType <PropertyType>` and `type: "<PropertyType>"`. |
-| Targeted exports | `@specExports Name` and `exports: [Name]` using value references. |
-| Property claim | `@specClaim` as a falsifiable one-line behavior statement. |
-| Intentional opt-out | `@specSkip "<PropertyType>" reason: <why>` on the export. |
+| Folder purpose | `@spec.purpose` on the folder barrel or public entry file. |
+| Residual export behavior | `@spec.assume`, `@spec.guarantee`, or `@spec.residual-contract` on the exported declaration. |
+| No residual behavior | `@spec.residual-contract none` with a concrete `reason:`. |
+| Property identity | `@spec.property` above the matching `itSpec` call. |
+| Property category | `@spec.type <PropertyType>` and `type: "<PropertyType>"`. |
+| Targeted exports | `@spec.exports Name` and `exports: [Name]` using value references. |
+| Property claim | `@spec.claim` as a falsifiable one-line behavior statement. |
+| Intentional opt-out | `@spec.skip "<PropertyType>" reason: <why>` on the export. |
 | Human summary | Generated `SPEC.md`. |
 | Tool summary | Generated `.safer-spec/<folder>.json`. |
 
@@ -91,16 +91,16 @@ that remains outside the type boundary:
 
 ```ts
 /**
- * @specGuarantee "storage keys preserve the exact refined user id"
+ * @spec.guarantee "storage keys preserve the exact refined user id"
  *   reason: the string format is an interop contract, not part of the User type.
- * @specResidualContract "key format is stable across releases"
+ * @spec.residual-contract "key format is stable across releases"
  *   reason: persisted callers may store the key outside this process.
  */
 export const toUserStorageKey = (user: User): string => `user:${user.id}`;
 ```
 
 If TypeScript plus Effect Schema captures the whole contract, say so
-explicitly with `@specResidualContract none` and a reason.
+explicitly with `@spec.residual-contract none` and a reason.
 
 ## Property Metadata
 
@@ -117,10 +117,10 @@ In `safer-spec-development`, the JSDoc and runtime metadata must agree:
 
 ```ts
 /**
- * @specProperty user-storage-key-roundtrip
- * @specType Roundtrip
- * @specExports toUserStorageKey parseUserStorageKey UserSchema
- * @specClaim parsing a storage key produced from a valid User returns that User id
+ * @spec.property user-storage-key-roundtrip
+ * @spec.type Roundtrip
+ * @spec.exports toUserStorageKey parseUserStorageKey UserSchema
+ * @spec.claim parsing a storage key produced from a valid User returns that User id
  */
 itSpec.todo("user-storage-key-roundtrip", {
   type: "Roundtrip",
@@ -133,10 +133,10 @@ body should fail for a wrong implementation:
 
 ```ts
 /**
- * @specProperty user-storage-key-roundtrip
- * @specType Roundtrip
- * @specExports toUserStorageKey parseUserStorageKey UserSchema
- * @specClaim parsing a storage key produced from a valid User returns that User id
+ * @spec.property user-storage-key-roundtrip
+ * @spec.type Roundtrip
+ * @spec.exports toUserStorageKey parseUserStorageKey UserSchema
+ * @spec.claim parsing a storage key produced from a valid User returns that User id
  */
 itSpec.prop(
   "user-storage-key-roundtrip",
@@ -200,7 +200,7 @@ silently ignored.
 
 ```ts
 /**
- * @specSkip "Roundtrip"
+ * @spec.skip "Roundtrip"
  *   reason: the parser intentionally discards comments and original whitespace.
  */
 export const parseConfig = ...
@@ -245,7 +245,7 @@ sidecar data.
 |---|---|
 | Writing repo-history, PR history, or chat context in directives | State the present contract only. |
 | Hand-editing generated `SPEC.md` or sidecar JSON | Edit source/test JSDoc and regenerate. |
-| Restating TypeScript signatures in `@specGuarantee` | Put only residual behavior in directives. |
+| Restating TypeScript signatures in `@spec.guarantee` | Put only residual behavior in directives. |
 | Passing string names in `itSpec` metadata | Use value references: `exports: [toUserStorageKey]`. |
 | Skipping with "not applicable" only | Explain the semantic reason the property type cannot apply. |
 | Leaving `itSpec.prop` empty or assertion-free | Use `itSpec.todo` or implement a falsifiable property. |

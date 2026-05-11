@@ -1,5 +1,5 @@
 /**
- * @specPurpose
+ * @spec.purpose
  *   Resolves backticked symbol references in SPEC.md body prose. Local
  *   source references use declaration locations; workspace references can
  *   resolve to sibling SPEC.md anchors. Cross-file source resolution is a
@@ -19,7 +19,7 @@
  *   intra-file symbols actually exist; this resolver returns the
  *   `LinkResolution` so the emit step can stamp an anchor.
  *
- * @specGuarantee Unresolved internal references resolve to `intra-file`
+ * @spec.guarantee Unresolved internal references resolve to `intra-file`
  *   placeholders that the validate gate inspects; unresolved external
  *   references return `UnresolvedExternal` (no failure).
  *   reason: internal drift is correctable in-repo via validate; external
@@ -88,10 +88,10 @@ const hrefFor = (symbol: string, origin: ResolutionOrigin): string => {
 };
 
 /**
- * @specGuarantee "returns LinkResolution for intra-file, cross-spec, and agent-code-guard-rule; UnresolvedExternal (no failure) for external-package"
+ * @spec.guarantee "returns LinkResolution for intra-file, cross-spec, and agent-code-guard-rule; UnresolvedExternal (no failure) for external-package"
  *   reason: external misses are silent by design; only internal drift
  *           fails the build.
- * @specResidualContract "anchor sha is null at resolve time; emit step is responsible for stamping the git short-sha when it renders the anchor"
+ * @spec.residual-contract "anchor sha is null at resolve time; emit step is responsible for stamping the git short-sha when it renders the anchor"
  *   reason: durability contract for code-reference pinning; resolver is
  *           pure and does not shell out to git.
  */

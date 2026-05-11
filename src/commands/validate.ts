@@ -1,5 +1,5 @@
 /**
- * @specPurpose
+ * @spec.purpose
  *   `validate` command entrypoint. Walks each folder that has an `index.ts`
  *   barrel, runs the same analysis pipeline as `generate`, diffs the
  *   regenerated SPEC.md against the on-disk artifact, and reports gap-class
@@ -57,9 +57,9 @@ interface GapErrorPayload {
 }
 
 /**
- * @specGuarantee "emitted when committed SPEC.md drifts from the regenerated output, or when a Properties row fails its test-side directive cross-check"
+ * @spec.guarantee "emitted when committed SPEC.md drifts from the regenerated output, or when a Properties row fails its test-side directive cross-check"
  *   reason: spec-tier ratchet; cli translates this tag to exit code 11.
- * @specResidualContract "diagnostic.problem is human-readable; agents read .diagnostic.fix to route remediation"
+ * @spec.residual-contract "diagnostic.problem is human-readable; agents read .diagnostic.fix to route remediation"
  *   reason: trust contract for diagnostic body content.
  */
 class MissingSpecPropertyError extends Data.TaggedError(
@@ -67,9 +67,9 @@ class MissingSpecPropertyError extends Data.TaggedError(
 )<GapErrorPayload> {}
 
 /**
- * @specGuarantee "emitted when an itSpec call site lacks the four required JSDoc directives, or when a JSDoc directive fails to parse"
+ * @spec.guarantee "emitted when an itSpec call site lacks the four required JSDoc directives, or when a JSDoc directive fails to parse"
  *   reason: stub-tier ratchet; cli translates this tag to exit code 12.
- * @specResidualContract "diagnostic.location names the call site (file:line)"
+ * @spec.residual-contract "diagnostic.location names the call site (file:line)"
  *   reason: trust contract for routing the next remediation step.
  */
 class MissingStubError extends Data.TaggedError(
@@ -77,9 +77,9 @@ class MissingStubError extends Data.TaggedError(
 )<GapErrorPayload> {}
 
 /**
- * @specGuarantee "emitted when an itSpec.prop call has an empty fast-check body or has been left as itSpec.todo despite the property graduating to implemented state"
+ * @spec.guarantee "emitted when an itSpec.prop call has an empty fast-check body or has been left as itSpec.todo despite the property graduating to implemented state"
  *   reason: implementation-tier block; cli translates this tag to exit code 13.
- * @specResidualContract "diagnostic.cause names the reason the body is empty"
+ * @spec.residual-contract "diagnostic.cause names the reason the body is empty"
  *   reason: trust contract for routing the next remediation step.
  */
 class MissingImplError extends Data.TaggedError(
@@ -248,13 +248,13 @@ const resolveFolders = (
     : discoverFolders(fs, path, "src");
 
 /**
- * @specAssume "the underlying `generate` step is deterministic at the same tree SHA"
+ * @spec.assume "the underlying `generate` step is deterministic at the same tree SHA"
  *   reason: cross-check (c) above relies on byte-equality between the
  *           on-disk SPEC.md and the regenerated one.
- * @specGuarantee "first failing check short-circuits and emits exactly one of the three gap-class errors"
+ * @spec.guarantee "first failing check short-circuits and emits exactly one of the three gap-class errors"
  *   reason: the cli's catchTags routing acts on the tag; a batched failure
  *           would obscure routing.
- * @specResidualContract "Vitest reporter sidecars must already exist on disk for `--implemented` mode; their absence is a separate diagnostic class (stale-CI-artifact)"
+ * @spec.residual-contract "Vitest reporter sidecars must already exist on disk for `--implemented` mode; their absence is a separate diagnostic class (stale-CI-artifact)"
  *   reason: lifecycle ordering; not encoded in the input shape.
  */
 export const validate = (
@@ -284,10 +284,10 @@ const diagnosticLines = (
 ];
 
 /**
- * @specGuarantee "output string is the canonical user-facing diagnostic body for the given gap-class error"
+ * @spec.guarantee "output string is the canonical user-facing diagnostic body for the given gap-class error"
  *   reason: the CLI binary writes this directly to stderr; no further
  *           shaping happens at the runtime boundary.
- * @specResidualContract none
+ * @spec.residual-contract none
  *   reason: pure transformation; output shape derived from input.
  */
 export const formatDiagnostic = (

@@ -1,5 +1,5 @@
 /**
- * @specPurpose `@microsoft/tsdoc` adapter layer. Owns the TSDoc
+ * @spec.purpose `@microsoft/tsdoc` adapter layer. Owns the TSDoc
  *   configuration (closed set of `@specXxx` block-tag definitions), the
  *   parser singleton, the TSDoc-tag ↔ internal-name map, and the byte-
  *   accurate body extraction that bypasses TSDoc's content tree (so
@@ -168,7 +168,7 @@ const hyphensToCamel = (body: string): string =>
 
 /**
  * Rewrites JSDoc-style dotted spec tags (`@spec.purpose`, `@spec.residual-contract`)
- * to the TSDoc-conformant camelCase form (`@specPurpose`, `@specResidualContract`)
+ * to the TSDoc-conformant camelCase form (`@spec.purpose`, `@spec.residual-contract`)
  * before TSDoc sees them. TSDoc's tag-name grammar disallows the literal dot, so
  * the dotted form would otherwise be silently absorbed as prose text — directives
  * would parse to nothing and the codemod would emit empty `Public surface`

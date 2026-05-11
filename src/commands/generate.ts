@@ -1,5 +1,5 @@
 /**
- * @specPurpose
+ * @spec.purpose
  *   `generate` command entrypoint. Walks one folder under `--folder X`,
  *   parses `@spec*` JSDoc directives on source files (via `spec/directives`),
  *   extracts `itSpec.prop` / `itSpec.todo` call sites + their JSDoc from
@@ -226,12 +226,12 @@ const checkInputs = (
 };
 
 /**
- * @specAssume "every source export in scope carries `@specAssume`/`@specGuarantee`/`@specResidualContract` (or is explicitly `@specSkip`-ed)"
+ * @spec.assume "every source export in scope carries `@spec.assume`/`@spec.guarantee`/`@spec.residual-contract` (or is explicitly `@spec.skip`-ed)"
  *   reason: per-export contract enforced by `validate --implemented`;
  *           generate emits whatever directives it finds.
- * @specGuarantee "two generate calls at the same source state produce byte-identical SPEC.md + sidecar"
+ * @spec.guarantee "two generate calls at the same source state produce byte-identical SPEC.md + sidecar"
  *   reason: roundtrip contract; downstream `validate` relies on it.
- * @specResidualContract "this slice supports `--folder X` only; whole-tree walk and `--watch` are not yet implemented"
+ * @spec.residual-contract "this slice supports `--folder X` only; whole-tree walk and `--watch` are not yet implemented"
  *   reason: scope-of-this-slice contract.
  */
 const buildAnalysis = (

@@ -1,5 +1,5 @@
 /**
- * @specPurpose
+ * @spec.purpose
  *   Walks a TypeScript source file via ts-morph and returns the list of
  *   exported declaration names plus their source lines. Used by
  *   `generate.ts` to build the SPEC.md `## Public surface` rows and
@@ -143,9 +143,9 @@ const descriptionFromJsDocs = (anchor: Node): string => {
 };
 
 /**
- * @specGuarantee "result is sorted by source line (ascending); each name is the binding's actual identifier per ts-morph's getExportedDeclarations"
+ * @spec.guarantee "result is sorted by source line (ascending); each name is the binding's actual identifier per ts-morph's getExportedDeclarations"
  *   reason: source-order is required by emit.ts's canonical sort.
- * @specResidualContract "re-exports inherit the line of their re-export statement, not their original declaration"
+ * @spec.residual-contract "re-exports inherit the line of their re-export statement, not their original declaration"
  *   reason: ts-morph returns the local binding's position.
  */
 export const collectExports = (
@@ -206,9 +206,9 @@ const mergeOne = (entry: ExportEntry, d: Directive): ExportEntry => {
 };
 
 /**
- * @specGuarantee "every declared export appears in the result exactly once; directives whose location.exportName matches a declaration are merged into that entry"
+ * @spec.guarantee "every declared export appears in the result exactly once; directives whose location.exportName matches a declaration are merged into that entry"
  *   reason: contract for emit.ts's Public surface section.
- * @specResidualContract "directives whose exportName names a non-declared symbol are silently dropped"
+ * @spec.residual-contract "directives whose exportName names a non-declared symbol are silently dropped"
  *   reason: validate gate surfaces these as MissingSpecPropertyError;
  *           generate just emits what it sees.
  */
@@ -244,7 +244,7 @@ export const buildExportEntries = (
 
 /**
  * Folder purpose is canonical to the `<folder>/index.ts` barrel.
- * Per-file `@specPurpose` directives on non-index sources describe the
+ * Per-file `@spec.purpose` directives on non-index sources describe the
  * file's local intent and do not represent the folder.
  */
 export const findPurpose = (

@@ -1,9 +1,9 @@
 /**
- * @specPurpose
+ * @spec.purpose
  *   Walks `*.spec.test.ts` source via ts-morph and extracts each
  *   `itSpec.todo` / `itSpec.prop` call site plus the four Amendment-6
- *   directives (`@specProperty`, `@specType`, `@specExports`,
- *   `@specClaim`) that should immediately precede it.
+ *   directives (`@spec.property`, `@spec.type`, `@spec.exports`,
+ *   `@spec.claim`) that should immediately precede it.
  *
  *   Returned `PropertyRow` values feed the SPEC.md `## Properties` table
  *   emitted by `emit.ts`.
@@ -84,10 +84,10 @@ const buildRow = (
 };
 
 /**
- * @specGuarantee "every returned row corresponds to exactly one itSpec call site and carries all four required directives"
+ * @spec.guarantee "every returned row corresponds to exactly one itSpec call site and carries all four required directives"
  *   reason: contract; downstream `## Properties` table assumes
  *           one-to-one rows.
- * @specResidualContract "call sites that lack any of the four directives are silently skipped; validate-implemented surfaces them as MissingStubError"
+ * @spec.residual-contract "call sites that lack any of the four directives are silently skipped; validate-implemented surfaces them as MissingStubError"
  *   reason: lifecycle contract; generate emits what it finds, validate
  *           gates on completeness.
  */

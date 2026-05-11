@@ -1,5 +1,5 @@
 /**
- * @specPurpose Shared infrastructure for the per-population directive
+ * @spec.purpose Shared infrastructure for the per-population directive
  *   modules: size caps, the `ParseError` union, the three tagged errors
  *   the parser can emit, and the small string helpers each population
  *   uses (unquote, splitReason).
@@ -19,7 +19,7 @@ import { Data, Effect, Schema } from "effect";
 export const DIRECTIVE_BODY_MAX_CHARS = 500;
 
 /**
- * Larger cap for `@specPurpose` — paragraph-scale documentation, not a
+ * Larger cap for `@spec.purpose` — paragraph-scale documentation, not a
  * trust-boundary residue.
  */
 export const PURPOSE_BODY_MAX_CHARS = 5000;

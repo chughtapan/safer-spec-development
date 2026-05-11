@@ -1,5 +1,5 @@
 /**
- * @specPurpose
+ * @spec.purpose
  *   Canonical SPEC.md markdown serializer + sidecar JSON serializer.
  *   Consumes a `FolderAnalysis` (built by `generate.ts` from parsed
  *   directives + test extraction) and produces the two output artifacts.
@@ -147,9 +147,9 @@ const emitPropertiesTable = (
 };
 
 /**
- * @specGuarantee "two calls with the same `analysis` produce byte-identical markdown"
+ * @spec.guarantee "two calls with the same `analysis` produce byte-identical markdown"
  *   reason: roundtrip contract on the emit step.
- * @specResidualContract "internal section ordering is fixed: Purpose → Public Surface → Files → Properties"
+ * @spec.residual-contract "internal section ordering is fixed: Purpose → Public Surface → Files → Properties"
  *   reason: behavioral contract beyond the FolderAnalysis shape.
  */
 export const emitMarkdown = (a: FolderAnalysis): string => {
@@ -163,7 +163,7 @@ export const emitMarkdown = (a: FolderAnalysis): string => {
     "",
     "## Purpose",
     "",
-    a.purpose ?? "_No `@specPurpose` directive found._",
+    a.purpose ?? "_No `@spec.purpose` directive found._",
     "",
     "## Public surface",
     "",
@@ -179,9 +179,9 @@ export const emitMarkdown = (a: FolderAnalysis): string => {
 };
 
 /**
- * @specGuarantee "stable JSON encoding; key order follows the FolderAnalysis shape"
+ * @spec.guarantee "stable JSON encoding; key order follows the FolderAnalysis shape"
  *   reason: roundtrip contract; downstream `validate` compares bytes.
- * @specResidualContract none
+ * @spec.residual-contract none
  *   reason: pure transformation.
  */
 export const emitSidecar = (a: FolderAnalysis): string =>
