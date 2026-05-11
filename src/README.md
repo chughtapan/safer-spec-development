@@ -13,7 +13,10 @@ classifier coverage, and precondition pass-rate gates.
 | domains     | `spec/`           | Spec output artifact — directive grammar + parser, escape helpers, markdown emitter (`emit.ts`, `frontmatter.ts`) AND JSON sidecar (`sidecar.ts`, `sidecar-writer.ts`). Two serializations of the same data. |
 |             | `source/`         | TypeScript source analysis (shape detector, applicability resolver, link resolver)                                   |
 | terminals   | `property-types/` | Closed taxonomy: `PropertyType` (9 OOPSLA assertion kinds), `ExportShape` (6 source shapes), `APPLICABILITY_MATRIX`   |
-|             | `authoring/`      | Author-facing `itSpec` test helper                                                                                   |
+
+`spec/it-spec.ts` exports the author-facing `itSpec` test helper. It
+lives with the rest of the spec format (directives, frontmatter, emit,
+sidecar) because writing spec tests IS authoring the spec format.
 
 `src/index.ts` is the curated library facade. It re-exports the small
 public contract (`PROPERTY_TYPES`, `PropertyType`, `itSpec`, `ItSpec`).

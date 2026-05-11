@@ -4,7 +4,7 @@
  *   a known kind set. Exception Raising on unresolved overrides.
  */
 
-import { itSpec } from "@safer/authoring/index.js";
+import { itSpec } from "@safer/spec/it-spec.js";
 import { resolveExport, APPLICABILITY_MATRIX } from "@safer/source/applicability.js";
 
 /**

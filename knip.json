@@ -1,9 +1,5 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "workspaces": {
-    "packages/safer-spec-development": {
-      "entry": ["src/**/*.spec.test.ts"],
-      "project": ["src/**/*.ts"]
-    }
-  }
+  "entry": ["src/**/*.spec.test.ts"],
+  "project": ["src/**/*.ts"]
 }

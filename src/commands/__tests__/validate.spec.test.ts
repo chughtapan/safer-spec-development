@@ -5,7 +5,7 @@
  *   output, and every implemented property has a non-empty body.
  */
 
-import { itSpec } from "@safer/authoring/index.js";
+import { itSpec } from "@safer/spec/it-spec.js";
 import { formatDiagnostic, validate } from "@safer/commands/validate.js";
 
 /**

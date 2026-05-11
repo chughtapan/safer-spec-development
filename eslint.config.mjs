@@ -83,9 +83,9 @@ const ARCHITECTURE_OPTIONS = {
     },
     {
       name: "terminals",
-      folders: ["property-types", "authoring"],
+      folders: ["property-types"],
       reason:
-        "no upward deps; property-types is the closed taxonomy (PropertyType, ExportShape, APPLICABILITY_MATRIX), authoring is the itSpec helper",
+        "no upward deps; property-types is the closed taxonomy (PropertyType, ExportShape, APPLICABILITY_MATRIX) every other domain consumes",
     },
   ],
   packageRuntime: "node",
@@ -104,7 +104,7 @@ export default [
 
   // Application source: recommended + strict + architecture, all promoted to error.
   {
-    files: ["packages/*/src/**/*.ts"],
+    files: ["src/**/*.ts"],
     ignores: ["**/*.test.ts", "**/*.spec.ts"],
     languageOptions: {
       parser: tsParser,
@@ -156,9 +156,9 @@ export default [
   // Re-evaluate when sonarjs adds wrapper-aware empty-test detection.
   {
     files: [
-      "packages/*/src/**/*.{test,spec}.ts",
-      "packages/*/test/**/*.ts",
-      "packages/*/tests/**/*.ts",
+      "src/**/*.{test,spec}.ts",
+      "test/**/*.ts",
+      "tests/**/*.ts",
     ],
     languageOptions: {
       parser: tsParser,

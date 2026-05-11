@@ -4,7 +4,7 @@
  *   string field is escape-on-emit.
  */
 
-import { itSpec } from "@safer/authoring/index.js";
+import { itSpec } from "@safer/spec/it-spec.js";
 import { decodeSpecArtifact } from "@safer/spec/sidecar.js";
 import { serializeSidecar, writeSidecar } from "@safer/spec/sidecar-writer.js";
 

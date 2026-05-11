@@ -7,6 +7,22 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@effect/cli':
+        specifier: ^0.73.0
+        version: 0.73.2(@effect/platform@0.96.1(effect@3.21.2))(@effect/printer-ansi@0.47.0(@effect/typeclass@0.38.0(effect@3.21.2))(effect@3.21.2))(@effect/printer@0.47.0(@effect/typeclass@0.38.0(effect@3.21.2))(effect@3.21.2))(effect@3.21.2)
+      '@effect/platform':
+        specifier: ^0.96.0
+        version: 0.96.1(effect@3.21.2)
+      '@effect/platform-node':
+        specifier: ^0.106.0
+        version: 0.106.0(@effect/cluster@0.58.2(@effect/platform@0.96.1(effect@3.21.2))(@effect/rpc@0.75.1(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(@effect/sql@0.51.1(@effect/experimental@0.60.0(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(@effect/workflow@0.18.1(@effect/experimental@0.60.0(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(@effect/platform@0.96.1(effect@3.21.2))(@effect/rpc@0.75.1(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(effect@3.21.2))(effect@3.21.2))(@effect/platform@0.96.1(effect@3.21.2))(@effect/rpc@0.75.1(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(@effect/sql@0.51.1(@effect/experimental@0.60.0(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(effect@3.21.2)
+      effect:
+        specifier: ^3.21.0
+        version: 3.21.2
+      fast-check:
+        specifier: ^3.23.0
+        version: 3.23.2
     devDependencies:
       '@types/node':
         specifier: ^22.0.0
@@ -32,34 +48,9 @@ importers:
       vite-tsconfig-paths:
         specifier: ^6.1.1
         version: 6.1.1(typescript@5.9.3)(vite@7.3.3(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.8.4))
-
-  packages/safer-spec-development:
-    dependencies:
-      '@effect/cli':
-        specifier: ^0.73.0
-        version: 0.73.2(@effect/platform@0.96.1(effect@3.21.2))(@effect/printer-ansi@0.47.0(@effect/typeclass@0.38.0(effect@3.21.2))(effect@3.21.2))(@effect/printer@0.47.0(@effect/typeclass@0.38.0(effect@3.21.2))(effect@3.21.2))(effect@3.21.2)
-      '@effect/platform':
-        specifier: ^0.96.0
-        version: 0.96.1(effect@3.21.2)
-      '@effect/platform-node':
-        specifier: ^0.106.0
-        version: 0.106.0(@effect/cluster@0.58.2(@effect/platform@0.96.1(effect@3.21.2))(@effect/rpc@0.75.1(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(@effect/sql@0.51.1(@effect/experimental@0.60.0(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(@effect/workflow@0.18.1(@effect/experimental@0.60.0(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(@effect/platform@0.96.1(effect@3.21.2))(@effect/rpc@0.75.1(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(effect@3.21.2))(effect@3.21.2))(@effect/platform@0.96.1(effect@3.21.2))(@effect/rpc@0.75.1(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(@effect/sql@0.51.1(@effect/experimental@0.60.0(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(@effect/platform@0.96.1(effect@3.21.2))(effect@3.21.2))(effect@3.21.2)
-      effect:
-        specifier: ^3.21.0
-        version: 3.21.2
-      fast-check:
-        specifier: ^3.23.0
-        version: 3.23.2
-    devDependencies:
-      '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.18
-      typescript:
-        specifier: ^5.5.0
-        version: 5.9.3
       vitest:
         specifier: ^3.0.0
-        version: 3.2.4(@types/debug@4.1.13)(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.8.4)
+        version: 3.2.4(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.8.4)
 
 packages:
 
@@ -904,9 +895,6 @@ packages:
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
-  '@types/debug@4.1.13':
-    resolution: {integrity: sha512-KSVgmQmzMwPlmtljOomayoR89W4FynCAi3E8PPs7vmDVPe84hT+vGPKkJfThkmXs0x0jAaa9U8uW8bbfyS2fWw==}
-
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
@@ -921,9 +909,6 @@ packages:
 
   '@types/json5@0.0.29':
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
-
-  '@types/ms@2.1.0':
-    resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
   '@types/node@22.19.18':
     resolution: {integrity: sha512-9v00a+dn2yWVsYDEunWC4g/TcRKVq3r8N5FuZp7u0SGrPvdN9c2yXI9bBuf5Fl0hNCb+QTIePTn5pJs2pwBOQQ==}
@@ -2857,11 +2842,6 @@ snapshots:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
 
-  '@types/debug@4.1.13':
-    dependencies:
-      '@types/ms': 2.1.0
-    optional: true
-
   '@types/deep-eql@4.0.2': {}
 
   '@types/estree@1.0.8': {}
@@ -2871,9 +2851,6 @@ snapshots:
   '@types/json-schema@7.0.15': {}
 
   '@types/json5@0.0.29': {}
-
-  '@types/ms@2.1.0':
-    optional: true
 
   '@types/node@22.19.18':
     dependencies:
@@ -4438,7 +4415,7 @@ snapshots:
       jiti: 2.7.0
       yaml: 2.8.4
 
-  vitest@3.2.4(@types/debug@4.1.13)(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.8.4):
+  vitest@3.2.4(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.8.4):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.4
@@ -4464,7 +4441,6 @@ snapshots:
       vite-node: 3.2.4(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.8.4)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/debug': 4.1.13
       '@types/node': 22.19.18
     transitivePeerDependencies:
       - jiti

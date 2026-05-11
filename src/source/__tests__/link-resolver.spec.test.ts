@@ -4,7 +4,7 @@
  *   resolution is a separate resolver capability.
  */
 
-import { itSpec } from "@safer/authoring/index.js";
+import { itSpec } from "@safer/spec/it-spec.js";
 import { resolveSymbol } from "@safer/source/link-resolver.js";
 
 /**

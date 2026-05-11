@@ -5,7 +5,7 @@
  *   escape helpers preserve safe substitution into Markdown / YAML / JSON.
  */
 
-import { itSpec } from "@safer/authoring/index.js";
+import { itSpec } from "@safer/spec/it-spec.js";
 import {
   enforceLengthCap,
   escapeForJson,

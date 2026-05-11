@@ -19,4 +19,4 @@
  */
 
 export { PROPERTY_TYPES, type PropertyType } from "./property-types/index.js";
-export { itSpec, type ItSpec } from "./authoring/index.js";
+export { itSpec, type ItSpec } from "./spec/it-spec.js";

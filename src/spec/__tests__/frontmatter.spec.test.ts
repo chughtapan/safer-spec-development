@@ -4,7 +4,7 @@
  *   underlying Schema constructor stays private to spec/frontmatter.ts.
  */
 
-import { itSpec } from "@safer/authoring/index.js";
+import { itSpec } from "@safer/spec/it-spec.js";
 import { decodeSpecFrontmatter } from "@safer/spec/frontmatter.js";
 
 /**

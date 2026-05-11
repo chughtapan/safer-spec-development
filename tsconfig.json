@@ -14,7 +14,17 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "incremental": true
+    "incremental": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "@safer/property-types/*": ["./src/property-types/*"],
+      "@safer/spec/*": ["./src/spec/*"],
+      "@safer/source/*": ["./src/source/*"],
+      "@safer/commands/*": ["./src/commands/*"]
+    }
   },
+  "include": ["src/**/*"],
   "exclude": ["**/dist/**", "**/node_modules/**"]
 }

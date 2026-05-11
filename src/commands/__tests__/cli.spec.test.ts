@@ -8,7 +8,7 @@
  *   reference the codemod `validate` mode entry as the export under test.
  */
 
-import { itSpec } from "@safer/authoring/index.js";
+import { itSpec } from "@safer/spec/it-spec.js";
 import { validate } from "@safer/commands/validate.js";
 
 /**

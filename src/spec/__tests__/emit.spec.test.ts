@@ -4,7 +4,7 @@
  *   in the emitted output is present.
  */
 
-import { itSpec } from "@safer/authoring/index.js";
+import { itSpec } from "@safer/spec/it-spec.js";
 import { emitSpec } from "@safer/spec/emit.js";
 
 /**

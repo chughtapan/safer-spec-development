@@ -4,7 +4,7 @@
  *   ExportShape closed enum. Ambiguous types fail-closed (never silent).
  */
 
-import { itSpec } from "@safer/authoring/index.js";
+import { itSpec } from "@safer/spec/it-spec.js";
 import { detectExports } from "@safer/source/shape-detector.js";
 import {
   isAmbiguousType,

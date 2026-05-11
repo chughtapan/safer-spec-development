@@ -7,7 +7,7 @@
  *   Schema constructor stays private to sidecar/schema.ts.
  */
 
-import { itSpec } from "@safer/authoring/index.js";
+import { itSpec } from "@safer/spec/it-spec.js";
 import { decodeSpecArtifact } from "@safer/spec/sidecar.js";
 
 /**
