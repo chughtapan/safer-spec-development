@@ -1,164 +1,255 @@
 ---
 name: safer-spec-authoring
-description: Use when writing code, JSDoc directives, or property tests that feed safer-spec-development, especially when adding exports, declaring residual contracts, choosing property kinds, or updating generated SPEC.md artifacts.
+description: Use when applying safer-spec-development in any TypeScript repo to author source JSDoc directives, residual contracts, property metadata, planned or implemented itSpec tests, generated SPEC.md files, or sidecar artifacts for spec-driven development and generated-code workflows.
 ---
 
 # safer-spec-authoring
 
-## Purpose
+## Core Point
 
-Use safer-spec to make the contract of a folder obvious to the next reader.
-The reader should not need project history, issue context, or a prior agent
-conversation. They need to know:
+`safer-spec-development` is a general-purpose spec-driven development package.
+It is not a guide to this repository's folder layout.
 
-- What this folder exposes.
-- What behavior the type system does not capture.
-- Which properties prove the behavior.
-- Which gaps are intentionally skipped and why.
+Use it to make a TypeScript export answerable to an explicit contract before
+or while code is written, including code written by an agent. A cold reader
+should be able to read the generated `SPEC.md`, trace each claim to source or
+test JSDoc, and know which property would fail if the implementation is wrong.
 
-`SPEC.md` is generated output. Authorship happens in source JSDoc and test
-JSDoc.
+Do not assume the reader is an expert in property-based testing. Teach the
+toolchain in this order: types define the valid domain, Effect Schema enforces
+the domain at runtime, schema-derived arbitraries sample that domain, and
+properties assert behavior over the samples.
 
-## First-use mental model
+The durable sources of truth are:
 
-There are two sources of truth:
+- Source JSDoc on exported declarations.
+- Test JSDoc above `itSpec.todo` or `itSpec.prop`.
+- Runtime metadata passed to `itSpec`.
 
-- Source exports describe the public surface and residual contracts.
-- Property tests describe evidence for those contracts.
+`SPEC.md` and `.safer-spec/<folder>.json` are generated projections. Do not
+hand-edit them to change the contract.
 
-`safer-spec generate` reads both and emits:
+## Authoring Loop
 
-- Human-readable `SPEC.md`.
-- Tool-readable `.safer-spec/<folder>.json`.
+1. Define the interface with TypeScript types plus Effect Schema refinements.
+2. Derive or adapt a fast-check arbitrary from the schema so generated values
+   satisfy the same refinements the code accepts.
+3. Add only residual behavior in `@spec.*` JSDoc: assumptions, guarantees,
+   side effects, failure channels, ordering, persistence, determinism,
+   normalization, or trust-boundary behavior.
+4. For each built-in `PropertyType`, add a property or an explicit
+   `@specSkip "<PropertyType>" reason: <why>`.
+5. Use `itSpec.todo` when the property is planned and `itSpec.prop` when the
+   property has real arbitraries and assertions.
+6. Generate artifacts, then validate the level of evidence you have.
 
-`safer-spec validate` checks that generated artifacts still match source and
-tests.
+This is the habit to preserve: do not write the spec after the implementation
+as documentation. Write enough contract and property metadata that an
+implementation can be generated or reviewed against it.
 
-## What To Write
+## Sources Of Truth
 
-### 1. Put purpose on the barrel
+| Need | Put it here |
+|---|---|
+| Folder purpose | `@specPurpose` on the folder barrel or public entry file. |
+| Residual export behavior | `@specAssume`, `@specGuarantee`, or `@specResidualContract` on the exported declaration. |
+| No residual behavior | `@specResidualContract none` with a concrete `reason:`. |
+| Property identity | `@specProperty` above the matching `itSpec` call. |
+| Property category | `@specType <PropertyType>` and `type: "<PropertyType>"`. |
+| Targeted exports | `@specExports Name` and `exports: [Name]` using value references. |
+| Property claim | `@specClaim` as a falsifiable one-line behavior statement. |
+| Intentional opt-out | `@specSkip "<PropertyType>" reason: <why>` on the export. |
+| Human summary | Generated `SPEC.md`. |
+| Tool summary | Generated `.safer-spec/<folder>.json`. |
 
-Use `@spec.purpose` at the file level for an `index.ts` barrel. Keep it short.
+## Export Contracts
+
+Start with the typed boundary. In this toolchain, Effect Schema and refinements
+describe the valid input space. The generated arbitrary should come from the
+same boundary, not from a looser `fc.string()` or `fc.anything()` unless the
+property is intentionally testing unknown input.
+
+Use your repo's schema-to-fast-check adapter when one exists. The adapter name
+is project-local; the important contract is that it samples values accepted by
+the schema and preserves shrinking.
 
 ```ts
-/**
- * @spec.purpose Parses SPEC.md directives and emits typed directive records.
- */
+const UserIdSchema = Schema.String.pipe(Schema.minLength(1), Schema.maxLength(64));
+
+export const UserSchema = Schema.Struct({
+  id: UserIdSchema,
+  displayName: Schema.String.pipe(Schema.minLength(1), Schema.maxLength(80)),
+});
+
+export type User = Schema.Schema.Type<typeof UserSchema>;
+
+const userArbitrary = arbitraryFromSchema(UserSchema);
 ```
 
-### 2. Put contracts on declarations
-
-Every exported declaration should say what types cannot say. If there is no
-residual behavior, say `none` and give the reason.
+After the schema covers shape and refinements, write JSDoc only for behavior
+that remains outside the type boundary:
 
 ```ts
 /**
- * @spec.guarantee "malformed directive bodies fail on the Effect error channel"
- *   reason: failure-channel behavior is not visible from the return type alone.
- * @spec.residual-contract "directive body length is capped before emit"
- *   reason: trust-boundary behavior protects generated markdown and sidecar JSON.
+ * @specGuarantee "storage keys preserve the exact refined user id"
+ *   reason: the string format is an interop contract, not part of the User type.
+ * @specResidualContract "key format is stable across releases"
+ *   reason: persisted callers may store the key outside this process.
  */
-export const parseFileDirectives = ...
+export const toUserStorageKey = (user: User): string => `user:${user.id}`;
 ```
 
+If TypeScript plus Effect Schema captures the whole contract, say so
+explicitly with `@specResidualContract none` and a reason.
+
+## Property Metadata
+
+A property is not "a test with a random value." It has three parts:
+
+- An arbitrary: how to generate samples from the valid domain.
+- Optional preconditions: which samples are meaningful for this property.
+- A predicate: what must be true for every generated sample.
+
+The `PropertyType` names are prompts for choosing the predicate. They are not
+TypeScript types.
+
+In `safer-spec-development`, the JSDoc and runtime metadata must agree:
+
 ```ts
 /**
- * @spec.residual-contract none
- *   reason: shape and refinements are captured by Effect Schema.
+ * @specProperty user-storage-key-roundtrip
+ * @specType Roundtrip
+ * @specExports toUserStorageKey parseUserStorageKey UserSchema
+ * @specClaim parsing a storage key produced from a valid User returns that User id
  */
-export const SpecFrontmatter = ...
-```
-
-### 3. Put property metadata above `itSpec`
-
-Each property stub or implementation carries four directives. The runtime
-metadata must match the JSDoc.
-
-```ts
-/**
- * @spec.property frontmatter-rejects-malformed
- * @spec.kind Exception Raising
- * @spec.exports decodeSpecFrontmatter
- * @spec.claim malformed YAML fails on the Effect error channel, never throws
- */
-itSpec.todo("frontmatter-rejects-malformed", {
-  kind: "Exception Raising",
-  exports: [decodeSpecFrontmatter],
+itSpec.todo("user-storage-key-roundtrip", {
+  type: "Roundtrip",
+  exports: [toUserStorageKey, parseUserStorageKey, UserSchema],
 });
 ```
 
-When implemented, use `itSpec.prop` with a real arbitrary and non-empty body.
-`itSpec.todo` is acceptable only for planned work.
-
-### 4. Skip explicitly
-
-Do not silently omit an expected property kind. Use `@spec.skip` when a kind is
-not meaningful for an export.
+When implemented, the arbitrary should sample the refined schema domain and the
+body should fail for a wrong implementation:
 
 ```ts
 /**
- * @spec.skip "Partial Roundtrip"
- *   reason: normalization intentionally discards whitespace, so the original input is not recoverable.
+ * @specProperty user-storage-key-roundtrip
+ * @specType Roundtrip
+ * @specExports toUserStorageKey parseUserStorageKey UserSchema
+ * @specClaim parsing a storage key produced from a valid User returns that User id
  */
-export const normalizeName = ...
+itSpec.prop(
+  "user-storage-key-roundtrip",
+  {
+    type: "Roundtrip",
+    exports: [toUserStorageKey, parseUserStorageKey, UserSchema],
+  },
+  userArbitrary,
+  (user) => {
+    expect(parseUserStorageKey(toUserStorageKey(user))).toEqual(user.id);
+  },
+);
 ```
 
-## Property Kinds
+`Exception Raising` still matters, especially at unknown-input boundaries. Do
+not let it become the default example for every schema. Valid-domain properties
+usually say more about the implementation than "invalid input reaches the error
+channel."
 
-Choose the kind that describes the behavior under test.
+## PropertyType Prompts
 
-| Kind | Use when proving |
+Treat the closed `PropertyType` set as prompts for finding a falsifiable
+contract. Every type applies by default until the export proves otherwise with
+a specific skip reason.
+
+| PropertyType | Ask before writing or skipping |
 |---|---|
-| `Roundtrip` | encode/decode, parse/serialize, generate/readback stability. |
-| `Partial Roundtrip` | normalization preserves the intended subset. |
-| `Commutative Paths` | two valid paths through the API produce equivalent results. |
-| `Constant Equality` | fixed constants, stable output, known values. |
-| `Constant Bounds Checking` | numeric, length, size, or partition bounds. |
-| `Constant Non-Equality` | values that must remain distinct. |
-| `Typechecking` | decoded data or detected shapes match declared types. |
-| `Inclusion` | membership, containment, coverage, or presence. |
-| `Exception Raising` | invalid input is rejected on the intended failure path. |
+| `Roundtrip` | If a valid value is encoded, keyed, rendered, parsed, read back, or re-imported, what must survive exactly? |
+| `Partial Roundtrip` | If normalization loses information, what schema-backed subset must still survive? |
+| `Commutative Paths` | Are two valid paths through the API required to produce equivalent results? |
+| `Constant Equality` | Which exact values, formats, tags, or exit codes must never drift? |
+| `Constant Bounds Checking` | Which schema/refinement bounds, lengths, sizes, retries, or partitions must always hold? |
+| `Constant Non-Equality` | Which states, tags, keys, or sentinel values must stay distinct? |
+| `Typechecking` | What schema-derived, generated, inferred, or emitted shape must match the declared type? |
+| `Inclusion` | What required item, case, partition, export, or generated row must be present? |
+| `Exception Raising` | Which invalid inputs must fail, and on which failure path? |
 
-## Domain Placement
+Good properties are not examples with random inputs. A wrong but plausible
+implementation should falsify them.
 
-Place code by what it knows, not by generic technical category.
+## Arbitrary Discipline
 
-| Folder | Belongs there when it owns |
-|---|---|
-| `cli/` | CLI composition and process exit-code translation. |
-| `modes/` | Mode entrypoints: `init`, `generate`, `validate`, `doctor`, `migrate`, `explain`. |
-| `spec/` | SPEC.md grammar, parsing, frontmatter, markdown emission, escaping. |
-| `source/` | TypeScript source analysis, export-shape detection, applicability, links. |
-| `sidecar/` | `.safer-spec/<folder>.json` schema and writer. |
-| `kinds/` | Closed property-kind vocabulary. |
-| `authoring/` | `itSpec` helper used by property authors. |
+Prefer this order:
 
-Use `@safer/<domain>/...` for cross-domain imports. Same-folder sibling imports
-can use `./sibling.js`.
+1. Generate valid values from the Effect Schema or refinement-backed interface.
+2. Use preconditions only for relationships that cannot be encoded into the
+   schema-derived arbitrary.
+3. Classify meaningful partitions so validation can tell whether generated
+   samples exercised edge cases.
+4. Generate invalid values only for `Exception Raising` or trust-boundary
+   tests, usually by starting from valid values and corrupting one field.
 
-## Authoring Workflow
+Avoid hand-written arbitraries that are broader than the type. If the property
+takes `User`, but the arbitrary can generate empty ids that `UserSchema`
+rejects, the property is testing a different contract than the export exposes.
 
-1. Add or change the export.
-2. Add declaration-level `@spec.*` JSDoc for residual behavior.
-3. Add `itSpec.todo` or `itSpec.prop` with matching property JSDoc.
-4. Run `pnpm safer-spec generate --write`.
-5. Run `pnpm safer-spec validate --planned` for metadata-only work or
-   `pnpm safer-spec validate --implemented` when property bodies are real.
-6. Run the normal package build, tests, and lint.
+## Skips
+
+Default-all coverage is a design discipline. Missing property types are not
+silently ignored.
+
+```ts
+/**
+ * @specSkip "Roundtrip"
+ *   reason: the parser intentionally discards comments and original whitespace.
+ */
+export const parseConfig = ...
+```
+
+A skip reason must explain why the property type is not meaningful for this
+export, not why nobody wrote the test yet. Use `itSpec.todo` for planned work.
+
+## Generated-Code Workflow
+
+When using safer-spec to guide generated code:
+
+1. Give the agent the generated `SPEC.md` or sidecar as compact context.
+2. Require the agent to read the source and test JSDoc for touched exports.
+3. Ask for implementation that satisfies the residual contracts and property
+   claims.
+4. If the generated code needs behavior not covered by the spec, edit the
+   directives or property metadata first.
+5. Review the implementation by asking which property would fail if the code
+   were wrong.
+
+Do not patch around ambiguous generated code with undocumented behavior. Make
+the contract explicit, then implement.
+
+## Commands
+
+Use the narrowest gate that matches the current evidence:
+
+```bash
+pnpm safer-spec generate --write
+pnpm safer-spec validate --planned
+pnpm safer-spec validate --implemented
+```
+
+`validate --planned` accepts property metadata and todos. `validate
+--implemented` requires real property bodies plus classifier and precondition
+sidecar data.
 
 ## Common Mistakes
 
 | Mistake | Fix |
 |---|---|
-| Hand-editing generated `## Properties` rows | Edit the test JSDoc and run generate. |
-| Writing history in a directive | State the current contract only. |
-| Restating the type in `@spec.guarantee` | Put only behavior types cannot express. |
-| Using `@spec.type` | Use `@spec.kind`. |
-| Passing string exports in `itSpec` metadata | Use value references: `exports: [Agent]`. |
-| Missing `reason:` under a residual or skip directive | Add a concrete reason. |
-| Putting per-export directives on the barrel | Move them to the declaration site. |
-| Creating shared `errors/` or `types.ts` dumping grounds | Keep errors and types with the domain that owns them. |
-| Leaving `itSpec.prop` empty | Use `itSpec.todo` or implement the property body. |
+| Writing repo-history, PR history, or chat context in directives | State the present contract only. |
+| Hand-editing generated `SPEC.md` or sidecar JSON | Edit source/test JSDoc and regenerate. |
+| Restating TypeScript signatures in `@specGuarantee` | Put only residual behavior in directives. |
+| Passing string names in `itSpec` metadata | Use value references: `exports: [toUserStorageKey]`. |
+| Skipping with "not applicable" only | Explain the semantic reason the property type cannot apply. |
+| Leaving `itSpec.prop` empty or assertion-free | Use `itSpec.todo` or implement a falsifiable property. |
+| Treating example tests as property evidence | Add arbitraries, preconditions, and a predicate over generated inputs. |
 
 ## Exit Codes
 
@@ -168,5 +259,5 @@ can use `./sibling.js`.
 | `MissingStubError` | 12 | A required `itSpec` call or its JSDoc is missing. |
 | `MissingImplError` | 13 | Implemented validation found a todo or empty property body. |
 
-Use these codes to decide the fix: regenerate specs, add metadata/stubs, or
-finish the property implementation.
+Use these codes to decide whether to regenerate artifacts, add metadata, add
+stubs, or finish the property implementation.
