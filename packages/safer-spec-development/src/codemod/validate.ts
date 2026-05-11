@@ -5,28 +5,36 @@
 /**
  * @spec.purpose
  *   `validate` mode entrypoint. Runs `generate` to memory, diffs against
- *   on-disk artifacts, reads Vitest reporter sidecars, asserts the three gate
- *   classes, and fails on the typed error channel with one of the {11, 12, 13}
- *   gap-class exit codes per the Stage 5 spec's `## Amendment 5 mapping`
+ *   on-disk artifacts, reads Vitest reporter sidecars, asserts the gate
+ *   classes, and fails on the typed error channel with one of the {11, 12,
+ *   13} gap-class exit codes per the Stage 5 spec's `## Amendment 5 mapping`
  *   (sub-issue #3).
  *
- *   Exit-code contract (per Stage 5 spec source-properties + Amendment 5):
+ *   Per parent epic Amendment 6, the four cross-checks `validate
+ *   --implemented` performs are:
+ *     (a) Every `itSpec.prop`/`itSpec.todo` call site has the four required
+ *         JSDoc directives (`@spec.property`, `@spec.kind`, `@spec.exports`,
+ *         `@spec.claim`). Missing → gapClass 12 (MISSING_STUB).
+ *     (b) JSDoc directive values match the runtime `opts` argument
+ *         (id ↔ `@spec.property`, kind ↔ `@spec.kind`, exports member names
+ *         ↔ `@spec.exports`). Mismatch → gapClass 11
+ *         (MISSING_SPEC_PROPERTY).
+ *     (c) Committed SPEC.md `## Properties` table is byte-equal to the
+ *         re-generated table (the table is GENERATED from test JSDoc; hand
+ *         edits are drift). Drift → gapClass 11.
+ *     (d) Every `itSpec.prop` body is non-empty (not `it.todo`, not empty
+ *         fast-check). Empty → gapClass 13 (MISSING_IMPL).
+ *
+ *   Exit-code contract:
  *     0  → success channel: `ValidatePassReport`.
- *     11 → error channel: `ValidateError({ gapClass: 11, ... })` (MISSING_SPEC_PROPERTY,
- *          spec-tier ratchet; the consuming SPEC.md's `## Properties` table has no
- *          row whose observation surface targets the export AND whose kind matches
- *          the applicability matrix).
- *     12 → error channel: `ValidateError({ gapClass: 12, ... })` (MISSING_STUB,
- *          architect-tier ratchet; a `## Properties` row exists with no colocated
- *          `it.todo` / `it.prop` declaration).
- *     13 → error channel: `ValidateError({ gapClass: 13, ... })` (MISSING_IMPL,
- *          implementer-tier BLOCK; an `it.prop` declaration exists with an empty
- *          fast-check body).
+ *     11 → error channel: `ValidateError({ gapClass: 11, ... })` (spec-tier ratchet).
+ *     12 → error channel: `ValidateError({ gapClass: 12, ... })` (architect-tier ratchet).
+ *     13 → error channel: `ValidateError({ gapClass: 13, ... })` (implementer-tier BLOCK).
  *
  *   `--planned` mode: kind-metadata-only check; classifier-coverage and
  *   precondition-pass-rate gates are skipped. Architect-PR-tolerant.
  *
- *   `--implemented` mode: full gate.
+ *   `--implemented` mode: full gate including (a) — (d).
  *
  *   Caller pattern:
  *     ```ts
@@ -56,6 +64,13 @@ const ValidateDiagnosticSchema = Schema.Struct({
 
 export type ValidateDiagnostic = Schema.Schema.Type<typeof ValidateDiagnosticSchema>;
 
+/**
+ * @spec.guarantee "the three exit codes are stable; CI scripts may switch on the integer values"
+ *   reason: external scripts depend on the exact codes for routing
+ *           (Amendment 5).
+ * @spec.residual-contract none
+ *   reason: shape captured by `as const` literal types.
+ */
 export const GAP_CLASS_EXIT_CODES = {
   MISSING_SPEC_PROPERTY: 11 as const,
   MISSING_STUB: 12 as const,
@@ -65,17 +80,27 @@ export const GAP_CLASS_EXIT_CODES = {
 export type GapClassName = keyof typeof GAP_CLASS_EXIT_CODES;
 export type GapClass = (typeof GAP_CLASS_EXIT_CODES)[GapClassName];
 
-export interface ValidateInput {
+interface ValidateInput {
   readonly folder: string | null;
   readonly mode: "planned" | "implemented";
   readonly formatVersionCheck: boolean;
 }
 
-export interface ValidatePassReport {
+interface ValidatePassReport {
   readonly _tag: "pass";
   readonly foldersValidated: ReadonlyArray<string>;
 }
 
+/**
+ * @spec.assume "the underlying `generate` step is deterministic at the same tree SHA"
+ *   reason: cross-check (c) above relies on byte-equality between the
+ *           on-disk SPEC.md and the regenerated one.
+ * @spec.guarantee "first failing check short-circuits and emits a single `ValidateError`"
+ *   reason: the orchestrator's Step-5d routing acts on the gapClass; a
+ *           batched failure would obscure routing.
+ * @spec.residual-contract "Vitest reporter sidecars must already exist on disk for `--implemented` mode; their absence is a separate diagnostic class (stale-CI-artifact, not yet wired)"
+ *   reason: lifecycle ordering; not encoded in the input shape.
+ */
 export const validate = (
   _input: ValidateInput,
 ): Effect.Effect<
@@ -84,6 +109,13 @@ export const validate = (
   FileSystem.FileSystem | Path.Path
 > => Eff.die(new Error("Stage 1 stub: validate not implemented"));
 
+/**
+ * @spec.guarantee "output string is the canonical user-facing diagnostic body for the given gap class"
+ *   reason: the CLI binary writes this directly to stderr; no further
+ *           shaping happens at the runtime boundary.
+ * @spec.residual-contract none
+ *   reason: pure transformation; output shape derived from input.
+ */
 export const formatDiagnostic = (
   _gapClass: GapClass,
   _diagnostic: ValidateDiagnostic,

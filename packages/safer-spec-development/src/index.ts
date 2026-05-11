@@ -1,19 +1,20 @@
 /**
- * @chughtapan/safer-spec-development — per-folder SPEC.md codemod.
- *
  * @spec.purpose
- *   Curated library facade. Exposes the small contract every external caller
- *   needs: the two primary codemod entry points (`generate`, `validate`),
- *   the closed kinds taxonomy, the boundary decoders for sidecar and
- *   frontmatter contracts, the author-facing test helper, and the
- *   validate-mode error contract. Schema constructors, parser internals,
- *   detection helpers, pipeline-stage functions, and the four CLI-only
- *   modes (`init`, `doctor`, `migrate`, `explain`) are intentionally not
- *   re-exported — they are codemod / CLI internals and change without notice.
+ *   `@chughtapan/safer-spec-development` library facade. Exposes the small
+ *   contract every external caller needs: the two primary codemod entry
+ *   points (`generate`, `validate`), the closed kinds taxonomy, the
+ *   boundary decoders for sidecar and frontmatter contracts, the
+ *   author-facing test helper, and the validate-mode error contract.
+ *   Schema constructors, parser internals, detection helpers, pipeline-stage
+ *   functions, and the four CLI-only modes (`init`, `doctor`, `migrate`,
+ *   `explain`) are intentionally not re-exported — they are codemod / CLI
+ *   internals and change without notice.
  *
- * @spec.residual-contract none
- *   reason: Stage 1 interface stubs only; runtime behavior lands in
- *           implement-staff (sub-issue #5).
+ *   Per DESIGN.md "Section Population Rules" (lines 213-228), this barrel
+ *   carries `@spec.purpose` only; per-export `@spec.assume` /
+ *   `@spec.guarantee` / `@spec.residual-contract` directives live on each
+ *   re-exported declaration in its source module (kernel/, codemod/,
+ *   errors/).
  */
 
 // Format version + closed kinds taxonomy + boundary decoders + helper.

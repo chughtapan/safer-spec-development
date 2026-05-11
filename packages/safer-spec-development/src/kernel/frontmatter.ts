@@ -42,7 +42,15 @@ const SpecFrontmatterSchemaInner = Schema.Struct({
 
 export type SpecFrontmatter = Schema.Schema.Type<typeof SpecFrontmatterSchemaInner>;
 
-/** Decode unknown YAML-parsed input into `SpecFrontmatter`. */
+/**
+ * Decode unknown YAML-parsed input into `SpecFrontmatter`.
+ *
+ * @spec.guarantee "rejects malformed input with a typed `ParseError`; never throws"
+ *   reason: trust-boundary; the validate gate reads YAML from disk.
+ * @spec.residual-contract "coverage fields are nullable for `--planned` (architect-PR) state where classifier and precondition numbers are not yet observable"
+ *   reason: lifecycle contract; behavioral residue not encoded in the
+ *           Schema's null-permissive shape.
+ */
 export const decodeSpecFrontmatter = (
   input: unknown,
 ): Effect.Effect<SpecFrontmatter, ParseResult.ParseError> =>

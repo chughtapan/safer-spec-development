@@ -72,6 +72,13 @@ export type SpecArtifact = Schema.Schema.Type<typeof SpecArtifactSchemaInner>;
 /**
  * Decode unknown input into a `SpecArtifact`. Public boundary; the
  * underlying Schema constructor stays private to this module.
+ *
+ * @spec.guarantee "rejects malformed input with a typed `ParseError` rather than throwing"
+ *   reason: trust-boundary contract; the codemod's validate gate
+ *           consumes the error channel, never a thrown exception.
+ * @spec.residual-contract "decoded artifact's string fields are size-capped per the underlying Schema; the cap is enforced at decode time, not via runtime check"
+ *   reason: refinements live in the Schema constructor (private to this
+ *           module); callers see the refined types post-decode.
  */
 export const decodeSpecArtifact = (
   input: unknown,

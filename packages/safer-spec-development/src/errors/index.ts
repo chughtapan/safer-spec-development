@@ -78,6 +78,13 @@ export class GenerateError extends Data.TaggedError("GenerateError")<{
   readonly reason: string;
 }> {}
 
+/**
+ * @spec.guarantee "the gapClass field is one of {11, 12, 13}; the runtime constructor enforces the literal-union type"
+ *   reason: external CI scripts and the orchestrator's Step-5d routing
+ *           switch on the integer code (Amendment 5).
+ * @spec.residual-contract "diagnostic body conforms to `validate-diagnostic-shape` (problem, cause, fix, docsLink); each field is size-capped at the codemod's emit boundary"
+ *   reason: trust contract; agents consume the diagnostic as routing input.
+ */
 export class ValidateError extends Data.TaggedError("ValidateError")<{
   readonly gapClass: 11 | 12 | 13;
   readonly location: string;

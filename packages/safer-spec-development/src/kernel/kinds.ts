@@ -10,6 +10,12 @@
  *   `safer-spec.config.ts` `kindsExtension: Kind[]`.
  */
 
+/**
+ * @spec.guarantee "membership order is stable across versions; the index of each kind is part of the contract"
+ *   reason: per-repo `kindsExtension` appends; no reordering.
+ * @spec.residual-contract none
+ *   reason: shape captured by `as const` tuple type.
+ */
 export const KINDS = [
   "Roundtrip",
   "Partial Roundtrip",
@@ -24,6 +30,12 @@ export const KINDS = [
 
 export type Kind = (typeof KINDS)[number];
 
+/**
+ * @spec.guarantee "returns true iff the input is a string AND that string appears in `KINDS`"
+ *   reason: type-guard contract; the cast in the call site relies on this.
+ * @spec.residual-contract none
+ *   reason: pure predicate; behavior fully captured by signature.
+ */
 export function isKind(value: unknown): value is Kind {
   return typeof value === "string" && (KINDS as readonly string[]).includes(value);
 }

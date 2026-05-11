@@ -24,6 +24,14 @@ interface MigrateResult {
   readonly diff: string;
 }
 
+/**
+ * @spec.assume "the on-disk SPEC.md format-version field matches `fromVersion`; mismatched files are skipped, not converted in-place"
+ *   reason: lifecycle precondition; not encoded in the input shape.
+ * @spec.guarantee "running migrate twice with the same input produces the same `filesUpdated` set on the second run as the first plus the new converts (idempotent on already-migrated files)"
+ *   reason: roundtrip-style contract; allows safe retry.
+ * @spec.residual-contract "dry-run never writes; non-dry-run writes atomically per-file"
+ *   reason: side-effect contract beyond the Effect signature.
+ */
 export const migrate = (
   _input: MigrateInput,
 ): Effect.Effect<
