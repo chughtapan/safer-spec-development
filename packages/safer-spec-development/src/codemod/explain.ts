@@ -11,11 +11,11 @@ import type { Effect } from "effect";
 import { Effect as Eff } from "effect";
 import type { ExplainError } from "../errors/index.js";
 
-export interface ExplainInput {
+interface ExplainInput {
   readonly errorCode: string;
 }
 
-export interface ExplainResult {
+interface ExplainResult {
   readonly errorCode: string;
   readonly docsPath: string;
   readonly entry: string;

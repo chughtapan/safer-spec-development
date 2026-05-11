@@ -11,11 +11,11 @@ import type { Effect } from "effect";
 import { Effect as Eff } from "effect";
 import type { InitError } from "../errors/index.js";
 
-export interface InitInput {
+interface InitInput {
   readonly folder: string | null;
 }
 
-export interface InitResult {
+interface InitResult {
   readonly folder: string;
   readonly filesCreated: ReadonlyArray<string>;
 }

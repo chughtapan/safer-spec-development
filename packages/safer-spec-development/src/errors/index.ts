@@ -16,31 +16,7 @@
  */
 
 import { Data } from "effect";
-import type { Kind } from "../kinds.js";
-
-export class NotImplementedYet extends Data.TaggedError("NotImplementedYet")<{
-  readonly at: string;
-}> {}
-
-export class FileSystemReadError extends Data.TaggedError("FileSystemReadError")<{
-  readonly path: string;
-  readonly cause: unknown;
-}> {}
-
-export class FileSystemWriteError extends Data.TaggedError("FileSystemWriteError")<{
-  readonly path: string;
-  readonly cause: unknown;
-}> {}
-
-export class FrontmatterParseError extends Data.TaggedError("FrontmatterParseError")<{
-  readonly path: string;
-  readonly reason: string;
-}> {}
-
-export class FrontmatterSchemaError extends Data.TaggedError("FrontmatterSchemaError")<{
-  readonly path: string;
-  readonly issues: ReadonlyArray<string>;
-}> {}
+import type { Kind } from "../kernel/index.js";
 
 export class SidecarSchemaError extends Data.TaggedError("SidecarSchemaError")<{
   readonly path: string;

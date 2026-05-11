@@ -11,13 +11,13 @@ import type { Effect } from "effect";
 import { Effect as Eff } from "effect";
 import type { MigrateError } from "../errors/index.js";
 
-export interface MigrateInput {
+interface MigrateInput {
   readonly fromVersion: string;
   readonly toVersion: string;
   readonly dryRun: boolean;
 }
 
-export interface MigrateResult {
+interface MigrateResult {
   readonly fromVersion: string;
   readonly toVersion: string;
   readonly filesUpdated: ReadonlyArray<string>;

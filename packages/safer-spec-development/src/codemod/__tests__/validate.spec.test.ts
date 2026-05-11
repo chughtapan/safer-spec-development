@@ -12,12 +12,12 @@
  *     - properties-table-self-host-bodied (Inclusion)
  */
 
-import { itSpec } from "../../helper.js";
-import { formatDiagnostic, validate, validateFolder } from "../validate.js";
+import { itSpec } from "../../kernel/index.js";
+import { formatDiagnostic, validate } from "../validate.js";
 
 itSpec.todo("validate-gate-determ", {
   kind: "Roundtrip",
-  exports: [validate, validateFolder],
+  exports: [validate],
 });
 
 itSpec.todo("validate-emits-gap-cls", {

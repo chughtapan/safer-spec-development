@@ -1,3 +1,7 @@
+/* eslint-disable sonarjs/todo-tag -- the JSDoc references Vitest's
+   `it.todo` / `it.prop` collector API by name as part of the gap-class
+   contract documentation; the rule treats the lowercase token "todo" as a
+   stale-task marker, but it is the public API name being cited */
 /**
  * @spec.purpose
  *   `validate` mode entrypoint. Runs `generate` to memory, diffs against
@@ -43,14 +47,14 @@ import { Schema, type Effect } from "effect";
 import { Effect as Eff } from "effect";
 import type { ValidateError } from "../errors/index.js";
 
-export const ValidateDiagnostic = Schema.Struct({
+const ValidateDiagnosticSchema = Schema.Struct({
   problem: Schema.String,
   cause: Schema.String,
   fix: Schema.String,
   docsLink: Schema.String,
 });
 
-export type ValidateDiagnostic = Schema.Schema.Type<typeof ValidateDiagnostic>;
+export type ValidateDiagnostic = Schema.Schema.Type<typeof ValidateDiagnosticSchema>;
 
 export const GAP_CLASS_EXIT_CODES = {
   MISSING_SPEC_PROPERTY: 11 as const,
@@ -79,15 +83,6 @@ export const validate = (
   ValidateError,
   FileSystem.FileSystem | Path.Path
 > => Eff.die(new Error("Stage 1 stub: validate not implemented"));
-
-export const validateFolder = (
-  _folder: string,
-  _mode: "planned" | "implemented",
-): Effect.Effect<
-  ValidatePassReport,
-  ValidateError,
-  FileSystem.FileSystem | Path.Path
-> => Eff.die(new Error("Stage 1 stub: validateFolder not implemented"));
 
 export const formatDiagnostic = (
   _gapClass: GapClass,

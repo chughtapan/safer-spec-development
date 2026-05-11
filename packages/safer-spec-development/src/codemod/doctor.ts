@@ -11,13 +11,13 @@ import type { Effect } from "effect";
 import { Effect as Eff } from "effect";
 import type { DoctorError } from "../errors/index.js";
 
-export interface DoctorCheck {
+interface DoctorCheck {
   readonly name: string;
   readonly status: "pass" | "warn" | "fail";
   readonly message: string;
 }
 
-export interface DoctorReport {
+interface DoctorReport {
   readonly checks: ReadonlyArray<DoctorCheck>;
   readonly overall: "pass" | "warn" | "fail";
 }

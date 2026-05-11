@@ -12,14 +12,14 @@ import type { Effect } from "effect";
 import { Effect as Eff } from "effect";
 import type { GenerateError } from "../errors/index.js";
 
-export interface GenerateInput {
+interface GenerateInput {
   readonly folder: string | null;
   readonly write: boolean;
   readonly dryRun: boolean;
   readonly watch: boolean;
 }
 
-export interface GenerateResult {
+interface GenerateResult {
   readonly foldersTouched: ReadonlyArray<string>;
   readonly filesWritten: ReadonlyArray<string>;
   readonly diff: string;

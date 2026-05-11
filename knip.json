@@ -1,15 +1,9 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "ignoreExportsUsedInFile": true,
   "workspaces": {
     "packages/safer-spec-development": {
       "entry": ["src/**/*.spec.test.ts"],
-      "project": ["src/**/*.ts"],
-      "ignoreDependencies": [
-        "fast-check",
-        "remark-parse",
-        "ts-morph"
-      ]
+      "project": ["src/**/*.ts"]
     }
   }
 }
