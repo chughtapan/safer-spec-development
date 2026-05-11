@@ -1,0 +1,27 @@
+name: Release
+
+# Manual trigger only. No auto-publish. Stage 1 wires the actual tag +
+# npm publish steps; Stage 0 ships the workflow shell so the dispatch
+# surface exists from day one.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (e.g. v0.0.1). Stage 0 placeholder."
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Release (manual)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Placeholder
+        run: |
+          echo "Release workflow placeholder for tag: ${{ inputs.tag }}"
+          echo "Stage 1 implements: pnpm install, pnpm -r build, pnpm -r test, git tag, npm publish."

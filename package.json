@@ -1,0 +1,26 @@
+{
+  "name": "safer-spec-development-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Per-folder SPEC.md TypeScript codemod (root workspace)",
+  "license": "MIT",
+  "author": "Tapan Chugh",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "lint": "eslint . && agent-code-guard-knip",
+    "lint:fix": "eslint . --fix",
+    "safer-spec": "pnpm --filter @chughtapan/safer-spec-development exec safer-spec"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-agent-code-guard": "^0.0.11",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}
