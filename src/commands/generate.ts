@@ -184,7 +184,7 @@ const parseTests = (
         .readFileString(filePath)
         .pipe(Effect.mapError(ioToGenerate(folder, filePath)));
       const testDirectives = yield* parseFileDirectives(filePath, source);
-      rows.push(...extractProperties(filePath, source, testDirectives));
+      rows.push(...extractProperties(filePath, source, testDirectives).rows);
     }
     return rows;
   });

@@ -35,15 +35,16 @@ import {
   JsDocUnknownDirectiveError,
 } from "@safer/spec/directives/index.js";
 import {
-  buildFolderAnalysis,
   buildSpecMeta,
   collectFolderInputs,
   discoverFolders,
+  inspectFolder,
   loadValidateProjectContext,
   regenerateMarkdown,
   type FolderInputs,
   type ProjectContext,
 } from "@safer/commands/validate-pipeline.js";
+import type { ItSpecIssue } from "@safer/spec/todos.js";
 
 const ValidateDiagnosticSchema = Schema.Struct({
   problem: Schema.String,
@@ -206,6 +207,52 @@ const checkImplBodies = (
   );
 };
 
+const issueToError = (issue: ItSpecIssue): ValidateGapError => {
+  const location = `${issue.path}:${String(issue.line)}`;
+  if (issue.kind === "missing-directive") {
+    return new MissingStubError({
+      location,
+      diagnostic: mkDiagnostic(
+        "itSpec call site missing required JSDoc directive(s)",
+        issue.detail,
+        "add the missing @spec.property / @spec.type / @spec.exports / @spec.claim block above the call",
+        "missing-stub",
+      ),
+    });
+  }
+  if (issue.kind === "directive-mismatch") {
+    return new MissingSpecPropertyError({
+      location,
+      diagnostic: mkDiagnostic(
+        "JSDoc directive disagrees with itSpec runtime argument",
+        issue.detail,
+        "make the JSDoc directive and the itSpec call argument refer to the same value",
+        "missing-spec-property",
+      ),
+    });
+  }
+  return new MissingImplError({
+    location,
+    diagnostic: mkDiagnostic(
+      "itSpec.prop body is empty",
+      issue.detail,
+      "replace the empty body with a fast-check property assertion",
+      "missing-impl",
+    ),
+  });
+};
+
+const failOnIssues = (
+  issues: ReadonlyArray<ItSpecIssue>,
+  mode: "planned" | "implemented",
+): Effect.Effect<void, ValidateGapError> => {
+  const filtered = mode === "planned"
+    ? issues.filter((i) => i.kind !== "empty-body")
+    : issues;
+  if (filtered.length === 0) return Effect.succeed(void 0);
+  return Effect.fail(issueToError(filtered[0]!));
+};
+
 interface ValidateCtx {
   readonly fs: FileSystem.FileSystem;
   readonly path: Path.Path;
@@ -219,13 +266,14 @@ const validateOneFolder = (
   inputs: FolderInputs,
 ): Effect.Effect<string, ValidateGapError> =>
   Effect.gen(function* () {
-    const analysis = yield* catchDirectiveErrors(
-      buildFolderAnalysis(ctx.fs, folder, inputs, ctx.projectCtx),
+    const inspection = yield* catchDirectiveErrors(
+      inspectFolder(ctx.fs, folder, inputs, ctx.projectCtx),
     );
-    const meta = buildSpecMeta(analysis, ctx.projectCtx);
-    const regenerated = regenerateMarkdown(analysis, meta);
+    yield* failOnIssues(inspection.issues, ctx.mode);
+    const meta = buildSpecMeta(inspection.analysis, ctx.projectCtx);
+    const regenerated = regenerateMarkdown(inspection.analysis, meta);
     yield* checkDrift(ctx.fs, ctx.path.join(folder, "SPEC.md"), regenerated);
-    if (ctx.mode === "implemented") yield* checkImplBodies(analysis);
+    if (ctx.mode === "implemented") yield* checkImplBodies(inspection.analysis);
     return folder;
   });
 
