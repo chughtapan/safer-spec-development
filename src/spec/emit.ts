@@ -7,7 +7,6 @@
  *   diff comparison, `remark-parse` for distinguishing fenced code from
  *   inline code in body prose.
  *
- *
  * @spec.guarantee Re-emission at the same tree SHA produces byte-identical
  *   output modulo `generated-at-sha`.
  *   reason: Roundtrip property on the codemod's own emit step; required by

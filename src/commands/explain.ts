@@ -2,8 +2,7 @@
  * @spec.purpose
  *   `explain` mode entrypoint. Looks up an error code (e.g.
  *   `MISSING_SPEC_PROPERTY`, `spec-kind-coverage`) and returns the
- *   corresponding `docs/errors.md` entry. Closes the loop on every diagnostic
- *   the validate gate emits.
+ *   corresponding `docs/errors.md` entry.
  *
  *   Tagged error `ExplainError` is co-located here.
  */

@@ -16,9 +16,6 @@
  *     - any other defect / failure → `NodeRuntime.runMain` default (non-zero)
  *
  *   Tagged errors `CliExitCode` and `CliUsageError` are co-located here.
- *
- *   The mode modules own implementation details; this file only wires
- *   command-line inputs to mode calls and translates typed failures.
  */
 
 import { Args, Command, Options } from "@effect/cli";
