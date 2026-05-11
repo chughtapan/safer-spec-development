@@ -171,6 +171,10 @@ const driftError = (specPath: string, reason: string): MissingSpecPropertyError 
     ),
   });
 
+const SHA_LINE_RE = /^generatedAtSha:.*$/m;
+const stripVolatileMd = (text: string): string =>
+  text.replace(SHA_LINE_RE, "generatedAtSha: <NORMALIZED>");
+
 const checkDrift = (
   fs: FileSystem.FileSystem,
   specPath: string,
@@ -181,7 +185,7 @@ const checkDrift = (
       onFailure: () =>
         Effect.fail(driftError(specPath, "no SPEC.md on disk for this folder")),
       onSuccess: (onDisk) =>
-        onDisk === regenerated
+        stripVolatileMd(onDisk) === stripVolatileMd(regenerated)
           ? Effect.succeed(void 0)
           : Effect.fail(
               driftError(specPath, "on-disk bytes differ from re-emit"),
