@@ -23,14 +23,14 @@ const GeneratedFromSchema = Schema.Struct({
 });
 
 const CoverageBlockSchema = Schema.Struct({
-  kindCoverage: Schema.Number,
+  typeCoverage: Schema.Number,
   classifierCoverage: Schema.NullOr(Schema.Number),
   preconditionPassRate: Schema.NullOr(Schema.Number),
   branchCoverageFromSpecTests: Schema.NullOr(Schema.Number),
 });
 
 const ThresholdsBlockSchema = Schema.Struct({
-  kindCoverage: Schema.Number,
+  typeCoverage: Schema.Number,
   classifierCoverage: Schema.Number,
   preconditionPassRate: Schema.Number,
 });

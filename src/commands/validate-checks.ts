@@ -206,14 +206,14 @@ const shortfallDiagnostic = (
   s: ThresholdShortfall,
 ): ValidateDiagnostic => {
   const gap =
-    s.metric === "kindCoverage" && s.missingKinds.length > 0
-      ? ` (gap: missing tests for kinds [${s.missingKinds.join(", ")}])`
+    s.metric === "typeCoverage" && s.missingPropertyTypes.length > 0
+      ? ` (gap: missing tests for property-types [${s.missingPropertyTypes.join(", ")}])`
       : "";
   return mkDiagnostic(
     `coverage below threshold: ${s.metric}=${formatRatio(s.observed)} < threshold=${formatRatio(s.threshold)} at folder ${folder}${gap}`,
     `observed ${s.metric} (${formatRatio(s.observed)}) is below the configured threshold (${formatRatio(s.threshold)})`,
-    s.metric === "kindCoverage"
-      ? "add itSpec.prop calls covering the missing kinds, or declare @spec.skip with a documented reason"
+    s.metric === "typeCoverage"
+      ? "add itSpec.prop calls covering the missing property-types, or declare @spec.skip with a documented reason"
       : "extend property tests with fc.classify / loosen preconditions to raise the metric",
     "missing-impl",
   );

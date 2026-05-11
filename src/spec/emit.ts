@@ -157,13 +157,13 @@ const emitPropertiesTable = (
 export interface SpecMeta {
   readonly generatedAtSha: string;
   readonly coverage: {
-    readonly kindCoverage: number;
+    readonly typeCoverage: number;
     readonly classifierCoverage: number | null;
     readonly preconditionPassRate: number | null;
     readonly branchCoverageFromSpecTests: number | null;
   };
   readonly thresholds: {
-    readonly kindCoverage: number;
+    readonly typeCoverage: number;
     readonly classifierCoverage: number;
     readonly preconditionPassRate: number;
   };
@@ -195,12 +195,12 @@ const emitFrontmatter = (a: FolderAnalysis, meta: SpecMeta): ReadonlyArray<strin
   ...meta.generatedFrom.properties.map((s) => `    - ${s}`),
   `  eslint: ${meta.generatedFrom.eslint}`,
   "coverage:",
-  `  kindCoverage: ${String(meta.coverage.kindCoverage)}`,
+  `  typeCoverage: ${String(meta.coverage.typeCoverage)}`,
   `  classifierCoverage: ${yamlScalar(meta.coverage.classifierCoverage)}`,
   `  preconditionPassRate: ${yamlScalar(meta.coverage.preconditionPassRate)}`,
   `  branchCoverageFromSpecTests: ${yamlScalar(meta.coverage.branchCoverageFromSpecTests)}`,
   "thresholds:",
-  `  kindCoverage: ${String(meta.thresholds.kindCoverage)}`,
+  `  typeCoverage: ${String(meta.thresholds.typeCoverage)}`,
   `  classifierCoverage: ${String(meta.thresholds.classifierCoverage)}`,
   `  preconditionPassRate: ${String(meta.thresholds.preconditionPassRate)}`,
   "---",
@@ -294,7 +294,7 @@ export const buildSpecArtifact = (
     },
   })),
   coverage: {
-    kindCoverage: meta.coverage.kindCoverage,
+    typeCoverage: meta.coverage.typeCoverage,
     ...(meta.coverage.classifierCoverage !== null
       ? { classifierCoverage: meta.coverage.classifierCoverage }
       : {}),
@@ -309,12 +309,12 @@ export const buildSpecArtifact = (
 });
 
 /**
- * @spec.guarantee "kind coverage = (observed ∪ skipped) / |PROPERTY_TYPES| averaged across exports; returns 1.0 when there are no exports"
- *   reason: design-doc gate definition; validate compares against thresholds.kindCoverage.
+ * @spec.guarantee "type coverage = (observed ∪ skipped) / |PROPERTY_TYPES| averaged across exports; returns 1.0 when there are no exports"
+ *   reason: design-doc gate definition; validate compares against thresholds.typeCoverage.
  * @spec.residual-contract "classifier coverage and precondition pass rate are null in `--planned` mode (no test execution sidecars)"
  *   reason: lifecycle contract; populated only by `validate --implemented`.
  */
-export const computeKindCoverage = (a: FolderAnalysis): number => {
+export const computeTypeCoverage = (a: FolderAnalysis): number => {
   if (a.exports.length === 0) return 1;
   const total = PROPERTY_TYPES.length;
   let sum = 0;
@@ -328,13 +328,13 @@ export const computeKindCoverage = (a: FolderAnalysis): number => {
 };
 
 /**
- * @spec.guarantee "returns the property-type kinds that are required by at least one export but observed by no test row across the folder; sorted in PROPERTY_TYPES tuple order"
- *   reason: validate's kindCoverage diagnostic needs the missing-kind list to
+ * @spec.guarantee "returns the property types that are required by at least one export but observed by no test row across the folder; sorted in PROPERTY_TYPES tuple order"
+ *   reason: validate's typeCoverage diagnostic needs the missing-type list to
  *           route remediation; PROPERTY_TYPES order is the stable contract.
- * @spec.residual-contract "kinds explicitly skipped on every export that would otherwise require them are not listed; skipped == covered for gating purposes"
+ * @spec.residual-contract "property types explicitly skipped on every export that would otherwise require them are not listed; skipped == covered for gating purposes"
  *   reason: skipped is a deliberate opt-out and counts toward coverage.
  */
-export const findMissingPropertyKinds = (
+export const findMissingPropertyTypes = (
   a: FolderAnalysis,
 ): ReadonlyArray<PropertyType> => {
   const required = new Set<PropertyType>();

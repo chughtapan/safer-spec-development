@@ -17,9 +17,9 @@ import {
 } from "@safer/spec/directives/index.js";
 import {
   buildSpecArtifact,
-  computeKindCoverage,
+  computeTypeCoverage,
   emitMarkdown,
-  findMissingPropertyKinds,
+  findMissingPropertyTypes,
   type FolderAnalysis,
   type PropertyRow,
   type SpecMeta,
@@ -202,7 +202,7 @@ export const buildSpecMeta = (
 ): SpecMeta => ({
   generatedAtSha: ctx.generatedAtSha,
   coverage: {
-    kindCoverage: computeKindCoverage(analysis),
+    typeCoverage: computeTypeCoverage(analysis),
     classifierCoverage: null,
     preconditionPassRate: null,
     branchCoverageFromSpecTests: null,
@@ -218,24 +218,24 @@ export const regenerateMarkdown = (
 ): string => emitMarkdown(analysis, meta);
 
 export interface ThresholdShortfall {
-  readonly metric: "kindCoverage" | "classifierCoverage" | "preconditionPassRate";
+  readonly metric: "typeCoverage" | "classifierCoverage" | "preconditionPassRate";
   readonly observed: number;
   readonly threshold: number;
-  readonly missingKinds: ReadonlyArray<string>;
+  readonly missingPropertyTypes: ReadonlyArray<string>;
 }
 
 const checkOne = (
   metric: ThresholdShortfall["metric"],
   observed: number | null,
   threshold: number,
-  missingKinds: ReadonlyArray<string>,
+  missingPropertyTypes: ReadonlyArray<string>,
 ): ThresholdShortfall | null => {
   if (threshold <= 0 || observed === null || observed >= threshold) return null;
-  return { metric, observed, threshold, missingKinds };
+  return { metric, observed, threshold, missingPropertyTypes };
 };
 
 /**
- * @spec.guarantee "returns the first observed-below-threshold metric (kindCoverage → classifier → precondition order) or null when all gates pass"
+ * @spec.guarantee "returns the first observed-below-threshold metric (typeCoverage → classifier → precondition order) or null when all gates pass"
  *   reason: validate emits one MissingImplError per folder; first failing
  *           gate is the surfaced one.
  * @spec.residual-contract "metrics whose threshold is 0 are not gated regardless of observed value"
@@ -247,10 +247,10 @@ export const findThresholdShortfall = (
   meta: SpecMeta,
 ): ThresholdShortfall | null =>
   checkOne(
-    "kindCoverage",
-    meta.coverage.kindCoverage,
-    meta.thresholds.kindCoverage,
-    findMissingPropertyKinds(analysis),
+    "typeCoverage",
+    meta.coverage.typeCoverage,
+    meta.thresholds.typeCoverage,
+    findMissingPropertyTypes(analysis),
   ) ??
   checkOne(
     "classifierCoverage",

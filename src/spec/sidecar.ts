@@ -46,14 +46,14 @@ const SpecExportEntrySchemaInner = Schema.Struct({
 });
 
 const CoverageSchema = Schema.Struct({
-  kindCoverage: Schema.Number,
+  typeCoverage: Schema.Number,
   classifierCoverage: Schema.optionalWith(Schema.Number, { exact: true }),
   preconditionPassRate: Schema.optionalWith(Schema.Number, { exact: true }),
   branchCoverageFromSpecTests: Schema.optionalWith(Schema.Number, { exact: true }),
 });
 
 const ThresholdsSchema = Schema.Struct({
-  kindCoverage: Schema.Number,
+  typeCoverage: Schema.Number,
   classifierCoverage: Schema.Number,
   preconditionPassRate: Schema.Number,
 });

@@ -22,7 +22,7 @@ export interface ProjectContext {
   readonly paths: Readonly<Record<string, ReadonlyArray<string>>>;
   readonly generatedAtSha: string;
   readonly thresholds: {
-    readonly kindCoverage: number;
+    readonly typeCoverage: number;
     readonly classifierCoverage: number;
     readonly preconditionPassRate: number;
   };
@@ -33,7 +33,7 @@ export interface ProjectContext {
 // passes by default; downstream projects raise these via per-project config
 // (future slice) once their property tests are populated.
 const DEFAULT_THRESHOLDS = {
-  kindCoverage: 0,
+  typeCoverage: 0,
   classifierCoverage: 0,
   preconditionPassRate: 0,
 } as const;

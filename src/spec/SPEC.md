@@ -1,7 +1,7 @@
 ---
 folder: src/spec
 format-version: 0.1.0
-generatedAtSha: e6866eb9e6ff32fe383db130f7e7bca8222d55ce
+generatedAtSha: fdbacd6ae53073a15b164a05d2a7de8928ffdbfc
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,12 +10,12 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  kindCoverage: 0
+  typeCoverage: 0
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
-  kindCoverage: 0
+  typeCoverage: 0
   classifierCoverage: 0
   preconditionPassRate: 0
 ---
