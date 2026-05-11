@@ -1,9 +1,8 @@
 /**
  * @spec.purpose Sidecar JSON contract — the canonical artifact for LLM-agent
  *   consumption. Markdown SPEC.md is for humans; the sidecar is for tools.
- *   Schema constructor is private to this module per
- *   agent-code-guard/no-exported-brand-constructor; the public boundary is
- *   `decodeSpecArtifact`.
+ *   The Schema constructor stays private; `decodeSpecArtifact` is the public
+ *   boundary.
  *
  *   Tagged error `SidecarSchemaError` is co-located here (it is emitted by
  *   the sidecar domain — both the decode boundary and the writer raise it on
@@ -12,7 +11,7 @@
  * @spec.guarantee All string fields are size-capped and escape-on-emit (no
  *   prompt injection through residual contracts).
  *   reason: directive bodies are user-controlled JSDoc; agents read this JSON
- *           as context for /safer:implement-* and /safer:review-senior.
+ *           as downstream execution context.
  */
 
 import { Data, Effect, ParseResult, Schema } from "effect";
@@ -68,7 +67,7 @@ const SpecArtifactSchemaInner = Schema.Struct({
   thresholds: ThresholdsSchema,
 });
 
-export type SpecExportEntry = Schema.Schema.Type<typeof SpecExportEntrySchemaInner>;
+type SpecExportEntry = Schema.Schema.Type<typeof SpecExportEntrySchemaInner>;
 export type SpecArtifact = Schema.Schema.Type<typeof SpecArtifactSchemaInner>;
 
 export class SidecarSchemaError extends Data.TaggedError("SidecarSchemaError")<{

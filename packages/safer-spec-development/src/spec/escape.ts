@@ -37,7 +37,7 @@ export const escapeForMarkdown = (
   _input: string,
   _context: EscapeContext,
 ): Effect.Effect<string, never> =>
-  Effect.die(new Error("Stage 1 stub: escapeForMarkdown not implemented"));
+  Effect.die(new Error("Not implemented: escapeForMarkdown"));
 
 /**
  * @spec.guarantee "output is YAML-safe; quotes, colons, dashes at line start are escaped"
@@ -49,7 +49,7 @@ export const escapeForYaml = (
   _input: string,
   _context: EscapeContext,
 ): Effect.Effect<string, never> =>
-  Effect.die(new Error("Stage 1 stub: escapeForYaml not implemented"));
+  Effect.die(new Error("Not implemented: escapeForYaml"));
 
 /**
  * @spec.guarantee "output is JSON-string-safe; quotes, backslashes, control characters are escaped"
@@ -61,7 +61,7 @@ export const escapeForJson = (
   _input: string,
   _context: EscapeContext,
 ): Effect.Effect<string, never> =>
-  Effect.die(new Error("Stage 1 stub: escapeForJson not implemented"));
+  Effect.die(new Error("Not implemented: escapeForJson"));
 
 /**
  * @spec.guarantee "rejects input longer than DIRECTIVE_BODY_MAX_CHARS with a typed `JsDocDirectiveOverflowError`"

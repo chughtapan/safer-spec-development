@@ -1,8 +1,7 @@
 /**
- * @spec.purpose Property stubs for the sidecar JSON contract. Roundtrip per
- *   the design doc's Recommended Approach §6 (encode→decode→encode stable);
- *   Exception Raising on malformed input; Typechecking that decoded shape
- *   matches the declared type.
+ * @spec.purpose Property stubs for the sidecar JSON contract. Roundtrip
+ *   covers encode/decode stability; Exception Raising covers malformed input;
+ *   Typechecking verifies that decoded data matches the declared type.
  *
  *   Tests reference the public `decodeSpecArtifact` boundary; the underlying
  *   Schema constructor stays private to sidecar/schema.ts.

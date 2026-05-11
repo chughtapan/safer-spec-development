@@ -39,7 +39,7 @@ interface SidecarWritePayload {
 export const serializeSidecar = (
   _artifact: SpecArtifact,
 ): Effect.Effect<string, SidecarSchemaError> =>
-  Effect.die(new Error("Stage 1 stub: serializeSidecar not implemented"));
+  Effect.die(new Error("Not implemented: serializeSidecar"));
 
 /**
  * @spec.guarantee "atomic per-file write via @effect/platform FileSystem; no partial sidecars on failure"
@@ -52,4 +52,4 @@ export const serializeSidecar = (
 export const writeSidecar = (
   _payload: SidecarWritePayload,
 ): Effect.Effect<void, SidecarSchemaError | SidecarWriteError, FileSystem.FileSystem> =>
-  Effect.die(new Error("Stage 1 stub: writeSidecar not implemented"));
+  Effect.die(new Error("Not implemented: writeSidecar"));

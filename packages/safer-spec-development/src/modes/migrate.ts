@@ -44,4 +44,4 @@ export const migrate = (
   MigrateResult,
   MigrateError,
   FileSystem.FileSystem | Path.Path
-> => Effect.die(new Error("Stage 1 stub: migrate not implemented"));
+> => Effect.die(new Error("Not implemented: migrate"));

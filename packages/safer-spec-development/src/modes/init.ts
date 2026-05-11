@@ -9,7 +9,7 @@
  */
 
 import type { FileSystem, Path } from "@effect/platform";
-import { Data, Effect } from "effect";
+import { Data, Effect, Option } from "effect";
 
 export class InitError extends Data.TaggedError("InitError")<{
   readonly folder: string;
@@ -17,7 +17,8 @@ export class InitError extends Data.TaggedError("InitError")<{
 }> {}
 
 interface InitInput {
-  readonly folder: string | null;
+  /** `Option.none()` picks a leaf folder with `index.ts`; `Option.some(path)` scopes to one. */
+  readonly folder: Option.Option<string>;
 }
 
 interface InitResult {
@@ -37,4 +38,4 @@ interface InitResult {
 export const init = (
   _input: InitInput,
 ): Effect.Effect<InitResult, InitError, FileSystem.FileSystem | Path.Path> =>
-  Effect.die(new Error("Stage 1 stub: init not implemented"));
+  Effect.die(new Error("Not implemented: init"));

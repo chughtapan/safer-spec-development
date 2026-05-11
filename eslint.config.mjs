@@ -37,11 +37,9 @@ const injectArchitectureOptions = (rules, options) =>
 // writing the reason IS the architectural decision (eslint-plugin-agent-code-guard
 // README "Declaring the contract is the point").
 //
-// Domain decomposition (replaces functional layers per parent epic
-// Directive 4): each domain owns its types, its private schema constructors,
-// and its tagged errors. No `errors/` dumping ground; errors are
-// co-located with their producer modules. No `kernel/` dumping ground;
-// shared types live in the domain that owns them.
+// Domain decomposition: each domain owns its types, private schema
+// constructors, and tagged errors. Errors stay with their producer modules,
+// and shared types live in the domain that owns them.
 const ARCHITECTURE_OPTIONS = {
   forbiddenSubpathSegments: [],
   implementationPathSegments: [],
@@ -139,11 +137,18 @@ export default [
         promoteWarnToError(guard.configs.architecture.rules),
         ARCHITECTURE_OPTIONS,
       ),
-      // Per parent epic Directive 1: refactoring brittleness from relative
-      // paths is real cost; absolute Node ESM `imports` (`#kinds/*`,
-      // `#spec/*`, etc.) are the package-internal contract.
+      // Path aliases are the package-internal contract; relative cross-domain
+      // imports make refactors harder and obscure architectural boundaries.
       "import/no-relative-parent-imports": "error",
       "import/no-relative-packages": "error",
+      // Globally off: this codebase wraps Vitest's `it.todo` and uses the
+      // word "todo" throughout JSDoc to describe the placeholder state of
+      // stubbed properties. The rule treats lowercase "todo" in comments
+      // as a stale-task marker; here it is the cited Vitest API name and
+      // a domain term ("a property in todo state until the implementer
+      // fills the body"). Replacing every reference would obscure the
+      // contract the codemod's design depends on.
+      "sonarjs/todo-tag": "off",
     },
   },
 
@@ -184,6 +189,7 @@ export default [
         ARCHITECTURE_OPTIONS,
       ),
       "sonarjs/no-empty-test-file": "off",
+      "sonarjs/todo-tag": "off",
       "import/no-relative-parent-imports": "error",
       "import/no-relative-packages": "error",
     },

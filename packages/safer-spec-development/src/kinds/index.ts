@@ -34,8 +34,7 @@ export type Kind = (typeof KINDS)[number];
 
 // Intentionally no `isKind` predicate. Validation crosses a boundary, so the
 // boundary uses the Schema directly: `Schema.decodeUnknown(Schema.Literal(...KINDS))`.
-// A standalone predicate is the human-era pattern (cheap to type, easy to forget
-// the schema branch); the agent-era equivalent is "decode at the boundary, trust
-// the type inside" (PRINCIPLES.md §2). Callers outside this domain decode via
-// the consuming Schema (e.g., spec/directives.ts's KindDirectiveSchema,
-// sidecar/schema.ts's SpecExportEntry.requiredKinds).
+// A standalone predicate is easy to forget at trust boundaries. Callers
+// outside this domain decode via the consuming Schema (for example,
+// spec/directives.ts's KindDirectiveSchema or sidecar/schema.ts's
+// SpecExportEntry.requiredKinds).

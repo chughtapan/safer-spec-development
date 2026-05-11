@@ -65,4 +65,4 @@ type DetectError = UnknownExportShapeError | AmbiguousKindError;
 export const detectExports = (
   _filePath: string,
 ): Effect.Effect<ReadonlyArray<DetectedExport>, DetectError> =>
-  Effect.die(new Error("Stage 1 stub: detectExports not implemented"));
+  Effect.die(new Error("Not implemented: detectExports"));

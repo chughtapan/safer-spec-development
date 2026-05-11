@@ -19,7 +19,7 @@
 
 import { Effect } from "effect";
 import type { GenerateError } from "@safer/modes/generate.js";
-import type { SpecArtifact } from "@safer/sidecar/index.js";
+import type { SpecArtifact } from "@safer/sidecar/schema.js";
 import type { SpecFrontmatter } from "@safer/spec/frontmatter.js";
 
 export interface EmittedSpec {
@@ -38,4 +38,4 @@ export interface EmittedSpec {
 export const emitSpec = (
   _artifact: SpecArtifact,
 ): Effect.Effect<EmittedSpec, GenerateError> =>
-  Effect.die(new Error("Stage 1 stub: emitSpec not implemented"));
+  Effect.die(new Error("Not implemented: emitSpec"));

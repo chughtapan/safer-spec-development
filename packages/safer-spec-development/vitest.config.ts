@@ -1,26 +1,14 @@
 /**
- * @spec.purpose Vitest configuration. Mirrors the tsconfig `paths` map so
- *   `@safer/*` aliases resolve identically at type-check time, vitest run
- *   time, and Node runtime (where `tsc-alias` rewrites them to relative
- *   paths in dist during build).
+ * @spec.purpose Vitest configuration. Reads `paths` from tsconfig.json via
+ *   `vite-tsconfig-paths` so the alias map is single-sourced — adding or
+ *   renaming a domain only requires editing tsconfig.json's `paths` entry,
+ *   not duplicating the change here AND in tsc-alias's read of the same
+ *   tsconfig.
  */
 
-import { resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
-
-const here = fileURLToPath(new URL(".", import.meta.url));
+import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  resolve: {
-    alias: [
-      { find: /^@safer\/kinds\/(.+)\.js$/, replacement: resolve(here, "src/kinds/$1.ts") },
-      { find: /^@safer\/authoring\/(.+)\.js$/, replacement: resolve(here, "src/authoring/$1.ts") },
-      { find: /^@safer\/spec\/(.+)\.js$/, replacement: resolve(here, "src/spec/$1.ts") },
-      { find: /^@safer\/source\/(.+)\.js$/, replacement: resolve(here, "src/source/$1.ts") },
-      { find: /^@safer\/sidecar\/(.+)\.js$/, replacement: resolve(here, "src/sidecar/$1.ts") },
-      { find: /^@safer\/modes\/(.+)\.js$/, replacement: resolve(here, "src/modes/$1.ts") },
-      { find: /^@safer\/cli\/(.+)\.js$/, replacement: resolve(here, "src/cli/$1.ts") },
-    ],
-  },
+  plugins: [tsconfigPaths()],
 });

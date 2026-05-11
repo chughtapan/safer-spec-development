@@ -1,14 +1,9 @@
-/* eslint-disable max-classes-per-file -- jsdoc-directive parsing emits
-   three closely-related tagged errors (parse, overflow, unknown-directive);
-   co-locating them with the grammar definition they belong to is exactly
-   the per-domain ownership pattern. */
 /**
  * @spec.purpose Closed grammar for `@spec.*` JSDoc directives + the parser
  *   that reads them off TypeScript source. Domain: SPEC.md authoring +
  *   on-disk artifact layout.
  *
- *   Directive surface (three populations per DESIGN.md "Section Population
- *   Rules" and parent epic Amendment 6):
+ *   Directive surface has three populations:
  *
  *     File-level (on `index.ts` barrels):
  *       @spec.purpose <one-line>
@@ -26,7 +21,7 @@
  *       @spec.ignore-export <Name>             (escape hatch)
  *         reason: <why>
  *
- *     Per-test (above each `itSpec.prop`/`itSpec.todo` call) — Amendment 6:
+ *     Per-test (above each `itSpec.prop`/`itSpec.todo` call):
  *       @spec.property <id>
  *       @spec.kind <Kind>
  *       @spec.exports <symbol-names>
@@ -85,7 +80,7 @@ const IgnoreExportDirectiveSchema = Schema.Struct({
   reason: Schema.String.pipe(Schema.maxLength(DIRECTIVE_BODY_MAX_CHARS)),
 });
 
-// Per-test directives (Amendment 6).
+// Per-test directives.
 const PropertyDirectiveSchema = Schema.Struct({
   _tag: Schema.Literal("property"),
   id: Schema.String.pipe(Schema.maxLength(DIRECTIVE_BODY_MAX_CHARS)),
@@ -119,8 +114,6 @@ const DirectiveSchema = Schema.Union(
   ClaimDirectiveSchema,
 );
 
-export type Directive = Schema.Schema.Type<typeof DirectiveSchema>;
-
 interface DirectiveLocation {
   readonly path: string;
   readonly line: number;
@@ -129,20 +122,15 @@ interface DirectiveLocation {
 }
 
 export interface LocatedDirective {
-  readonly directive: Directive;
+  readonly directive: Schema.Schema.Type<typeof DirectiveSchema>;
   readonly location: DirectiveLocation;
 }
 
 // --- Tagged errors emitted by the parser ---
-
-export class JsDocDirectiveParseError extends Data.TaggedError(
-  "JsDocDirectiveParseError",
-)<{
-  readonly path: string;
-  readonly line: number;
-  readonly directive: string;
-  readonly reason: string;
-}> {}
+//
+// Only `JsDocDirectiveOverflowError` is exported because `escape.ts` raises it
+// from `enforceLengthCap`. Additional parser errors should be exported when
+// parseFileDirectives produces them.
 
 export class JsDocDirectiveOverflowError extends Data.TaggedError(
   "JsDocDirectiveOverflowError",
@@ -154,21 +142,8 @@ export class JsDocDirectiveOverflowError extends Data.TaggedError(
   readonly limit: number;
 }> {}
 
-export class JsDocUnknownDirectiveError extends Data.TaggedError(
-  "JsDocUnknownDirectiveError",
-)<{
-  readonly path: string;
-  readonly line: number;
-  readonly directive: string;
-}> {}
-
-type ParseError =
-  | JsDocDirectiveParseError
-  | JsDocUnknownDirectiveError
-  | JsDocDirectiveOverflowError;
-
 /**
- * @spec.guarantee "every emitted directive validates against the closed grammar before downstream consumption; unknown names exit with `JsDocUnknownDirectiveError`, malformed bodies exit with `JsDocDirectiveParseError`"
+ * @spec.guarantee "every emitted directive validates against the closed grammar before downstream consumption; oversize bodies exit with `JsDocDirectiveOverflowError`"
  *   reason: trust-boundary; agents consume parsed directive bodies as
  *           context.
  * @spec.residual-contract "ts-morph (or equivalent) walks JSDoc nodes; the parser does not pre-strip whitespace beyond what ts-morph normalizes"
@@ -177,5 +152,5 @@ type ParseError =
 export const parseFileDirectives = (
   _path: string,
   _source: string,
-): Effect.Effect<ReadonlyArray<LocatedDirective>, ParseError> =>
-  Effect.die(new Error("Stage 1 stub: parseFileDirectives not implemented"));
+): Effect.Effect<ReadonlyArray<LocatedDirective>, JsDocDirectiveOverflowError> =>
+  Effect.die(new Error("Not implemented: parseFileDirectives"));

@@ -1,44 +1,67 @@
 # `@chughtapan/safer-spec-development` — package source
 
-Per-folder SPEC.md TypeScript codemod. Generates structured specs from source
-+ JSDoc directives + Effect Schema + fast-check property tests; validates the
-resulting artifact against kind-coverage, classifier-coverage, and
-precondition-pass-rate gates.
+Per-folder SPEC.md TypeScript codemod. Generates structured specs from
+source + JSDoc directives + Effect Schema + fast-check property tests;
+validates the resulting artifact against kind-coverage,
+classifier-coverage, and precondition-pass-rate gates.
 
-## Folder boundary
+## Folder boundary (domain decomposition)
 
-The package source is organized into five layered folders plus one root
-facade. Layer ordering (top to bottom; higher layers depend only on lower
-layers, per `eslint.config.mjs` `layers` declaration):
+| Layer       | Folder              | Responsibility                                                                                              |
+|-------------|---------------------|-------------------------------------------------------------------------------------------------------------|
+| entrypoint  | `cli/`              | `safer-spec` binary; composes mode entries; co-locates `CliExitCode` + `CliUsageError` tagged errors        |
+| modes       | `modes/`            | Six mode entries (`generate`, `validate`, `init`, `doctor`, `migrate`, `explain`) + their tagged errors + `SPEC_FORMAT_VERSION` |
+| domains     | `spec/`             | SPEC.md artifact (directive grammar, parser, frontmatter, emitter, escape) + their tagged errors            |
+|             | `source/`           | TypeScript source analysis (kind detection, applicability matrix, link resolver) + their tagged errors      |
+|             | `sidecar/`          | `.safer-spec/<folder>.json` JSON artifact (Schema, decode boundary, writer) + their tagged errors           |
+| terminals   | `kinds/`            | Closed `Kind` enum + `KINDS` array (OOPSLA 9-kind taxonomy)                                                 |
+|             | `authoring/`        | Author-facing `itSpec` test helper                                                                          |
 
-| Layer        | Folder         | Responsibility                                                              |
-|--------------|----------------|-----------------------------------------------------------------------------|
-| entrypoint   | `cli/`         | CLI binary (`safer-spec` bin); composes codemod modes and translates exits |
-| modes        | `codemod/`     | Six mode entries: `generate`, `validate`, `init`, `doctor`, `migrate`, `explain` |
-| pipeline     | `pipeline/`    | Codemod pipeline stages: `applicability`, `link-resolver`, `reporter`, `section-emitter` |
-| detection    | `detection/`   | Source-input parsers: `kind-detector`, `jsdoc-parser`                       |
-| kernel       | `errors/`, `kernel/` | Tagged-error registry, shared types and schemas, author-facing test helper |
+`src/index.ts` is the curated library facade. It re-exports the small
+public contract (`KINDS`, `Kind`, `itSpec`, `ItSpec`). CLI modes stay behind
+the `safer-spec` binary unless a concrete programmatic consumer needs a
+subpath export.
 
-`src/index.ts` is the curated library facade. It is the only public surface
-of the package; everything reachable through `import "@chughtapan/safer-spec-development"`
-flows through it.
+## Why domain decomposition (not functional layers)
 
-## Why the layers exist
+Functional layers (parser / emitter / detector / etc.) group "things that
+DO similar things." Domain decomposition groups "things that KNOW about
+the same artifact": JSDoc parser + emitter + frontmatter + escape all
+share knowledge of the SPEC.md format, so they live under `spec/`.
+ts-morph kind detection + applicability + link resolution all share
+TypeScript-source-analysis knowledge, so they live under `source/`.
 
-Each layer's reason is recorded in `eslint.config.mjs`. Two key ones:
+Files in the same domain change together. Domain boundaries are where
+contracts are defined.
 
-- **kernel** holds the shared vocabulary (kind taxonomy, sidecar contract,
-  frontmatter contract, helper, tagged errors). Every other layer reaches for
-  it. The kernel facade `kernel/index.ts` is the single import surface;
-  individual files are not consumed directly.
-- **detection** stages emit primitive types (`DetectedExport`, `LocatedDirective`)
-  that **pipeline** stages consume. The dependency direction is enforced
-  structurally by the `layers` config — pipeline files may import detection,
-  but never the reverse.
+## Path aliases
 
-## Where work happens
+Cross-domain imports use TypeScript path aliases (`@safer/<domain>/*`),
+configured once in `tsconfig.json` and read by:
+- TypeScript at type-check time (native `paths` support).
+- `tsc-alias` at build time (rewrites aliases to relative paths in `dist/`).
+- Vitest at test time (via `vite-tsconfig-paths` plugin in `vitest.config.ts`).
 
-Stage 1 (this PR set) ships interface stubs with `Effect.die` bodies. The
-runtime behavior lands in implement-staff (sub-issue #5) per the parent
-epic. The stubs name the public contract every downstream modality consumes;
-the bodies are intentionally not implemented.
+`src/index.ts` is the one exception: it uses `./` downward-relative paths
+so the package facade is visibly a composition of subdomains, no alias
+indirection.
+
+## Implementation boundary
+
+Some mode and analyzer entrypoints are contract-first stubs that currently
+fail with `Effect.die`. Their signatures, tagged errors, and JSDoc contracts
+define the integration surface; runtime behavior belongs behind those same
+boundaries.
+
+## Per-export directive discipline
+
+Generated specs use three directive populations:
+- File-level barrels (`index.ts`) carry `@spec.purpose` only.
+- Per-export declarations carry `@spec.assume` / `@spec.guarantee` /
+  `@spec.residual-contract` (one of these is required) + optional
+  `@spec.skip` / `@spec.ignore-export`.
+- Per-test (above each `itSpec.prop`/`itSpec.todo` call) carries
+  `@spec.property` / `@spec.kind` / `@spec.exports` / `@spec.claim`.
+
+The `validate --implemented` gate cross-checks JSDoc against runtime
+metadata and against the regenerated SPEC.md.

@@ -37,7 +37,6 @@ export interface ResolvedExport {
 export const resolveExport = (
   _detected: DetectedExport,
 ): Effect.Effect<ResolvedExport, ApplicabilityResolutionError> =>
-  Effect.die(new Error("Stage 1 stub: resolveExport not implemented"));
+  Effect.die(new Error("Not implemented: resolveExport"));
 
 export { APPLICABILITY_MATRIX } from "@safer/source/applicability-matrix.js";
-export { isOverridden } from "@safer/source/applicability-override.js";

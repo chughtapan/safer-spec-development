@@ -1,53 +1,52 @@
-/* eslint-disable sonarjs/todo-tag -- the JSDoc references Vitest's
-   `it.todo` / `it.prop` collector API by name as part of the gap-class
-   contract documentation; the rule treats the lowercase token "todo" as a
-   stale-task marker, but it is the public API name being cited */
 /**
  * @spec.purpose
  *   `validate` mode entrypoint. Runs `generate` to memory, diffs against
  *   on-disk artifacts, reads Vitest reporter sidecars, asserts the gate
- *   classes, and fails on the typed error channel with one of the {11, 12,
- *   13} gap-class exit codes per the Stage 5 spec's `## Amendment 5 mapping`
- *   (sub-issue #3).
+ *   classes, and fails on the typed error channel with one of three
+ *   tagged errors named for the gap class.
  *
- *   Per parent epic Amendment 6, the four cross-checks `validate
- *   --implemented` performs are:
+ *   `validate --implemented` performs four cross-checks:
  *     (a) Every `itSpec.prop`/`itSpec.todo` call site has the four required
  *         JSDoc directives (`@spec.property`, `@spec.kind`, `@spec.exports`,
- *         `@spec.claim`). Missing → gapClass 12 (MISSING_STUB).
+ *         `@spec.claim`). Missing → `MissingStubError`.
  *     (b) JSDoc directive values match the runtime `meta` argument
  *         (id ↔ `@spec.property`, kind ↔ `@spec.kind`, exports member names
- *         ↔ `@spec.exports`). Mismatch → gapClass 11
- *         (MISSING_SPEC_PROPERTY).
+ *         ↔ `@spec.exports`). Mismatch → `MissingSpecPropertyError`.
  *     (c) Committed SPEC.md `## Properties` table is byte-equal to the
  *         re-generated table (the table is GENERATED from test JSDoc; hand
- *         edits are drift). Drift → gapClass 11.
+ *         edits are drift). Drift → `MissingSpecPropertyError`.
  *     (d) Every `itSpec.prop` body is non-empty (not `it.todo`, not empty
- *         fast-check). Empty → gapClass 13 (MISSING_IMPL).
+ *         fast-check). Empty → `MissingImplError`.
  *
- *   Exit-code contract:
- *     0  → success channel: `ValidatePassReport`.
- *     11 → error channel: `ValidateError({ gapClass: 11, ... })` (spec-tier ratchet).
- *     12 → error channel: `ValidateError({ gapClass: 12, ... })` (architect-tier ratchet).
- *     13 → error channel: `ValidateError({ gapClass: 13, ... })` (implementer-tier BLOCK).
+ *   Tagged errors `MissingSpecPropertyError`, `MissingStubError`,
+ *   `MissingImplError` are co-located here. `cli/index.ts` translates each
+ *   tag into a process exit code at the runtime boundary
+ *   (MissingSpecPropertyError → 11, MissingStubError → 12,
+ *   MissingImplError → 13).
  *
  *   `--planned` mode: kind-metadata-only check; classifier-coverage and
  *   precondition-pass-rate gates are skipped. Architect-PR-tolerant.
  *
  *   `--implemented` mode: full gate including (a) — (d).
  *
- *   Tagged error `ValidateError` is co-located here.
- *
  *   Caller pattern:
  *     ```ts
  *     validate(input).pipe(
- *       Effect.catchTag("ValidateError", (e) => translateExitCode(e.gapClass))
+ *       Effect.catchTags({
+ *         MissingSpecPropertyError: (e) => ...,
+ *         MissingStubError:         (e) => ...,
+ *         MissingImplError:         (e) => ...,
+ *       })
  *     )
  *     ```
  */
 
+/* eslint-disable max-classes-per-file -- the validate mode's three
+   gap-class errors are one tagged-union variant per failure class; co-locating
+   them with the function that emits them is per-domain ownership. */
+
 import type { FileSystem, Path } from "@effect/platform";
-import { Data, Effect, Schema } from "effect";
+import { Data, Effect, Option, Schema } from "effect";
 
 const ValidateDiagnosticSchema = Schema.Struct({
   problem: Schema.String,
@@ -56,39 +55,63 @@ const ValidateDiagnosticSchema = Schema.Struct({
   docsLink: Schema.String,
 });
 
-export type ValidateDiagnostic = Schema.Schema.Type<typeof ValidateDiagnosticSchema>;
+type ValidateDiagnostic = Schema.Schema.Type<typeof ValidateDiagnosticSchema>;
 
-/**
- * @spec.guarantee "the gapClass field is one of {11, 12, 13}; the runtime constructor enforces the literal-union type"
- *   reason: external CI scripts and the orchestrator's Step-5d routing
- *           switch on the integer code (Amendment 5).
- * @spec.residual-contract "diagnostic body conforms to `validate-diagnostic-shape` (problem, cause, fix, docsLink); each field is size-capped at the codemod's emit boundary"
- *   reason: trust contract; agents consume the diagnostic as routing input.
- */
-export class ValidateError extends Data.TaggedError("ValidateError")<{
-  readonly gapClass: 11 | 12 | 13;
+interface GapErrorPayload {
   readonly location: string;
   readonly diagnostic: ValidateDiagnostic;
-}> {}
+}
 
 /**
- * @spec.guarantee "the three exit codes are stable; CI scripts may switch on the integer values"
- *   reason: external scripts depend on the exact codes for routing
- *           (Amendment 5).
- * @spec.residual-contract none
- *   reason: shape captured by `as const` literal types.
+ * @spec.guarantee "emitted only when a Properties row in SPEC.md fails to match a corresponding test-side directive (cross-check b) or the regenerated table differs from the committed one (cross-check c)"
+ *   reason: spec-tier ratchet; cli translates this tag to exit code 11.
+ * @spec.residual-contract "diagnostic.problem text is human-readable; downstream agents read .diagnostic.fix to route the next step"
+ *   reason: trust contract for diagnostic body content.
  */
-export const GAP_CLASS_EXIT_CODES = {
-  MISSING_SPEC_PROPERTY: 11 as const,
-  MISSING_STUB: 12 as const,
-  MISSING_IMPL: 13 as const,
-};
+class MissingSpecPropertyError extends Data.TaggedError(
+  "MissingSpecPropertyError",
+)<GapErrorPayload> {}
 
-export type GapClassName = keyof typeof GAP_CLASS_EXIT_CODES;
-export type GapClass = (typeof GAP_CLASS_EXIT_CODES)[GapClassName];
+/**
+ * @spec.guarantee "emitted when an itSpec call site lacks the four required JSDoc directives, or when no itSpec call exists for a Properties row"
+ *   reason: architect-tier ratchet; cli translates this tag to exit code 12.
+ * @spec.residual-contract "diagnostic.location names the call site (file:line)"
+ *   reason: trust contract for routing the architect re-dispatch.
+ */
+class MissingStubError extends Data.TaggedError(
+  "MissingStubError",
+)<GapErrorPayload> {}
+
+/**
+ * @spec.guarantee "emitted when an itSpec.prop call has an empty fast-check body or has been left as itSpec.todo despite the property graduating to implemented state"
+ *   reason: implementer-tier BLOCK; cli translates this tag to exit code 13.
+ * @spec.residual-contract "diagnostic.cause names the reason the body is empty"
+ *   reason: trust contract for routing the implementer re-dispatch.
+ */
+class MissingImplError extends Data.TaggedError(
+  "MissingImplError",
+)<GapErrorPayload> {}
+
+export type ValidateGapError =
+  | MissingSpecPropertyError
+  | MissingStubError
+  | MissingImplError;
+
+/**
+ * Tag to POSIX exit code mapping for the three gap-class errors. This map
+ * ties each code to the exact tagged-error class that triggers it. The
+ * `satisfies` clause guarantees every `ValidateGapError["_tag"]` is mapped at
+ * compile time.
+ */
+export const VALIDATE_GAP_EXIT_CODES = {
+  MissingSpecPropertyError: 11,
+  MissingStubError: 12,
+  MissingImplError: 13,
+} as const satisfies Record<ValidateGapError["_tag"], number>;
 
 interface ValidateInput {
-  readonly folder: string | null;
+  /** `Option.none()` validates every folder under cwd; `Option.some(path)` scopes to one. */
+  readonly folder: Option.Option<string>;
   readonly mode: "planned" | "implemented";
   readonly formatVersionCheck: boolean;
 }
@@ -102,9 +125,9 @@ interface ValidatePassReport {
  * @spec.assume "the underlying `generate` step is deterministic at the same tree SHA"
  *   reason: cross-check (c) above relies on byte-equality between the
  *           on-disk SPEC.md and the regenerated one.
- * @spec.guarantee "first failing check short-circuits and emits a single `ValidateError`"
- *   reason: the orchestrator's Step-5d routing acts on the gapClass; a
- *           batched failure would obscure routing.
+ * @spec.guarantee "first failing check short-circuits and emits exactly one of the three gap-class errors"
+ *   reason: the cli's catchTags routing acts on the tag; a batched failure
+ *           would obscure routing.
  * @spec.residual-contract "Vitest reporter sidecars must already exist on disk for `--implemented` mode; their absence is a separate diagnostic class (stale-CI-artifact)"
  *   reason: lifecycle ordering; not encoded in the input shape.
  */
@@ -112,19 +135,18 @@ export const validate = (
   _input: ValidateInput,
 ): Effect.Effect<
   ValidatePassReport,
-  ValidateError,
+  ValidateGapError,
   FileSystem.FileSystem | Path.Path
-> => Effect.die(new Error("Stage 1 stub: validate not implemented"));
+> => Effect.die(new Error("Not implemented: validate"));
 
 /**
- * @spec.guarantee "output string is the canonical user-facing diagnostic body for the given gap class"
+ * @spec.guarantee "output string is the canonical user-facing diagnostic body for the given gap-class error"
  *   reason: the CLI binary writes this directly to stderr; no further
  *           shaping happens at the runtime boundary.
  * @spec.residual-contract none
  *   reason: pure transformation; output shape derived from input.
  */
 export const formatDiagnostic = (
-  _gapClass: GapClass,
-  _diagnostic: ValidateDiagnostic,
+  _err: ValidateGapError,
 ): Effect.Effect<string, never> =>
-  Effect.die(new Error("Stage 1 stub: formatDiagnostic not implemented"));
+  Effect.die(new Error("Not implemented: formatDiagnostic"));

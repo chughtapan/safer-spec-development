@@ -42,4 +42,4 @@ export const explain = (
   ExplainResult,
   ExplainError,
   FileSystem.FileSystem | Path.Path
-> => Effect.die(new Error("Stage 1 stub: explain not implemented"));
+> => Effect.die(new Error("Not implemented: explain"));

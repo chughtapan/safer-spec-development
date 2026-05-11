@@ -4,15 +4,11 @@
  *   (tests), parses JSDoc directives on both surfaces, and emits per-folder
  *   SPEC.md plus `.safer-spec/<folder>.json` structured sidecar.
  *
- *   Per parent epic Amendment 6 (the property-model inversion):
- *     - `## Properties` table rows are EXTRACTED FROM tests (each
- *       `itSpec.prop`/`itSpec.todo` call site contributes one row, sourced
- *       from the four required JSDoc directives `@spec.property`,
- *       `@spec.kind`, `@spec.exports`, `@spec.claim`).
- *     - All other SPEC.md sections (`## Purpose`, `## Public surface /
- *       <Export> / Residual contract`, etc.) are emitted from per-export
- *       JSDoc on the source declarations + the kind-detector + applicability
- *       matrix output.
+ *   The `## Properties` table is extracted from tests: each
+ *   `itSpec.prop`/`itSpec.todo` call site contributes one row sourced from
+ *   `@spec.property`, `@spec.kind`, `@spec.exports`, and `@spec.claim`.
+ *   Other sections are emitted from source-side JSDoc, kind detection, and
+ *   applicability output.
  *
  *   Composes spec/ + source/ + sidecar/ domains. Mode is the orchestrator;
  *   the domains are the workers.
@@ -21,7 +17,7 @@
  */
 
 import type { FileSystem, Path } from "@effect/platform";
-import { Data, Effect } from "effect";
+import { Data, Effect, Option } from "effect";
 
 export class GenerateError extends Data.TaggedError("GenerateError")<{
   readonly folder: string;
@@ -29,7 +25,8 @@ export class GenerateError extends Data.TaggedError("GenerateError")<{
 }> {}
 
 interface GenerateInput {
-  readonly folder: string | null;
+  /** `Option.none()` walks every folder under cwd; `Option.some(path)` scopes to one. */
+  readonly folder: Option.Option<string>;
   readonly write: boolean;
   readonly dryRun: boolean;
   readonly watch: boolean;
@@ -58,4 +55,4 @@ export const generate = (
   GenerateResult,
   GenerateError,
   FileSystem.FileSystem | Path.Path
-> => Effect.die(new Error("Stage 1 stub: generate not implemented"));
+> => Effect.die(new Error("Not implemented: generate"));

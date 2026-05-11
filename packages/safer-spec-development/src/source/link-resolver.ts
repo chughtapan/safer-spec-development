@@ -1,10 +1,9 @@
 /**
  * @spec.purpose
- *   Resolves backticked symbol references in SPEC.md body prose. Stage 1
- *   covers two resolvers: intra-file (`symbol.getDeclarations()[0]` →
- *   `[Symbol](../../path.ts#Lnn)`) and cross-spec (workspace sibling
- *   `[Symbol](../../sibling/src/folder/SPEC.md#symbol-slug)`). Cross-file
- *   resolution is deferred per design doc Open Question 6.
+ *   Resolves backticked symbol references in SPEC.md body prose. Local
+ *   source references use declaration locations; workspace references can
+ *   resolve to sibling SPEC.md anchors. Cross-file source resolution is a
+ *   separate resolver capability.
  *
  *   Tagged error `LinkResolutionError` is co-located here.
  *
@@ -55,4 +54,4 @@ export const resolveSymbol = (
   _symbol: string,
   _fromFile: string,
 ): Effect.Effect<LinkOutcome, LinkResolutionError> =>
-  Effect.die(new Error("Stage 1 stub: resolveSymbol not implemented"));
+  Effect.die(new Error("Not implemented: resolveSymbol"));

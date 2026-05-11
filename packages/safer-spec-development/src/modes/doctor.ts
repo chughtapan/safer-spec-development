@@ -37,4 +37,4 @@ export const doctor = (): Effect.Effect<
   DoctorReport,
   DoctorError,
   FileSystem.FileSystem | Path.Path
-> => Effect.die(new Error("Stage 1 stub: doctor not implemented"));
+> => Effect.die(new Error("Not implemented: doctor"));

@@ -5,19 +5,20 @@
 /**
  * @spec.purpose CLI binary. Composes the six subcommands (`init`, `generate`,
  *   `validate`, `doctor`, `explain`, `migrate`) into the top-level
- *   `safer-spec` Command, then translates the `CliExitCode` tagged failure
- *   into `process.exit(N)` at the runtime boundary.
+ *   `safer-spec` Command, then translates each tagged failure into
+ *   `process.exit(N)` at the runtime boundary.
  *
  *   Exit-code mapping at this boundary:
- *     - `CliExitCode({ code })` → `process.exit(code)`.
- *     - any other defect / failure → `NodeRuntime.runMain` default (non-zero).
- *     - `--planned --implemented` combo → `CliUsageError` → exit code 2
- *       (POSIX usage convention).
+ *     - `MissingSpecPropertyError` → exit 11
+ *     - `MissingStubError`         → exit 12
+ *     - `MissingImplError`         → exit 13
+ *     - `CliUsageError`            → exit 2 (POSIX usage convention)
+ *     - any other defect / failure → `NodeRuntime.runMain` default (non-zero)
  *
  *   Tagged errors `CliExitCode` and `CliUsageError` are co-located here.
  *
- *   Bodies of subcommand handlers are Stage 1 stubs; implement-staff (#5)
- *   fills the codemod functions.
+ *   The mode modules own implementation details; this file only wires
+ *   command-line inputs to mode calls and translates typed failures.
  */
 
 import { Args, Command, Options } from "@effect/cli";
@@ -31,7 +32,8 @@ import { migrate } from "@safer/modes/migrate.js";
 import {
   formatDiagnostic,
   validate,
-  type ValidateError,
+  VALIDATE_GAP_EXIT_CODES,
+  type ValidateGapError,
 } from "@safer/modes/validate.js";
 import { SPEC_FORMAT_VERSION } from "@safer/modes/version.js";
 
@@ -44,7 +46,16 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
   readonly reason: string;
 }> {}
 
-const CLI_USAGE_EXIT_CODE = 2 as const;
+/**
+ * Single source of truth for tag to POSIX exit code translation. Gap-class
+ * codes come from `VALIDATE_GAP_EXIT_CODES`; the usage-error code is the
+ * POSIX convention for command-line misuse. The `satisfies` clause guarantees
+ * every named tag is mapped.
+ */
+const CLI_EXIT_CODES = {
+  ...VALIDATE_GAP_EXIT_CODES,
+  CliUsageError: 2,
+} as const satisfies Record<ValidateGapError["_tag"] | CliUsageError["_tag"], number>;
 
 // --- init ---
 const initFolderArg = Args.text({ name: "folder" }).pipe(Args.optional);
@@ -52,7 +63,7 @@ const initCommand = Command.make(
   "init",
   { folder: initFolderArg },
   ({ folder }) =>
-    init({ folder: folder._tag === "Some" ? folder.value : null }).pipe(
+    init({ folder }).pipe(
       Effect.flatMap((result) =>
         Effect.log(
           `init scaffolded ${result.filesCreated.length} files in ${result.folder}`,
@@ -75,12 +86,7 @@ const generateCommand = Command.make(
     watch: generateWatchOpt,
   },
   ({ folder, write, dryRun, watch }) =>
-    generate({
-      folder: folder._tag === "Some" ? folder.value : null,
-      write,
-      dryRun,
-      watch,
-    }).pipe(
+    generate({ folder, write, dryRun, watch }).pipe(
       Effect.flatMap((result) =>
         Effect.log(`generate touched ${result.foldersTouched.length} folders`),
       ),
@@ -95,21 +101,18 @@ const validateFormatVersionCheckOpt = Options.boolean("format-version-check").pi
   Options.withDefault(false),
 );
 
-const handleValidateFailure = (
-  e: ValidateError,
+const handleValidateError = (
+  e: ValidateGapError | CliUsageError,
 ): Effect.Effect<never, CliExitCode> =>
   Effect.gen(function* () {
-    const formatted = yield* formatDiagnostic(e.gapClass, e.diagnostic);
-    yield* Effect.logError(formatted);
-    return yield* Effect.fail(new CliExitCode({ code: e.gapClass }));
+    if (e._tag === "CliUsageError") {
+      yield* Effect.logError(`usage error in ${e.subcommand}: ${e.reason}`);
+    } else {
+      const formatted = yield* formatDiagnostic(e);
+      yield* Effect.logError(formatted);
+    }
+    return yield* Effect.fail(new CliExitCode({ code: CLI_EXIT_CODES[e._tag] }));
   });
-
-const handleUsageError = (
-  e: CliUsageError,
-): Effect.Effect<never, CliExitCode> =>
-  Effect.logError(`usage error in ${e.subcommand}: ${e.reason}`).pipe(
-    Effect.zipRight(Effect.fail(new CliExitCode({ code: CLI_USAGE_EXIT_CODE }))),
-  );
 
 const validateCommand = Command.make(
   "validate",
@@ -130,18 +133,13 @@ const validateCommand = Command.make(
         );
       }
       const mode: "planned" | "implemented" = planned ? "planned" : "implemented";
-      const report = yield* validate({
-        folder: folder._tag === "Some" ? folder.value : null,
-        mode,
-        formatVersionCheck,
-      });
+      const report = yield* validate({ folder, mode, formatVersionCheck });
       yield* Effect.log(
         `validate passed across ${report.foldersValidated.length} folders`,
       );
       return report;
     }).pipe(
-      Effect.catchTag("ValidateError", handleValidateFailure),
-      Effect.catchTag("CliUsageError", handleUsageError),
+      Effect.catchAll(handleValidateError),
       Effect.withSpan("validateCommand"),
     ),
 );

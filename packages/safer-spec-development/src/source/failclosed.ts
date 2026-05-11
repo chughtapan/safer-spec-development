@@ -1,9 +1,9 @@
 /**
  * @spec.purpose Fail-closed resolver for ambiguous ts-morph type resolutions.
- *   Implements the design doc's Recommended Approach §5: when type-resolution
- *   cannot determine kind unambiguously (generics, conditional types, recursive
- *   schemas, casted expressions), emit `UnknownExportShapeError` and require
- *   `@spec.skip` with reason. No silent misclassification.
+ *   When type resolution cannot determine kind unambiguously (generics,
+ *   conditional types, recursive schemas, casted expressions), emit
+ *   `UnknownExportShapeError` and require an explicit skip or ignore reason.
+ *   No silent misclassification.
  *
  * @spec.guarantee The resolver never returns a candidate set without raising
  *   `AmbiguousKindError` when multiple kinds are plausible for the same export.
@@ -35,7 +35,7 @@ interface AmbiguityReport {
 export const isAmbiguousType = (
   _typeText: string,
 ): Effect.Effect<boolean, never> =>
-  Effect.die(new Error("Stage 1 stub: isAmbiguousType not implemented"));
+  Effect.die(new Error("Not implemented: isAmbiguousType"));
 
 /**
  * @spec.guarantee "always fails on the error channel; never returns a value"
@@ -49,7 +49,7 @@ export const raiseUnknownExportShape = (
   _exportName: string,
   _reason: string,
 ): Effect.Effect<never, UnknownExportShapeError> =>
-  Effect.die(new Error("Stage 1 stub: raiseUnknownExportShape not implemented"));
+  Effect.die(new Error("Not implemented: raiseUnknownExportShape"));
 
 /**
  * @spec.guarantee "always fails on the error channel; never returns a value"
@@ -60,4 +60,4 @@ export const raiseUnknownExportShape = (
 export const raiseAmbiguousKind = (
   _report: AmbiguityReport,
 ): Effect.Effect<never, AmbiguousKindError> =>
-  Effect.die(new Error("Stage 1 stub: raiseAmbiguousKind not implemented"));
+  Effect.die(new Error("Not implemented: raiseAmbiguousKind"));
