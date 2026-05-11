@@ -1,14 +1,16 @@
 /**
  * @spec.purpose Shared analysis pipeline for `validate`. Walks the same
  *   inputs as `generate` (sources, tests, index barrel) and returns the
- *   `FolderAnalysis` that the markdown emitter consumes. Factored out so
- *   `validate.ts` stays focused on gate-class semantics rather than file
- *   IO + parse plumbing, and so the cognitive-complexity / file-size lints
- *   in the strict eslint config remain satisfied.
+ *   `FolderAnalysis` that the markdown emitter consumes. Also owns
+ *   `loadProjectContext` — the project-wide source walker + tsconfig
+ *   `paths` reader that `collectExports` consumes to follow barrel
+ *   re-exports across files and aliases.
+ *
+ *   Tagged error `ProjectContextError` is co-located here.
  */
 
 import { FileSystem, Path } from "@effect/platform";
-import { Effect } from "effect";
+import { Data, Effect } from "effect";
 import {
   parseFileDirectives,
   type JsDocDirectiveOverflowError,
@@ -25,8 +27,19 @@ import {
   buildExportEntries,
   collectExports,
   findPurpose,
+  type SourceFile,
 } from "@safer/spec/source-exports.js";
 import { extractProperties } from "@safer/spec/todos.js";
+
+export class ProjectContextError extends Data.TaggedError("ProjectContextError")<{
+  readonly path: string;
+  readonly cause: string;
+}> {}
+
+export interface ProjectContext {
+  readonly sources: ReadonlyArray<SourceFile>;
+  readonly paths: Readonly<Record<string, ReadonlyArray<string>>>;
+}
 
 type DirectiveParseError =
   | JsDocDirectiveOverflowError
@@ -137,11 +150,16 @@ export const buildFolderAnalysis = (
   fs: FileSystem.FileSystem,
   folder: string,
   inputs: FolderInputs,
+  ctx: ProjectContext,
 ): Effect.Effect<FolderAnalysis, DirectiveParseError> =>
   Effect.gen(function* () {
     const directives = yield* parseSources(fs, inputs.sources);
-    const indexSrc = yield* readSource(fs, inputs.indexFilePath);
-    const declarations = collectExports(inputs.indexFilePath, indexSrc);
+    const indexFile = ctx.sources.find((s) => s.path === inputs.indexFilePath);
+    const indexSrc = indexFile?.source ?? (yield* readSource(fs, inputs.indexFilePath));
+    const declarations = collectExports(inputs.indexFilePath, indexSrc, {
+      siblings: ctx.sources,
+      paths: ctx.paths,
+    });
     const properties = yield* parseTests(fs, inputs.tests);
     return {
       folder,
@@ -152,6 +170,107 @@ export const buildFolderAnalysis = (
       testFiles: inputs.tests,
     };
   }).pipe(Effect.withSpan("commands/validate-pipeline/buildFolderAnalysis"));
+
+const IS_TS_SOURCE_RE = /\.ts$/;
+const isTsSource = (name: string): boolean =>
+  IS_TS_SOURCE_RE.test(name) &&
+  !name.endsWith(".d.ts") &&
+  !name.endsWith(".spec.test.ts");
+
+const SKIP_DIRS = new Set(["node_modules", "dist"]);
+
+const recordTsFile = (
+  fs: FileSystem.FileSystem,
+  full: string,
+  name: string,
+  out: SourceFile[],
+): Effect.Effect<void, never> =>
+  Effect.gen(function* () {
+    if (!isTsSource(name)) return;
+    const source = yield* fs
+      .readFileString(full)
+      .pipe(Effect.catchAll(() => Effect.succeed(null as string | null)));
+    if (source !== null) out.push({ path: full, source });
+  });
+
+const walkSources = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  dir: string,
+  out: SourceFile[],
+): Effect.Effect<void, never> =>
+  Effect.gen(function* () {
+    const entries = yield* readDirSafe(fs, dir);
+    for (const name of entries) {
+      if (name.startsWith(".") || SKIP_DIRS.has(name)) continue;
+      const full = path.join(dir, name);
+      const dirCheck = yield* isDirectory(fs, full);
+      yield* dirCheck
+        ? walkSources(fs, path, full, out)
+        : recordTsFile(fs, full, name, out);
+    }
+  });
+
+const PATHS_BLOCK_RE = /"paths"\s*:\s*\{([\s\S]*?)\}/;
+const PATH_ENTRY_RE = /"([^"]+)"\s*:\s*\[([^\]]*)\]/g;
+const STRING_LIT_RE = /"([^"]+)"/g;
+
+const parsePathsBlock = (
+  text: string,
+): Record<string, ReadonlyArray<string>> => {
+  const block = PATHS_BLOCK_RE.exec(text);
+  if (block === null) return {};
+  const result: Record<string, ReadonlyArray<string>> = {};
+  PATH_ENTRY_RE.lastIndex = 0;
+  let entry: RegExpExecArray | null;
+  while ((entry = PATH_ENTRY_RE.exec(block[1] ?? "")) !== null) {
+    const values: string[] = [];
+    STRING_LIT_RE.lastIndex = 0;
+    let lit: RegExpExecArray | null;
+    while ((lit = STRING_LIT_RE.exec(entry[2] ?? "")) !== null) {
+      values.push(lit[1]!);
+    }
+    result[entry[1]!] = values;
+  }
+  return result;
+};
+
+const readTsConfigPaths = (
+  fs: FileSystem.FileSystem,
+  tsconfigPath: string,
+): Effect.Effect<Readonly<Record<string, ReadonlyArray<string>>>, never> =>
+  fs.readFileString(tsconfigPath).pipe(
+    Effect.map(parsePathsBlock),
+    Effect.catchAll(() =>
+      Effect.succeed({} as Record<string, ReadonlyArray<string>>),
+    ),
+  );
+
+/**
+ * @spec.guarantee "loads project-wide context (every non-test .ts source under `root` + tsconfig `paths` mapping); collectExports consumes this so barrel re-exports follow through to their target declarations"
+ *   reason: collectExports cannot resolve `export ... from "./y.js"` or
+ *           `export ... from "@safer/spec/y.js"` without the target files
+ *           registered on the ts-morph project and aliases configured.
+ * @spec.residual-contract "missing tsconfig.json (or missing `compilerOptions.paths`) yields an empty `paths` map; aliases will not resolve in that mode"
+ *   reason: lifecycle contract; projects without aliases still load.
+ */
+export const loadProjectContext = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  root: string,
+): Effect.Effect<ProjectContext, ProjectContextError> =>
+  Effect.gen(function* () {
+    const sources: SourceFile[] = [];
+    yield* walkSources(fs, path, root, sources);
+    const paths = yield* readTsConfigPaths(fs, path.join(root, "tsconfig.json"));
+    return { sources, paths };
+  }).pipe(Effect.withSpan("commands/validate-pipeline/loadProjectContext"));
+
+export const loadValidateProjectContext = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+): Effect.Effect<ProjectContext, ProjectContextError> =>
+  loadProjectContext(fs, path, ".");
 
 /**
  * @spec.guarantee "alias for `emitMarkdown(analysis)`; isolated so validate.ts only depends on one symbol from emit"

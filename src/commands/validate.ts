@@ -38,8 +38,10 @@ import {
   buildFolderAnalysis,
   collectFolderInputs,
   discoverFolders,
+  loadValidateProjectContext,
   regenerateMarkdown,
   type FolderInputs,
+  type ProjectContext,
 } from "@safer/commands/validate-pipeline.js";
 
 const ValidateDiagnosticSchema = Schema.Struct({
@@ -207,6 +209,7 @@ interface ValidateCtx {
   readonly fs: FileSystem.FileSystem;
   readonly path: Path.Path;
   readonly mode: "planned" | "implemented";
+  readonly projectCtx: ProjectContext;
 }
 
 const validateOneFolder = (
@@ -216,7 +219,7 @@ const validateOneFolder = (
 ): Effect.Effect<string, ValidateGapError> =>
   Effect.gen(function* () {
     const analysis = yield* catchDirectiveErrors(
-      buildFolderAnalysis(ctx.fs, folder, inputs),
+      buildFolderAnalysis(ctx.fs, folder, inputs, ctx.projectCtx),
     );
     const regenerated = regenerateMarkdown(analysis);
     yield* checkDrift(ctx.fs, ctx.path.join(folder, "SPEC.md"), regenerated);
@@ -268,7 +271,15 @@ export const validate = (
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const folders = yield* resolveFolders(fs, path, input);
-    const validated = yield* validateFolders({ fs, path, mode: input.mode }, folders);
+    const projectCtx = yield* loadValidateProjectContext(fs, path).pipe(
+      Effect.catchTag("ProjectContextError", (e) =>
+        Effect.die(new Error(`failed to load project context: ${e.cause}`)),
+      ),
+    );
+    const validated = yield* validateFolders(
+      { fs, path, mode: input.mode, projectCtx },
+      folders,
+    );
     return { _tag: "pass" as const, foldersValidated: validated };
   }).pipe(Effect.withSpan("commands/validate"));
 

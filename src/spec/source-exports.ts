@@ -4,6 +4,11 @@
  *   exported declaration names plus their source lines. Used by
  *   `generate.ts` to build the SPEC.md `## Public surface` rows and
  *   match per-export `@spec*` directives to their declarations.
+ *
+ *   `collectExports` accepts sibling source files + tsconfig `paths` via
+ *   `CollectExportsOptions` so it can follow barrel re-exports across files
+ *   and aliases. The caller (commands/validate-pipeline.ts's
+ *   `loadProjectContext`) supplies that input.
  */
 
 import { Node, Project, SyntaxKind, type JSDoc } from "ts-morph";
@@ -142,27 +147,61 @@ const descriptionFromJsDocs = (anchor: Node): string => {
   return "";
 };
 
+export interface SourceFile {
+  readonly path: string;
+  readonly source: string;
+}
+
+export interface CollectExportsOptions {
+  /** Sibling source files registered on the in-memory ts-morph Project so re-exports resolve. */
+  readonly siblings?: ReadonlyArray<SourceFile>;
+  /** tsconfig `paths` mapping copied onto the in-memory Project's compilerOptions so aliased re-exports resolve. */
+  readonly paths?: Readonly<Record<string, ReadonlyArray<string>>>;
+}
+
 /**
- * @spec.guarantee "result is sorted by source line (ascending); each name is the binding's actual identifier per ts-morph's getExportedDeclarations"
- *   reason: source-order is required by emit.ts's canonical sort.
- * @spec.residual-contract "re-exports inherit the line of their re-export statement, not their original declaration"
- *   reason: ts-morph returns the local binding's position.
+ * @spec.guarantee "result is sorted by source line (ascending); each name is the binding's actual identifier per ts-morph's getExportedDeclarations; barrel re-exports resolve to their target declarations when target files are supplied via `options.siblings` and aliases are configured via `options.paths`"
+ *   reason: source-order is required by emit.ts's canonical sort; re-export
+ *           resolution requires the target files to be loaded into the
+ *           ts-morph project and any tsconfig path-aliases to be configured.
+ * @spec.residual-contract "if a re-export's target is not reachable through `siblings` + `paths`, that export is omitted; ts-morph silently drops unresolvable re-exports"
+ *   reason: ts-morph cannot follow `export { X } from "./y.js"` unless
+ *           `./y.js` (or its alias-resolved equivalent) was registered on
+ *           the same Project.
  */
 export const collectExports = (
   filePath: string,
   source: string,
+  options: CollectExportsOptions = {},
 ): ReadonlyArray<DeclaredExport> => {
-  const project = new Project({ useInMemoryFileSystem: true });
+  const compilerOptions =
+    options.paths !== undefined
+      ? {
+          baseUrl: ".",
+          paths: Object.fromEntries(
+            Object.entries(options.paths).map(([k, v]) => [k, [...v]]),
+          ),
+        }
+      : {};
+  const project = new Project({
+    useInMemoryFileSystem: true,
+    compilerOptions,
+  });
+  for (const file of options.siblings ?? []) {
+    if (file.path === filePath) continue;
+    project.createSourceFile(file.path, file.source, { overwrite: true });
+  }
   const sf = project.createSourceFile(filePath, source, { overwrite: true });
   const entries: DeclaredExport[] = [];
   for (const [name, nodes] of sf.getExportedDeclarations()) {
     const node = nodes[0];
     if (node === undefined) continue;
     const facts = declarationFacts(node);
+    const anchorFile = facts.anchor.getSourceFile().getFilePath();
     entries.push({
       name,
       line: facts.anchor.getStartLineNumber(),
-      path: filePath,
+      path: anchorFile,
       kind: facts.kind,
       signature: facts.signature,
       description: descriptionFromJsDocs(facts.anchor),
@@ -258,3 +297,4 @@ export const findPurpose = (
   }
   return null;
 };
+

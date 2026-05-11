@@ -38,6 +38,10 @@ import {
   findPurpose,
   type DeclaredExport,
 } from "@safer/spec/source-exports.js";
+import {
+  loadProjectContext,
+  type ProjectContext,
+} from "@safer/commands/validate-pipeline.js";
 import { extractProperties } from "@safer/spec/todos.js";
 
 export type FolderPath = string & Brand.Brand<"FolderPath">;
@@ -147,12 +151,19 @@ const collectIndexDeclarations = (
   fs: FileSystem.FileSystem,
   folder: FolderPath,
   indexFilePath: string,
+  ctx: ProjectContext,
 ): Effect.Effect<ReadonlyArray<DeclaredExport>, GenerateIOError> =>
   Effect.gen(function* () {
-    const source = yield* fs
-      .readFileString(indexFilePath)
-      .pipe(Effect.mapError(ioToGenerate(folder, indexFilePath)));
-    return collectExports(indexFilePath, source);
+    const indexFile = ctx.sources.find((s) => s.path === indexFilePath);
+    const indexSource =
+      indexFile?.source ??
+      (yield* fs
+        .readFileString(indexFilePath)
+        .pipe(Effect.mapError(ioToGenerate(folder, indexFilePath))));
+    return collectExports(indexFilePath, indexSource, {
+      siblings: ctx.sources,
+      paths: ctx.paths,
+    });
   });
 
 const parseTests = (
@@ -258,8 +269,18 @@ const buildAnalysis = (
         }),
       );
     }
+    const ctx = yield* loadProjectContext(fs, path, ".").pipe(
+      Effect.catchTag("ProjectContextError", (e) =>
+        Effect.die(new Error(`failed to load project context: ${e.cause}`)),
+      ),
+    );
     const directives = yield* parseSources(fs, folder, sources);
-    const declarations = yield* collectIndexDeclarations(fs, folder, indexFilePath);
+    const declarations = yield* collectIndexDeclarations(
+      fs,
+      folder,
+      indexFilePath,
+      ctx,
+    );
     const properties = yield* parseTests(fs, folder, tests);
     return {
       folder,
