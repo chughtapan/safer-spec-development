@@ -1,0 +1,66 @@
+{
+  "formatVersion": "0.1.0",
+  "folder": "src/spec/directives",
+  "purpose": "Directive grammar entry point. Walks TypeScript source via ts-morph and dispatches each parsed TSDoc block (via `tsdoc-bridge`) to its per-population parser. Returns the typed `LocatedDirective` stream.\n\nThe population modules (`file-level`, `per-export`, `per-test`) co-locate each directive's Schema with its parse function. The `tsdoc-bridge` module owns the TSDoc configuration and the byte-accurate body extraction.",
+  "exports": [
+    {
+      "name": "Directive",
+      "kind": "type",
+      "signature": "export type Directive =\n  | PurposeDirective\n  | IgnoreFileDirective\n  | AssumeDirective\n  | GuaranteeDirective\n  | ResidualContractDirective\n  | SkipDirective\n  | IgnoreExportDirective\n  | PropertyDirective\n  | TypeDirective\n  | ExportsDirective\n  | ClaimDirective;",
+      "description": "",
+      "sourceRef": {
+        "path": "src/spec/directives/index.ts",
+        "line": 66
+      },
+      "assumes": [],
+      "guarantees": [],
+      "residualContract": null,
+      "skipped": []
+    },
+    {
+      "name": "LocatedDirective",
+      "kind": "interface",
+      "signature": "export interface LocatedDirective {\n  readonly directive: Directive;\n  readonly location: DirectiveLocation;\n}",
+      "description": "",
+      "sourceRef": {
+        "path": "src/spec/directives/index.ts",
+        "line": 86
+      },
+      "assumes": [],
+      "guarantees": [],
+      "residualContract": null,
+      "skipped": []
+    },
+    {
+      "name": "parseFileDirectives",
+      "kind": "function",
+      "signature": "export const parseFileDirectives = (\n  path: string,\n  source: string,\n): Effect.Effect<ReadonlyArray<LocatedDirective>, ParseError> => /* ... */",
+      "description": "",
+      "sourceRef": {
+        "path": "src/spec/directives/index.ts",
+        "line": 224
+      },
+      "assumes": [],
+      "guarantees": [
+        {
+          "claim": "every emitted directive validates against the closed grammar before downstream consumption",
+          "reason": "trust-boundary; agents consume parsed directive bodies as context."
+        }
+      ],
+      "residualContract": null,
+      "skipped": []
+    }
+  ],
+  "properties": [],
+  "files": {
+    "source": [
+      "src/spec/directives/file-level.ts",
+      "src/spec/directives/index.ts",
+      "src/spec/directives/per-export.ts",
+      "src/spec/directives/per-test.ts",
+      "src/spec/directives/shared.ts",
+      "src/spec/directives/tsdoc-bridge.ts"
+    ],
+    "test": []
+  }
+}

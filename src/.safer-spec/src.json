@@ -1,0 +1,13 @@
+{
+  "formatVersion": "0.1.0",
+  "folder": "src",
+  "purpose": "Library facade. Re-exports the test-author surface: the `itSpec` helper and the closed property-type taxonomy. The `safer-spec` binary (commands/index.ts) is the integration point for command execution (`generate`, `validate`, `init`, `doctor`, `migrate`, `explain`); those are not re-exported from this facade.\n\nThis barrel carries `@specPurpose` only. Per-export `@specAssume`, `@specGuarantee`, and `@specResidualContract` directives live on the declarations in their source modules.",
+  "exports": [],
+  "properties": [],
+  "files": {
+    "source": [
+      "src/index.ts"
+    ],
+    "test": []
+  }
+}
