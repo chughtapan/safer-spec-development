@@ -52,6 +52,7 @@ import {
   offsetToLine,
   parseJsDocText,
   rawBodyBetween,
+  rewriteDottedTags,
   type BlockSpan,
 } from "@safer/spec/directives/tsdoc-bridge.js";
 
@@ -187,7 +188,7 @@ const parseOneJsDoc = (
   jsdoc: JSDoc,
 ): Effect.Effect<readonly LocatedDirective[], ParseError> =>
   Effect.gen(function* () {
-    const rawText = jsdoc.getText();
+    const rawText = rewriteDottedTags(jsdoc.getText());
     const jsdocStartLine = jsdoc.getStartLineNumber();
     const parsed = parseJsDocText(rawText);
     const unknown = firstUndefinedSpecTag(parsed);

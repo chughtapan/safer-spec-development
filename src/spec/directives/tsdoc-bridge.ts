@@ -160,3 +160,25 @@ export const offsetToLine = (
   }
   return baseLine + newlines;
 };
+
+const DOTTED_TAG_RE = /@spec\.([a-z][a-z-]*)/g;
+
+const hyphensToCamel = (body: string): string =>
+  body.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+
+/**
+ * Rewrites JSDoc-style dotted spec tags (`@spec.purpose`, `@spec.residual-contract`)
+ * to the TSDoc-conformant camelCase form (`@specPurpose`, `@specResidualContract`)
+ * before TSDoc sees them. TSDoc's tag-name grammar disallows the literal dot, so
+ * the dotted form would otherwise be silently absorbed as prose text — directives
+ * would parse to nothing and the codemod would emit empty `Public surface`
+ * sections without any diagnostic. The rewrite is length-reducing, so byte
+ * offsets shift left but newline positions are preserved; downstream
+ * `offsetToLine` and `rawBodyBetween` remain consistent as long as the SAME
+ * rewritten text is used for both TSDoc parsing AND raw-body slicing.
+ */
+export const rewriteDottedTags = (text: string): string =>
+  text.replace(DOTTED_TAG_RE, (_match, body: string) => {
+    const camel = hyphensToCamel(body);
+    return `@spec${camel.charAt(0).toUpperCase()}${camel.slice(1)}`;
+  });

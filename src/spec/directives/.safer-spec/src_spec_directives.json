@@ -10,7 +10,7 @@
       "description": "",
       "sourceRef": {
         "path": "src/spec/directives/index.ts",
-        "line": 66
+        "line": 67
       },
       "assumes": [],
       "guarantees": [],
@@ -24,7 +24,7 @@
       "description": "",
       "sourceRef": {
         "path": "src/spec/directives/index.ts",
-        "line": 86
+        "line": 87
       },
       "assumes": [],
       "guarantees": [],
@@ -38,7 +38,7 @@
       "description": "",
       "sourceRef": {
         "path": "src/spec/directives/index.ts",
-        "line": 224
+        "line": 225
       },
       "assumes": [],
       "guarantees": [

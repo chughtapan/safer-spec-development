@@ -13,7 +13,7 @@ The population modules (`file-level`, `per-export`, `per-test`) co-locate each d
 
 ## Public surface
 
-### [`Directive`](./index.ts#L66)
+### [`Directive`](./index.ts#L67)
 
 ```ts
 export type Directive =
@@ -30,7 +30,7 @@ export type Directive =
   | ClaimDirective;
 ```
 
-### [`LocatedDirective`](./index.ts#L86)
+### [`LocatedDirective`](./index.ts#L87)
 
 ```ts
 export interface LocatedDirective {
@@ -39,7 +39,7 @@ export interface LocatedDirective {
 }
 ```
 
-### [`parseFileDirectives`](./index.ts#L224)
+### [`parseFileDirectives`](./index.ts#L225)
 
 ```ts
 export const parseFileDirectives = (
