@@ -46,7 +46,10 @@ const readDirSafe = (
   fs: FileSystem.FileSystem,
   dir: string,
 ): Effect.Effect<ReadonlyArray<string>, never> =>
-  fs.readDirectory(dir).pipe(Effect.catchAll(() => Effect.succeed([] as ReadonlyArray<string>)));
+  fs.readDirectory(dir).pipe(
+    Effect.map((entries) => [...entries].sort()),
+    Effect.catchAll(() => Effect.succeed([] as ReadonlyArray<string>)),
+  );
 
 const isDirectory = (
   fs: FileSystem.FileSystem,

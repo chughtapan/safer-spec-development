@@ -100,11 +100,19 @@ const ioToGenerate =
   (e: unknown): GenerateIOError =>
     new GenerateIOError({ folder, path, cause: causeOf(e) });
 
+/**
+ * Wraps `fs.readDirectory` with two guarantees:
+ *  - Returns `[]` on read failure (treats missing/inaccessible dirs as empty).
+ *  - Returns entries in lexicographic order (Node's underlying `readdir` is
+ *    filesystem-dependent; sorting here keeps generate output SHA-stable
+ *    across CI/dev filesystems).
+ */
 const readDirSafe = (
   fs: FileSystem.FileSystem,
   dir: string,
 ): Effect.Effect<ReadonlyArray<string>, never> =>
   fs.readDirectory(dir).pipe(
+    Effect.map((entries) => [...entries].sort()),
     Effect.catchAll(() => Effect.succeed([] as ReadonlyArray<string>)),
   );
 
@@ -219,6 +227,16 @@ const writeOutputs = (
     return [specPath, sidecarPath];
   });
 
+const normalizeFolder = (folder: string): string => {
+  let end = folder.length;
+  while (end > 0) {
+    const ch = folder.charCodeAt(end - 1);
+    if (ch !== 47 && ch !== 92) break; // "/" = 47, "\" = 92
+    end -= 1;
+  }
+  return end === folder.length ? folder : folder.slice(0, end);
+};
+
 const checkInputs = (
   input: GenerateInput,
 ): Effect.Effect<FolderPath, GenerateError> => {
@@ -230,7 +248,7 @@ const checkInputs = (
       }),
     );
   }
-  const folder = FolderPath(input.folder.value);
+  const folder = FolderPath(normalizeFolder(input.folder.value));
   if (input.watch) {
     return Effect.fail(
       new GenerateError({ folder, reason: "--watch not yet implemented" }),

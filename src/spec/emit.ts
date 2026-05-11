@@ -144,11 +144,14 @@ const emitPropertiesTable = (
     "|---|---|---|---|---|",
   ];
   for (const p of properties) {
-    const exports = p.exports.map((s) => "`" + s + "`").join(", ");
+    const id = escapeForMarkdownTableCell(p.id);
+    const exports = p.exports
+      .map((s) => "`" + escapeForMarkdownTableCell(s) + "`")
+      .join(", ");
     const status = p.stubbed ? "todo" : "implemented";
     const claim = escapeForMarkdownTableCell(p.claim);
     lines.push(
-      `| \`${p.id}\` | \`${p.propertyType}\` | ${exports} | ${claim} | ${status} |`,
+      `| \`${id}\` | \`${p.propertyType}\` | ${exports} | ${claim} | ${status} |`,
     );
   }
   return lines;
