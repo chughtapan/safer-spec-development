@@ -160,14 +160,12 @@ export interface CollectExportsOptions {
 }
 
 /**
- * @spec.guarantee "result is sorted by source line (ascending); each name is the binding's actual identifier per ts-morph's getExportedDeclarations; barrel re-exports resolve to their target declarations when target files are supplied via `options.siblings` and aliases are configured via `options.paths`"
- *   reason: source-order is required by emit.ts's canonical sort; re-export
- *           resolution requires the target files to be loaded into the
- *           ts-morph project and any tsconfig path-aliases to be configured.
- * @spec.residual-contract "if a re-export's target is not reachable through `siblings` + `paths`, that export is omitted; ts-morph silently drops unresolvable re-exports"
- *   reason: ts-morph cannot follow `export { X } from "./y.js"` unless
- *           `./y.js` (or its alias-resolved equivalent) was registered on
- *           the same Project.
+ * @spec.guarantee "result is source-ordered; barrel re-exports resolve to their target declarations when targets are supplied via siblings + paths"
+ *   reason: emit.ts's canonical sort; re-export resolution needs target
+ *           files registered and tsconfig aliases configured.
+ * @spec.residual-contract "unresolvable re-exports are silently dropped"
+ *   reason: ts-morph cannot follow `export ... from` without the target
+ *           file registered on the same Project.
  */
 export const collectExports = (
   filePath: string,
@@ -244,8 +242,18 @@ const mergeOne = (entry: ExportEntry, d: Directive): ExportEntry => {
   }
 };
 
+const collectIgnoredExportNames = (
+  directives: ReadonlyArray<LocatedDirective>,
+): ReadonlySet<string> => {
+  const ignored = new Set<string>();
+  for (const { directive } of directives) {
+    if (directive._tag === "ignore-export") ignored.add(directive.exportName);
+  }
+  return ignored;
+};
+
 /**
- * @spec.guarantee "every declared export appears in the result exactly once; directives whose location.exportName matches a declaration are merged into that entry"
+ * @spec.guarantee "every declared export not named by an `@spec.ignore-export` directive appears in the result exactly once; directives whose location.exportName matches a declaration are merged into that entry"
  *   reason: contract for emit.ts's Public surface section.
  * @spec.residual-contract "directives whose exportName names a non-declared symbol are silently dropped"
  *   reason: validate gate surfaces these as MissingSpecPropertyError;
@@ -255,21 +263,24 @@ export const buildExportEntries = (
   declarations: ReadonlyArray<DeclaredExport>,
   directives: ReadonlyArray<LocatedDirective>,
 ): ReadonlyArray<ExportEntry> => {
+  const ignored = collectIgnoredExportNames(directives);
   const byName = new Map<string, ExportEntry>(
-    declarations.map((d) => [
-      d.name,
-      {
-        name: d.name,
-        kind: d.kind,
-        signature: d.signature,
-        description: d.description,
-        sourceRef: { path: d.path, line: d.line },
-        assumes: [],
-        guarantees: [],
-        residualContract: null,
-        skipped: [],
-      },
-    ]),
+    declarations
+      .filter((d) => !ignored.has(d.name))
+      .map((d) => [
+        d.name,
+        {
+          name: d.name,
+          kind: d.kind,
+          signature: d.signature,
+          description: d.description,
+          sourceRef: { path: d.path, line: d.line },
+          assumes: [],
+          guarantees: [],
+          residualContract: null,
+          skipped: [],
+        },
+      ]),
   );
   for (const { directive, location } of directives) {
     const name = location.exportName;
