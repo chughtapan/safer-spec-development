@@ -13,7 +13,7 @@
  *   `validate --implemented` to cross-check JSDoc against runtime opts.
  */
 
-import type * as fc from "fast-check";
+import * as fc from "fast-check";
 import { it } from "vitest";
 import type { PropertyType } from "@safer/property-types/index.js";
 
@@ -58,12 +58,11 @@ export const itSpec: ItSpec = {
   prop<T>(
     id: string,
     _meta: PropertyMeta,
-    _arb: fc.Arbitrary<T>,
-    _body: (sample: T) => void | Promise<void>,
+    arb: fc.Arbitrary<T>,
+    body: (sample: T) => void | Promise<void>,
   ): void {
-    // Registers as a Vitest placeholder until property execution is wired.
-    // `validate --implemented` reports MISSING_IMPL (13) for promoted
-    // properties that still lack a real body.
-    it.todo(id);
+    const property = fc.asyncProperty(arb, (sample) => Promise.resolve(body(sample)));
+    // eslint-disable-next-line sonarjs/assertions-in-tests -- fc.assert IS the assertion; sonarjs only recognizes expect/chai/jest patterns
+    it(id, () => fc.assert(property));
   },
 };

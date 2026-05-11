@@ -1,7 +1,7 @@
 ---
 folder: src/spec
 format-version: 0.1.0
-generatedAtSha: 4055a83a57bce4df1199b8d5de0869345453a5db
+generatedAtSha: d4aad6c325c643bc2ab2ae2896535385b8e97861
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -71,13 +71,12 @@ export const itSpec: ItSpec = {
   prop<T>(
     id: string,
     _meta: PropertyMeta,
-    _arb: fc.Arbitrary<T>,
-    _body: (sample: T) => void | Promise<void>,
+    arb: fc.Arbitrary<T>,
+    body: (sample: T) => void | Promise<void>,
   ): void {
-    // Registers as a Vitest placeholder until property execution is wired.
-    // `validate --implemented` reports MISSING_IMPL (13) for promoted
-    // properties that still lack a real body.
-    it.todo(id);
+    const property = fc.asyncProperty(arb, (sample) => Promise.resolve(body(sample)));
+    // eslint-disable-next-line sonarjs/assertions-in-tests -- fc.assert IS the assertion; sonarjs only recognizes expect/chai/jest patterns
+    it(id, () => fc.assert(property));
   },
 };
 ```

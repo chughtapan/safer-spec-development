@@ -8,6 +8,7 @@
  *   Tagged error `ProjectContextError` is co-located here.
  */
 
+import * as nodePath from "node:path";
 import { FileSystem, Path } from "@effect/platform";
 import { Data, Effect } from "effect";
 import type { SourceFile } from "@safer/spec/source-exports.js";
@@ -47,13 +48,23 @@ const DEFAULT_THRESHOLDS = {
 /**
  * Normalize the user-supplied `--folder` value into a path the codemod
  * stores as artifact identity (frontmatter `folder:`, sidecar slug,
- * drift-check key). Strips leading `./` and trailing path separators so
- * authoring conveniences don't manifest as false drift.
+ * drift-check key). Absolute inputs are rewritten to cwd-relative so they
+ * match the repo-relative paths `loadProjectContext` registers; `./` and
+ * trailing separators are stripped so authoring conveniences don't
+ * manifest as false drift.
  */
 export const normalizeFolder = (folder: string): string => {
-  const start = skipLeadingDotSlash(folder);
-  const end = stripTrailingSep(folder, start);
-  return start === 0 && end === folder.length ? folder : folder.slice(start, end);
+  const rebased = nodePath.isAbsolute(folder)
+    ? toRepoRelative(folder)
+    : folder;
+  const start = skipLeadingDotSlash(rebased);
+  const end = stripTrailingSep(rebased, start);
+  return start === 0 && end === rebased.length ? rebased : rebased.slice(start, end);
+};
+
+const toRepoRelative = (abs: string): string => {
+  const rel = nodePath.relative(process.cwd(), abs);
+  return rel.length === 0 ? "." : rel;
 };
 
 const SLASH = 47;
