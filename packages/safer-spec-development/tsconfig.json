@@ -2,7 +2,17 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "paths": {
+      "#kinds/*": ["./src/kinds/*"],
+      "#authoring/*": ["./src/authoring/*"],
+      "#spec/*": ["./src/spec/*"],
+      "#source/*": ["./src/source/*"],
+      "#sidecar/*": ["./src/sidecar/*"],
+      "#modes/*": ["./src/modes/*"],
+      "#cli/*": ["./src/cli/*"]
+    }
   },
   "include": ["src/**/*"]
 }

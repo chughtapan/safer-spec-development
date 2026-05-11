@@ -16,6 +16,15 @@
       "default": "./dist/index.js"
     }
   },
+  "imports": {
+    "#kinds/*": "./dist/kinds/*",
+    "#authoring/*": "./dist/authoring/*",
+    "#spec/*": "./dist/spec/*",
+    "#source/*": "./dist/source/*",
+    "#sidecar/*": "./dist/sidecar/*",
+    "#modes/*": "./dist/modes/*",
+    "#cli/*": "./dist/cli/*"
+  },
   "files": ["dist/**", "README.md"],
   "scripts": {
     "build": "tsc -p tsconfig.json",
