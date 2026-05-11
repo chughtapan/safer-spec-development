@@ -1,39 +1,34 @@
 /**
- * @spec.purpose Author-facing helper. Wraps Vitest's pending-test and
- *   property-test runners so authors don't have to remember the `meta`
- *   nesting Vitest's runner requires.
+ * @spec.purpose Author-facing helper. Wraps Vitest's `it.todo` so authors get
+ *   typed `(id, { kind, exports })` ergonomics without remembering Vitest's
+ *   collector-options shape.
  *
- * @spec.guarantee The first positional string is the canonical property id;
- *   never duplicated in the metadata object.
- *   reason: prevents id-drift between the string and the object across edits.
- *
- * Stage 0 interface stubs; Stage 1 implements.
+ * @spec.guarantee Property metadata is parsed from the source via ts-morph
+ *   (kind-detector) at codemod time; the runtime call only registers the
+ *   placeholder test under the canonical property id.
+ *   reason: Vitest's `TestCollectorOptions` does not surface `meta` in its
+ *           public types; relying on task.meta at runtime would couple the
+ *           helper to a non-public Vitest API. Parsing the source is the
+ *           refactor-safe equivalent.
  */
 
-import { Data, Effect } from "effect";
+import { it } from "vitest";
 import type { PropertyMeta } from "./types.js";
-
-class NotImplementedError extends Data.TaggedError("NotImplementedError")<{
-  readonly site: string;
-}> {}
-
-const notImplemented = (site: string): never =>
-  Effect.runSync(Effect.die(new NotImplementedError({ site })));
 
 export interface ItSpec {
   todo(id: string, meta: PropertyMeta): void;
-  prop<T extends readonly unknown[]>(
-    id: string,
-    meta: PropertyMeta,
-    ...rest: unknown[]
-  ): void;
+  prop(id: string, meta: PropertyMeta, ...rest: ReadonlyArray<unknown>): void;
 }
 
 export const itSpec: ItSpec = {
-  todo(_id: string, _meta: PropertyMeta): void {
-    notImplemented("itSpec.todo");
+  todo(id: string, _meta: PropertyMeta): void {
+    it.todo(id);
   },
-  prop(_id: string, _meta: PropertyMeta, ..._rest: unknown[]): void {
-    notImplemented("itSpec.prop");
+  prop(id: string, _meta: PropertyMeta, ..._rest: ReadonlyArray<unknown>): void {
+    // Stage 1 stub: declares the property as todo until the implementer
+    // (sub-issue #5) fills the fast-check body. `validate --implemented`
+    // reports MISSING_IMPL (13) for any prop with an empty body that has
+    // been promoted from todo (Stage 5 spec sub-issue #3, Invariant 7a).
+    it.todo(id);
   },
 };
