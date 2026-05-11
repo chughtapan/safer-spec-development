@@ -1,5 +1,5 @@
 /**
- * @spec.purpose Property stubs for the `validate` mode entrypoint. Validate
+ * @spec.purpose Property stubs for the `validate` command entrypoint. Validate
  *   enforces four cross-checks: JSDoc directives exist on every itSpec call,
  *   JSDoc values match runtime metadata, committed SPEC.md equals regenerated
  *   output, and every implemented property has a non-empty body.

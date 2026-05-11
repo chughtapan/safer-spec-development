@@ -11,7 +11,7 @@ pass-rate gates.
 |-------------|-------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | commands    | `commands/`       | `safer-spec` binary + the six @effect/cli Commands it composes (`generate`, `validate`, `init`, `doctor`, `migrate`, `explain`) + `SPEC_FORMAT_VERSION` |
 | domain      | `spec/`           | The spec format — directive grammar + parser, escape helpers, markdown emitter (`emit.ts`, `frontmatter.ts`), JSON sidecar (`sidecar.ts`, `sidecar-writer.ts`), link resolver, and the `itSpec` authoring helper |
-| terminals   | `property-types/` | Closed taxonomy: `PropertyType` (9 OOPSLA assertion kinds)                                                                  |
+| terminals   | `property-types/` | Closed taxonomy: `PropertyType` (9 OOPSLA-significant property types)                                                       |
 
 `src/index.ts` is the curated library facade. It re-exports the small
 public contract (`PROPERTY_TYPES`, `PropertyType`, `itSpec`, `ItSpec`).

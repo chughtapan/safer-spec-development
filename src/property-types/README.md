@@ -5,8 +5,8 @@ every other domain reaches for to talk about property-based testing.
 
 | Export             | Role                                                                                                                  |
 |--------------------|-----------------------------------------------------------------------------------------------------------------------|
-| `PropertyType`     | Type alias: one of the 9 OOPSLA-significant property assertion kinds (Roundtrip, Inclusion, Exception Raising, …).    |
-| `PROPERTY_TYPES`   | `readonly tuple` of the 9 assertion-kind strings, in stable order.                                                    |
+| `PropertyType`     | Type alias: one of the 9 OOPSLA-significant property types (Roundtrip, Inclusion, Exception Raising, …).               |
+| `PROPERTY_TYPES`   | `readonly tuple` of the 9 property-type strings, in stable order.                                                      |
 
 ## Default-all + explicit opt-out
 

@@ -24,8 +24,8 @@
  *   (MissingSpecPropertyError → 11, MissingStubError → 12,
  *   MissingImplError → 13).
  *
- *   `--planned` mode: kind-metadata-only check; classifier-coverage and
- *   precondition-pass-rate gates are skipped.
+ *   `--planned` mode: property-type-metadata-only check; classifier-coverage
+ *   and precondition-pass-rate gates are skipped.
  *
  *   `--implemented` mode: full gate including (a) — (d).
  *

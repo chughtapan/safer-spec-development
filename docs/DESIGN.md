@@ -62,7 +62,7 @@ technical layers.
 |---|---|---|
 | Commands | `commands/` | `safer-spec` binary entrypoint, the six @effect/cli Commands (`init`, `generate`, `validate`, `doctor`, `migrate`, `explain`), and the format-version constant. |
 | Spec artifact | `spec/` | JSDoc directive grammar + parser, markdown emitter, frontmatter schema, sidecar JSON schema + writer, escape helpers, link resolver, and the `itSpec` authoring helper. |
-| Terminals | `property-types/` | Closed `PropertyType` enum (9 OOPSLA assertion kinds). |
+| Terminals | `property-types/` | Closed `PropertyType` enum (9 OOPSLA-significant property types). |
 
 Commands orchestrate the spec domain. The spec domain consumes the
 property-type taxonomy.

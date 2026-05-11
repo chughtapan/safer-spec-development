@@ -2,7 +2,7 @@
  * @spec.purpose Closed taxonomy of property assertion types. Terminal
  *   domain — no upward dependencies.
  *
- *   The 9 OOPSLA-significant property kinds (Roundtrip, Inclusion, Exception
+ *   The 9 OOPSLA-significant property types (Roundtrip, Inclusion, Exception
  *   Raising, …). Source: Ravi & Coblenz, OOPSLA 2025 (12 categories), filtered
  *   to the 9 statistically significant ones. Dropped: Generated-Expression
  *   Bounds Checking (p=0.0627), Generated-Expression Non-Equality

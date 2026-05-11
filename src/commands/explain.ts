@@ -1,7 +1,7 @@
 /**
  * @spec.purpose
  *   `explain` command entrypoint. Looks up an error code (e.g.
- *   `MISSING_SPEC_PROPERTY`, `spec-kind-coverage`) and returns the
+ *   `MISSING_SPEC_PROPERTY`, `spec-property-type-coverage`) and returns the
  *   corresponding `docs/errors.md` entry.
  *
  *   Tagged error `ExplainError` is co-located here.

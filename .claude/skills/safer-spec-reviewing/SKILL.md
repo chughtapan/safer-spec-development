@@ -69,9 +69,9 @@ Apply the rubric below to any PR that touches `src/**`, `docs/**`, `eslint.confi
 
 ### 2. Tagged-error gap classes
 
-- `validate` returns `Effect<ValidatePassReport, MissingSpecPropertyError | MissingStubError | MissingImplError, ...>`.
-- POSIX exit codes derived from a single `satisfies`-typed map (no magic 11/12/13 sprinkled in code).
-- CLI catches via `Effect.catchTags` + `CliExitCode({ code })` at the `NodeRuntime.runMain` boundary.
+- `validate` returns `Effect<ValidatePassReport, ValidateGapError, ...>` where `ValidateGapError = MissingSpecPropertyError | MissingStubError | MissingImplError`.
+- POSIX exit codes derived from a single `satisfies`-typed map (`VALIDATE_GAP_EXIT_CODES` in `commands/validate.ts`, combined with `CliUsageError → 2` into `CLI_EXIT_CODES` in `commands/index.ts`). No magic 11/12/13 sprinkled in code.
+- CLI catches via a single `Effect.catchAll` handler that derives the exit code from `e._tag` via `CLI_EXIT_CODES[e._tag]`, then fails with `CliExitCode({ code })`. `NodeRuntime.runMain` translates `CliExitCode` to `process.exit(N)` at the runtime boundary.
 
 ### 3. Directive grammar coverage
 
@@ -101,7 +101,7 @@ Mismatch is `MissingSpecPropertyError` at validate time.
 ### 6. Domain cohesion (not functional layering)
 
 - Three layers only: `commands/`, `spec/`, `property-types/`.
-- No `kernel/`, no `errors/`, no `detection/`, no `pipeline/`, no `authoring/`, no `sidecar/` (folded into `spec/`), no `cli/` (renamed to `commands/`).
+- No `kernel/`, no `errors/`, no `detection/`, no `pipeline/`, no `authoring/`, no `sidecar/` (folded into `spec/`), no `cli/` (renamed to `commands/`), no `source/` (the prescriptive shape-detector + applicability machinery was dropped in favor of default-all + explicit `@spec.skip`; the surviving `link-resolver.ts` moved into `spec/`).
 - Tests, parsers, emitters that share contract knowledge of the same artifact live in the same domain.
 
 ### 7. Curated public facade
@@ -112,7 +112,7 @@ Mismatch is `MissingSpecPropertyError` at validate time.
 
 ### 8. No-relative-imports policy
 
-- `tsconfig.json` carries `paths: { "@safer/*": ["src/*"] }`.
+- `tsconfig.json` carries per-domain `paths` entries (`@safer/property-types/*`, `@safer/spec/*`, `@safer/commands/*`) — one entry per domain folder, not a single wildcard.
 - ESLint rule (`import/no-relative-parent-imports` or agent-code-guard equivalent) configured `error`.
 - `grep -rE 'from "[\.][\.]?/' src/ tests/` returns empty for cross-folder paths.
 - Same-folder relative imports (`./sibling.js`) are acceptable.
