@@ -47,11 +47,9 @@ export type { GenerateInput, GenerateResult } from "./codemod/generate.js";
 export { validate, GAP_CLASS_EXIT_CODES, ValidateDiagnostic } from "./codemod/validate.js";
 export type {
   ValidateInput,
-  ValidateReport,
   ValidatePassReport,
-  ValidateFailReport,
   GapClass,
-  GapExitCode,
+  GapClassName,
 } from "./codemod/validate.js";
 export { init } from "./codemod/init.js";
 export type { InitInput, InitResult } from "./codemod/init.js";

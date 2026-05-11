@@ -103,7 +103,7 @@ export class GenerateError extends Data.TaggedError("GenerateError")<{
 }> {}
 
 export class ValidateError extends Data.TaggedError("ValidateError")<{
-  readonly exitCode: 11 | 12 | 13;
+  readonly gapClass: 11 | 12 | 13;
   readonly location: string;
   readonly diagnostic: {
     readonly problem: string;
@@ -111,6 +111,10 @@ export class ValidateError extends Data.TaggedError("ValidateError")<{
     readonly fix: string;
     readonly docsLink: string;
   };
+}> {}
+
+export class CliExitCode extends Data.TaggedError("CliExitCode")<{
+  readonly code: number;
 }> {}
 
 export class InitError extends Data.TaggedError("InitError")<{

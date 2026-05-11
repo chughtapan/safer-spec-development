@@ -2,11 +2,15 @@
 /**
  * @spec.purpose CLI entry. Composes the six subcommands (`init`, `generate`,
  *   `validate`, `doctor`, `explain`, `migrate`) into the top-level
- *   `safer-spec` Command. Each subcommand lives in its own file; this barrel
- *   only composes.
+ *   `safer-spec` Command, then translates the `CliExitCode` tagged failure
+ *   into `process.exit(N)` at the runtime boundary.
  *
- *   Bodies are Stage 1 stubs: each subcommand fails with `Effect.die` until
- *   the implementer fills the codemod functions.
+ *   Exit-code mapping at this boundary:
+ *     - `CliExitCode({ code })` → `process.exit(code)`.
+ *     - any other defect / failure → `NodeRuntime.runMain` default (non-zero).
+ *
+ *   Bodies of subcommand handlers are Stage 1 stubs; Stage 1 implement-staff
+ *   fills the codemod functions.
  */
 
 import { Command } from "@effect/cli";
@@ -41,7 +45,13 @@ const cli = Command.run(command, {
 });
 
 // eslint-disable-next-line agent-code-guard/prefer-effect-platform -- @effect/cli's Command.run consumes argv at the bootstrap entrypoint; no Effect-native source exists before the runtime starts
-Effect.suspend(() => cli(process.argv)).pipe(
-  Effect.provide(NodeContext.layer),
-  NodeRuntime.runMain,
-);
+Effect.suspend(() => cli(process.argv))
+  .pipe(
+    Effect.catchTag("CliExitCode", (e) =>
+      Effect.sync(() => {
+        process.exit(e.code);
+      }),
+    ),
+    Effect.provide(NodeContext.layer),
+  )
+  .pipe(NodeRuntime.runMain);
