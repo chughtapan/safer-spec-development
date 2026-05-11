@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+/* eslint-disable max-classes-per-file -- the CLI binary emits two
+   closely-related tagged errors (CliExitCode, CliUsageError); co-locating
+   them with the binary they belong to is per-domain ownership. */
 /**
  * @spec.purpose CLI binary. Composes the six subcommands (`init`, `generate`,
  *   `validate`, `doctor`, `explain`, `migrate`) into the top-level
@@ -11,25 +14,35 @@
  *     - `--planned --implemented` combo → `CliUsageError` → exit code 2
  *       (POSIX usage convention).
  *
+ *   Tagged errors `CliExitCode` and `CliUsageError` are co-located here.
+ *
  *   Bodies of subcommand handlers are Stage 1 stubs; implement-staff (#5)
  *   fills the codemod functions.
  */
 
 import { Args, Command, Options } from "@effect/cli";
 import { NodeContext, NodeRuntime } from "@effect/platform-node";
-import { Effect } from "effect";
+import { Data, Effect } from "effect";
+import { doctor } from "@safer/modes/doctor.js";
+import { explain } from "@safer/modes/explain.js";
+import { generate } from "@safer/modes/generate.js";
+import { init } from "@safer/modes/init.js";
+import { migrate } from "@safer/modes/migrate.js";
 import {
-  doctor,
-  explain,
   formatDiagnostic,
-  generate,
-  init,
-  migrate,
   validate,
-} from "../codemod/index.js";
-import type { ValidateError } from "../errors/index.js";
-import { CliExitCode, CliUsageError } from "../errors/index.js";
-import { SPEC_FORMAT_VERSION } from "../kernel/index.js";
+  type ValidateError,
+} from "@safer/modes/validate.js";
+import { SPEC_FORMAT_VERSION } from "@safer/modes/version.js";
+
+export class CliExitCode extends Data.TaggedError("CliExitCode")<{
+  readonly code: number;
+}> {}
+
+export class CliUsageError extends Data.TaggedError("CliUsageError")<{
+  readonly subcommand: string;
+  readonly reason: string;
+}> {}
 
 const CLI_USAGE_EXIT_CODE = 2 as const;
 

@@ -14,15 +14,19 @@
  *       JSDoc on the source declarations + the kind-detector + applicability
  *       matrix output.
  *
- *   Composes glob → ts-morph → jsdoc-parser → kind-detector → applicability →
- *   section-emitter → reporter.sidecar-writer. Idempotent steady-state
- *   regeneration in canonical form.
+ *   Composes spec/ + source/ + sidecar/ domains. Mode is the orchestrator;
+ *   the domains are the workers.
+ *
+ *   Tagged error `GenerateError` is co-located here.
  */
 
 import type { FileSystem, Path } from "@effect/platform";
-import type { Effect } from "effect";
-import { Effect as Eff } from "effect";
-import type { GenerateError } from "../errors/index.js";
+import { Data, Effect } from "effect";
+
+export class GenerateError extends Data.TaggedError("GenerateError")<{
+  readonly folder: string;
+  readonly reason: string;
+}> {}
 
 interface GenerateInput {
   readonly folder: string | null;
@@ -38,13 +42,13 @@ interface GenerateResult {
 }
 
 /**
- * @spec.assume "every source export in scope carries either at least one `@spec.assume`/`@spec.guarantee` directive OR `@spec.residual-contract none reason: ...`"
+ * @spec.assume "every source export in scope carries at least one `@spec.assume`/`@spec.guarantee` directive OR `@spec.residual-contract none reason: ...`"
  *   reason: per-export contract enforced separately by `validate
- *           --implemented` (exit 12 when missing); the generate step
- *           assumes the contract and emits its rendered form.
+ *           --implemented` (exit 12 when missing); generate assumes the
+ *           contract and emits its rendered form.
  * @spec.guarantee "writes are SHA-stable: re-running on the same tree SHA produces byte-identical output modulo `generated-at-sha`"
- *   reason: roundtrip contract; downstream `validate-gate-determ` test
- *           asserts this property at the codemod's own self-host.
+ *   reason: roundtrip contract; downstream `validate-gate-determ`
+ *           property test asserts this at the codemod's own self-host.
  * @spec.residual-contract "watch mode debounces filesystem events; debounce window is implementation-defined"
  *   reason: behavioral residue beyond the Effect signature.
  */
@@ -54,4 +58,4 @@ export const generate = (
   GenerateResult,
   GenerateError,
   FileSystem.FileSystem | Path.Path
-> => Eff.die(new Error("Stage 1 stub: generate not implemented"));
+> => Effect.die(new Error("Stage 1 stub: generate not implemented"));

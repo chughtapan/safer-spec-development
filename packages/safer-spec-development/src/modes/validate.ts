@@ -15,7 +15,7 @@
  *     (a) Every `itSpec.prop`/`itSpec.todo` call site has the four required
  *         JSDoc directives (`@spec.property`, `@spec.kind`, `@spec.exports`,
  *         `@spec.claim`). Missing → gapClass 12 (MISSING_STUB).
- *     (b) JSDoc directive values match the runtime `opts` argument
+ *     (b) JSDoc directive values match the runtime `meta` argument
  *         (id ↔ `@spec.property`, kind ↔ `@spec.kind`, exports member names
  *         ↔ `@spec.exports`). Mismatch → gapClass 11
  *         (MISSING_SPEC_PROPERTY).
@@ -36,24 +36,18 @@
  *
  *   `--implemented` mode: full gate including (a) — (d).
  *
+ *   Tagged error `ValidateError` is co-located here.
+ *
  *   Caller pattern:
  *     ```ts
  *     validate(input).pipe(
  *       Effect.catchTag("ValidateError", (e) => translateExitCode(e.gapClass))
  *     )
  *     ```
- *
- * @spec.guarantee Every emitted diagnostic conforms to
- *   `{ problem, cause, fix, docsLink }` (Stage 5 source property
- *   `validate-diagnostic-shape`).
- *   reason: structured diagnostics are the contract the orchestrator's Step-5d
- *           routing consumes.
  */
 
 import type { FileSystem, Path } from "@effect/platform";
-import { Schema, type Effect } from "effect";
-import { Effect as Eff } from "effect";
-import type { ValidateError } from "../errors/index.js";
+import { Data, Effect, Schema } from "effect";
 
 const ValidateDiagnosticSchema = Schema.Struct({
   problem: Schema.String,
@@ -63,6 +57,19 @@ const ValidateDiagnosticSchema = Schema.Struct({
 });
 
 export type ValidateDiagnostic = Schema.Schema.Type<typeof ValidateDiagnosticSchema>;
+
+/**
+ * @spec.guarantee "the gapClass field is one of {11, 12, 13}; the runtime constructor enforces the literal-union type"
+ *   reason: external CI scripts and the orchestrator's Step-5d routing
+ *           switch on the integer code (Amendment 5).
+ * @spec.residual-contract "diagnostic body conforms to `validate-diagnostic-shape` (problem, cause, fix, docsLink); each field is size-capped at the codemod's emit boundary"
+ *   reason: trust contract; agents consume the diagnostic as routing input.
+ */
+export class ValidateError extends Data.TaggedError("ValidateError")<{
+  readonly gapClass: 11 | 12 | 13;
+  readonly location: string;
+  readonly diagnostic: ValidateDiagnostic;
+}> {}
 
 /**
  * @spec.guarantee "the three exit codes are stable; CI scripts may switch on the integer values"
@@ -98,7 +105,7 @@ interface ValidatePassReport {
  * @spec.guarantee "first failing check short-circuits and emits a single `ValidateError`"
  *   reason: the orchestrator's Step-5d routing acts on the gapClass; a
  *           batched failure would obscure routing.
- * @spec.residual-contract "Vitest reporter sidecars must already exist on disk for `--implemented` mode; their absence is a separate diagnostic class (stale-CI-artifact, not yet wired)"
+ * @spec.residual-contract "Vitest reporter sidecars must already exist on disk for `--implemented` mode; their absence is a separate diagnostic class (stale-CI-artifact)"
  *   reason: lifecycle ordering; not encoded in the input shape.
  */
 export const validate = (
@@ -107,7 +114,7 @@ export const validate = (
   ValidatePassReport,
   ValidateError,
   FileSystem.FileSystem | Path.Path
-> => Eff.die(new Error("Stage 1 stub: validate not implemented"));
+> => Effect.die(new Error("Stage 1 stub: validate not implemented"));
 
 /**
  * @spec.guarantee "output string is the canonical user-facing diagnostic body for the given gap class"
@@ -120,4 +127,4 @@ export const formatDiagnostic = (
   _gapClass: GapClass,
   _diagnostic: ValidateDiagnostic,
 ): Effect.Effect<string, never> =>
-  Eff.die(new Error("Stage 1 stub: formatDiagnostic not implemented"));
+  Effect.die(new Error("Stage 1 stub: formatDiagnostic not implemented"));

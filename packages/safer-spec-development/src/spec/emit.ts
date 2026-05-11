@@ -18,9 +18,9 @@
  */
 
 import { Effect } from "effect";
-import type { GenerateError } from "#modes/generate.js";
-import type { SpecArtifact } from "#sidecar/index.js";
-import type { SpecFrontmatter } from "#spec/frontmatter.js";
+import type { GenerateError } from "@safer/modes/generate.js";
+import type { SpecArtifact } from "@safer/sidecar/index.js";
+import type { SpecFrontmatter } from "@safer/spec/frontmatter.js";
 
 export interface EmittedSpec {
   readonly markdown: string;

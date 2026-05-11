@@ -43,7 +43,7 @@
  */
 
 import { Data, Effect, Schema } from "effect";
-import { KINDS } from "#kinds/index.js";
+import { KINDS } from "@safer/kinds/index.js";
 
 export const DIRECTIVE_BODY_MAX_CHARS = 500;
 

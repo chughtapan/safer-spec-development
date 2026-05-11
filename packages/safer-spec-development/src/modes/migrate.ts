@@ -4,12 +4,18 @@
  *   format-version transitions; emits a diff for human review; idempotent.
  *   Deprecation policy per design doc: format-version bumps signposted in
  *   CHANGELOG ≥1 version ahead.
+ *
+ *   Tagged error `MigrateError` is co-located here.
  */
 
 import type { FileSystem, Path } from "@effect/platform";
-import type { Effect } from "effect";
-import { Effect as Eff } from "effect";
-import type { MigrateError } from "../errors/index.js";
+import { Data, Effect } from "effect";
+
+export class MigrateError extends Data.TaggedError("MigrateError")<{
+  readonly fromVersion: string;
+  readonly toVersion: string;
+  readonly reason: string;
+}> {}
 
 interface MigrateInput {
   readonly fromVersion: string;
@@ -38,4 +44,4 @@ export const migrate = (
   MigrateResult,
   MigrateError,
   FileSystem.FileSystem | Path.Path
-> => Eff.die(new Error("Stage 1 stub: migrate not implemented"));
+> => Effect.die(new Error("Stage 1 stub: migrate not implemented"));

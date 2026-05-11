@@ -16,7 +16,7 @@
  */
 
 import { Data, Effect, ParseResult, Schema } from "effect";
-import { KINDS } from "#kinds/index.js";
+import { KINDS } from "@safer/kinds/index.js";
 
 const KindSchema = Schema.Literal(...KINDS);
 

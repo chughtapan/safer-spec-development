@@ -5,7 +5,7 @@
  */
 
 import { Effect } from "effect";
-import type { ApplicabilityResolutionError } from "#source/applicability.js";
+import type { ApplicabilityResolutionError } from "@safer/source/applicability.js";
 
 interface OverrideContext {
   readonly path: string;

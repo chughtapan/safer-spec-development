@@ -18,7 +18,7 @@ import { Data, Effect } from "effect";
 import {
   type SidecarSchemaError,
   type SpecArtifact,
-} from "#sidecar/schema.js";
+} from "@safer/sidecar/schema.js";
 
 export class SidecarWriteError extends Data.TaggedError("SidecarWriteError")<{
   readonly folder: string;

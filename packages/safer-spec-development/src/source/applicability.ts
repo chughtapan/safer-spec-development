@@ -9,8 +9,8 @@
  */
 
 import { Data, Effect } from "effect";
-import type { DetectedExport } from "#source/kind-detector.js";
-import type { Kind } from "#kinds/index.js";
+import type { DetectedExport } from "@safer/source/kind-detector.js";
+import type { Kind } from "@safer/kinds/index.js";
 
 export class ApplicabilityResolutionError extends Data.TaggedError(
   "ApplicabilityResolutionError",
@@ -39,5 +39,5 @@ export const resolveExport = (
 ): Effect.Effect<ResolvedExport, ApplicabilityResolutionError> =>
   Effect.die(new Error("Stage 1 stub: resolveExport not implemented"));
 
-export { APPLICABILITY_MATRIX } from "#source/applicability-matrix.js";
-export { isOverridden } from "#source/applicability-override.js";
+export { APPLICABILITY_MATRIX } from "@safer/source/applicability-matrix.js";
+export { isOverridden } from "@safer/source/applicability-override.js";

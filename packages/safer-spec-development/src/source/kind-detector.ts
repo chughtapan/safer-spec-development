@@ -18,7 +18,7 @@
  */
 
 import { Data, Effect } from "effect";
-import type { Kind } from "#kinds/index.js";
+import type { Kind } from "@safer/kinds/index.js";
 
 export class UnknownExportShapeError extends Data.TaggedError(
   "UnknownExportShapeError",

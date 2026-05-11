@@ -1,18 +1,30 @@
 /**
  * @spec.purpose Property stubs for the link resolver. Inclusion: intra-file
  *   and cross-spec references resolve to valid hrefs. Cross-file resolution
- *   is deferred per design doc Open Question 6 and is not stubbed.
+ *   is deferred per design doc Open Question 6.
  */
 
-import { itSpec } from "../../../kernel/index.js";
-import { resolveSymbol } from "../index.js";
+import { itSpec } from "@safer/authoring/index.js";
+import { resolveSymbol } from "@safer/source/link-resolver.js";
 
-itSpec.todo("link-resolver-intra-file-inclusion", {
+/**
+ * @spec.property link-resolver-intra-file-anchor-pinned
+ * @spec.kind Inclusion
+ * @spec.exports resolveSymbol
+ * @spec.claim every intra-file resolution returns href with a non-null sha-pinned anchor
+ */
+itSpec.todo("link-resolver-intra-file-anchor-pinned", {
   kind: "Inclusion",
   exports: [resolveSymbol],
 });
 
-itSpec.todo("link-resolver-cross-spec-inclusion", {
-  kind: "Inclusion",
+/**
+ * @spec.property link-resolver-fails-internal-misses
+ * @spec.kind Exception Raising
+ * @spec.exports resolveSymbol
+ * @spec.claim unresolved internal references fail with LinkResolutionError; external misses return UnresolvedExternal
+ */
+itSpec.todo("link-resolver-fails-internal-misses", {
+  kind: "Exception Raising",
   exports: [resolveSymbol],
 });

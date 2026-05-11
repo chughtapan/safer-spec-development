@@ -3,12 +3,17 @@
  *   `doctor` mode entrypoint. Health check of configs, deps, sidecar dir,
  *   format-version compatibility. Surfaces config drift and version skew
  *   before the user hits cryptic gate failures.
+ *
+ *   Tagged error `DoctorError` is co-located here.
  */
 
 import type { FileSystem, Path } from "@effect/platform";
-import type { Effect } from "effect";
-import { Effect as Eff } from "effect";
-import type { DoctorError } from "../errors/index.js";
+import { Data, Effect } from "effect";
+
+export class DoctorError extends Data.TaggedError("DoctorError")<{
+  readonly check: string;
+  readonly reason: string;
+}> {}
 
 interface DoctorCheck {
   readonly name: string;
@@ -32,4 +37,4 @@ export const doctor = (): Effect.Effect<
   DoctorReport,
   DoctorError,
   FileSystem.FileSystem | Path.Path
-> => Eff.die(new Error("Stage 1 stub: doctor not implemented"));
+> => Effect.die(new Error("Stage 1 stub: doctor not implemented"));

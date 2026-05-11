@@ -21,7 +21,7 @@
 
 import type * as fc from "fast-check";
 import { it } from "vitest";
-import type { Kind } from "#kinds/index.js";
+import type { Kind } from "@safer/kinds/index.js";
 
 interface PropertyMeta {
   readonly kind: Kind;

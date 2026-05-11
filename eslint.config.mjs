@@ -1,4 +1,5 @@
 import guard from "eslint-plugin-agent-code-guard";
+import importPlugin from "eslint-plugin-import";
 import tsParser from "@typescript-eslint/parser";
 
 // Severity promotion: `warn` rules in this repo are documented architectural
@@ -35,16 +36,16 @@ const injectArchitectureOptions = (rules, options) =>
 // Architecture policy. Every list entry carries a written reason — the act of
 // writing the reason IS the architectural decision (eslint-plugin-agent-code-guard
 // README "Declaring the contract is the point").
+//
+// Domain decomposition (replaces functional layers per parent epic
+// Directive 4): each domain owns its types, its private schema constructors,
+// and its tagged errors. No `errors/` dumping ground; errors are
+// co-located with their producer modules. No `kernel/` dumping ground;
+// shared types live in the domain that owns them.
 const ARCHITECTURE_OPTIONS = {
   forbiddenSubpathSegments: [],
   implementationPathSegments: [],
-  sharedFolderNames: [
-    {
-      folder: "errors",
-      reason:
-        "tagged-error registry; every domain module emits Effect.fail with errors from this kernel, so it is depended on by every other folder by design",
-    },
-  ],
+  sharedFolderNames: [],
   infrastructureTypePackages: [],
   allowedPublicSubpaths: [],
   allowedTestPublicSubpaths: [],
@@ -64,37 +65,36 @@ const ARCHITECTURE_OPTIONS = {
       reason:
         "the CLI binary entry composes @effect/cli Command values; subcommands are values, not hidden types",
     },
+    {
+      package: "fast-check",
+      reason:
+        "the itSpec.prop helper takes `fc.Arbitrary<T>` directly; fast-check IS the property-test runtime contract",
+    },
   ],
   layers: [
     {
       name: "entrypoint",
       folders: ["cli"],
       reason:
-        "CLI binary composition root; consumes codemod modes and translates exit codes",
+        "CLI binary composition root; orchestrates modes and translates exit codes",
     },
     {
       name: "modes",
-      folders: ["codemod"],
+      folders: ["modes"],
       reason:
-        "mode entrypoints (generate, validate, init, doctor, migrate, explain); compose pipeline stages",
+        "codemod mode entrypoints (generate, validate, init, doctor, migrate, explain); orchestrate the spec/source/sidecar peer domains",
     },
     {
-      name: "pipeline",
-      folders: ["pipeline"],
+      name: "domains",
+      folders: ["spec", "source", "sidecar"],
       reason:
-        "codemod pipeline stages (applicability, link-resolver, reporter, section-emitter); consume detection output + kernel",
+        "peer domains; each owns one knowledge area (SPEC.md artifact, TypeScript source analysis, sidecar JSON). They do not depend on each other; modes orchestrate them",
     },
     {
-      name: "detection",
-      folders: ["detection"],
+      name: "terminals",
+      folders: ["kinds", "authoring"],
       reason:
-        "source-input parsers (kind-detector, jsdoc-parser); emit primitive detection vocabulary the pipeline consumes",
-    },
-    {
-      name: "kernel",
-      folders: ["errors", "kernel"],
-      reason:
-        "tagged-error registry plus shared types and schemas (kinds, types, version, sidecar, frontmatter, helper); imported by every layer",
+        "no upward deps; kinds is the closed Kind enum, authoring is the itSpec helper",
     },
   ],
   packageRuntime: "node",
@@ -122,7 +122,10 @@ export default [
         sourceType: "module",
       },
     },
-    plugins: guard.configs.strict.plugins,
+    plugins: {
+      ...guard.configs.strict.plugins,
+      import: importPlugin,
+    },
     settings: {
       ...guard.configs.strict.settings,
       "agent-code-guard": ARCHITECTURE_OPTIONS,
@@ -136,6 +139,11 @@ export default [
         promoteWarnToError(guard.configs.architecture.rules),
         ARCHITECTURE_OPTIONS,
       ),
+      // Per parent epic Directive 1: refactoring brittleness from relative
+      // paths is real cost; absolute Node ESM `imports` (`#kinds/*`,
+      // `#spec/*`, etc.) are the package-internal contract.
+      "import/no-relative-parent-imports": "error",
+      "import/no-relative-packages": "error",
     },
   },
 
@@ -158,7 +166,10 @@ export default [
       parser: tsParser,
       parserOptions: { ecmaVersion: 2022, sourceType: "module" },
     },
-    plugins: guard.configs.strict.plugins,
+    plugins: {
+      ...guard.configs.strict.plugins,
+      import: importPlugin,
+    },
     settings: {
       ...guard.configs.strict.settings,
       "agent-code-guard": ARCHITECTURE_OPTIONS,
@@ -173,6 +184,8 @@ export default [
         ARCHITECTURE_OPTIONS,
       ),
       "sonarjs/no-empty-test-file": "off",
+      "import/no-relative-parent-imports": "error",
+      "import/no-relative-packages": "error",
     },
   },
 ];

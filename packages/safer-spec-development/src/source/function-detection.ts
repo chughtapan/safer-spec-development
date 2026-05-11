@@ -6,7 +6,7 @@
  */
 
 import { Effect } from "effect";
-import type { UnknownExportShapeError } from "#source/kind-detector.js";
+import type { UnknownExportShapeError } from "@safer/source/kind-detector.js";
 
 type FunctionReturnShape =
   | "Effect"

@@ -4,8 +4,8 @@
  *   `*.spec.test.ts` coverage (unless explicitly `@spec.skip`-ed with reason).
  */
 
-import type { ExportShape } from "#source/kind-detector.js";
-import type { Kind } from "#kinds/index.js";
+import type { ExportShape } from "@safer/source/kind-detector.js";
+import type { Kind } from "@safer/kinds/index.js";
 
 interface ApplicabilityRow {
   readonly shape: ExportShape;

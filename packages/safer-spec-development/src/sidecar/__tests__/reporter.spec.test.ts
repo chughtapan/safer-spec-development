@@ -1,18 +1,31 @@
 /**
- * @spec.purpose Property stubs for the Vitest reporter + sidecar writer.
- *   Roundtrip: written JSON decodes back to the same SpecArtifact value.
- *   Constant Bounds Checking: escape-on-emit enforces the directive-body cap.
+ * @spec.purpose Property stubs for the sidecar writer. Roundtrip: written
+ *   JSON decodes back to the same SpecArtifact value. Trust-boundary: every
+ *   string field is escape-on-emit.
  */
 
-import { itSpec } from "../../../kernel/index.js";
-import { serializeSidecar, writeSidecar } from "../index.js";
+import { itSpec } from "@safer/authoring/index.js";
+import { decodeSpecArtifact } from "@safer/sidecar/schema.js";
+import { serializeSidecar, writeSidecar } from "@safer/sidecar/writer.js";
 
+/**
+ * @spec.property sidecar-writer-roundtrip
+ * @spec.kind Roundtrip
+ * @spec.exports serializeSidecar, decodeSpecArtifact
+ * @spec.claim decode(parse(serialize(artifact))) returns the original artifact at every well-formed input
+ */
 itSpec.todo("sidecar-writer-roundtrip", {
   kind: "Roundtrip",
-  exports: [serializeSidecar, writeSidecar],
+  exports: [serializeSidecar, decodeSpecArtifact],
 });
 
-itSpec.todo("sidecar-writer-escape-bounds", {
-  kind: "Constant Bounds Checking",
-  exports: [serializeSidecar],
+/**
+ * @spec.property sidecar-writer-atomic-on-failure
+ * @spec.kind Exception Raising
+ * @spec.exports writeSidecar
+ * @spec.claim partial sidecars are not left on disk on filesystem failures
+ */
+itSpec.todo("sidecar-writer-atomic-on-failure", {
+  kind: "Exception Raising",
+  exports: [writeSidecar],
 });

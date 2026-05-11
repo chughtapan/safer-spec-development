@@ -19,7 +19,7 @@ import { Effect } from "effect";
 import {
   DIRECTIVE_BODY_MAX_CHARS,
   JsDocDirectiveOverflowError,
-} from "#spec/directives.js";
+} from "@safer/spec/directives.js";
 
 interface EscapeContext {
   readonly path: string;

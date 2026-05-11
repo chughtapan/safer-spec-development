@@ -32,12 +32,10 @@ export const KINDS = [
 
 export type Kind = (typeof KINDS)[number];
 
-/**
- * @spec.guarantee "returns true iff the input is a string AND that string appears in `KINDS`"
- *   reason: type-guard contract; predicate-narrowing relies on this.
- * @spec.residual-contract none
- *   reason: pure predicate; behavior fully captured by signature.
- */
-export function isKind(value: unknown): value is Kind {
-  return typeof value === "string" && (KINDS as readonly string[]).includes(value);
-}
+// Intentionally no `isKind` predicate. Validation crosses a boundary, so the
+// boundary uses the Schema directly: `Schema.decodeUnknown(Schema.Literal(...KINDS))`.
+// A standalone predicate is the human-era pattern (cheap to type, easy to forget
+// the schema branch); the agent-era equivalent is "decode at the boundary, trust
+// the type inside" (PRINCIPLES.md §2). Callers outside this domain decode via
+// the consuming Schema (e.g., spec/directives.ts's KindDirectiveSchema,
+// sidecar/schema.ts's SpecExportEntry.requiredKinds).

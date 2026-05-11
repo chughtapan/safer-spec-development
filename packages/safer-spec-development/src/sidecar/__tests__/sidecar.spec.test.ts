@@ -5,11 +5,11 @@
  *   matches the declared type.
  *
  *   Tests reference the public `decodeSpecArtifact` boundary; the underlying
- *   Schema constructor stays private to kernel/sidecar.ts.
+ *   Schema constructor stays private to sidecar/schema.ts.
  */
 
-import { itSpec } from "../kernel/index.js";
-import { decodeSpecArtifact } from "../kernel/index.js";
+import { itSpec } from "@safer/authoring/index.js";
+import { decodeSpecArtifact } from "@safer/sidecar/schema.js";
 
 /**
  * @spec.property sidecar-roundtrip
