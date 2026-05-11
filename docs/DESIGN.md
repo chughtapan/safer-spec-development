@@ -50,7 +50,7 @@ sidecar is the tool-facing contract. It contains the format version, folder,
 source references, export shapes, required and observed kinds, residual
 contracts, coverage data, and thresholds.
 
-The JSON schema lives in `src/sidecar/schema.ts`. Directive strings are
+The JSON schema lives in `src/spec/sidecar.ts`. Directive strings are
 size-capped and escaped before they are emitted.
 
 ## Source Domains
@@ -60,15 +60,13 @@ technical layers.
 
 | Domain | Folder | Owns |
 |---|---|---|
-| CLI entrypoint | `cli/` | Top-level `safer-spec` command and exit-code mapping. |
-| Modes | `modes/` | `init`, `generate`, `validate`, `doctor`, `migrate`, `explain`, and format version. |
-| Spec artifact | `spec/` | JSDoc directive grammar, frontmatter schema, markdown emitter, and escaping. |
-| Source analysis | `source/` | Export-shape detection, fail-closed resolution, applicability, overrides, and links. |
-| Sidecar | `sidecar/` | Structured JSON schema and writer. |
-| Terminals | `kinds/`, `authoring/` | Closed property-kind vocabulary and the `itSpec` authoring helper. |
+| Commands | `commands/` | `safer-spec` binary entrypoint, the six @effect/cli Commands (`init`, `generate`, `validate`, `doctor`, `migrate`, `explain`), and the format-version constant. |
+| Spec artifact | `spec/` | JSDoc directive grammar, frontmatter schema, markdown emitter, sidecar JSON schema + writer, escape helpers, and the `itSpec` authoring helper. |
+| Source analysis | `source/` | Export-shape detection, fail-closed resolution, applicability resolution, and link resolution. |
+| Terminals | `property-types/` | Closed `PropertyType` enum (9 OOPSLA assertion kinds), `ExportShape` enum (6 source shapes), and `APPLICABILITY_MATRIX` (the cross-product). |
 
-Modes orchestrate peer domains. Peer domains should not reach through each
-other's internals.
+Commands orchestrate peer domains. Peer domains should not reach through
+each other's internals.
 
 ## Directive Grammar
 
@@ -116,12 +114,12 @@ Per-test directives:
 ```ts
 /**
  * @spec.property agent-roundtrip
- * @spec.kind Roundtrip
+ * @spec.type Roundtrip
  * @spec.exports Agent
  * @spec.claim encode(decode(agent)) preserves valid agents
  */
 itSpec.todo("agent-roundtrip", {
-  kind: "Roundtrip",
+  type: "Roundtrip",
   exports: [Agent],
 });
 ```
@@ -129,11 +127,11 @@ itSpec.todo("agent-roundtrip", {
 `validate` cross-checks the JSDoc metadata against the runtime metadata passed
 to `itSpec`.
 
-## Property Kinds
+## Property Types
 
-`src/kinds/index.ts` defines the closed built-in kind set:
+`src/property-types/index.ts` defines the closed built-in property-type set:
 
-| Kind | Typical use |
+| PropertyType | Typical use |
 |---|---|
 | `Roundtrip` | Encode/decode, serialize/parse, generate/readback. |
 | `Partial Roundtrip` | Normalizing operations that preserve a subset. |
@@ -151,10 +149,11 @@ ad hoc strings in comments.
 
 ## Applicability
 
-`source/kind-detector.ts` classifies each export. `source/applicability.ts`
-combines that shape with the static matrix in `source/applicability-matrix.ts`.
+`source/shape-detector.ts` classifies each export by `ExportShape`.
+`source/applicability.ts` combines that shape with the static
+`APPLICABILITY_MATRIX` in `property-types/index.ts`.
 
-| Export shape | Required kinds |
+| Export shape | Required property types |
 |---|---|
 | `Schema` | `Roundtrip`, `Exception Raising`, `Typechecking` |
 | `RpcDefinition` | `Roundtrip`, `Exception Raising`; `Inclusion` when the result is a collection |
@@ -163,8 +162,8 @@ combines that shape with the static matrix in `source/applicability-matrix.ts`.
 | `Branded` | none by default |
 | `unknown` | fail closed unless explicitly ignored |
 
-Ambiguous source shapes fail closed. The detector should raise
-`UnknownExportShapeError` or `AmbiguousKindError` instead of guessing.
+Ambiguous source shapes fail closed. The detector raises
+`UnknownExportShapeError` or `AmbiguousPropertyTypeError` instead of guessing.
 
 ## Modes
 
@@ -231,7 +230,7 @@ the sidecar has a typed schema and bounded strings.
 
 The package facade exports only:
 
-- `KINDS` and `Kind`.
+- `PROPERTY_TYPES` and `PropertyType`.
 - `itSpec` and `ItSpec`.
 
 The CLI owns mode execution. Programmatic access to mode internals should use

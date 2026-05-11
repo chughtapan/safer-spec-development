@@ -19,7 +19,7 @@
  *         fast-check). Empty → `MissingImplError`.
  *
  *   Tagged errors `MissingSpecPropertyError`, `MissingStubError`,
- *   `MissingImplError` are co-located here. `cli/index.ts` translates each
+ *   `MissingImplError` are co-located here. `commands/index.ts` translates each
  *   tag into a process exit code at the runtime boundary
  *   (MissingSpecPropertyError → 11, MissingStubError → 12,
  *   MissingImplError → 13).

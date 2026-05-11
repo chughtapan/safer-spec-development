@@ -1,8 +1,8 @@
 /**
  * @spec.purpose Format version constant for SPEC.md frontmatter and the
- *   `.safer-spec/<folder>.json` sidecar JSON. Co-located with the modes
- *   domain because modes/migrate.ts is what bumps it during format-version
- *   transitions, and modes/generate.ts stamps it onto every emitted SPEC.md.
+ *   `.safer-spec/<folder>.json` sidecar JSON. Co-located with the
+ *   commands because `migrate.ts` bumps it during format-version
+ *   transitions and `generate.ts` stamps it onto every emitted SPEC.md.
  */
 
 /**

@@ -4,8 +4,8 @@
  *   `validate` subcommand exits with one of {0, 11, 12, 13} according to the
  *   validate gap-class map.
  *
- *   The CLI subcommand handlers are inlined in `cli/index.ts`; properties
- *   reference the codemod `validate` mode entry as the export under test.
+ *   The CLI subcommand handlers are inlined in `commands/index.ts`;
+ *   properties reference the `validate` command as the export under test.
  */
 
 import { itSpec } from "@safer/spec/it-spec.js";

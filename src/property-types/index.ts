@@ -15,8 +15,8 @@
  *
  *   Terminal domain — no upward dependencies. `source/` consumes
  *   `ExportShape` (its detector outputs it) and `APPLICABILITY_MATRIX` (its
- *   resolver applies it). `spec/` and `sidecar/` consume `PropertyType`
- *   (their schemas embed it as `Schema.Literal(...PROPERTY_TYPES)`).
+ *   resolver applies it). `spec/` consumes `PropertyType` (its directive
+ *   and sidecar schemas embed it as `Schema.Literal(...PROPERTY_TYPES)`).
  *
  *   `PropertyType` membership: Ravi & Coblenz, OOPSLA 2025 (12 categories),
  *   filtered to the 9 statistically significant ones. Dropped:
@@ -47,13 +47,8 @@ export const PROPERTY_TYPES = [
 
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 
-// Intentionally no `isPropertyType` predicate. Validation crosses a boundary,
-// so the boundary uses the Schema directly:
-//   `Schema.decodeUnknown(Schema.Literal(...PROPERTY_TYPES))`.
-// A standalone predicate is easy to forget at trust boundaries. Callers
-// outside this domain decode via the consuming Schema (for example,
-// spec/directives.ts's PropertyTypeDirectiveSchema or sidecar/schema.ts's
-// SpecExportEntry.requiredPropertyTypes).
+// Callers validate via `Schema.decodeUnknown(Schema.Literal(...PROPERTY_TYPES))`
+// at the boundary; no standalone predicate.
 
 export type ExportShape =
   | "Schema"

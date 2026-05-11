@@ -10,8 +10,8 @@
  *   Other sections are emitted from source-side JSDoc, kind detection, and
  *   applicability output.
  *
- *   Composes spec/ + source/ + sidecar/ domains. Mode is the orchestrator;
- *   the domains are the workers.
+ *   Composes the spec/ and source/ domains. The command is the
+ *   orchestrator; the domains are the workers.
  *
  *   Tagged error `GenerateError` is co-located here.
  */

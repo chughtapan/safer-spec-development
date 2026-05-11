@@ -7,9 +7,6 @@
  *   diff comparison, `remark-parse` for distinguishing fenced code from
  *   inline code in body prose.
  *
- *   Imports cross-domain inputs through their boundary modules — `SpecArtifact`
- *   from `#sidecar/index.js` and `SpecFrontmatter` from `#spec/frontmatter.js`
- *   (intra-domain).
  *
  * @spec.guarantee Re-emission at the same tree SHA produces byte-identical
  *   output modulo `generated-at-sha`.

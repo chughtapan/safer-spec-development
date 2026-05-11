@@ -4,7 +4,7 @@
  *   Typechecking verifies that decoded data matches the declared type.
  *
  *   Tests reference the public `decodeSpecArtifact` boundary; the underlying
- *   Schema constructor stays private to sidecar/schema.ts.
+ *   Schema constructor stays private to spec/sidecar.ts.
  */
 
 import { itSpec } from "@safer/spec/it-spec.js";
