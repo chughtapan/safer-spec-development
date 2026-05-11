@@ -1,5 +1,5 @@
 /**
- * @spec.purpose SPEC.md frontmatter contract — Effect Schema for the YAML
+ * @specPurpose SPEC.md frontmatter contract — Effect Schema for the YAML
  *   block emitted at the top of each generated SPEC.md. Coverage fields are
  *   nullable for `--planned` state where classifier and
  *   precondition numbers are not yet observable.
@@ -8,7 +8,7 @@
  *   `decodeSpecFrontmatter` (decode unknown YAML output into the typed
  *   shape).
  *
- * @spec.residual-contract none
+ * @specResidualContract none
  *   reason: shape and refinements captured by Effect Schema.
  */
 
@@ -46,9 +46,9 @@ const SpecFrontmatterSchemaInner = Schema.Struct({
 export type SpecFrontmatter = Schema.Schema.Type<typeof SpecFrontmatterSchemaInner>;
 
 /**
- * @spec.guarantee "rejects malformed input with a typed `ParseError`; never throws"
+ * @specGuarantee "rejects malformed input with a typed `ParseError`; never throws"
  *   reason: trust-boundary; the validate gate reads YAML from disk.
- * @spec.residual-contract "coverage fields are nullable for `--planned` state where classifier and precondition numbers are not yet observable"
+ * @specResidualContract "coverage fields are nullable for `--planned` state where classifier and precondition numbers are not yet observable"
  *   reason: lifecycle contract; behavioral residue not encoded in the
  *           Schema's null-permissive shape.
  */

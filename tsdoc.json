@@ -1,0 +1,29 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v0/tsdoc.schema.json",
+  "tagDefinitions": [
+    { "tagName": "@specPurpose", "syntaxKind": "block", "allowMultiple": false },
+    { "tagName": "@specIgnore", "syntaxKind": "block", "allowMultiple": false },
+    { "tagName": "@specAssume", "syntaxKind": "block", "allowMultiple": true },
+    { "tagName": "@specGuarantee", "syntaxKind": "block", "allowMultiple": true },
+    { "tagName": "@specResidualContract", "syntaxKind": "block", "allowMultiple": false },
+    { "tagName": "@specSkip", "syntaxKind": "block", "allowMultiple": true },
+    { "tagName": "@specIgnoreExport", "syntaxKind": "block", "allowMultiple": true },
+    { "tagName": "@specProperty", "syntaxKind": "block", "allowMultiple": false },
+    { "tagName": "@specType", "syntaxKind": "block", "allowMultiple": false },
+    { "tagName": "@specExports", "syntaxKind": "block", "allowMultiple": false },
+    { "tagName": "@specClaim", "syntaxKind": "block", "allowMultiple": false }
+  ],
+  "supportForTags": {
+    "@specPurpose": true,
+    "@specIgnore": true,
+    "@specAssume": true,
+    "@specGuarantee": true,
+    "@specResidualContract": true,
+    "@specSkip": true,
+    "@specIgnoreExport": true,
+    "@specProperty": true,
+    "@specType": true,
+    "@specExports": true,
+    "@specClaim": true
+  }
+}

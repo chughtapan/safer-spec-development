@@ -3,7 +3,7 @@
    closely-related tagged errors (CliExitCode, CliUsageError); co-locating
    them with the binary they belong to is per-domain ownership. */
 /**
- * @spec.purpose CLI binary. Composes the six subcommands (`init`, `generate`,
+ * @specPurpose CLI binary. Composes the six subcommands (`init`, `generate`,
  *   `validate`, `doctor`, `explain`, `migrate`) into the top-level
  *   `safer-spec` Command, then translates each tagged failure into
  *   `process.exit(N)` at the runtime boundary.

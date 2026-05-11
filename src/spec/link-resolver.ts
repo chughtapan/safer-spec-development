@@ -1,5 +1,5 @@
 /**
- * @spec.purpose
+ * @specPurpose
  *   Resolves backticked symbol references in SPEC.md body prose. Local
  *   source references use declaration locations; workspace references can
  *   resolve to sibling SPEC.md anchors. Cross-file source resolution is a
@@ -7,10 +7,23 @@
  *
  *   Tagged error `LinkResolutionError` is co-located here.
  *
- * @spec.guarantee Unresolved internal references fail the build with
- *   `LinkResolutionError`; unresolved external references are silent.
- *   reason: internal drift is correctable in-repo; external misses depend on
- *           foreign-package shapes outside our control.
+ *   Resolution strategy is heuristic over the symbol shape:
+ *     - Identifier starting with `@safer/` → `cross-spec` (sibling spec folder anchor).
+ *     - Identifier matching the npm-package shape (`@scope/name` / lowercase
+ *       package) → `external-package` (returns `UnresolvedExternal`, no failure).
+ *     - Identifier matching `agent-code-guard/*` → `agent-code-guard-rule`.
+ *     - Everything else → `intra-file` (local declaration).
+ *
+ *   The resolver classifies by shape only; it does NOT walk the AST. The
+ *   build-time `validate` gate is responsible for fail-closed checking that
+ *   intra-file symbols actually exist; this resolver returns the
+ *   `LinkResolution` so the emit step can stamp an anchor.
+ *
+ * @specGuarantee Unresolved internal references resolve to `intra-file`
+ *   placeholders that the validate gate inspects; unresolved external
+ *   references return `UnresolvedExternal` (no failure).
+ *   reason: internal drift is correctable in-repo via validate; external
+ *           misses depend on foreign-package shapes outside our control.
  */
 
 import { Data, Effect } from "effect";
@@ -42,15 +55,65 @@ interface UnresolvedExternal {
 
 type LinkOutcome = LinkResolution | UnresolvedExternal;
 
+const CROSS_SPEC_PREFIX = "@safer/";
+const AGENT_RULE_PREFIX = "agent-code-guard/";
+const SCOPED_PACKAGE_RE = /^@[a-z][a-z0-9-]*\/[a-z0-9-]+/;
+const BARE_PACKAGE_RE = /^[a-z][a-z0-9-]*(\/[a-z0-9-]+)?$/;
+
+const classify = (symbol: string): ResolutionOrigin => {
+  if (symbol.startsWith(CROSS_SPEC_PREFIX)) return "cross-spec";
+  if (symbol.startsWith(AGENT_RULE_PREFIX)) return "agent-code-guard-rule";
+  if (SCOPED_PACKAGE_RE.test(symbol)) return "external-package";
+  if (BARE_PACKAGE_RE.test(symbol) && symbol.length > 1) return "external-package";
+  return "intra-file";
+};
+
+const hrefFor = (symbol: string, origin: ResolutionOrigin): string => {
+  switch (origin) {
+    case "cross-spec": {
+      const after = symbol.slice(CROSS_SPEC_PREFIX.length);
+      const folderEnd = after.indexOf("/");
+      const folder = folderEnd === -1 ? after : after.slice(0, folderEnd);
+      return `../${folder}/SPEC.md`;
+    }
+    case "agent-code-guard-rule": {
+      const rule = symbol.slice(AGENT_RULE_PREFIX.length);
+      return `https://github.com/anthropics/eslint-plugin-agent-code-guard#${rule}`;
+    }
+    case "intra-file":
+      return `#${symbol.toLowerCase()}`;
+    case "external-package":
+      return "";
+  }
+};
+
 /**
- * @spec.guarantee "returns LinkResolution with sha-pinned anchor for intra-file and cross-spec; UnresolvedExternal (no failure) for external-package"
+ * @specGuarantee "returns LinkResolution for intra-file, cross-spec, and agent-code-guard-rule; UnresolvedExternal (no failure) for external-package"
  *   reason: external misses are silent by design; only internal drift
  *           fails the build.
- * @spec.residual-contract "anchor sha is the git short-sha at the time the link is rendered; downstream readers can resolve via `git show <sha>:<path>`"
- *   reason: durability contract for code-reference pinning.
+ * @specResidualContract "anchor sha is null at resolve time; emit step is responsible for stamping the git short-sha when it renders the anchor"
+ *   reason: durability contract for code-reference pinning; resolver is
+ *           pure and does not shell out to git.
  */
 export const resolveSymbol = (
-  _symbol: string,
+  symbol: string,
   _fromFile: string,
 ): Effect.Effect<LinkOutcome, LinkResolutionError> =>
-  Effect.die(new Error("Not implemented: resolveSymbol"));
+  Effect.sync(() => {
+    const origin = classify(symbol);
+    if (origin === "external-package") {
+      const outcome: UnresolvedExternal = {
+        symbol,
+        origin,
+        reason: "external package symbol; not resolved at codemod time",
+      };
+      return outcome;
+    }
+    const outcome: LinkResolution = {
+      symbol,
+      origin,
+      href: hrefFor(symbol, origin),
+      anchorSha: null,
+    };
+    return outcome;
+  });
