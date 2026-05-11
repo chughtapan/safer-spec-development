@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src",
-  "generatedAtSha": "857a48bac27460a685add1c69bc2dd8976fd5fc6",
+  "generatedAtSha": "29d1d020e5a7df0a34e0113947f89e503bcfa2e2",
   "exports": [
     {
       "name": "ItSpec",
@@ -18,12 +18,14 @@
         "Exception Raising"
       ],
       "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
         "line": 25,
-        "sha": "857a48bac27460a685add1c69bc2dd8976fd5fc6"
+        "sha": "29d1d020e5a7df0a34e0113947f89e503bcfa2e2"
       }
     },
     {
@@ -41,6 +43,11 @@
         "Exception Raising"
       ],
       "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "none",
+        "reason": "shape captured by `as const` tuple."
+      },
       "residualAssumes": [],
       "residualGuarantees": [
         {
@@ -51,7 +58,7 @@
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 27,
-        "sha": "857a48bac27460a685add1c69bc2dd8976fd5fc6"
+        "sha": "29d1d020e5a7df0a34e0113947f89e503bcfa2e2"
       }
     },
     {
@@ -69,12 +76,14 @@
         "Exception Raising"
       ],
       "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 39,
-        "sha": "857a48bac27460a685add1c69bc2dd8976fd5fc6"
+        "sha": "29d1d020e5a7df0a34e0113947f89e503bcfa2e2"
       }
     },
     {
@@ -92,12 +101,14 @@
         "Exception Raising"
       ],
       "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
         "line": 56,
-        "sha": "857a48bac27460a685add1c69bc2dd8976fd5fc6"
+        "sha": "29d1d020e5a7df0a34e0113947f89e503bcfa2e2"
       }
     }
   ],

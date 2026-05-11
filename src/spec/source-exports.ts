@@ -17,6 +17,14 @@ import type { ExportEntry, ExportKind } from "@safer/spec/emit.js";
 
 export interface DeclaredExport {
   readonly name: string;
+  /**
+   * Underlying declaration's own name. For `export { foo as bar }`, `name`
+   * is `bar` (the public alias) and `declaredName` is `foo` (the symbol
+   * the JSDoc binds to). For direct exports, `declaredName === name`.
+   * `buildExportEntries` uses this to route directives parsed against the
+   * underlying name into the aliased export entry.
+   */
+  readonly declaredName: string;
   readonly line: number;
   readonly path: string;
   readonly kind: ExportKind;
@@ -210,6 +218,7 @@ export const collectExports = (
     const anchorFile = stripLeadingSlash(facts.anchor.getSourceFile().getFilePath());
     entries.push({
       name,
+      declaredName: declaredNameOf(node, name),
       line: facts.anchor.getStartLineNumber(),
       path: anchorFile,
       kind: facts.kind,
@@ -219,6 +228,20 @@ export const collectExports = (
   }
   entries.sort((a, b) => a.line - b.line);
   return entries;
+};
+
+/**
+ * Read the underlying declaration's own name. VariableDeclaration,
+ * FunctionDeclaration, ClassDeclaration, TypeAliasDeclaration,
+ * InterfaceDeclaration, and EnumDeclaration all expose `getName()`; nodes
+ * without one (anonymous exports, ExportSpecifier targets that resolve to
+ * unnamed entities) fall back to the public alias.
+ */
+const declaredNameOf = (node: Node, fallback: string): string => {
+  const probe = node as { readonly getName?: () => string | undefined };
+  if (typeof probe.getName !== "function") return fallback;
+  const got = probe.getName();
+  return got === undefined || got.length === 0 ? fallback : got;
 };
 
 /**
@@ -292,35 +315,55 @@ const collectIgnoredExportNames = (
  *   reason: validate gate surfaces these as MissingSpecPropertyError;
  *           generate just emits what it sees.
  */
+const seedEntry = (d: DeclaredExport): ExportEntry => ({
+  name: d.name,
+  kind: d.kind,
+  signature: d.signature,
+  description: d.description,
+  sourceRef: { path: d.path, line: d.line },
+  assumes: [],
+  guarantees: [],
+  residualContract: null,
+  skipped: [],
+});
+
+/**
+ * `export { foo as bar }`: JSDoc on `foo` is parsed with
+ * `location.exportName = "foo"` but the entry is keyed under the public
+ * alias `bar`. This index lets directive lookup reach the entry via
+ * either name; first-declared wins on collision.
+ */
+const indexAliases = (kept: ReadonlyArray<DeclaredExport>): Map<string, string> => {
+  const out = new Map<string, string>();
+  for (const d of kept) {
+    if (!out.has(d.declaredName)) out.set(d.declaredName, d.name);
+  }
+  return out;
+};
+
+const resolvePublicName = (
+  targetName: string | null,
+  byName: ReadonlyMap<string, ExportEntry>,
+  aliases: ReadonlyMap<string, string>,
+): string | null => {
+  if (targetName === null) return null;
+  if (byName.has(targetName)) return targetName;
+  return aliases.get(targetName) ?? null;
+};
+
 export const buildExportEntries = (
   declarations: ReadonlyArray<DeclaredExport>,
   directives: ReadonlyArray<LocatedDirective>,
 ): ReadonlyArray<ExportEntry> => {
   const ignored = collectIgnoredExportNames(directives);
-  const byName = new Map<string, ExportEntry>(
-    declarations
-      .filter((d) => !ignored.has(d.name))
-      .map((d) => [
-        d.name,
-        {
-          name: d.name,
-          kind: d.kind,
-          signature: d.signature,
-          description: d.description,
-          sourceRef: { path: d.path, line: d.line },
-          assumes: [],
-          guarantees: [],
-          residualContract: null,
-          skipped: [],
-        },
-      ]),
-  );
+  const kept = declarations.filter((d) => !ignored.has(d.name));
+  const byName = new Map<string, ExportEntry>(kept.map((d) => [d.name, seedEntry(d)]));
+  const aliases = indexAliases(kept);
   for (const { directive, location } of directives) {
-    const name = location.exportName;
-    const entry = name === null ? undefined : byName.get(name);
-    if (entry !== undefined && name !== null) {
-      byName.set(name, mergeOne(entry, directive));
-    }
+    const publicName = resolvePublicName(location.exportName, byName, aliases);
+    if (publicName === null) continue;
+    const entry = byName.get(publicName);
+    if (entry !== undefined) byName.set(publicName, mergeOne(entry, directive));
   }
   return [...byName.values()];
 };

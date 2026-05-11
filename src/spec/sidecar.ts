@@ -24,6 +24,23 @@ const ResidualEntrySchema = Schema.Struct({
   reason: Schema.String.pipe(Schema.maxLength(500)),
 });
 
+const SkippedEntrySchema = Schema.Struct({
+  propertyType: KindSchema,
+  reason: Schema.String.pipe(Schema.maxLength(500)),
+});
+
+const ResidualContractSchema = Schema.Union(
+  Schema.Struct({
+    _tag: Schema.Literal("none"),
+    reason: Schema.String.pipe(Schema.maxLength(500)),
+  }),
+  Schema.Struct({
+    _tag: Schema.Literal("some"),
+    body: Schema.String.pipe(Schema.maxLength(500)),
+    reason: Schema.String.pipe(Schema.maxLength(500)),
+  }),
+);
+
 const SpecExportEntrySchemaInner = Schema.Struct({
   name: Schema.String,
   shape: Schema.Literal(
@@ -36,6 +53,15 @@ const SpecExportEntrySchemaInner = Schema.Struct({
   ),
   requiredPropertyTypes: Schema.Array(KindSchema),
   observedPropertyTypes: Schema.Array(KindSchema),
+  // Each entry pairs the deliberately-opted-out `propertyType` with the
+  // author's stated reason. JSON-only sidecar consumers need this so they
+  // can distinguish an `@spec.skip` opt-out from an incomplete required set.
+  skipped: Schema.Array(SkippedEntrySchema),
+  // Null = no @spec.residual-contract directive; otherwise a tagged union
+  // mirroring the in-memory shape ("none" with reason vs "some" with body +
+  // reason). The markdown form already surfaces this; sidecar parity keeps
+  // tool-facing consumers in sync with the human-readable spec.
+  residualContract: Schema.NullOr(ResidualContractSchema),
   residualAssumes: Schema.Array(ResidualEntrySchema),
   residualGuarantees: Schema.Array(ResidualEntrySchema),
   sourceRef: Schema.Struct({

@@ -37,6 +37,10 @@ const ThresholdsBlockSchema = Schema.Struct({
 
 const SpecFrontmatterSchemaInner = Schema.Struct({
   folder: Schema.String,
+  // The dashed key matches the YAML emitted by `emitFrontmatter` (literal
+  // `format-version: <SPEC_FORMAT_VERSION>`); decoding strips it otherwise,
+  // which would break round-tripping and the migrate-tier version check.
+  "format-version": Schema.String,
   generatedFrom: GeneratedFromSchema,
   generatedAtSha: Schema.String,
   coverage: CoverageBlockSchema,

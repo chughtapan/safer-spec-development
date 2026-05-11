@@ -101,6 +101,26 @@ export const escapeForMarkdownTableCell = (input: string): string =>
     .replace(/\r?\n/g, "<br>");
 
 /**
+ * @spec.guarantee "safe inside an un-code-spanned table cell; pipes, backticks, asterisks, underscores, brackets, angle brackets are escaped; CR/LF become `<br>`; control chars stripped; single pass so backslashes are not double-escaped"
+ *   reason: property-table `Claim` carries author-controlled directive prose;
+ *           chaining prose + table-cell helpers would double-escape `\\`.
+ * @spec.residual-contract "one-way; round-trip through a markdown decoder does not return the original string"
+ *   reason: same as the other escape helpers.
+ */
+export const escapeForMarkdownTableCellProse = (input: string): string =>
+  stripControlChars(input)
+    .replace(/\\/g, "\\\\")
+    .replace(/`/g, "\\`")
+    .replace(/\*/g, "\\*")
+    .replace(/_/g, "\\_")
+    .replace(/\[/g, "\\[")
+    .replace(/\]/g, "\\]")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\|/g, "\\|")
+    .replace(/\r?\n/g, "<br>");
+
+/**
  * @spec.guarantee "output is safe to interpolate into markdown PROSE; backticks, code-fences, link syntax characters, asterisks, underscores, and HTML angle brackets are escaped; control characters are stripped"
  *   reason: trust contract for sync emit paths (the Effect-flavored
  *           `escapeForMarkdown` is for Effect contexts; this is the

@@ -10,6 +10,7 @@ import { SPEC_FORMAT_VERSION } from "@safer/commands/version.js";
 import {
   escapeForMarkdownProse,
   escapeForMarkdownTableCell,
+  escapeForMarkdownTableCellProse,
 } from "@safer/spec/escape.js";
 import { relativeToFolder } from "@safer/spec/link-resolver.js";
 import type { SpecArtifact } from "@safer/spec/sidecar.js";
@@ -148,7 +149,7 @@ const emitPropertiesTable = (
       .map((s) => "`" + escapeForMarkdownTableCell(s) + "`")
       .join(", ");
     const status = p.stubbed ? "todo" : "implemented";
-    const claim = escapeForMarkdownTableCell(p.claim);
+    const claim = escapeForMarkdownTableCellProse(p.claim);
     lines.push(
       `| \`${id}\` | \`${p.propertyType}\` | ${exports} | ${claim} | ${status} |`,
     );
@@ -291,6 +292,8 @@ export const buildSpecArtifact = (
     shape: SHAPE_BY_KIND[e.kind],
     requiredPropertyTypes: requiredPropertyTypesFor(e),
     observedPropertyTypes: observedPropertyTypesFor(e.name, a.properties),
+    skipped: e.skipped.map((s) => ({ propertyType: s.propertyType, reason: s.reason })),
+    residualContract: e.residualContract,
     residualAssumes: e.assumes.map((r) => ({ claim: r.claim, reason: r.reason })),
     residualGuarantees: e.guarantees.map((r) => ({ claim: r.claim, reason: r.reason })),
     sourceRef: {
