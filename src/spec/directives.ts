@@ -16,8 +16,8 @@
  *         reason: <why it isn't in the return type>
  *       @spec.residual-contract <none | "named contract">
  *         reason: <why>
- *       @spec.skip "<PropertyType>"                    (escape hatch, per-kind)
- *         reason: <why this kind is not applicable to this export>
+ *       @spec.skip "<PropertyType>"                    (escape hatch, per property type)
+ *         reason: <why this property type is not applicable to this export>
  *       @spec.ignore-export <Name>             (escape hatch)
  *         reason: <why>
  *

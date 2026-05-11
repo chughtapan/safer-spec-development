@@ -21,7 +21,8 @@
     "build": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
     "lint": "eslint . && agent-code-guard-knip",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "safer-spec": "node ./dist/commands/index.js"
   },
   "dependencies": {
     "@effect/cli": "^0.73.0",

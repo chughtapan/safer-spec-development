@@ -1,136 +1,172 @@
 ---
 name: safer-spec-authoring
-description: Use when adding property tests (`itSpec.prop`/`itSpec.todo`), writing per-export `@spec.*` JSDoc directives, choosing a domain folder for new code, or authoring SPEC.md content in the safer-spec-development codebase.
+description: Use when writing code, JSDoc directives, or property tests that feed safer-spec-development, especially when adding exports, declaring residual contracts, choosing property kinds, or updating generated SPEC.md artifacts.
 ---
 
 # safer-spec-authoring
 
-## Overview
+## Purpose
 
-Author property tests, JSDoc directives, and module content for the safer-spec codemod. Tests are the source of truth for properties; `SPEC.md` is generated, not hand-written. Directives carry the residue that types cannot capture.
+Use safer-spec to make the contract of a folder obvious to the next reader.
+The reader should not need project history, issue context, or a prior agent
+conversation. They need to know:
 
-## When to use
+- What this folder exposes.
+- What behavior the type system does not capture.
+- Which properties prove the behavior.
+- Which gaps are intentionally skipped and why.
 
-- Adding a new property test with `itSpec.prop` or `itSpec.todo`.
-- Writing or updating `@spec.assume` / `@spec.guarantee` / `@spec.residual-contract` on an exported declaration.
-- Adding a new file, folder, or module — deciding which domain it belongs in.
-- Editing SPEC.md content that is NOT in the generated `## Properties` table.
+`SPEC.md` is generated output. Authorship happens in source JSDoc and test
+JSDoc.
 
-## When NOT to use
+## First-use mental model
 
-- Editing the `## Properties` section of SPEC.md directly. Run `pnpm safer-spec generate --write` instead — the section is machine-emitted from test JSDoc.
-- Adding cross-domain abstractions like `errors/` registries or shared `types.ts` files. Errors live with their producer; types live with the layer that owns the data.
-- Modifying CI lint rules to silence a warning. The strict policy is intentional; if a rule fires, fix the code, not the config.
+There are two sources of truth:
 
-## Core pattern
+- Source exports describe the public surface and residual contracts.
+- Property tests describe evidence for those contracts.
 
-Tests author properties; the codemod emits `SPEC.md` from tests. Per-export JSDoc on the declaration site, file-level JSDoc only at `index.ts` barrels.
+`safer-spec generate` reads both and emits:
+
+- Human-readable `SPEC.md`.
+- Tool-readable `.safer-spec/<folder>.json`.
+
+`safer-spec validate` checks that generated artifacts still match source and
+tests.
+
+## What To Write
+
+### 1. Put purpose on the barrel
+
+Use `@spec.purpose` at the file level for an `index.ts` barrel. Keep it short.
 
 ```ts
-// src/spec/emit.ts
-
 /**
- * @spec.guarantee "output uses LF endings, lexicographic file order, source-order export order"
- *   reason: byte-determinism is not captured by the return type; downstream `validate` compares bytes.
- * @spec.residual-contract "callers may not pass mutable arrays into `exports`"
- *   reason: the emitter sorts in place when given a writable array; ReadonlyArray is the trust boundary.
+ * @spec.purpose Parses SPEC.md directives and emits typed directive records.
  */
-export const emitSpec = (input: EmitInput): Effect.Effect<EmittedSpec, EmitError, never> =>
-  Effect.gen(function* () { /* ... */ });
+```
+
+### 2. Put contracts on declarations
+
+Every exported declaration should say what types cannot say. If there is no
+residual behavior, say `none` and give the reason.
+
+```ts
+/**
+ * @spec.guarantee "malformed directive bodies fail on the Effect error channel"
+ *   reason: failure-channel behavior is not visible from the return type alone.
+ * @spec.residual-contract "directive body length is capped before emit"
+ *   reason: trust-boundary behavior protects generated markdown and sidecar JSON.
+ */
+export const parseFileDirectives = ...
 ```
 
 ```ts
-// src/spec/__tests__/emit.spec.test.ts
-
 /**
- * @spec.property emit-byte-determ
- * @spec.type Roundtrip
- * @spec.exports emitSpec
- * @spec.claim two emit() calls on the same input produce byte-identical output.
+ * @spec.residual-contract none
+ *   reason: shape and refinements are captured by Effect Schema.
  */
-itSpec.todo("emit-byte-determ", {
-  type: "Roundtrip",
-  exports: [emitSpec],
+export const SpecFrontmatter = ...
+```
+
+### 3. Put property metadata above `itSpec`
+
+Each property stub or implementation carries four directives. The runtime
+metadata must match the JSDoc.
+
+```ts
+/**
+ * @spec.property frontmatter-rejects-malformed
+ * @spec.kind Exception Raising
+ * @spec.exports decodeSpecFrontmatter
+ * @spec.claim malformed YAML fails on the Effect error channel, never throws
+ */
+itSpec.todo("frontmatter-rejects-malformed", {
+  kind: "Exception Raising",
+  exports: [decodeSpecFrontmatter],
 });
 ```
 
-After authoring the test, run `pnpm safer-spec generate --write` to update SPEC.md's `## Properties` section. Hand-editing the section is drift, not authorship.
+When implemented, use `itSpec.prop` with a real arbitrary and non-empty body.
+`itSpec.todo` is acceptable only for planned work.
 
-## Quick reference
+### 4. Skip explicitly
 
-| Directive | Where it goes | Required? |
-|---|---|---|
-| `@spec.purpose` | File-level on `index.ts` barrels | One per barrel |
-| `@spec.assume` | Per-export on the declaration site | At least one of {assume, guarantee, residual-contract} per export |
-| `@spec.guarantee` | Per-export on the declaration site | At least one of the three |
-| `@spec.residual-contract` | Per-export on the declaration site (`none reason: ...` is valid) | At least one of the three |
-| `@spec.skip "<PropertyType>"` | Per-export on the declaration site | Explicit opt-out from the default-all PropertyTypes policy |
-| `@spec.ignore-export <Name>` | File-level on `index.ts` | Optional escape hatch |
-| `@spec.ignore` | File-level on any file | Optional file-level escape hatch |
-| `@spec.property <id>` | Per-test on `itSpec.prop`/`itSpec.todo` | Required; matches first positional arg |
-| `@spec.type <PropertyType>` | Per-test | Required; matches `opts.type` |
-| `@spec.exports <symbols>` | Per-test | Required; matches `opts.exports.map(name)` |
-| `@spec.claim <one-line>` | Per-test | Required; emitted into SPEC.md `## Properties` row |
+Do not silently omit an expected property kind. Use `@spec.skip` when a kind is
+not meaningful for an export.
 
-Every directive needs a `reason:` line. Missing reason fires `spec-directive-parse-error` lint.
+```ts
+/**
+ * @spec.skip "Partial Roundtrip"
+ *   reason: normalization intentionally discards whitespace, so the original input is not recoverable.
+ */
+export const normalizeName = ...
+```
 
-## PropertyTypes (closed enum)
+## Property Kinds
 
-The OOPSLA 9-type taxonomy. Default is all types apply to every export; opt out explicitly per type via `@spec.skip`.
+Choose the kind that describes the behavior under test.
 
-| PropertyType | Typical use |
+| Kind | Use when proving |
 |---|---|
-| `Roundtrip` | Encode/decode, serialize/parse, generate/readback. |
-| `Partial Roundtrip` | Normalizing operations that preserve a subset. |
-| `Commutative Paths` | Equivalent paths through an API. |
-| `Constant Equality` | Known constants, fixed formatting. |
-| `Constant Bounds Checking` | Numeric, length, or size bounds. |
-| `Constant Non-Equality` | Values that must remain distinct. |
-| `Typechecking` | Type-level or schema-shape assertions. |
-| `Inclusion` | Membership, coverage, containment. |
-| `Exception Raising` | Rejection and failure-channel behavior. |
+| `Roundtrip` | encode/decode, parse/serialize, generate/readback stability. |
+| `Partial Roundtrip` | normalization preserves the intended subset. |
+| `Commutative Paths` | two valid paths through the API produce equivalent results. |
+| `Constant Equality` | fixed constants, stable output, known values. |
+| `Constant Bounds Checking` | numeric, length, size, or partition bounds. |
+| `Constant Non-Equality` | values that must remain distinct. |
+| `Typechecking` | decoded data or detected shapes match declared types. |
+| `Inclusion` | membership, containment, coverage, or presence. |
+| `Exception Raising` | invalid input is rejected on the intended failure path. |
 
-The set is closed. Repo-specific additions are explicit configuration, not ad-hoc strings.
+## Domain Placement
 
-## Domain choice (where new code goes)
+Place code by what it knows, not by generic technical category.
 
-Three layers. Each owns its types, schemas (private), and tagged errors.
-
-| Layer | Owns |
+| Folder | Belongs there when it owns |
 |---|---|
-| `commands/` | CLI entrypoint, subcommand handlers, exit-code mapping. `CliExitCode` and `CliUsageError` live here. |
-| `spec/` | Everything about the SPEC.md artifact: directive grammar, escape, frontmatter schema, markdown emitter, sidecar JSON schema/writer, link resolution, the `itSpec` test helper. |
-| `property-types/` | The closed `PropertyType` enum and the `PROPERTY_TYPES` const. Terminal layer; no upward deps. |
+| `cli/` | CLI composition and process exit-code translation. |
+| `modes/` | Mode entrypoints: `init`, `generate`, `validate`, `doctor`, `migrate`, `explain`. |
+| `spec/` | SPEC.md grammar, parsing, frontmatter, markdown emission, escaping. |
+| `source/` | TypeScript source analysis, export-shape detection, applicability, links. |
+| `sidecar/` | `.safer-spec/<folder>.json` schema and writer. |
+| `kinds/` | Closed property-kind vocabulary. |
+| `authoring/` | `itSpec` helper used by property authors. |
 
-Cross-layer imports use `@safer/<domain>/...`. Relative imports (`./`, `../`) within the same folder are fine; cross-folder relative imports are forbidden by lint.
+Use `@safer/<domain>/...` for cross-domain imports. Same-folder sibling imports
+can use `./sibling.js`.
 
-## Common mistakes
+## Authoring Workflow
+
+1. Add or change the export.
+2. Add declaration-level `@spec.*` JSDoc for residual behavior.
+3. Add `itSpec.todo` or `itSpec.prop` with matching property JSDoc.
+4. Run `pnpm safer-spec generate --write`.
+5. Run `pnpm safer-spec validate --planned` for metadata-only work or
+   `pnpm safer-spec validate --implemented` when property bodies are real.
+6. Run the normal package build, tests, and lint.
+
+## Common Mistakes
 
 | Mistake | Fix |
 |---|---|
-| Edited `## Properties` rows by hand | `pnpm safer-spec generate --write`. The table is machine-emitted. |
-| Put `@spec.residual-contract` at file level | Move to the export's declaration site. File-level allows only `@spec.purpose` + `@spec.ignore`. |
-| Schema constructor exported from `src/index.ts` | Keep the Schema private to its module; export `decode<Thing>` as the boundary. |
-| Relative cross-folder import (`../../property-types/`) | Use `@safer/property-types/...`. |
-| Centralized tagged error in a shared `errors/` folder | Co-locate with the producer. `ValidateError` → `commands/validate.ts`. |
-| Missing `reason:` on a directive | Add it. Required by `spec-directive-parse-error`. |
-| Bare string in `@spec.exports` | Reference values: `exports: [Agent]`, not `["Agent"]`. |
-| `itSpec.prop` with empty body | Either fill the body OR demote to `itSpec.todo`. Empty `itSpec.prop` body fires `MissingImplError` (exit 13). |
-| Added an applicability matrix or required-types-per-shape table | The contract is default-all + explicit `@spec.skip`. No prescriptive defaults. |
-| Wrote prose about "we used to do X, now we do Y" in SPEC.md or README | History lives in git log + ADRs. Spec docs are present-tense; describe the current contract only. |
+| Hand-editing generated `## Properties` rows | Edit the test JSDoc and run generate. |
+| Writing history in a directive | State the current contract only. |
+| Restating the type in `@spec.guarantee` | Put only behavior types cannot express. |
+| Using `@spec.type` | Use `@spec.kind`. |
+| Passing string exports in `itSpec` metadata | Use value references: `exports: [Agent]`. |
+| Missing `reason:` under a residual or skip directive | Add a concrete reason. |
+| Putting per-export directives on the barrel | Move them to the declaration site. |
+| Creating shared `errors/` or `types.ts` dumping grounds | Keep errors and types with the domain that owns them. |
+| Leaving `itSpec.prop` empty | Use `itSpec.todo` or implement the property body. |
 
-## Gap-class exit codes (for context when writing properties)
+## Exit Codes
 
-`pnpm safer-spec validate --implemented` emits one of three tagged errors:
+| Error | Exit | Meaning |
+|---|---:|---|
+| `MissingSpecPropertyError` | 11 | Generated properties drifted from test metadata, or metadata mismatches runtime args. |
+| `MissingStubError` | 12 | A required `itSpec` call or its JSDoc is missing. |
+| `MissingImplError` | 13 | Implemented validation found a todo or empty property body. |
 
-| Tagged error | Exit | Meaning | Owner |
-|---|---|---|---|
-| `MissingSpecPropertyError` | 11 | Committed SPEC.md `## Properties` table drifted from test JSDoc OR JSDoc directive doesn't match `itSpec` args. | spec author (run generate) |
-| `MissingStubError` | 12 | A required `itSpec` call or its JSDoc directives are missing. | architect |
-| `MissingImplError` | 13 | A property is `itSpec.todo` or has an empty body. | implementer |
-
-Write tests aware of which class your stub falls into. Running with `--planned` accepts `itSpec.todo` (no 13); running with `--implemented` requires non-empty `itSpec.prop` bodies.
-
-## Real-world impact
-
-Five rounds of spec convergence on the Stage 5 self-repo validation gate revealed that hand-authored `## Properties` tables drift from test declarations within hours. Inverting the authorship direction — tests author properties, codemod generates the table — eliminates drift by construction. The validate-vs-regenerate check is `Roundtrip` on the codemod's own output.
+Use these codes to decide the fix: regenerate specs, add metadata/stubs, or
+finish the property implementation.
