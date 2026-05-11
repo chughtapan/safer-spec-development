@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: 06c461af2919d5a3d6aeb7133b5f8c56310be4c8
+generatedAtSha: 3de60787380b3c822df5514f24280674b563fb6c
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -37,7 +37,7 @@ Tagged errors `CliExitCode` and `CliUsageError` are co-located here.
 
 ## Public surface
 
-### [`CliExitCode`](/src/commands/index.ts#L37)
+### [`CliExitCode`](./index.ts#L37)
 
 ```ts
 export class CliExitCode extends Data.TaggedError("CliExitCode")<{
@@ -45,7 +45,7 @@ export class CliExitCode extends Data.TaggedError("CliExitCode")<{
 }> { /* ... */ }
 ```
 
-### [`CliUsageError`](/src/commands/index.ts#L41)
+### [`CliUsageError`](./index.ts#L41)
 
 ```ts
 export class CliUsageError extends Data.TaggedError("CliUsageError")<{

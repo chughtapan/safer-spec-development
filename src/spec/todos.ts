@@ -191,7 +191,16 @@ const checkExports = (
 ): ItSpecIssue | null => {
   const runtime = runtimeExportsNames(call);
   const declared = [...found.exports.symbols];
-  if (runtime.length === 0) return null;
+  // Empty runtime exports = either the test author forgot `exports: [...]`
+  // OR passed `exports: []` literally; both mask missing metadata. Surface
+  // as a cross-check mismatch so the documented gate (MissingSpecPropertyError
+  // routing) fires.
+  if (runtime.length === 0) {
+    return mismatch(
+      ctx,
+      `JSDoc @spec.exports [${declared.join(", ")}] vs itSpec opts.exports [] (runtime metadata empty or omitted)`,
+    );
+  }
   if (sameArray([...runtime].sort(), [...declared].sort())) return null;
   return mismatch(ctx, `JSDoc @spec.exports [${declared.join(", ")}] vs itSpec opts.exports [${runtime.join(", ")}]`);
 };

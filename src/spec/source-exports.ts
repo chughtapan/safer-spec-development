@@ -169,6 +169,13 @@ export interface CollectExportsOptions {
  *   reason: ts-morph cannot follow `export ... from` without the target
  *           file registered on the same Project.
  */
+// ts-morph's in-memory FileSystem reports paths with a leading "/" (the
+// virtual root). Strip it so committed SPEC.md links + sidecar sourceRef
+// paths are repo-relative (e.g. `src/commands/index.ts`, not
+// `/src/commands/index.ts`).
+const stripLeadingSlash = (p: string): string =>
+  p.length > 0 && p.charCodeAt(0) === 47 ? p.slice(1) : p;
+
 const buildCompilerOptions = (
   options: CollectExportsOptions,
 ): { baseUrl?: string; paths?: Record<string, string[]> } => {
@@ -200,7 +207,7 @@ export const collectExports = (
     const node = nodes[0];
     if (node === undefined) continue;
     const facts = declarationFacts(node);
-    const anchorFile = facts.anchor.getSourceFile().getFilePath();
+    const anchorFile = stripLeadingSlash(facts.anchor.getSourceFile().getFilePath());
     entries.push({
       name,
       line: facts.anchor.getStartLineNumber(),

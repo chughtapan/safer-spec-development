@@ -16,7 +16,10 @@
 
 import { PROPERTY_TYPES, type PropertyType } from "@safer/property-types/index.js";
 import { SPEC_FORMAT_VERSION } from "@safer/commands/version.js";
-import { escapeForMarkdownTableCell } from "@safer/spec/escape.js";
+import {
+  escapeForMarkdownProse,
+  escapeForMarkdownTableCell,
+} from "@safer/spec/escape.js";
 import type { SpecArtifact } from "@safer/spec/sidecar.js";
 
 interface ResidualEntry {
@@ -77,7 +80,9 @@ const emitResidualList = (
   if (items.length === 0) return [];
   const lines: string[] = ["", `**${label}:**`];
   for (const x of items) {
-    lines.push(`- "${x.claim}" — _${x.reason}_`);
+    lines.push(
+      `- "${escapeForMarkdownProse(x.claim)}" — _${escapeForMarkdownProse(x.reason)}_`,
+    );
   }
   return lines;
 };
@@ -86,8 +91,13 @@ const emitResidualContract = (
   rc: ResidualContract | null,
 ): ReadonlyArray<string> => {
   if (rc === null) return [];
-  if (rc._tag === "none") return ["", `**Residual contract:** none — _${rc.reason}_`];
-  return ["", `**Residual contract:** "${rc.body}" — _${rc.reason}_`];
+  if (rc._tag === "none") {
+    return ["", `**Residual contract:** none — _${escapeForMarkdownProse(rc.reason)}_`];
+  }
+  return [
+    "",
+    `**Residual contract:** "${escapeForMarkdownProse(rc.body)}" — _${escapeForMarkdownProse(rc.reason)}_`,
+  ];
 };
 
 const emitSkipped = (
