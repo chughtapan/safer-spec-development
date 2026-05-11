@@ -98,7 +98,7 @@ const emitSkipped = (
   if (skipped.length === 0) return [];
   const lines: string[] = ["", "**Skipped property types:**"];
   for (const s of skipped) {
-    lines.push(`- \`${s.propertyType}\` — _${s.reason}_`);
+    lines.push(`- \`${s.propertyType}\` — _${escapeForMarkdownProse(s.reason)}_`);
   }
   return lines;
 };

@@ -168,7 +168,13 @@ const checkProperty = (
   ctx: CrossCheckCtx,
 ): ItSpecIssue | null => {
   const id = stringLiteralText(call.getArguments()[0]);
-  if (id === null || id === found.property.id) return null;
+  if (id === null) {
+    return mismatch(
+      ctx,
+      `JSDoc @spec.property "${found.property.id}" vs itSpec id <non-literal> (must be a string literal so validate can cross-check)`,
+    );
+  }
+  if (id === found.property.id) return null;
   return mismatch(ctx, `JSDoc @spec.property "${found.property.id}" vs itSpec id "${id}"`);
 };
 
@@ -180,7 +186,13 @@ const checkType = (
   const expr = optsProperty(call, "type");
   if (expr === null) return null;
   const value = stringLiteralText(expr);
-  if (value === null || value === found.type.propertyType) return null;
+  if (value === null) {
+    return mismatch(
+      ctx,
+      `JSDoc @spec.type "${found.type.propertyType}" vs itSpec opts.type <non-literal> (must be a string literal so validate can cross-check)`,
+    );
+  }
+  if (value === found.type.propertyType) return null;
   return mismatch(ctx, `JSDoc @spec.type "${found.type.propertyType}" vs itSpec opts.type "${value}"`);
 };
 
