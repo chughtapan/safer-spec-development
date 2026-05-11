@@ -36,6 +36,7 @@ import {
 } from "@safer/spec/directives/index.js";
 import {
   buildFolderAnalysis,
+  buildSpecMeta,
   collectFolderInputs,
   discoverFolders,
   loadValidateProjectContext,
@@ -221,7 +222,8 @@ const validateOneFolder = (
     const analysis = yield* catchDirectiveErrors(
       buildFolderAnalysis(ctx.fs, folder, inputs, ctx.projectCtx),
     );
-    const regenerated = regenerateMarkdown(analysis);
+    const meta = buildSpecMeta(analysis, ctx.projectCtx);
+    const regenerated = regenerateMarkdown(analysis, meta);
     yield* checkDrift(ctx.fs, ctx.path.join(folder, "SPEC.md"), regenerated);
     if (ctx.mode === "implemented") yield* checkImplBodies(analysis);
     return folder;

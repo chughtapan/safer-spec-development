@@ -27,11 +27,13 @@ import {
   type JsDocUnknownDirectiveError,
 } from "@safer/spec/directives/index.js";
 import {
+  buildSpecArtifact,
   emitMarkdown,
-  emitSidecar,
   type FolderAnalysis,
   type PropertyRow,
 } from "@safer/spec/emit.js";
+import type { SpecArtifact } from "@safer/spec/sidecar.js";
+import { serializeSidecar } from "@safer/spec/sidecar-writer.js";
 import {
   buildExportEntries,
   collectExports,
@@ -39,6 +41,7 @@ import {
   type DeclaredExport,
 } from "@safer/spec/source-exports.js";
 import {
+  buildSpecMeta,
   loadProjectContext,
   type ProjectContext,
 } from "@safer/commands/validate-pipeline.js";
@@ -237,11 +240,8 @@ const checkInputs = (
 };
 
 /**
- * @spec.assume "every source export in scope carries `@spec.assume`/`@spec.guarantee`/`@spec.residual-contract` (or is explicitly `@spec.skip`-ed)"
- *   reason: per-export contract enforced by `validate --implemented`;
- *           generate emits whatever directives it finds.
  * @spec.guarantee "two generate calls at the same source state produce byte-identical SPEC.md + sidecar"
- *   reason: roundtrip contract; downstream `validate` relies on it.
+ *   reason: roundtrip contract; validate's drift check relies on it.
  * @spec.residual-contract "this slice supports `--folder X` only; whole-tree walk and `--watch` are not yet implemented"
  *   reason: scope-of-this-slice contract.
  */
@@ -249,6 +249,7 @@ const buildAnalysis = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
   folder: FolderPath,
+  ctx: ProjectContext,
 ): Effect.Effect<
   FolderAnalysis,
   GenerateError | GenerateIOError | DirectiveParseError
@@ -269,11 +270,6 @@ const buildAnalysis = (
         }),
       );
     }
-    const ctx = yield* loadProjectContext(fs, path, ".").pipe(
-      Effect.catchTag("ProjectContextError", (e) =>
-        Effect.die(new Error(`failed to load project context: ${e.cause}`)),
-      ),
-    );
     const directives = yield* parseSources(fs, folder, sources);
     const declarations = yield* collectIndexDeclarations(
       fs,
@@ -292,6 +288,19 @@ const buildAnalysis = (
     };
   });
 
+const renderSidecar = (
+  artifact: SpecArtifact,
+  folder: FolderPath,
+): Effect.Effect<string, GenerateIOError> =>
+  serializeSidecar(artifact).pipe(
+    Effect.catchTag("SidecarSchemaError", (e) =>
+      Effect.fail(
+        new GenerateIOError({ folder, path: e.path, cause: e.issues.join("; ") }),
+      ),
+    ),
+  );
+
+
 export const generate = (
   input: GenerateInput,
 ): Effect.Effect<
@@ -303,31 +312,20 @@ export const generate = (
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const folder = yield* checkInputs(input);
-    const analysis = yield* buildAnalysis(fs, path, folder);
-
-    const markdown = emitMarkdown(analysis);
-    const sidecarJson = emitSidecar(analysis);
+    const ctx = yield* loadProjectContext(fs, path, ".").pipe(
+      Effect.catchTag("ProjectContextError", (e) => Effect.die(new Error(`failed to load project context: ${e.cause}`))),
+    );
+    const analysis = yield* buildAnalysis(fs, path, folder, ctx);
+    const meta = buildSpecMeta(analysis, ctx);
+    const markdown = emitMarkdown(analysis, meta);
+    const artifact = buildSpecArtifact(analysis, meta);
+    const sidecarJson = yield* renderSidecar(artifact, folder);
 
     if (!input.write || input.dryRun) {
       yield* Effect.log(`--- SPEC.md ---\n${markdown}`);
       yield* Effect.log(`--- sidecar ---\n${sidecarJson}`);
-      return {
-        foldersTouched: [folder],
-        filesWritten: [],
-        diff: `${markdown}\n${sidecarJson}`,
-      };
+      return { foldersTouched: [folder], filesWritten: [], diff: `${markdown}\n${sidecarJson}` };
     }
-
-    const filesWritten = yield* writeOutputs({
-      fs,
-      path,
-      folder,
-      markdown,
-      sidecarJson,
-    });
-    return {
-      foldersTouched: [folder],
-      filesWritten,
-      diff: `wrote ${filesWritten.length} files for ${folder}`,
-    };
+    const filesWritten = yield* writeOutputs({ fs, path, folder, markdown, sidecarJson });
+    return { foldersTouched: [folder], filesWritten, diff: `wrote ${filesWritten.length} files for ${folder}` };
   }).pipe(Effect.withSpan("commands/generate"));

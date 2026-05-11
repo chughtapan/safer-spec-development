@@ -19,9 +19,11 @@ import {
   type LocatedDirective,
 } from "@safer/spec/directives/index.js";
 import {
+  computeKindCoverage,
   emitMarkdown,
   type FolderAnalysis,
   type PropertyRow,
+  type SpecMeta,
 } from "@safer/spec/emit.js";
 import {
   buildExportEntries,
@@ -39,7 +41,19 @@ export class ProjectContextError extends Data.TaggedError("ProjectContextError")
 export interface ProjectContext {
   readonly sources: ReadonlyArray<SourceFile>;
   readonly paths: Readonly<Record<string, ReadonlyArray<string>>>;
+  readonly generatedAtSha: string;
+  readonly thresholds: {
+    readonly kindCoverage: number;
+    readonly classifierCoverage: number;
+    readonly preconditionPassRate: number;
+  };
 }
+
+const DEFAULT_THRESHOLDS = {
+  kindCoverage: 1.0,
+  classifierCoverage: 0.8,
+  preconditionPassRate: 0.9,
+} as const;
 
 type DirectiveParseError =
   | JsDocDirectiveOverflowError
@@ -76,8 +90,6 @@ const isDirectory = (
 /**
  * @spec.guarantee "returns folder inputs (sources, tests, index path) or null if no index.ts barrel exists"
  *   reason: contract for validate's per-folder iteration.
- * @spec.residual-contract "test files under `__tests__/` are scanned as a sibling subdirectory only; nested test dirs are ignored"
- *   reason: scope-of-this-slice contract.
  */
 export const collectFolderInputs = (
   fs: FileSystem.FileSystem,
@@ -141,10 +153,8 @@ const parseTests = (
   });
 
 /**
- * @spec.guarantee "produces the same FolderAnalysis shape that `generate` emits, so a regenerate-and-compare check is byte-deterministic"
+ * @spec.guarantee "produces the same FolderAnalysis shape `generate` emits; regenerate-and-compare is byte-deterministic"
  *   reason: roundtrip contract; validate's drift check relies on it.
- * @spec.residual-contract none
- *   reason: pure data assembly; behavior captured by signature.
  */
 export const buildFolderAnalysis = (
   fs: FileSystem.FileSystem,
@@ -171,12 +181,8 @@ export const buildFolderAnalysis = (
     };
   }).pipe(Effect.withSpan("commands/validate-pipeline/buildFolderAnalysis"));
 
-const IS_TS_SOURCE_RE = /\.ts$/;
 const isTsSource = (name: string): boolean =>
-  IS_TS_SOURCE_RE.test(name) &&
-  !name.endsWith(".d.ts") &&
-  !name.endsWith(".spec.test.ts");
-
+  name.endsWith(".ts") && !name.endsWith(".d.ts") && !name.endsWith(".spec.test.ts");
 const SKIP_DIRS = new Set(["node_modules", "dist"]);
 
 const recordTsFile = (
@@ -215,9 +221,7 @@ const PATHS_BLOCK_RE = /"paths"\s*:\s*\{([\s\S]*?)\}/;
 const PATH_ENTRY_RE = /"([^"]+)"\s*:\s*\[([^\]]*)\]/g;
 const STRING_LIT_RE = /"([^"]+)"/g;
 
-const parsePathsBlock = (
-  text: string,
-): Record<string, ReadonlyArray<string>> => {
+const parsePathsBlock = (text: string): Record<string, ReadonlyArray<string>> => {
   const block = PATHS_BLOCK_RE.exec(text);
   if (block === null) return {};
   const result: Record<string, ReadonlyArray<string>> = {};
@@ -227,9 +231,7 @@ const parsePathsBlock = (
     const values: string[] = [];
     STRING_LIT_RE.lastIndex = 0;
     let lit: RegExpExecArray | null;
-    while ((lit = STRING_LIT_RE.exec(entry[2] ?? "")) !== null) {
-      values.push(lit[1]!);
-    }
+    while ((lit = STRING_LIT_RE.exec(entry[2] ?? "")) !== null) values.push(lit[1]!);
     result[entry[1]!] = values;
   }
   return result;
@@ -239,20 +241,37 @@ const readTsConfigPaths = (
   fs: FileSystem.FileSystem,
   tsconfigPath: string,
 ): Effect.Effect<Readonly<Record<string, ReadonlyArray<string>>>, never> =>
-  fs.readFileString(tsconfigPath).pipe(
-    Effect.map(parsePathsBlock),
-    Effect.catchAll(() =>
-      Effect.succeed({} as Record<string, ReadonlyArray<string>>),
-    ),
+  fs
+    .readFileString(tsconfigPath)
+    .pipe(
+      Effect.map(parsePathsBlock),
+      Effect.catchAll(() =>
+        Effect.succeed({} as Record<string, ReadonlyArray<string>>),
+      ),
+    );
+
+const readGitSha = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  root: string,
+): Effect.Effect<string, never> =>
+  fs.readFileString(path.join(root, ".git", "HEAD")).pipe(
+    Effect.flatMap((text) => {
+      const trimmed = text.trim();
+      if (!trimmed.startsWith("ref: ")) return Effect.succeed(trimmed);
+      return fs
+        .readFileString(path.join(root, ".git", trimmed.slice(5)))
+        .pipe(Effect.map((t) => t.trim()));
+    }),
+    Effect.catchAll(() => Effect.succeed("uncommitted")),
   );
 
 /**
- * @spec.guarantee "loads project-wide context (every non-test .ts source under `root` + tsconfig `paths` mapping); collectExports consumes this so barrel re-exports follow through to their target declarations"
- *   reason: collectExports cannot resolve `export ... from "./y.js"` or
- *           `export ... from "@safer/spec/y.js"` without the target files
- *           registered on the ts-morph project and aliases configured.
- * @spec.residual-contract "missing tsconfig.json (or missing `compilerOptions.paths`) yields an empty `paths` map; aliases will not resolve in that mode"
- *   reason: lifecycle contract; projects without aliases still load.
+ * @spec.guarantee "loads project-wide context (every non-test `.ts` under `root`, tsconfig `paths`, git HEAD SHA, default thresholds); collectExports consumes sources+paths so barrel re-exports resolve"
+ *   reason: ts-morph cannot follow `export ... from` without target files
+ *           registered and aliases configured.
+ * @spec.residual-contract "missing tsconfig.json yields empty `paths`; missing `.git/HEAD` yields `generatedAtSha = 'uncommitted'`"
+ *   reason: projects without aliases or git history still load.
  */
 export const loadProjectContext = (
   fs: FileSystem.FileSystem,
@@ -263,23 +282,54 @@ export const loadProjectContext = (
     const sources: SourceFile[] = [];
     yield* walkSources(fs, path, root, sources);
     const paths = yield* readTsConfigPaths(fs, path.join(root, "tsconfig.json"));
-    return { sources, paths };
+    const generatedAtSha = yield* readGitSha(fs, path, root);
+    return {
+      sources,
+      paths,
+      generatedAtSha,
+      thresholds: DEFAULT_THRESHOLDS,
+    };
   }).pipe(Effect.withSpan("commands/validate-pipeline/loadProjectContext"));
 
 export const loadValidateProjectContext = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
-): Effect.Effect<ProjectContext, ProjectContextError> =>
-  loadProjectContext(fs, path, ".");
+): Effect.Effect<ProjectContext, ProjectContextError> => loadProjectContext(fs, path, ".");
 
 /**
- * @spec.guarantee "alias for `emitMarkdown(analysis)`; isolated so validate.ts only depends on one symbol from emit"
- *   reason: surface minimization; keeps validate's import block compact.
- * @spec.residual-contract none
- *   reason: pure re-export.
+ * @spec.guarantee "builds a `SpecMeta` from run-level context + analysis-derived coverage"
+ *   reason: emit's frontmatter + sidecar both require meta.
+ * @spec.residual-contract "classifier coverage and precondition pass rate are null in this slice; populated only when `validate --implemented` consumes Vitest reporter sidecars"
+ *   reason: lifecycle contract.
  */
-export const regenerateMarkdown = (analysis: FolderAnalysis): string =>
-  emitMarkdown(analysis);
+const DEFAULT_GENERATED_FROM = {
+  jsdoc: "ts-morph + @microsoft/tsdoc",
+  exports: "ts-morph getExportedDeclarations",
+  schemas: [],
+  properties: ["fast-check"],
+  eslint: "eslint-plugin-agent-code-guard",
+} as const;
+
+export const buildSpecMeta = (
+  analysis: FolderAnalysis,
+  ctx: ProjectContext,
+): SpecMeta => ({
+  generatedAtSha: ctx.generatedAtSha,
+  coverage: {
+    kindCoverage: computeKindCoverage(analysis),
+    classifierCoverage: null,
+    preconditionPassRate: null,
+    branchCoverageFromSpecTests: null,
+  },
+  thresholds: ctx.thresholds,
+  generatedFrom: DEFAULT_GENERATED_FROM,
+});
+
+/** Alias for `emitMarkdown(analysis, meta)`; keeps validate.ts's import block compact. */
+export const regenerateMarkdown = (
+  analysis: FolderAnalysis,
+  meta: SpecMeta,
+): string => emitMarkdown(analysis, meta);
 
 const walkOnce = (
   fs: FileSystem.FileSystem,

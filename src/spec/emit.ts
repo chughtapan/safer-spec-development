@@ -1,16 +1,22 @@
 /**
  * @spec.purpose
- *   Canonical SPEC.md markdown serializer + sidecar JSON serializer.
+ *   Canonical SPEC.md markdown serializer + sidecar artifact builder.
  *   Consumes a `FolderAnalysis` (built by `generate.ts` from parsed
- *   directives + test extraction) and produces the two output artifacts.
+ *   directives + test extraction) plus a `SpecMeta` (generatedAtSha,
+ *   coverage, thresholds, generatedFrom) and produces:
+ *   - `emitMarkdown` — the SPEC.md string with complete `SpecFrontmatter`
+ *     block (decodable through `decodeSpecFrontmatter`).
+ *   - `buildSpecArtifact` — a typed `SpecArtifact` value that serializes
+ *     through `decodeSpecArtifact` for sidecar emission.
  *
  *   Canonical form: LF endings, lexicographic sort for filesystem lists,
- *   source-order sort for exports. Per `validate-gate-determ`, re-emission
- *   at the same source state must be byte-stable.
+ *   source-order sort for exports. Re-emission at the same source state
+ *   produces byte-identical output.
  */
 
-import type { PropertyType } from "@safer/property-types/index.js";
+import { PROPERTY_TYPES, type PropertyType } from "@safer/property-types/index.js";
 import { SPEC_FORMAT_VERSION } from "@safer/commands/version.js";
+import type { SpecArtifact } from "@safer/spec/sidecar.js";
 
 interface ResidualEntry {
   readonly claim: string;
@@ -146,18 +152,67 @@ const emitPropertiesTable = (
   return lines;
 };
 
+export interface SpecMeta {
+  readonly generatedAtSha: string;
+  readonly coverage: {
+    readonly kindCoverage: number;
+    readonly classifierCoverage: number | null;
+    readonly preconditionPassRate: number | null;
+    readonly branchCoverageFromSpecTests: number | null;
+  };
+  readonly thresholds: {
+    readonly kindCoverage: number;
+    readonly classifierCoverage: number;
+    readonly preconditionPassRate: number;
+  };
+  readonly generatedFrom: {
+    readonly jsdoc: string;
+    readonly exports: string;
+    readonly schemas: ReadonlyArray<string>;
+    readonly properties: ReadonlyArray<string>;
+    readonly eslint: string;
+  };
+}
+
+const yamlScalar = (v: number | null): string => {
+  if (v === null) return "null";
+  return String(v);
+};
+
+const emitFrontmatter = (a: FolderAnalysis, meta: SpecMeta): ReadonlyArray<string> => [
+  "---",
+  `folder: ${a.folder}`,
+  `format-version: ${SPEC_FORMAT_VERSION}`,
+  `generatedAtSha: ${meta.generatedAtSha}`,
+  "generatedFrom:",
+  `  jsdoc: ${meta.generatedFrom.jsdoc}`,
+  `  exports: ${meta.generatedFrom.exports}`,
+  "  schemas:",
+  ...meta.generatedFrom.schemas.map((s) => `    - ${s}`),
+  "  properties:",
+  ...meta.generatedFrom.properties.map((s) => `    - ${s}`),
+  `  eslint: ${meta.generatedFrom.eslint}`,
+  "coverage:",
+  `  kindCoverage: ${String(meta.coverage.kindCoverage)}`,
+  `  classifierCoverage: ${yamlScalar(meta.coverage.classifierCoverage)}`,
+  `  preconditionPassRate: ${yamlScalar(meta.coverage.preconditionPassRate)}`,
+  `  branchCoverageFromSpecTests: ${yamlScalar(meta.coverage.branchCoverageFromSpecTests)}`,
+  "thresholds:",
+  `  kindCoverage: ${String(meta.thresholds.kindCoverage)}`,
+  `  classifierCoverage: ${String(meta.thresholds.classifierCoverage)}`,
+  `  preconditionPassRate: ${String(meta.thresholds.preconditionPassRate)}`,
+  "---",
+];
+
 /**
- * @spec.guarantee "two calls with the same `analysis` produce byte-identical markdown"
+ * @spec.guarantee "two calls with the same `analysis` + `meta` produce byte-identical markdown; frontmatter decodes through `decodeSpecFrontmatter`"
  *   reason: roundtrip contract on the emit step.
  * @spec.residual-contract "internal section ordering is fixed: Purpose → Public Surface → Files → Properties"
  *   reason: behavioral contract beyond the FolderAnalysis shape.
  */
-export const emitMarkdown = (a: FolderAnalysis): string => {
+export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => {
   const lines: string[] = [
-    "---",
-    `folder: ${a.folder}`,
-    `format-version: ${SPEC_FORMAT_VERSION}`,
-    "---",
+    ...emitFrontmatter(a, meta),
     "",
     "# SPEC",
     "",
@@ -178,22 +233,94 @@ export const emitMarkdown = (a: FolderAnalysis): string => {
   return lines.join("\n");
 };
 
+type Shape = "Schema" | "RpcDefinition" | "function" | "type" | "Branded" | "unknown";
+
+const SHAPE_BY_KIND: Readonly<Record<ExportKind, Shape>> = {
+  function: "function",
+  type: "type",
+  interface: "type",
+  class: "type",
+  enum: "unknown",
+  const: "unknown",
+  other: "unknown",
+};
+
+const skippedPropertyTypes = (e: ExportEntry): ReadonlySet<PropertyType> =>
+  new Set(e.skipped.map((s) => s.propertyType));
+
+const observedPropertyTypesFor = (
+  exportName: string,
+  properties: ReadonlyArray<PropertyRow>,
+): ReadonlyArray<PropertyType> => {
+  const seen = new Set<PropertyType>();
+  for (const p of properties) {
+    if (p.exports.includes(exportName)) seen.add(p.propertyType);
+  }
+  return [...seen];
+};
+
+const requiredPropertyTypesFor = (e: ExportEntry): ReadonlyArray<PropertyType> => {
+  const skipped = skippedPropertyTypes(e);
+  return PROPERTY_TYPES.filter((pt) => !skipped.has(pt));
+};
+
 /**
- * @spec.guarantee "stable JSON encoding; key order follows the FolderAnalysis shape"
- *   reason: roundtrip contract; downstream `validate` compares bytes.
- * @spec.residual-contract none
- *   reason: pure transformation.
+ * @spec.guarantee "returned `SpecArtifact` decodes through `decodeSpecArtifact` without error"
+ *   reason: sidecar contract; downstream agents consume this shape.
+ * @spec.residual-contract "fields the codemod cannot yet compute (e.g. per-export sourceRef.sha) reuse `meta.generatedAtSha` as the closest stable identifier"
+ *   reason: per-line blame would require a separate git pass; the run-level
+ *           SHA is a sound default for now.
  */
-export const emitSidecar = (a: FolderAnalysis): string =>
-  JSON.stringify(
-    {
-      formatVersion: SPEC_FORMAT_VERSION,
-      folder: a.folder,
-      purpose: a.purpose,
-      exports: a.exports,
-      properties: a.properties,
-      files: { source: a.sourceFiles, test: a.testFiles },
+export const buildSpecArtifact = (
+  a: FolderAnalysis,
+  meta: SpecMeta,
+): SpecArtifact => ({
+  formatVersion: SPEC_FORMAT_VERSION,
+  folder: a.folder,
+  generatedAtSha: meta.generatedAtSha,
+  exports: a.exports.map((e) => ({
+    name: e.name,
+    shape: SHAPE_BY_KIND[e.kind],
+    requiredPropertyTypes: requiredPropertyTypesFor(e),
+    observedPropertyTypes: observedPropertyTypesFor(e.name, a.properties),
+    residualAssumes: e.assumes.map((r) => ({ claim: r.claim, reason: r.reason })),
+    residualGuarantees: e.guarantees.map((r) => ({ claim: r.claim, reason: r.reason })),
+    sourceRef: {
+      path: e.sourceRef.path,
+      line: e.sourceRef.line,
+      sha: meta.generatedAtSha,
     },
-    null,
-    2,
-  ) + "\n";
+  })),
+  coverage: {
+    kindCoverage: meta.coverage.kindCoverage,
+    ...(meta.coverage.classifierCoverage !== null
+      ? { classifierCoverage: meta.coverage.classifierCoverage }
+      : {}),
+    ...(meta.coverage.preconditionPassRate !== null
+      ? { preconditionPassRate: meta.coverage.preconditionPassRate }
+      : {}),
+    ...(meta.coverage.branchCoverageFromSpecTests !== null
+      ? { branchCoverageFromSpecTests: meta.coverage.branchCoverageFromSpecTests }
+      : {}),
+  },
+  thresholds: meta.thresholds,
+});
+
+/**
+ * @spec.guarantee "kind coverage = (observed ∪ skipped) / |PROPERTY_TYPES| averaged across exports; returns 1.0 when there are no exports"
+ *   reason: design-doc gate definition; validate compares against thresholds.kindCoverage.
+ * @spec.residual-contract "classifier coverage and precondition pass rate are null in `--planned` mode (no test execution sidecars)"
+ *   reason: lifecycle contract; populated only by `validate --implemented`.
+ */
+export const computeKindCoverage = (a: FolderAnalysis): number => {
+  if (a.exports.length === 0) return 1;
+  const total = PROPERTY_TYPES.length;
+  let sum = 0;
+  for (const e of a.exports) {
+    const skipped = skippedPropertyTypes(e);
+    const observed = new Set(observedPropertyTypesFor(e.name, a.properties));
+    const covered = new Set<PropertyType>([...skipped, ...observed]);
+    sum += covered.size / total;
+  }
+  return sum / a.exports.length;
+};
