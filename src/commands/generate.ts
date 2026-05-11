@@ -175,6 +175,7 @@ const collectIndexDeclarations = (
     return collectExports(indexFilePath, indexSource, {
       siblings: ctx.sources,
       paths: ctx.paths,
+      baseUrl: ctx.baseUrl,
     });
   });
 

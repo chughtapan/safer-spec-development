@@ -167,6 +167,7 @@ export const inspectFolder = (
     const declarations = collectExports(inputs.indexFilePath, indexSrc, {
       siblings: ctx.sources,
       paths: ctx.paths,
+      baseUrl: ctx.baseUrl,
     });
     const tests = yield* parseTests(fs, inputs.tests);
     return {

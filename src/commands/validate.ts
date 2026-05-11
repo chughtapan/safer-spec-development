@@ -152,20 +152,34 @@ export const validate = (
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const folders = yield* resolveFolders(fs, path, input);
-    const projectCtx = yield* loadValidateProjectContext(fs, path).pipe(
-      Effect.catchTag("ProjectContextError", (e) =>
-        Effect.die(new Error(`failed to load project context: ${e.cause}`)),
-      ),
-    );
+    const projectCtx = yield* loadProjectCtxOrDie(fs, path);
     const validated = yield* validateFolders(
       { fs, path, mode: input.mode, projectCtx },
       folders,
     );
-    if (Option.isSome(input.folder) && validated.length === 0) {
-      return yield* Effect.fail(unresolvedFolderError(input.folder.value));
-    }
-    return { _tag: "pass" as const, foldersValidated: validated };
+    return yield* finishValidate(input.folder, validated);
   }).pipe(Effect.withSpan("commands/validate"));
+
+const loadProjectCtxOrDie = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+): Effect.Effect<ProjectContext, never> =>
+  loadValidateProjectContext(fs, path).pipe(
+    Effect.catchTag("ProjectContextError", (e) =>
+      Effect.die(new Error(`failed to load project context: ${e.cause}`)),
+    ),
+  );
+
+const finishValidate = (
+  folder: Option.Option<string>,
+  validated: ReadonlyArray<string>,
+): Effect.Effect<ValidatePassReport, ValidateGapError> =>
+  validated.length === 0
+    ? Effect.fail(unresolvedFolderError(requestedLabel(folder)))
+    : Effect.succeed({ _tag: "pass" as const, foldersValidated: validated });
+
+const requestedLabel = (folder: Option.Option<string>): string =>
+  Option.isSome(folder) ? folder.value : "<default: src/*/>";
 
 /**
  * @spec.guarantee "output string is the canonical user-facing diagnostic body for the given gap-class error"

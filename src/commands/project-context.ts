@@ -20,6 +20,12 @@ export class ProjectContextError extends Data.TaggedError("ProjectContextError")
 export interface ProjectContext {
   readonly sources: ReadonlyArray<SourceFile>;
   readonly paths: Readonly<Record<string, ReadonlyArray<string>>>;
+  /**
+   * tsconfig.compilerOptions.baseUrl (the root `paths` resolve relative to).
+   * Defaults to "." when tsconfig omits it; TypeScript requires baseUrl when
+   * paths is set, and "." matches both common practice and ts-morph behavior.
+   */
+  readonly baseUrl: string;
   readonly generatedAtSha: string;
   readonly thresholds: {
     readonly typeCoverage: number;
@@ -131,6 +137,12 @@ const walkSources = (
 const PATHS_BLOCK_RE = /"paths"\s*:\s*\{([\s\S]*?)\}/;
 const PATH_ENTRY_RE = /"([^"]+)"\s*:\s*\[([^\]]*)\]/g;
 const STRING_LIT_RE = /"([^"]+)"/g;
+const BASE_URL_RE = /"baseUrl"\s*:\s*"([^"]+)"/;
+
+const parseBaseUrl = (text: string): string | undefined => {
+  const m = BASE_URL_RE.exec(text);
+  return m === null ? undefined : m[1];
+};
 
 const parsePathsBlock = (text: string): Record<string, ReadonlyArray<string>> => {
   const block = PATHS_BLOCK_RE.exec(text);
@@ -148,15 +160,27 @@ const parsePathsBlock = (text: string): Record<string, ReadonlyArray<string>> =>
   return result;
 };
 
-const readTsConfigPaths = (
+interface TsConfigBits {
+  readonly paths: Readonly<Record<string, ReadonlyArray<string>>>;
+  readonly baseUrl: string;
+}
+
+const DEFAULT_BASE_URL = ".";
+
+const readTsConfigBits = (
   fs: FileSystem.FileSystem,
   tsconfigPath: string,
-): Effect.Effect<Readonly<Record<string, ReadonlyArray<string>>>, never> =>
+): Effect.Effect<TsConfigBits, never> =>
   fs
     .readFileString(tsconfigPath)
     .pipe(
-      Effect.map(parsePathsBlock),
-      Effect.catchAll(() => Effect.succeed({} as Record<string, ReadonlyArray<string>>)),
+      Effect.map((text) => ({
+        paths: parsePathsBlock(text),
+        baseUrl: parseBaseUrl(text) ?? DEFAULT_BASE_URL,
+      })),
+      Effect.catchAll(() =>
+        Effect.succeed({ paths: {}, baseUrl: DEFAULT_BASE_URL } as TsConfigBits),
+      ),
     );
 
 const readGitSha = (
@@ -190,9 +214,15 @@ export const loadProjectContext = (
   Effect.gen(function* () {
     const sources: SourceFile[] = [];
     yield* walkSources(fs, path, root, sources);
-    const paths = yield* readTsConfigPaths(fs, path.join(root, "tsconfig.json"));
+    const tsconfig = yield* readTsConfigBits(fs, path.join(root, "tsconfig.json"));
     const generatedAtSha = yield* readGitSha(fs, path, root);
-    return { sources, paths, generatedAtSha, thresholds: DEFAULT_THRESHOLDS };
+    return {
+      sources,
+      paths: tsconfig.paths,
+      baseUrl: tsconfig.baseUrl,
+      generatedAtSha,
+      thresholds: DEFAULT_THRESHOLDS,
+    };
   }).pipe(Effect.withSpan("commands/project-context/loadProjectContext"));
 
 export const loadValidateProjectContext = (

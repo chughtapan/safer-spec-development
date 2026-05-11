@@ -192,9 +192,13 @@ const emitFrontmatter = (a: FolderAnalysis, meta: SpecMeta): ReadonlyArray<strin
   "generatedFrom:",
   `  jsdoc: ${meta.generatedFrom.jsdoc}`,
   `  exports: ${meta.generatedFrom.exports}`,
-  "  schemas:",
+  meta.generatedFrom.schemas.length === 0
+    ? "  schemas: []"
+    : "  schemas:",
   ...meta.generatedFrom.schemas.map((s) => `    - ${s}`),
-  "  properties:",
+  meta.generatedFrom.properties.length === 0
+    ? "  properties: []"
+    : "  properties:",
   ...meta.generatedFrom.properties.map((s) => `    - ${s}`),
   `  eslint: ${meta.generatedFrom.eslint}`,
   "coverage:",

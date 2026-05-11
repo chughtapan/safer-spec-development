@@ -157,6 +157,8 @@ export interface CollectExportsOptions {
   readonly siblings?: ReadonlyArray<SourceFile>;
   /** tsconfig `paths` mapping copied onto the in-memory Project's compilerOptions so aliased re-exports resolve. */
   readonly paths?: Readonly<Record<string, ReadonlyArray<string>>>;
+  /** tsconfig `baseUrl` (where `paths` are resolved relative to). Defaults to "." when `paths` is set but `baseUrl` is omitted. */
+  readonly baseUrl?: string;
 }
 
 /**
@@ -167,23 +169,26 @@ export interface CollectExportsOptions {
  *   reason: ts-morph cannot follow `export ... from` without the target
  *           file registered on the same Project.
  */
+const buildCompilerOptions = (
+  options: CollectExportsOptions,
+): { baseUrl?: string; paths?: Record<string, string[]> } => {
+  if (options.paths === undefined) return {};
+  return {
+    baseUrl: options.baseUrl ?? ".",
+    paths: Object.fromEntries(
+      Object.entries(options.paths).map(([k, v]) => [k, [...v]]),
+    ),
+  };
+};
+
 export const collectExports = (
   filePath: string,
   source: string,
   options: CollectExportsOptions = {},
 ): ReadonlyArray<DeclaredExport> => {
-  const compilerOptions =
-    options.paths !== undefined
-      ? {
-          baseUrl: ".",
-          paths: Object.fromEntries(
-            Object.entries(options.paths).map(([k, v]) => [k, [...v]]),
-          ),
-        }
-      : {};
   const project = new Project({
     useInMemoryFileSystem: true,
-    compilerOptions,
+    compilerOptions: buildCompilerOptions(options),
   });
   for (const file of options.siblings ?? []) {
     if (file.path === filePath) continue;
