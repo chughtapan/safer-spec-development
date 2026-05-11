@@ -40,8 +40,10 @@ export interface ItSpec {
    *   reason: cross-check enforced by `validate --implemented`.
    * @spec.guarantee "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`"
    *   reason: side-effect contract; runtime registration with Vitest.
-   * @spec.residual-contract "fast-check seed and numRuns are inherited from Vitest config; no override here"
-   *   reason: behavioral residue beyond the call signature.
+   * @spec.residual-contract "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override"
+   *   reason: behavioral residue beyond the call signature; downstream
+   *           authors need to know the property runner is not configured
+   *           through Vitest.
    */
   prop<T>(
     id: string,

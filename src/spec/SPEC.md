@@ -1,7 +1,7 @@
 ---
 folder: src/spec
 format-version: 0.1.0
-generatedAtSha: d4aad6c325c643bc2ab2ae2896535385b8e97861
+generatedAtSha: 857a48bac27460a685add1c69bc2dd8976fd5fc6
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -49,8 +49,10 @@ export interface ItSpec {
    *   reason: cross-check enforced by `validate --implemented`.
    * @spec.guarantee "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`"
    *   reason: side-effect contract; runtime registration with Vitest.
-   * @spec.residual-contract "fast-check seed and numRuns are inherited from Vitest config; no override here"
-   *   reason: behavioral residue beyond the call signature.
+   * @spec.residual-contract "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override"
+   *   reason: behavioral residue beyond the call signature; downstream
+   *           authors need to know the property runner is not configured
+   *           through Vitest.
    */
   prop<T>(
     id: string,
@@ -61,7 +63,7 @@ export interface ItSpec {
 }
 ```
 
-### [`itSpec`](./it-spec.ts#L54)
+### [`itSpec`](./it-spec.ts#L56)
 
 ```ts
 export const itSpec: ItSpec = {

@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src",
-  "generatedAtSha": "d4aad6c325c643bc2ab2ae2896535385b8e97861",
+  "generatedAtSha": "857a48bac27460a685add1c69bc2dd8976fd5fc6",
   "exports": [
     {
       "name": "ItSpec",
@@ -23,7 +23,7 @@
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
         "line": 25,
-        "sha": "d4aad6c325c643bc2ab2ae2896535385b8e97861"
+        "sha": "857a48bac27460a685add1c69bc2dd8976fd5fc6"
       }
     },
     {
@@ -51,7 +51,7 @@
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 27,
-        "sha": "d4aad6c325c643bc2ab2ae2896535385b8e97861"
+        "sha": "857a48bac27460a685add1c69bc2dd8976fd5fc6"
       }
     },
     {
@@ -74,7 +74,7 @@
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 39,
-        "sha": "d4aad6c325c643bc2ab2ae2896535385b8e97861"
+        "sha": "857a48bac27460a685add1c69bc2dd8976fd5fc6"
       }
     },
     {
@@ -96,8 +96,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
-        "line": 54,
-        "sha": "d4aad6c325c643bc2ab2ae2896535385b8e97861"
+        "line": 56,
+        "sha": "857a48bac27460a685add1c69bc2dd8976fd5fc6"
       }
     }
   ],
