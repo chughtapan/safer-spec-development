@@ -257,7 +257,7 @@ The two-mode framing earlier in this design was wrong on a critical point: archi
 Every `generate` emits a paired `.safer-spec/<folder>.json` alongside `SPEC.md`. The JSON is the canonical artifact for LLM agent consumption (`/safer:implement-*`, `/safer:review-senior`); the markdown is for humans.
 
 ```ts
-// Schema (Effect Schema, in @chughtapan/safer-spec-core)
+// Schema (Effect Schema, in @chughtapan/safer-spec-development/sidecar)
 const SpecArtifact = Schema.Struct({
   formatVersion: Schema.String,          // e.g. "1.0.0"
   folder: Schema.String,
@@ -377,7 +377,7 @@ itSpec.prop("agent-roundtrip",
 );
 ```
 
-`Kind` is exported from `@chughtapan/safer-spec-core` as a closed string-literal union (IntelliSense completes). The first positional string is the canonical property id (no duplication). `exports` is an array of *values* (not strings); kind-detector resolves names via ts-morph at collection time, so renames stay refactor-safe.
+`Kind` is exported from `@chughtapan/safer-spec-development` as a closed string-literal union (IntelliSense completes). The first positional string is the canonical property id (no duplication). `exports` is an array of *values* (not strings); kind-detector resolves names via ts-morph at collection time, so renames stay refactor-safe.
 
 ## agent-code-guard new rules (5)
 
@@ -399,19 +399,18 @@ The four rules duplicate some of `pnpm safer-spec validate`'s checks deliberatel
 - *Cons:* mixed-language pain; safer-by-default's identity becomes confused.
 - *Risk:* medium — works initially, becomes weird.
 
-### Approach B: Four-package factoring (recommended, /autoplan-revised)
-- `@chughtapan/safer-spec-core` (new package, can live inside `safer-spec-development` repo): shared kinds enum + directive grammar + JSON sidecar schema + format-version constant.
-- `@chughtapan/safer-spec-development` (new repo): codemod + Vitest reporter + CLI (init/generate/validate/doctor/migrate/explain) + `safer-spec-prop` helper.
+### Approach B: Three-package factoring (recommended; post-Stage-0 collapse)
+- `@chughtapan/safer-spec-development` (new repo): codemod + Vitest reporter + CLI (init/generate/validate/doctor/migrate/explain) + `safer-spec-prop` helper + kinds enum + directive grammar + JSON sidecar schema + format-version constant. (Post-Stage-0 YAGNI collapse: the originally separate `safer-spec-core` package merged in; re-split is cheap if external consumers emerge.)
 - `chughtapan/agent-code-guard` (existing): adds 4 spec-* rules (drop `spec-classifier-coverage` from lint per /autoplan Eng fix — telemetry doesn't belong in static lint; keep in `validate` only).
 - `chughtapan/safer-by-default` (existing): one-line Phase 7 addition to architect skill.
 - *Effort:* **~5-6 weeks human / ~40-50 CC-hours** (revised UP after /autoplan Eng + DX fixes — see Stage 1 LOC table).
-- *Pros:* one verb per package; shared `core` prevents drift; release cadence independence per package.
-- *Cons:* upfront repo + 2-package setup; cross-package coordination for `core` bumps.
+- *Pros:* one verb per package; single source of truth for kinds enum + sidecar schema (no cross-package drift).
+- *Cons:* if external lint plugins want to import just the kinds enum, they pull the whole codemod's dep tree until a re-split.
 - *Risk:* low.
 
 ## Recommended Approach
 
-**Approach B (revised).** Four-package factoring with shared core. Effort revised UP from the prior cut because /autoplan Eng + DX consensus added: `init` + `doctor` modes, structured JSON sidecar, full CLI surface with `--help`/`migrate`/`explain`, error message format, escape hatches, upgrade path, 7 docs files in v0.1.0. None of these were over-engineering; they're the difference between an expert-only compliance tool and a developer experience.
+**Approach B (revised).** Three-package factoring. Effort revised UP from the prior cut because /autoplan Eng + DX consensus added: `init` + `doctor` modes, structured JSON sidecar, full CLI surface with `--help`/`migrate`/`explain`, error message format, escape hatches, upgrade path, 7 docs files in v0.1.0. None of these were over-engineering; they're the difference between an expert-only compliance tool and a developer experience.
 
 ## Open Questions (deferred)
 
@@ -442,28 +441,27 @@ Once the gate passes, MoltZap ports package-by-package as a separate stream of w
 
 ## Distribution Plan
 
-- `@chughtapan/safer-spec-core` (new package; can be inside `safer-spec-development` repo): published to npm. Shared kinds enum + directive grammar + JSON sidecar schema + format-version. Pure types + small helpers, ~100 LOC.
-- `@chughtapan/safer-spec-development` (new repo): published to npm. Codemod + Vitest reporter + CLI + `safer-spec-prop` helper. GitHub Releases. GitHub Actions for CI (build + test + lint + self-host validate).
+- `@chughtapan/safer-spec-development` (new repo): published to npm. Codemod + Vitest reporter + CLI + `safer-spec-prop` helper + kinds enum + directive grammar + JSON sidecar schema + format-version. GitHub Releases. GitHub Actions for CI (build + test + lint + self-host validate).
 - `chughtapan/agent-code-guard` (existing): updates published to existing npm package — adds 4 spec-* rules.
 - `chughtapan/safer-by-default` (existing): updates via existing Claude Code plugin distribution — one-line Phase 7 addition.
 
-Install in target repos: `pnpm add -D @chughtapan/safer-spec-development @chughtapan/safer-spec-core @chughtapan/agent-code-guard`.
+Install in target repos: `pnpm add -D @chughtapan/safer-spec-development @chughtapan/agent-code-guard`.
 
 ## Stages (revised after /autoplan)
 
 **Stage 0 (1-2 days) — Setup.**
 1. Create `chughtapan/safer-spec-development` repo (public, MIT).
 2. Commit this design doc as `docs/DESIGN.md`.
-3. Scaffold pnpm workspace: `packages/safer-spec-core/`, `packages/safer-spec-development/`. TS config, Vitest config, ts-morph + Effect + fast-check deps.
+3. Scaffold pnpm workspace: `packages/safer-spec-development/`. TS config, Vitest config, ts-morph + Effect + fast-check deps.
 4. Add `.github/CODEOWNERS`.
 5. Add agent-code-guard preset to `eslint.config.mjs` (warn-level initially).
-6. **Pre-kickoff fixes** (from /autoplan, must be in DESIGN.md before Stage 1): Vitest reporter mechanism specified (per-test `safer-spec-prop` wrapper, not `fc.configureGlobal`); ts-morph fail-closed algorithm specified; canonical SPEC.md form specified; JSON sidecar Effect Schema published in `core`; CLI surface specified; error message format specified.
+6. **Pre-kickoff fixes** (from /autoplan, must be in DESIGN.md before Stage 1): Vitest reporter mechanism specified (per-test `safer-spec-prop` wrapper, not `fc.configureGlobal`); ts-morph fail-closed algorithm specified; canonical SPEC.md form specified; JSON sidecar Effect Schema published in `safer-spec-development`; CLI surface specified; error message format specified.
 
 **Stage 1 (4-5 weeks / ~40-50 CC-hours) — Build the codemod.** *(LOC rebaselined ~2x after /autoplan Eng + DX consensus.)*
 
 | Component | LOC est. |
 |---|---|
-| `safer-spec-core`: kinds enum, directive grammar, JSON sidecar Effect Schema, format-version | ~150 |
+| Kinds enum + directive grammar + JSON sidecar Effect Schema + format-version (lives in safer-spec-development) | ~150 |
 | Effect Schema for SPEC.md frontmatter (nullable coverage fields, validation refinements) | ~100-150 |
 | ts-morph codemod skeleton + section emitters + canonical-form markdown serializer | ~700-1000 |
 | JSDoc directive parser (5 directives, structured reason fields, quality diagnostics) | ~500-700 |
@@ -490,7 +488,7 @@ Total: **~4250-5800 LOC TypeScript + tests.**
 4. Author `@spec.assume` / `@spec.guarantee` where residue exists; `residual-contract: none` with reason otherwise.
 
 **Stage 3 (1-1.5 weeks / ~12 CC-hours) — Dogfood agent-code-guard.**
-1. Install `@chughtapan/safer-spec-development` + `@chughtapan/safer-spec-core` as dev deps.
+1. Install `@chughtapan/safer-spec-development` as a dev dep.
 2. Generate SPEC.md for each rule directory.
 3. Implement the 4 new spec-* lint rules in agent-code-guard source; add to recommended preset.
 4. Author missing properties (~30-50 new tests).
@@ -694,7 +692,7 @@ Both voices converged on the same core technical concerns. Strong consensus.
    - Force `vitest --pool forks --isolate true --no-file-parallelism` for spec tests (single-threaded, slow).
    The helper-wrapper approach is cleaner. Adds a public API surface (`safer-spec-prop` instead of `fc.assert`), ~100-200 LOC.
 
-4. **Shared `core` package for the format.** codemod + lint + reporter all consume kinds enum + directive grammar + sidecar schema. Extract to a 4th package `@chughtapan/safer-spec-core` or co-locate inside `safer-spec-development` and re-export. Stamp `spec-format-version` everywhere; reporter writes `format-version` in sidecar JSON; both consumers validate version.
+4. **Single source of truth for the format.** codemod + lint + reporter all consume kinds enum + directive grammar + sidecar schema from `safer-spec-development`. Stamp `spec-format-version` everywhere; reporter writes `format-version` in sidecar JSON; consumers validate version. (Post-Stage-0 YAGNI: a previously-planned `safer-spec-core` package was merged into safer-spec-development; re-split is cheap if external consumers emerge that want types-only.)
 
 5. **ts-morph fail-closed on ambiguous types.** Generics, conditional types, recursive Schemas, casted expressions — when type-resolution cannot determine kind unambiguously, emit diagnostic `spec-unknown-export-shape` and require `@spec.skip` with reason. **No silent misclassification.**
 
@@ -755,7 +753,7 @@ The user's "boil the lake" framing is right; the engineering plan needs to boil 
 
 3. **Define error message format.** Every lint rule and validate gate emits problem + cause + concrete fix snippet + docs link. Fixture-driven snapshot tests on error strings. Stage 1 acceptance criterion.
 
-4. **Drop duplicated `id` in property metadata.** First positional string is canonical id; object becomes `{ kind, exports }`. Export the `Kind` type from `@chughtapan/safer-spec-core` for IntelliSense. Reference exports by value (`exports: [Agent]`), not magic string.
+4. **Drop duplicated `id` in property metadata.** First positional string is canonical id; object becomes `{ kind, exports }`. Export the `Kind` type from `@chughtapan/safer-spec-development` for IntelliSense. Reference exports by value (`exports: [Agent]`), not magic string.
 
 5. **Wrap `it.todo` / `it.prop` with `safer-spec-prop`** helper. Hides Vitest's `meta` nesting (per Eng fix #2); flat author-facing API.
 

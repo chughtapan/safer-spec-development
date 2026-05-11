@@ -7,7 +7,7 @@ Per-folder `SPEC.md` codemod for TypeScript codebases. Generates structured spec
 ## Quickstart (target — implementation pending)
 
 ```bash
-pnpm add -D @chughtapan/safer-spec-development @chughtapan/safer-spec-core
+pnpm add -D @chughtapan/safer-spec-development
 pnpm safer-spec init packages/identity        # scaffold first SPEC.md + property stub
 pnpm safer-spec generate                       # regenerate SPEC.md per folder
 pnpm safer-spec validate --implemented         # CI gate

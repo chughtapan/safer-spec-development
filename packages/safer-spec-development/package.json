@@ -23,7 +23,6 @@
     "lint": "eslint src"
   },
   "dependencies": {
-    "@chughtapan/safer-spec-core": "workspace:*",
     "@effect/cli": "^0.73.0",
     "@effect/platform": "^0.96.0",
     "@effect/platform-node": "^0.106.0",

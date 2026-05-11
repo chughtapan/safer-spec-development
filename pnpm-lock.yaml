@@ -24,27 +24,8 @@ importers:
         specifier: ^5.5.0
         version: 5.9.3
 
-  packages/safer-spec-core:
-    dependencies:
-      effect:
-        specifier: ^3.21.0
-        version: 3.21.2
-    devDependencies:
-      '@types/node':
-        specifier: ^22.0.0
-        version: 22.19.18
-      typescript:
-        specifier: ^5.5.0
-        version: 5.9.3
-      vitest:
-        specifier: ^3.0.0
-        version: 3.2.4(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.8.4)
-
   packages/safer-spec-development:
     dependencies:
-      '@chughtapan/safer-spec-core':
-        specifier: workspace:*
-        version: link:../safer-spec-core
       '@effect/cli':
         specifier: ^0.73.0
         version: 0.73.2(@effect/platform@0.96.1(effect@3.21.2))(@effect/printer-ansi@0.47.0(@effect/typeclass@0.38.0(effect@3.21.2))(effect@3.21.2))(@effect/printer@0.47.0(@effect/typeclass@0.38.0(effect@3.21.2))(effect@3.21.2))(effect@3.21.2)

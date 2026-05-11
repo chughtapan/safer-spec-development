@@ -11,6 +11,11 @@
  *   reason: Stage 0 scaffolding only; runtime behavior not yet implemented.
  */
 
+export { SPEC_FORMAT_VERSION } from "./version.js";
+export type { Kind } from "./kinds.js";
+export { KINDS, isKind } from "./kinds.js";
+export type { SpecArtifact, SpecExportEntry } from "./sidecar.js";
+export { SpecArtifactSchema } from "./sidecar.js";
 export { itSpec } from "./helper.js";
 export type { ItSpec } from "./helper.js";
 export type {

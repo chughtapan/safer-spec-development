@@ -3,7 +3,7 @@
  *   Stage 0 — interface stubs; Stage 1 fills in.
  */
 
-import type { Kind } from "@chughtapan/safer-spec-core";
+import type { Kind } from "./kinds.js";
 
 export interface GenerateOptions {
   folder?: string;
