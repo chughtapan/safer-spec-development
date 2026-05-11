@@ -16,12 +16,15 @@ import {
   type LocatedDirective,
 } from "@safer/spec/directives/index.js";
 import {
+  buildSpecArtifact,
   computeKindCoverage,
   emitMarkdown,
+  findMissingPropertyKinds,
   type FolderAnalysis,
   type PropertyRow,
   type SpecMeta,
 } from "@safer/spec/emit.js";
+import { serializeSidecar } from "@safer/spec/sidecar-writer.js";
 import {
   buildExportEntries,
   collectExports,
@@ -213,6 +216,79 @@ export const regenerateMarkdown = (
   analysis: FolderAnalysis,
   meta: SpecMeta,
 ): string => emitMarkdown(analysis, meta);
+
+export interface ThresholdShortfall {
+  readonly metric: "kindCoverage" | "classifierCoverage" | "preconditionPassRate";
+  readonly observed: number;
+  readonly threshold: number;
+  readonly missingKinds: ReadonlyArray<string>;
+}
+
+const checkOne = (
+  metric: ThresholdShortfall["metric"],
+  observed: number | null,
+  threshold: number,
+  missingKinds: ReadonlyArray<string>,
+): ThresholdShortfall | null => {
+  if (threshold <= 0 || observed === null || observed >= threshold) return null;
+  return { metric, observed, threshold, missingKinds };
+};
+
+/**
+ * @spec.guarantee "returns the first observed-below-threshold metric (kindCoverage → classifier → precondition order) or null when all gates pass"
+ *   reason: validate emits one MissingImplError per folder; first failing
+ *           gate is the surfaced one.
+ * @spec.residual-contract "metrics whose threshold is 0 are not gated regardless of observed value"
+ *   reason: zero-threshold is the explicit no-gate marker used by the
+ *           permissive default config.
+ */
+export const findThresholdShortfall = (
+  analysis: FolderAnalysis,
+  meta: SpecMeta,
+): ThresholdShortfall | null =>
+  checkOne(
+    "kindCoverage",
+    meta.coverage.kindCoverage,
+    meta.thresholds.kindCoverage,
+    findMissingPropertyKinds(analysis),
+  ) ??
+  checkOne(
+    "classifierCoverage",
+    meta.coverage.classifierCoverage,
+    meta.thresholds.classifierCoverage,
+    [],
+  ) ??
+  checkOne(
+    "preconditionPassRate",
+    meta.coverage.preconditionPassRate,
+    meta.thresholds.preconditionPassRate,
+    [],
+  );
+
+const SHA_LINE_JSON = /"(generatedAtSha|sha)":\s*"[^"]*"/g;
+
+/** Normalize SHA fields for byte-equality comparison between on-disk and regenerated sidecars. */
+export const stripVolatileJson = (text: string): string =>
+  text.replace(SHA_LINE_JSON, '"$1": "<NORMALIZED>"');
+
+/** Slug for the per-folder sidecar JSON path: `<folder>/.safer-spec/<slug>.json`. */
+export const sidecarSlug = (folder: string): string =>
+  folder.replace(/^\.\//, "").replace(/\//g, "_");
+
+/**
+ * @spec.guarantee "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; SidecarSchemaError is a defect (artifact our own emitter produced)"
+ *   reason: validate's sidecar-drift cross-check needs the byte-for-byte
+ *           regenerated form.
+ */
+export const regenerateSidecar = (
+  analysis: FolderAnalysis,
+  meta: SpecMeta,
+): Effect.Effect<string, never> =>
+  serializeSidecar(buildSpecArtifact(analysis, meta)).pipe(
+    Effect.catchTag("SidecarSchemaError", (e) =>
+      Effect.die(new Error(`internal sidecar schema mismatch: ${e.issues.join("; ")}`)),
+    ),
+  );
 
 const walkOnce = (
   fs: FileSystem.FileSystem,

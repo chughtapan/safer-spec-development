@@ -16,6 +16,7 @@
 
 import { PROPERTY_TYPES, type PropertyType } from "@safer/property-types/index.js";
 import { SPEC_FORMAT_VERSION } from "@safer/commands/version.js";
+import { escapeForMarkdownTableCell } from "@safer/spec/escape.js";
 import type { SpecArtifact } from "@safer/spec/sidecar.js";
 
 interface ResidualEntry {
@@ -145,8 +146,9 @@ const emitPropertiesTable = (
   for (const p of properties) {
     const exports = p.exports.map((s) => "`" + s + "`").join(", ");
     const status = p.stubbed ? "todo" : "implemented";
+    const claim = escapeForMarkdownTableCell(p.claim);
     lines.push(
-      `| \`${p.id}\` | \`${p.propertyType}\` | ${exports} | ${p.claim} | ${status} |`,
+      `| \`${p.id}\` | \`${p.propertyType}\` | ${exports} | ${claim} | ${status} |`,
     );
   }
   return lines;
@@ -323,4 +325,23 @@ export const computeKindCoverage = (a: FolderAnalysis): number => {
     sum += covered.size / total;
   }
   return sum / a.exports.length;
+};
+
+/**
+ * @spec.guarantee "returns the property-type kinds that are required by at least one export but observed by no test row across the folder; sorted in PROPERTY_TYPES tuple order"
+ *   reason: validate's kindCoverage diagnostic needs the missing-kind list to
+ *           route remediation; PROPERTY_TYPES order is the stable contract.
+ * @spec.residual-contract "kinds explicitly skipped on every export that would otherwise require them are not listed; skipped == covered for gating purposes"
+ *   reason: skipped is a deliberate opt-out and counts toward coverage.
+ */
+export const findMissingPropertyKinds = (
+  a: FolderAnalysis,
+): ReadonlyArray<PropertyType> => {
+  const required = new Set<PropertyType>();
+  const observed = new Set<PropertyType>();
+  for (const e of a.exports) {
+    for (const rt of requiredPropertyTypesFor(e)) required.add(rt);
+    for (const ot of observedPropertyTypesFor(e.name, a.properties)) observed.add(ot);
+  }
+  return PROPERTY_TYPES.filter((pt) => required.has(pt) && !observed.has(pt));
 };
