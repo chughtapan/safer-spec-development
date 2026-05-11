@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src",
-  "generatedAtSha": "3de60787380b3c822df5514f24280674b563fb6c",
+  "generatedAtSha": "8efa72786c88ffe74a813b8a68c9402f8f2f3cb1",
   "exports": [
     {
       "name": "ItSpec",
@@ -23,7 +23,7 @@
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
         "line": 25,
-        "sha": "3de60787380b3c822df5514f24280674b563fb6c"
+        "sha": "8efa72786c88ffe74a813b8a68c9402f8f2f3cb1"
       }
     },
     {
@@ -42,11 +42,16 @@
       ],
       "observedPropertyTypes": [],
       "residualAssumes": [],
-      "residualGuarantees": [],
+      "residualGuarantees": [
+        {
+          "claim": "membership order is stable across versions; the index of each property type is part of the contract",
+          "reason": "per-repo `propertyTypesExtension` appends only; never reorders."
+        }
+      ],
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 27,
-        "sha": "3de60787380b3c822df5514f24280674b563fb6c"
+        "sha": "8efa72786c88ffe74a813b8a68c9402f8f2f3cb1"
       }
     },
     {
@@ -69,7 +74,7 @@
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 39,
-        "sha": "3de60787380b3c822df5514f24280674b563fb6c"
+        "sha": "8efa72786c88ffe74a813b8a68c9402f8f2f3cb1"
       }
     },
     {
@@ -92,7 +97,7 @@
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
         "line": 54,
-        "sha": "3de60787380b3c822df5514f24280674b563fb6c"
+        "sha": "8efa72786c88ffe74a813b8a68c9402f8f2f3cb1"
       }
     }
   ],

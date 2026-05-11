@@ -1,17 +1,8 @@
 /**
- * @spec.purpose
- *   Canonical SPEC.md markdown serializer + sidecar artifact builder.
- *   Consumes a `FolderAnalysis` (built by `generate.ts` from parsed
- *   directives + test extraction) plus a `SpecMeta` (generatedAtSha,
- *   coverage, thresholds, generatedFrom) and produces:
- *   - `emitMarkdown` — the SPEC.md string with complete `SpecFrontmatter`
- *     block (decodable through `decodeSpecFrontmatter`).
- *   - `buildSpecArtifact` — a typed `SpecArtifact` value that serializes
- *     through `decodeSpecArtifact` for sidecar emission.
- *
- *   Canonical form: LF endings, lexicographic sort for filesystem lists,
- *   source-order sort for exports. Re-emission at the same source state
- *   produces byte-identical output.
+ * @spec.purpose Canonical SPEC.md serializer + `SpecArtifact` builder. Emits
+ *   the `SpecFrontmatter`-shaped block and the typed sidecar value from a
+ *   `FolderAnalysis` + `SpecMeta`. Canonical form: LF endings, lex-sort for
+ *   file lists, source-order for exports; re-emission is byte-identical.
  */
 
 import { PROPERTY_TYPES, type PropertyType } from "@safer/property-types/index.js";
@@ -20,6 +11,7 @@ import {
   escapeForMarkdownProse,
   escapeForMarkdownTableCell,
 } from "@safer/spec/escape.js";
+import { relativeToFolder } from "@safer/spec/link-resolver.js";
 import type { SpecArtifact } from "@safer/spec/sidecar.js";
 
 interface ResidualEntry {
@@ -115,11 +107,8 @@ const emitSkipped = (
  * Compute a relative anchor link from the SPEC.md (at `<folder>/SPEC.md`)
  * to the declaration's source file + line. `#Lnnn` is GitHub/IDE-style.
  */
-const sourceLink = (folder: string, path: string, line: number): string => {
-  const prefix = folder + "/";
-  const relPath = path.startsWith(prefix) ? "./" + path.slice(prefix.length) : path;
-  return `${relPath}#L${String(line)}`;
-};
+const sourceLink = (folder: string, path: string, line: number): string =>
+  `${relativeToFolder(folder, path)}#L${String(line)}`;
 
 const emitSignatureBlock = (e: ExportEntry): ReadonlyArray<string> => {
   if (e.signature.length === 0) return [];

@@ -1,21 +1,12 @@
 /**
- * @spec.purpose
- *   `generate` command entrypoint. Walks one folder under `--folder X`,
- *   parses `@spec*` JSDoc directives on source files (via `spec/directives`),
- *   extracts `itSpec.prop` / `itSpec.todo` call sites + their JSDoc from
- *   `*.spec.test.ts` files (via `spec/todos`), composes a `FolderAnalysis`
- *   (via `spec/source-exports` + `spec/emit`), and emits one `SPEC.md` plus
- *   one `.safer-spec/<folder-slug>.json` sidecar.
- *
- *   First-slice scope: single folder, `--dry-run` vs `--write`, full
- *   directive parsing. Multi-folder walk and `--watch` are deferred.
- *
- *   Tagged errors `GenerateError` and `GenerateIOError` are co-located here.
+ * @spec.purpose `generate` command entrypoint. Walks one folder under
+ *   `--folder X`, parses `@spec*` JSDoc directives, extracts `itSpec.*`
+ *   call sites + JSDoc from `*.spec.test.ts`, composes a `FolderAnalysis`,
+ *   and emits one `SPEC.md` plus one `.safer-spec/<slug>.json` sidecar.
+ *   Tagged errors `GenerateError` and `GenerateIOError` are co-located.
  */
-
-/* eslint-disable max-classes-per-file -- generate emits two tagged-error
-   variants (a user-error variant and an IO-failure variant); co-locating
-   with the producer is per-domain ownership. */
+/* eslint-disable max-classes-per-file -- two tagged-error variants
+   (user-error + IO-failure) co-located with the producer. */
 
 import { FileSystem, Path } from "@effect/platform";
 import { Brand, Data, Effect, Option } from "effect";
@@ -39,6 +30,7 @@ import {
   buildExportEntries,
   collectExports,
   findPurpose,
+  uniqueExternalSources,
   type DeclaredExport,
 } from "@safer/spec/source-exports.js";
 import {
@@ -158,6 +150,7 @@ const parseSources = (
     }
     return allDirectives;
   });
+
 
 const collectIndexDeclarations = (
   fs: FileSystem.FileSystem,
@@ -283,13 +276,19 @@ const buildAnalysis = (
         }),
       );
     }
-    const directives = yield* parseSources(fs, folder, sources);
     const declarations = yield* collectIndexDeclarations(
       fs,
       folder,
       indexFilePath,
       ctx,
     );
+    // Parse directives from BOTH local sources AND any cross-folder
+    // declaration source files. A barrel re-exporting `import { X } from
+    // "../other-folder"` would otherwise drop X's `@spec.guarantee` etc.
+    const externalSources = uniqueExternalSources(declarations, sources);
+    const localDirectives = yield* parseSources(fs, folder, sources);
+    const externalDirectives = yield* parseSources(fs, folder, externalSources);
+    const directives = [...localDirectives, ...externalDirectives];
     const properties = yield* parseTests(fs, folder, tests);
     return {
       folder,

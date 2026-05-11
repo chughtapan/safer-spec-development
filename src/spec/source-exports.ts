@@ -221,6 +221,27 @@ export const collectExports = (
   return entries;
 };
 
+/**
+ * Source paths of declarations whose targets resolve outside the local
+ * folder's source set. The directive parser walks these too so
+ * `@spec.guarantee` etc. on cross-folder re-export targets survive into
+ * the generated artifact.
+ */
+export const uniqueExternalSources = (
+  declarations: ReadonlyArray<DeclaredExport>,
+  localSources: ReadonlyArray<string>,
+): ReadonlyArray<string> => {
+  const local = new Set(localSources);
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const d of declarations) {
+    if (local.has(d.path) || seen.has(d.path)) continue;
+    seen.add(d.path);
+    out.push(d.path);
+  }
+  return out;
+};
+
 const mergeOne = (entry: ExportEntry, d: Directive): ExportEntry => {
   switch (d._tag) {
     case "assume":

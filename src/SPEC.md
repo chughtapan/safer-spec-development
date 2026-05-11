@@ -1,7 +1,7 @@
 ---
 folder: src
 format-version: 0.1.0
-generatedAtSha: 3de60787380b3c822df5514f24280674b563fb6c
+generatedAtSha: 8efa72786c88ffe74a813b8a68c9402f8f2f3cb1
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -78,6 +78,11 @@ export const PROPERTY_TYPES = [
   "Exception Raising",
 ] as const;
 ```
+
+**Guarantees:**
+- "membership order is stable across versions; the index of each property type is part of the contract" — _per-repo \`propertyTypesExtension\` appends only; never reorders._
+
+**Residual contract:** none — _shape captured by \`as const\` tuple._
 
 ### [`PropertyType`](./property-types/index.ts#L39)
 

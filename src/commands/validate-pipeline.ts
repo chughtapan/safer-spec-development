@@ -29,6 +29,7 @@ import {
   buildExportEntries,
   collectExports,
   findPurpose,
+  uniqueExternalSources,
 } from "@safer/spec/source-exports.js";
 import { extractProperties, type ItSpecIssue } from "@safer/spec/todos.js";
 import type { ProjectContext } from "@safer/commands/project-context.js";
@@ -161,7 +162,6 @@ export const inspectFolder = (
   ctx: ProjectContext,
 ): Effect.Effect<FolderInspection, DirectiveParseError> =>
   Effect.gen(function* () {
-    const directives = yield* parseSources(fs, inputs.sources);
     const indexFile = ctx.sources.find((s) => s.path === inputs.indexFilePath);
     const indexSrc = indexFile?.source ?? (yield* readSource(fs, inputs.indexFilePath));
     const declarations = collectExports(inputs.indexFilePath, indexSrc, {
@@ -169,6 +169,12 @@ export const inspectFolder = (
       paths: ctx.paths,
       baseUrl: ctx.baseUrl,
     });
+    // Cross-folder re-export targets get their directives parsed too;
+    // otherwise `@spec.guarantee` on a re-exported symbol is dropped.
+    const externalSources = uniqueExternalSources(declarations, inputs.sources);
+    const localDirectives = yield* parseSources(fs, inputs.sources);
+    const externalDirectives = yield* parseSources(fs, externalSources);
+    const directives = [...localDirectives, ...externalDirectives];
     const tests = yield* parseTests(fs, inputs.tests);
     return {
       analysis: {
