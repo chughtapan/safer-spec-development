@@ -32,6 +32,7 @@ import {
   collectFolderInputs,
   discoverFolders,
   inspectFolder,
+  loadExecutionSidecar,
   loadValidateProjectContext,
   regenerateMarkdown,
   regenerateSidecar,
@@ -42,6 +43,7 @@ import {
 import {
   catchDirectiveErrors,
   checkDrift,
+  checkExecutionSidecarPresent,
   checkImplBodies,
   checkSidecarDrift,
   checkThresholds,
@@ -92,7 +94,8 @@ const validateOneFolder = (
       inspectFolder({ fs: ctx.fs, path: ctx.path, folder, inputs, ctx: ctx.projectCtx }),
     );
     yield* failOnIssues(inspection.issues, ctx.mode);
-    const meta = buildSpecMeta(inspection.analysis, ctx.projectCtx);
+    const execution = yield* loadExecutionSidecar(ctx.fs, ctx.path, folder);
+    const meta = buildSpecMeta(inspection.analysis, ctx.projectCtx, execution);
     const regenerated = regenerateMarkdown(inspection.analysis, meta);
     yield* checkDrift(ctx.fs, ctx.path.join(folder, "SPEC.md"), regenerated);
     const sidecarJson = yield* regenerateSidecar(inspection.analysis, meta);
@@ -102,8 +105,11 @@ const validateOneFolder = (
       `${sidecarSlug(folder)}.json`,
     );
     yield* checkSidecarDrift(ctx.fs, sidecarPath, sidecarJson);
+    if (ctx.mode === "implemented") {
+      yield* checkExecutionSidecarPresent(inspection.analysis, folder, execution !== null);
+      yield* checkImplBodies(inspection.analysis);
+    }
     yield* checkThresholds(folder, inspection.analysis, meta);
-    if (ctx.mode === "implemented") yield* checkImplBodies(inspection.analysis);
     return folder;
   });
 

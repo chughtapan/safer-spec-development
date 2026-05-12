@@ -120,6 +120,14 @@ const ARCHITECTURE_OPTIONS = {
       reason:
         "commands/ holds four @effect/cli Command entrypoints (generate, validate, doctor, explain) plus index.ts (CLI composition root), version.ts (format-version constant), project-context.ts (project-wide loader), validate-pipeline.ts (shared analysis pipeline), validate-checks.ts (cross-check effects), and folder-discovery.ts (recursive + immediate folder walks). Each is a distinct cohesive concern; further splitting fragments the command layer. init/migrate ship as skills under skills/",
     },
+    {
+      folder: "spec",
+      maxChildren: 12,
+      maxChildrenIncludingTests: 24,
+      maxUnpairedTestChildren: 24,
+      reason:
+        "spec/ owns the spec-format domain (directive parser, emit, escape, frontmatter, link-resolver, sidecar schema + writer, source-exports, todos, index barrel, the itSpec authoring helper, and reporter.ts — the Vitest reporter that writes per-folder execution sidecars validate --implemented consumes). The reporter co-locates its execution-sidecar Schema with the spec domain because the artifact IS a spec-domain shape; splitting it into a separate folder would break the rule that 'a Schema lives next to the type it owns'.",
+    },
   ],
 };
 

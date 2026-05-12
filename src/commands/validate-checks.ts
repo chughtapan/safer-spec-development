@@ -250,6 +250,36 @@ export const checkImplBodies = (
   );
 };
 
+/**
+ * @spec.guarantee "fails when `--implemented` is requested for a folder with at least one implemented (non-stubbed) itSpec.prop but no `<folder>/.safer-spec/<slug>.execution.json` on disk"
+ *   reason: implemented-mode coverage gates read classifier/precondition
+ *           stats from the reporter-emitted sidecar; absence makes the
+ *           gate vacuously pass and silently regresses the contract.
+ * @spec.residual-contract "folders whose properties are all still stubs do not require execution.json (planned-mode parity)"
+ *   reason: stubs cannot produce stats; demanding the sidecar before any
+ *           body exists would falsely block the planned → implemented
+ *           ratchet.
+ */
+export const checkExecutionSidecarPresent = (
+  analysis: FolderAnalysis,
+  folder: string,
+  hasExecutionSidecar: boolean,
+): Effect.Effect<void, MissingImplError> => {
+  const implemented = analysis.properties.find((p) => !p.stubbed);
+  if (implemented === undefined || hasExecutionSidecar) return Effect.succeed(void 0);
+  return Effect.fail(
+    new MissingImplError({
+      location: folder,
+      diagnostic: mkDiagnostic(
+        `missing reporter sidecar: ${folder}/.safer-spec/<slug>.execution.json not on disk`,
+        "validate --implemented requires the Vitest reporter sidecar so classifier coverage and precondition pass rate can be checked against thresholds",
+        "run `pnpm test` (or `pnpm vitest run`) to regenerate the execution sidecar before validating",
+        "missing-impl",
+      ),
+    }),
+  );
+};
+
 const issueToError = (issue: ItSpecIssue): ValidateGapError => {
   const location = `${issue.path}:${String(issue.line)}`;
   if (issue.kind === "missing-directive") {

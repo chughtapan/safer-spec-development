@@ -33,11 +33,13 @@ interface SidecarWritePayload {
   readonly artifact: SpecArtifact;
 }
 
-// Mirrors `commands/generate.ts` `folderSlug` and `validate-pipeline.ts`
-// `sidecarSlug`: the root sentinel `.` maps to `root` so write/validate
-// agree on the on-disk path. Both `/` and `\` are coalesced so the slug
-// is a single filename even when discovery emits Windows separators.
-const folderSlug = (folder: string): string => {
+/**
+ * @spec.guarantee "folder `.` maps to `\"root\"`; folders with `/` or `\\` are coalesced into a single-segment slug with `_` separators; otherwise the folder string is returned unchanged after stripping leading `./`"
+ *   reason: single source of truth for the sidecar slug across generate, validate, and reporter. Three call sites previously inlined this logic; agreement is the contract.
+ * @spec.residual-contract none
+ *   reason: pure transformation captured by signature.
+ */
+export const sidecarSlug = (folder: string): string => {
   if (folder === ".") return "root";
   return folder.replace(/^\.[/\\]/, "").replace(/[/\\]+/g, "_");
 };
@@ -86,7 +88,7 @@ export const writeSidecar = (
     // pairs with. validate.ts reads from <folder>/.safer-spec/<slug>.json;
     // this is the same path so the two halves agree.
     const dir = `${payload.folder}/.safer-spec`;
-    const file = `${dir}/${folderSlug(payload.folder)}.json`;
+    const file = `${dir}/${sidecarSlug(payload.folder)}.json`;
     yield* fs
       .makeDirectory(dir, { recursive: true })
       .pipe(Effect.catchAll(() => Effect.succeed(void 0)));

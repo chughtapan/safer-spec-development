@@ -24,7 +24,7 @@ import {
   type PropertyRow,
 } from "@safer/spec/emit.js";
 import type { SpecArtifact } from "@safer/spec/sidecar.js";
-import { serializeSidecar } from "@safer/spec/sidecar-writer.js";
+import { serializeSidecar, sidecarSlug } from "@safer/spec/sidecar-writer.js";
 import {
   buildExportEntries,
   collectExports,
@@ -38,6 +38,7 @@ import {
   buildSpecMeta,
   discoverFolders,
   discoverImmediateSubfolders,
+  loadExecutionSidecar,
   loadProjectContext,
   type ProjectContext,
 } from "@safer/commands/validate-pipeline.js";
@@ -78,16 +79,6 @@ type GenerateAnyError = GenerateError | GenerateIOError | DirectiveParseError;
 const isTestFile = (n: string): boolean => n.endsWith(".spec.test.ts");
 const isSourceFile = (n: string): boolean =>
   n.endsWith(".ts") && !isTestFile(n) && !n.endsWith(".d.ts");
-
-// Maps a folder path to a stable sidecar slug. The project-root sentinel
-// `.` resolves to `root` so the sidecar isn't `.safer-spec/.json` (a
-// dotfile-prefixed name sidecar consumers easily miss). Both `/` and
-// `\` are coalesced so the slug stays a single filename even when
-// `path.join`/discovery emits Windows-style separators.
-const folderSlug = (folder: FolderPath): string => {
-  if (folder === ".") return "root";
-  return folder.replace(/^\.[/\\]/, "").replace(/[/\\]+/g, "_");
-};
 
 const causeOf = (e: unknown): string => {
   if (typeof e !== "object" || e === null || !("message" in e)) return String(e);
@@ -254,7 +245,7 @@ const writeOutputs = (
   Effect.gen(function* () {
     const specPath = c.path.join(c.folder, "SPEC.md");
     const sidecarDir = c.path.join(c.folder, ".safer-spec");
-    const sidecarPath = c.path.join(sidecarDir, `${folderSlug(c.folder)}.json`);
+    const sidecarPath = c.path.join(sidecarDir, `${sidecarSlug(c.folder)}.json`);
     yield* c.fs.makeDirectory(sidecarDir, { recursive: true })
       .pipe(Effect.catchAll(() => Effect.succeed(void 0)));
     yield* c.fs.writeFileString(specPath, c.markdown)
@@ -322,7 +313,8 @@ export const generate = (
     const written: string[] = [];
     for (const folder of folders) {
       const analysis = yield* buildAnalysis(bx, folder);
-      const meta = buildSpecMeta(analysis, ctx);
+      const execution = yield* loadExecutionSidecar(fs, path, folder);
+      const meta = buildSpecMeta(analysis, ctx, execution);
       const markdown = emitMarkdown(analysis, meta);
       const sidecarJson = yield* renderSidecar(buildSpecArtifact(analysis, meta), folder);
       if (!input.write || input.dryRun) {
