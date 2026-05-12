@@ -58,11 +58,17 @@ export const normalizeFolder = (folder: string): string => {
   const rebased = nodePath.isAbsolute(folder)
     ? toRepoRelative(folder)
     : folder;
-  const start = skipLeadingDotSlash(rebased);
-  const end = stripTrailingSep(rebased, start);
-  const sliced = start === 0 && end === rebased.length
-    ? rebased
-    : rebased.slice(start, end);
+  // Canonicalize redundant separators and `.`/`..` segments BEFORE
+  // stripping leading-./ and trailing-/ — otherwise inputs like
+  // `src//commands` round-trip into the artifact's frontmatter as
+  // `src//commands` and a later canonical `src/commands` re-run reports
+  // false drift.
+  const canonical = nodePath.normalize(rebased);
+  const start = skipLeadingDotSlash(canonical);
+  const end = stripTrailingSep(canonical, start);
+  const sliced = start === 0 && end === canonical.length
+    ? canonical
+    : canonical.slice(start, end);
   // `--folder ./` and `--folder /` strip to empty; preserve the
   // project-root sentinel so downstream `fs.readDirectory` reads "."
   // rather than `""` (which fails even when `./index.ts` exists).

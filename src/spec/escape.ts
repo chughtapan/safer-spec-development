@@ -6,12 +6,8 @@
  *   Co-located with the directive grammar (`directives.ts`) since
  *   `enforceLengthCap` shares the cap constant and emits the same overflow
  *   error class. The four escape functions are exported as the
- *   spec domain's emit-time sanitization boundary.
- * @spec.guarantee Every output of these functions is safe to interpolate into
- *   its target surface (Markdown / YAML / JSON) without producing an extra
- *   syntactic structure.
- *   reason: directives are user-controlled JSDoc; agents read this content as
- *           part of downstream dispatch context.
+ *   spec domain's emit-time sanitization boundary. Each function's own
+ *   `@spec.guarantee` documents its surface-specific safety claim.
  */
 
 import { Effect } from "effect";

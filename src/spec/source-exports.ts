@@ -267,36 +267,22 @@ export const uniqueExternalSources = (
 };
 
 const mergeOne = (entry: ExportEntry, d: Directive): ExportEntry => {
-  switch (d._tag) {
-    case "assume":
-      return {
-        ...entry,
-        assumes: [...entry.assumes, { claim: d.claim, reason: d.reason }],
-      };
-    case "guarantee":
-      return {
-        ...entry,
-        guarantees: [...entry.guarantees, { claim: d.claim, reason: d.reason }],
-      };
-    case "residual-contract":
-      return {
-        ...entry,
-        residualContract:
-          d.body === "none"
-            ? { _tag: "none", reason: d.reason }
-            : { _tag: "some", body: d.body, reason: d.reason },
-      };
-    case "skip":
-      return {
-        ...entry,
-        skipped: [
-          ...entry.skipped,
-          { propertyType: d.propertyType, reason: d.reason },
-        ],
-      };
-    default:
-      return entry;
+  if (d._tag === "assume") {
+    return { ...entry, assumes: [...entry.assumes, { claim: d.claim, reason: d.reason }] };
   }
+  if (d._tag === "guarantee") {
+    return { ...entry, guarantees: [...entry.guarantees, { claim: d.claim, reason: d.reason }] };
+  }
+  if (d._tag === "residual-contract") {
+    const rc = d.body === "none"
+      ? { _tag: "none" as const, reason: d.reason }
+      : { _tag: "some" as const, body: d.body, reason: d.reason };
+    return { ...entry, residualContract: rc };
+  }
+  if (d._tag === "skip") {
+    return { ...entry, skipped: [...entry.skipped, { propertyType: d.propertyType, reason: d.reason }] };
+  }
+  return entry;
 };
 
 const collectIgnoredExportNames = (
@@ -363,20 +349,35 @@ const resolvePublic = (
   aliases: ReadonlyMap<string, string>,
 ): string | null => byName.has(name) ? name : aliases.get(name) ?? null;
 
-const resolveOrFlag = (located: LocatedDirective, state: BuildState): void => {
+// Per-export tags whose contract is meaningless without a target
+// declaration. When one appears with `location.exportName === null`
+// (placed in file-level JSDoc or above a bare `export { ... }`
+// statement), strict validate flags it as misplaced.
+const PER_EXPORT_TAGS: ReadonlySet<Directive["_tag"]> = new Set([
+  "assume", "guarantee", "residual-contract", "skip",
+]);
+
+// True when an unmatched directive is real drift: per-export tag with
+// no exportName, OR a per-export tag whose exportName isn't in the
+// folder's known-exports set. Always false in non-strict (generate)
+// mode and for `ignore-export` (which names a deliberately absent
+// declaration).
+const isDrift = (located: LocatedDirective, state: BuildState): boolean => {
+  if (!state.strict) return false;
   const { directive, location } = located;
-  if (location.exportName === null) return;
-  const publicName = resolvePublic(location.exportName, state.byName, state.aliases);
+  if (location.exportName === null) return PER_EXPORT_TAGS.has(directive._tag);
+  return directive._tag !== "ignore-export" && !state.known.has(location.exportName);
+};
+
+const resolveOrFlag = (located: LocatedDirective, state: BuildState): void => {
+  const name = located.location.exportName;
+  const publicName = name === null ? null : resolvePublic(name, state.byName, state.aliases);
   if (publicName !== null) {
     const entry = state.byName.get(publicName);
-    if (entry !== undefined) state.byName.set(publicName, mergeOne(entry, directive));
+    if (entry !== undefined) state.byName.set(publicName, mergeOne(entry, located.directive));
     return;
   }
-  // Unresolved per-export directive: stale if strict mode + name not in
-  // the folder's source-file export union. `ignore-export` names a
-  // deliberately absent declaration, never stale.
-  if (directive._tag === "ignore-export" || !state.strict) return;
-  if (!state.known.has(location.exportName)) state.unmatched.push(located);
+  if (isDrift(located, state)) state.unmatched.push(located);
 };
 
 /**

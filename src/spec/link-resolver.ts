@@ -18,11 +18,11 @@
  *   build-time `validate` gate is responsible for fail-closed checking that
  *   intra-file symbols actually exist; this resolver returns the
  *   `LinkResolution` so the emit step can stamp an anchor.
- * @spec.guarantee Unresolved internal references resolve to `intra-file`
- *   placeholders that the validate gate inspects; unresolved external
- *   references return `UnresolvedExternal` (no failure).
- *   reason: internal drift is correctable in-repo via validate; external
- *           misses depend on foreign-package shapes outside our control.
+ *
+ *   Unresolved internal references resolve to `intra-file` placeholders
+ *   that the validate gate inspects; unresolved external references
+ *   return `UnresolvedExternal` (no failure). Per-export guarantees are
+ *   on the individual exports below.
  */
 
 import { Data, Effect } from "effect";

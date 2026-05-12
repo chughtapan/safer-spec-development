@@ -10,11 +10,9 @@
  *   constructor (private to `sidecar.ts`), producing a JSON string with a
  *   trailing newline. `writeSidecar` writes that JSON to
  *   `.safer-spec/&lt;folder-slug>.json`, creating the directory on first run.
- * @spec.guarantee Output JSON decodes back into `SpecArtifact` via
- *   `decodeSpecArtifact`. Roundtrip property is enforced in the sidecar
- *   domain's `__tests__/`.
- *   reason: agents consume sidecar JSON; a non-roundtrip emitter would produce
- *           artifacts the downstream cannot parse.
+ *   Output JSON roundtrips through `decodeSpecArtifact`; the roundtrip
+ *   property is enforced in the sidecar domain's `__tests__/`. Per-
+ *   export guarantees are on the individual exports below.
  */
 
 import { FileSystem } from "@effect/platform";

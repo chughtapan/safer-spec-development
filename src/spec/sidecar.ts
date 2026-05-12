@@ -6,11 +6,10 @@
  *
  *   Tagged error `SidecarSchemaError` is co-located here (it is emitted by
  *   the sidecar domain — both the decode boundary and the writer raise it on
- *   shape violations).
- * @spec.guarantee All string fields are size-capped and escape-on-emit (no
- *   prompt injection through residual contracts).
- *   reason: directive bodies are user-controlled JSDoc; agents read this JSON
- *           as downstream execution context.
+ *   shape violations). All string fields are size-capped and escape-on-emit
+ *   (no prompt injection through residual contracts) — directive bodies are
+ *   user-controlled JSDoc and agents read this JSON as downstream execution
+ *   context. Per-export guarantees are on the individual exports below.
  */
 
 import { Data, Effect, ParseResult, Schema } from "effect";

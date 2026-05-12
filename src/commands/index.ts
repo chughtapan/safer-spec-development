@@ -93,15 +93,23 @@ const validateFolderOpt = Options.text("folder").pipe(Options.optional);
 const validatePlannedOpt = Options.boolean("planned").pipe(Options.withDefault(false));
 const validateImplementedOpt = Options.boolean("implemented").pipe(Options.withDefault(false));
 
+// Effect's default logger writes to stdout; validate diagnostics
+// belong on stderr so scripts piping the success path's stdout don't
+// receive the error body.
+const writeStderr = (message: string): Effect.Effect<void> =>
+  Effect.sync(() => {
+    process.stderr.write(`${message}\n`);
+  });
+
 const handleValidateError = (
   e: ValidateGapError | CliUsageError,
 ): Effect.Effect<never, CliExitCode> =>
   Effect.gen(function* () {
     if (e._tag === "CliUsageError") {
-      yield* Effect.logError(`usage error in ${e.subcommand}: ${e.reason}`);
+      yield* writeStderr(`usage error in ${e.subcommand}: ${e.reason}`);
     } else {
       const formatted = yield* formatDiagnostic(e);
-      yield* Effect.logError(formatted);
+      yield* writeStderr(formatted);
     }
     return yield* Effect.fail(new CliExitCode({ code: CLI_EXIT_CODES[e._tag] }));
   });
