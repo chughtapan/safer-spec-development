@@ -2,11 +2,10 @@
  * @spec.purpose `generate` command entrypoint. Walks one folder under
  *   `--folder X`, parses `@spec*` JSDoc directives, extracts `itSpec.*`
  *   call sites + JSDoc from `*.spec.test.ts`, composes a `FolderAnalysis`,
- *   and emits one `SPEC.md` plus one `.safer-spec/<slug>.json` sidecar.
+ *   and emits one `SPEC.md` plus one `.safer-spec/&lt;slug>.json` sidecar.
  *   Tagged errors `GenerateError` and `GenerateIOError` are co-located.
  */
-/* eslint-disable max-classes-per-file -- two tagged-error variants
-   (user-error + IO-failure) co-located with the producer. */
+ 
 
 import { FileSystem, Path } from "@effect/platform";
 import { Brand, Data, Effect, Option } from "effect";
@@ -29,14 +28,16 @@ import { serializeSidecar } from "@safer/spec/sidecar-writer.js";
 import {
   buildExportEntries,
   collectExports,
-  findPurpose,
+  indexFilePurposes,
   uniqueExternalSources,
   type DeclaredExport,
 } from "@safer/spec/source-exports.js";
 import { extractProperties } from "@safer/spec/todos.js";
 import {
+  buildChildren,
   buildSpecMeta,
   discoverFolders,
+  discoverImmediateSubfolders,
   loadProjectContext,
   type ProjectContext,
 } from "@safer/commands/validate-pipeline.js";
@@ -78,8 +79,15 @@ const isTestFile = (n: string): boolean => n.endsWith(".spec.test.ts");
 const isSourceFile = (n: string): boolean =>
   n.endsWith(".ts") && !isTestFile(n) && !n.endsWith(".d.ts");
 
-const folderSlug = (folder: FolderPath): string =>
-  folder.replace(/^\.\//, "").replace(/\//g, "_");
+// Maps a folder path to a stable sidecar slug. The project-root sentinel
+// `.` resolves to `root` so the sidecar isn't `.safer-spec/.json` (a
+// dotfile-prefixed name sidecar consumers easily miss). Both `/` and
+// `\` are coalesced so the slug stays a single filename even when
+// `path.join`/discovery emits Windows-style separators.
+const folderSlug = (folder: FolderPath): string => {
+  if (folder === ".") return "root";
+  return folder.replace(/^\.[/\\]/, "").replace(/[/\\]+/g, "_");
+};
 
 const causeOf = (e: unknown): string => {
   if (typeof e !== "object" || e === null || !("message" in e)) return String(e);
@@ -120,22 +128,6 @@ const collectFolderFiles = (
     return { sources, tests };
   });
 
-const parseSources = (
-  fs: FileSystem.FileSystem,
-  folder: FolderPath,
-  sources: ReadonlyArray<string>,
-): Effect.Effect<ReadonlyArray<LocatedDirective>, GenerateIOError | DirectiveParseError> =>
-  Effect.gen(function* () {
-    const out: LocatedDirective[] = [];
-    for (const filePath of sources) {
-      const source = yield* fs
-        .readFileString(filePath)
-        .pipe(Effect.mapError(ioToGenerate(folder, filePath)));
-      out.push(...(yield* parseFileDirectives(filePath, source)));
-    }
-    return out;
-  });
-
 const exportsOfFile = (
   fs: FileSystem.FileSystem,
   folder: FolderPath,
@@ -151,30 +143,34 @@ const exportsOfFile = (
     });
   });
 
+interface TestParse {
+  readonly rows: ReadonlyArray<PropertyRow>;
+  readonly directives: ReadonlyArray<LocatedDirective>;
+}
+
 const parseTests = (
   fs: FileSystem.FileSystem,
   folder: FolderPath,
   tests: ReadonlyArray<string>,
   declaredExports: ReadonlySet<string>,
-): Effect.Effect<ReadonlyArray<PropertyRow>, GenerateIOError | DirectiveParseError> =>
+): Effect.Effect<TestParse, GenerateIOError | DirectiveParseError> =>
   Effect.gen(function* () {
     const rows: PropertyRow[] = [];
+    const directives: LocatedDirective[] = [];
     for (const filePath of tests) {
       const source = yield* fs
         .readFileString(filePath)
         .pipe(Effect.mapError(ioToGenerate(folder, filePath)));
       const dirs = yield* parseFileDirectives(filePath, source);
+      directives.push(...dirs);
       rows.push(...extractProperties(filePath, source, dirs, declaredExports).rows);
     }
-    return rows;
+    return { rows, directives };
   });
 
-// Project-wide symbol existence set: union of `export …` names across every
-// source file in `ctx.sources`. Passed into `extractProperties` so its typo
-// gate rejects opts.exports names that don't exist anywhere in the project,
-// without rejecting legitimate cross-folder symbol references (tests in
-// `<folder>/__tests__/` often describe properties of symbols imported from
-// sibling subfolders).
+// Project-wide symbol existence set; loosens `extractProperties` typo gate
+// to accept cross-folder symbol references while rejecting non-existent
+// names. See round-14 fix commit for rationale.
 const collectKnownExports = (ctx: ProjectContext): ReadonlySet<string> => {
   const out = new Set<string>();
   for (const sf of ctx.sources) {
@@ -212,21 +208,37 @@ const buildAnalysis = (
       }));
     }
     const declarations = yield* exportsOfFile(bx.fs, folder, indexFilePath, bx.ctx);
-    const externalSources = uniqueExternalSources(declarations, sources);
-    const directives = [
-      ...(yield* parseSources(bx.fs, folder, sources)),
-      ...(yield* parseSources(bx.fs, folder, externalSources)),
-    ];
-    const properties = yield* parseTests(bx.fs, folder, tests, bx.knownExports);
+    const directives: LocatedDirective[] = [];
+    for (const filePath of [...sources, ...uniqueExternalSources(declarations, sources)]) {
+      const source = yield* bx.fs.readFileString(filePath)
+        .pipe(Effect.mapError(ioToGenerate(folder, filePath)));
+      directives.push(...(yield* parseFileDirectives(filePath, source)));
+    }
+    const { rows: properties, directives: testDirectives } =
+      yield* parseTests(bx.fs, folder, tests, bx.knownExports);
+    const subfolders = yield* discoverImmediateSubfolders(bx.fs, bx.path, folder);
+    const subDirectives: LocatedDirective[] = [];
+    for (const sub of subfolders) {
+      const idx = bx.path.join(sub, "index.ts");
+      const src = yield* bx.fs.readFileString(idx)
+        .pipe(Effect.mapError(ioToGenerate(folder, idx)));
+      subDirectives.push(...(yield* parseFileDirectives(idx, src)));
+    }
+    const purposeByPath = indexFilePurposes([
+      ...directives, ...testDirectives, ...subDirectives,
+    ]);
+    const children = buildChildren({
+      folder, sources, tests, subfolders, purposeByPath, path: bx.path,
+    });
     return {
       folder,
-      purpose: findPurpose(directives, indexFilePath),
-      exports: buildExportEntries(declarations, directives),
+      purpose: purposeByPath.get(indexFilePath) ?? null,
+      exports: buildExportEntries(declarations, directives).entries,
       properties,
-      sourceFiles: sources,
-      testFiles: tests,
+      children,
     };
   });
+
 
 interface WriteCtx {
   readonly fs: FileSystem.FileSystem;
@@ -237,24 +249,18 @@ interface WriteCtx {
 }
 
 const writeOutputs = (
-  ctx: WriteCtx,
+  c: WriteCtx,
 ): Effect.Effect<ReadonlyArray<string>, GenerateIOError> =>
   Effect.gen(function* () {
-    const specPath = ctx.path.join(ctx.folder, "SPEC.md");
-    const sidecarDir = ctx.path.join(ctx.folder, ".safer-spec");
-    const sidecarPath = ctx.path.join(
-      sidecarDir,
-      `${folderSlug(ctx.folder)}.json`,
-    );
-    yield* ctx.fs
-      .makeDirectory(sidecarDir, { recursive: true })
+    const specPath = c.path.join(c.folder, "SPEC.md");
+    const sidecarDir = c.path.join(c.folder, ".safer-spec");
+    const sidecarPath = c.path.join(sidecarDir, `${folderSlug(c.folder)}.json`);
+    yield* c.fs.makeDirectory(sidecarDir, { recursive: true })
       .pipe(Effect.catchAll(() => Effect.succeed(void 0)));
-    yield* ctx.fs
-      .writeFileString(specPath, ctx.markdown)
-      .pipe(Effect.mapError(ioToGenerate(ctx.folder, specPath)));
-    yield* ctx.fs
-      .writeFileString(sidecarPath, ctx.sidecarJson)
-      .pipe(Effect.mapError(ioToGenerate(ctx.folder, sidecarPath)));
+    yield* c.fs.writeFileString(specPath, c.markdown)
+      .pipe(Effect.mapError(ioToGenerate(c.folder, specPath)));
+    yield* c.fs.writeFileString(sidecarPath, c.sidecarJson)
+      .pipe(Effect.mapError(ioToGenerate(c.folder, sidecarPath)));
     return [specPath, sidecarPath];
   });
 
@@ -263,20 +269,16 @@ const resolveFolders = (
   path: Path.Path,
   input: GenerateInput,
 ): Effect.Effect<ReadonlyArray<FolderPath>, GenerateError> => {
+  const oneFolder = Option.isSome(input.folder)
+    ? FolderPath(normalizeFolder(input.folder.value)) : null;
   if (input.watch) {
-    const folder = Option.isSome(input.folder)
-      ? FolderPath(normalizeFolder(input.folder.value))
-      : FolderPath("<none>");
-    return Effect.fail(
-      new GenerateError({ folder, reason: "--watch not yet implemented" }),
-    );
+    return Effect.fail(new GenerateError({
+      folder: oneFolder ?? FolderPath("<none>"), reason: "--watch not yet implemented",
+    }));
   }
-  if (Option.isSome(input.folder)) {
-    return Effect.succeed([FolderPath(normalizeFolder(input.folder.value))]);
-  }
-  return discoverFolders(fs, path, ".").pipe(
-    Effect.map((discovered) => discovered.map(FolderPath)),
-  );
+  return oneFolder !== null
+    ? Effect.succeed([oneFolder])
+    : discoverFolders(fs, path, ".").pipe(Effect.map((ds) => ds.map(FolderPath)));
 };
 
 const renderSidecar = (

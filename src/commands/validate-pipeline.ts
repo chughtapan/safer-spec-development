@@ -28,11 +28,18 @@ import { serializeSidecar } from "@safer/spec/sidecar-writer.js";
 import {
   buildExportEntries,
   collectExports,
-  findPurpose,
+  indexFilePurposes,
   uniqueExternalSources,
 } from "@safer/spec/source-exports.js";
 import { extractProperties, type ItSpecIssue } from "@safer/spec/todos.js";
 import type { ProjectContext } from "@safer/commands/project-context.js";
+import {
+  buildChildren,
+  discoverFolders,
+  discoverImmediateSubfolders,
+} from "@safer/commands/folder-discovery.js";
+
+export { discoverFolders, discoverImmediateSubfolders, buildChildren };
 
 export {
   loadProjectContext,
@@ -127,6 +134,7 @@ const parseSources = (
 interface TestParseResult {
   readonly rows: ReadonlyArray<PropertyRow>;
   readonly issues: ReadonlyArray<ItSpecIssue>;
+  readonly directives: ReadonlyArray<LocatedDirective>;
 }
 
 // Project-wide symbol existence set (same rationale as
@@ -147,6 +155,27 @@ const collectKnownExports = (ctx: ProjectContext): ReadonlySet<string> => {
   return out;
 };
 
+// Folder-scoped variant: only the names exported by source files IN this
+// folder. Used by `buildExportEntries` to flag truly-stale directives
+// (exportName not exported anywhere in the folder, barrel or otherwise).
+const folderExportNames = (
+  sources: ReadonlyArray<string>,
+  ctx: ProjectContext,
+): ReadonlySet<string> => {
+  const out = new Set<string>();
+  for (const sourcePath of sources) {
+    const sf = ctx.sources.find((s) => s.path === sourcePath);
+    if (sf === undefined) continue;
+    for (const d of collectExports(sf.path, sf.source, {
+      siblings: ctx.sources, paths: ctx.paths, baseUrl: ctx.baseUrl,
+    })) {
+      out.add(d.name);
+      out.add(d.declaredName);
+    }
+  }
+  return out;
+};
+
 const parseTests = (
   fs: FileSystem.FileSystem,
   tests: ReadonlyArray<string>,
@@ -155,14 +184,16 @@ const parseTests = (
   Effect.gen(function* () {
     const rows: PropertyRow[] = [];
     const issues: ItSpecIssue[] = [];
+    const directives: LocatedDirective[] = [];
     for (const p of tests) {
       const src = yield* readSource(fs, p);
       const parsed = yield* parseFileDirectives(p, src);
+      directives.push(...parsed);
       const r = extractProperties(p, src, parsed, declaredExports);
       rows.push(...r.rows);
       issues.push(...r.issues);
     }
-    return { rows, issues };
+    return { rows, issues, directives };
   });
 
 export interface FolderInspection {
@@ -174,47 +205,58 @@ export interface FolderInspection {
  * @spec.guarantee "produces the same FolderAnalysis shape `generate` emits + the per-test issues list; regenerate-and-compare on `analysis` is byte-deterministic"
  *   reason: roundtrip contract; validate's drift check relies on it.
  */
-export const inspectFolder = (
-  fs: FileSystem.FileSystem,
-  folder: string,
-  inputs: FolderInputs,
-  ctx: ProjectContext,
-): Effect.Effect<FolderInspection, DirectiveParseError> =>
+export interface InspectArgs {
+  readonly fs: FileSystem.FileSystem;
+  readonly path: Path.Path;
+  readonly folder: string;
+  readonly inputs: FolderInputs;
+  readonly ctx: ProjectContext;
+}
+
+export const inspectFolder = ({ fs, path, folder, inputs, ctx }: InspectArgs): Effect.Effect<FolderInspection, DirectiveParseError> =>
   Effect.gen(function* () {
     const indexFile = ctx.sources.find((s) => s.path === inputs.indexFilePath);
     const indexSrc = indexFile?.source ?? (yield* readSource(fs, inputs.indexFilePath));
     const declarations = collectExports(inputs.indexFilePath, indexSrc, {
-      siblings: ctx.sources,
-      paths: ctx.paths,
-      baseUrl: ctx.baseUrl,
+      siblings: ctx.sources, paths: ctx.paths, baseUrl: ctx.baseUrl,
     });
-    // Cross-folder re-export targets get their directives parsed too;
-    // otherwise `@spec.guarantee` on a re-exported symbol is dropped.
     const externalSources = uniqueExternalSources(declarations, inputs.sources);
     const localDirectives = yield* parseSources(fs, inputs.sources);
     const externalDirectives = yield* parseSources(fs, externalSources);
     const directives = [...localDirectives, ...externalDirectives];
     const tests = yield* parseTests(fs, inputs.tests, collectKnownExports(ctx));
+    const subfolders = yield* discoverImmediateSubfolders(fs, path, folder);
+    const subDirectives = yield* parseSources(fs, subfolders.map((s) => path.join(s, "index.ts")));
+    const purposeByPath = indexFilePurposes([
+      ...directives, ...tests.directives, ...subDirectives,
+    ]);
+    const children = buildChildren({
+      folder, sources: inputs.sources, tests: inputs.tests, subfolders, purposeByPath, path,
+    });
+    const built = buildExportEntries(declarations, directives, {
+      folderKnownExports: folderExportNames(inputs.sources, ctx),
+      localSources: new Set(inputs.sources),
+    });
+    const unmatchedIssues: ReadonlyArray<ItSpecIssue> = built.unmatched.map((d) => ({
+      kind: "directive-mismatch",
+      path: d.location.path,
+      line: d.location.line,
+      detail: `@spec.${d.directive._tag} on "${d.location.exportName ?? "?"}" does not match any export in this folder`,
+    }));
     return {
       analysis: {
         folder,
-        purpose: findPurpose(directives, inputs.indexFilePath),
-        exports: buildExportEntries(declarations, directives),
+        purpose: purposeByPath.get(inputs.indexFilePath) ?? null,
+        exports: built.entries,
         properties: tests.rows,
-        sourceFiles: inputs.sources,
-        testFiles: inputs.tests,
+        children,
       },
-      issues: tests.issues,
+      issues: [...tests.issues, ...unmatchedIssues],
     };
   }).pipe(Effect.withSpan("commands/validate-pipeline/inspectFolder"));
 
 
-/**
- * @spec.guarantee "builds a `SpecMeta` from run-level context + analysis-derived coverage"
- *   reason: emit's frontmatter + sidecar both require meta.
- * @spec.residual-contract "classifier coverage and precondition pass rate are null in this slice; populated only when `validate --implemented` consumes Vitest reporter sidecars"
- *   reason: lifecycle contract.
- */
+
 const DEFAULT_GENERATED_FROM = {
   jsdoc: "ts-morph + @microsoft/tsdoc",
   exports: "ts-morph getExportedDeclarations",
@@ -223,6 +265,12 @@ const DEFAULT_GENERATED_FROM = {
   eslint: "eslint-plugin-agent-code-guard",
 } as const;
 
+/**
+ * @spec.guarantee "builds a `SpecMeta` from run-level context + analysis-derived coverage"
+ *   reason: emit's frontmatter + sidecar both require meta.
+ * @spec.residual-contract "classifier coverage and precondition pass rate are null in this slice; populated only when `validate --implemented` consumes Vitest reporter sidecars"
+ *   reason: lifecycle contract.
+ */
 export const buildSpecMeta = (
   analysis: FolderAnalysis,
   ctx: ProjectContext,
@@ -298,9 +346,14 @@ const SHA_LINE_JSON = /"(generatedAtSha|sha)":\s*"[^"]*"/g;
 export const stripVolatileJson = (text: string): string =>
   text.replace(SHA_LINE_JSON, '"$1": "<NORMALIZED>"');
 
-/** Slug for the per-folder sidecar JSON path: `<folder>/.safer-spec/<slug>.json`. */
-export const sidecarSlug = (folder: string): string =>
-  folder.replace(/^\.\//, "").replace(/\//g, "_");
+// Slug for the per-folder sidecar JSON path. The project-root sentinel
+// `.` maps to `root` (see `generate.ts` `folderSlug` for rationale).
+// Both `/` and `\` are coalesced so the slug stays a single filename
+// when Windows-style path separators reach this helper.
+export const sidecarSlug = (folder: string): string => {
+  if (folder === ".") return "root";
+  return folder.replace(/^\.[/\\]/, "").replace(/[/\\]+/g, "_");
+};
 
 /**
  * @spec.guarantee "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; SidecarSchemaError is a defect (artifact our own emitter produced)"
@@ -317,47 +370,3 @@ export const regenerateSidecar = (
     ),
   );
 
-const SKIP_DIRS_DISCOVERY: ReadonlySet<string> = new Set([
-  "__tests__",
-  "node_modules",
-  "dist",
-  "build",
-  "coverage",
-  ".safer-spec",
-]);
-
-const walkOnce = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  dir: string,
-  out: string[],
-): Effect.Effect<void, never> =>
-  Effect.gen(function* () {
-    const entries = yield* readDirSafe(fs, dir);
-    if (entries.includes("index.ts")) out.push(dir);
-    for (const name of entries) {
-      if (name.startsWith(".") || SKIP_DIRS_DISCOVERY.has(name)) continue;
-      const full = path.join(dir, name);
-      if (yield* isDirectory(fs, full)) yield* walkOnce(fs, path, full, out);
-    }
-  });
-
-/**
- * @spec.guarantee "returns every directory under `root` that contains an `index.ts` barrel; results are insertion-ordered (root-first depth-first)"
- *   reason: contract; both `generate` and `validate` iterate this list when
- *           no `--folder` is given. Walking from `.` finds barrels under any
- *           top-level layout (`src/`, `packages/<name>/`, app workspaces).
- * @spec.residual-contract "dot-prefixed directories, `__tests__`, `node_modules`, `dist`, `build`, `coverage`, and `.safer-spec` are skipped; symlinks are not followed"
- *   reason: avoid descending into vendored dependencies, build output, and
- *           the codemod's own sidecar dirs.
- */
-export const discoverFolders = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  root: string,
-): Effect.Effect<ReadonlyArray<string>, never> =>
-  Effect.gen(function* () {
-    const out: string[] = [];
-    yield* walkOnce(fs, path, root, out);
-    return out;
-  }).pipe(Effect.withSpan("commands/validate-pipeline/discoverFolders"));

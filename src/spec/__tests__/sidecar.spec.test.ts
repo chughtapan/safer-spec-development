@@ -42,3 +42,25 @@ itSpec.todo("sidecar-decoded-shape", {
   type: "Typechecking",
   exports: [decodeSpecArtifact],
 });
+
+/**
+ * @spec.property sidecar-preserves-skip-reason-and-residual-contract
+ * @spec.type Inclusion
+ * @spec.exports decodeSpecArtifact
+ * @spec.claim sidecar JSON carries the full `@spec.skip` payload (propertyType + reason) and the `@spec.residual-contract` payload (tagged "none"/"some" with reason and optional body); JSON-only consumers can distinguish a deliberate opt-out from an incomplete required set
+ */
+itSpec.todo("sidecar-preserves-skip-reason-and-residual-contract", {
+  type: "Inclusion",
+  exports: [decodeSpecArtifact],
+});
+
+/**
+ * @spec.property sidecar-classifies-function-expression-exports
+ * @spec.type Constant Equality
+ * @spec.exports decodeSpecArtifact
+ * @spec.claim `export const f = function (...) { ... }` decodes with `shape: "function"` and the sidecar's signature is body-stripped, matching the arrow-form (`export const f = (...) => {...}`); the implementation body is never leaked through the sidecar
+ */
+itSpec.todo("sidecar-classifies-function-expression-exports", {
+  type: "Constant Equality",
+  exports: [decodeSpecArtifact],
+});

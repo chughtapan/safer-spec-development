@@ -21,6 +21,7 @@ export class ProjectContextError extends Data.TaggedError("ProjectContextError")
 export interface ProjectContext {
   readonly sources: ReadonlyArray<SourceFile>;
   readonly paths: Readonly<Record<string, ReadonlyArray<string>>>;
+
   /**
    * tsconfig.compilerOptions.baseUrl (the root `paths` resolve relative to).
    * Defaults to "." when tsconfig omits it; TypeScript requires baseUrl when
@@ -57,11 +58,17 @@ export const normalizeFolder = (folder: string): string => {
   const rebased = nodePath.isAbsolute(folder)
     ? toRepoRelative(folder)
     : folder;
-  const start = skipLeadingDotSlash(rebased);
-  const end = stripTrailingSep(rebased, start);
-  const sliced = start === 0 && end === rebased.length
-    ? rebased
-    : rebased.slice(start, end);
+  // Canonicalize redundant separators and `.`/`..` segments BEFORE
+  // stripping leading-./ and trailing-/ — otherwise inputs like
+  // `src//commands` round-trip into the artifact's frontmatter as
+  // `src//commands` and a later canonical `src/commands` re-run reports
+  // false drift.
+  const canonical = nodePath.normalize(rebased);
+  const start = skipLeadingDotSlash(canonical);
+  const end = stripTrailingSep(canonical, start);
+  const sliced = start === 0 && end === canonical.length
+    ? canonical
+    : canonical.slice(start, end);
   // `--folder ./` and `--folder /` strip to empty; preserve the
   // project-root sentinel so downstream `fs.readDirectory` reads "."
   // rather than `""` (which fails even when `./index.ts` exists).
@@ -200,19 +207,49 @@ const readTsConfigBits = (
       ),
     );
 
+// Resolves `<root>/.git` to the directory holding HEAD. For a normal repo
+// that's the dir itself; for a worktree or submodule, `.git` is a FILE
+// containing `gitdir: <path>` and we follow that pointer. Path is resolved
+// relative to <root>/.git's parent when not absolute.
+const resolveGitDir = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  root: string,
+): Effect.Effect<string, never> => {
+  const gitPath = path.join(root, ".git");
+  return fs.stat(gitPath).pipe(
+    Effect.flatMap((s) =>
+      s.type === "Directory"
+        ? Effect.succeed(gitPath)
+        : fs.readFileString(gitPath).pipe(
+            Effect.map((text) => {
+              const line = text.trim();
+              const pointer = line.startsWith("gitdir: ") ? line.slice(8) : line;
+              return nodePath.isAbsolute(pointer) ? pointer : path.join(root, pointer);
+            }),
+          ),
+    ),
+    Effect.catchAll(() => Effect.succeed(gitPath)),
+  );
+};
+
 const readGitSha = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
   root: string,
 ): Effect.Effect<string, never> =>
-  fs.readFileString(path.join(root, ".git", "HEAD")).pipe(
-    Effect.flatMap((text) => {
-      const trimmed = text.trim();
-      if (!trimmed.startsWith("ref: ")) return Effect.succeed(trimmed);
-      return fs
-        .readFileString(path.join(root, ".git", trimmed.slice(5)))
-        .pipe(Effect.map((t) => t.trim()));
-    }),
+  resolveGitDir(fs, path, root).pipe(
+    Effect.flatMap((gitDir) =>
+      fs.readFileString(path.join(gitDir, "HEAD")).pipe(
+        Effect.flatMap((text) => {
+          const trimmed = text.trim();
+          if (!trimmed.startsWith("ref: ")) return Effect.succeed(trimmed);
+          return fs
+            .readFileString(path.join(gitDir, trimmed.slice(5)))
+            .pipe(Effect.map((t) => t.trim()));
+        }),
+      ),
+    ),
     Effect.catchAll(() => Effect.succeed("uncommitted")),
   );
 

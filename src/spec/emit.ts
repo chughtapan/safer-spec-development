@@ -9,7 +9,6 @@ import { PROPERTY_TYPES, type PropertyType } from "@safer/property-types/index.j
 import { SPEC_FORMAT_VERSION } from "@safer/commands/version.js";
 import {
   escapeForMarkdownProse,
-  escapeForMarkdownTableCell,
   escapeForMarkdownTableCellProse,
 } from "@safer/spec/escape.js";
 import { relativeToFolder } from "@safer/spec/link-resolver.js";
@@ -57,13 +56,26 @@ export interface PropertyRow {
   readonly stubbed: boolean;
 }
 
+interface ChildEntry {
+  /** Display label inside the backticks (e.g. `directives/`, `emit.ts`). */
+  readonly display: string;
+  /** Link target relative to the folder's SPEC.md (`./directives/SPEC.md`, `./emit.ts`). */
+  readonly link: string;
+  /** First-block JSDoc `@spec.purpose` body, or null when the child has none. */
+  readonly purpose: string | null;
+}
+
 export interface FolderAnalysis {
   readonly folder: string;
   readonly purpose: string | null;
   readonly exports: ReadonlyArray<ExportEntry>;
   readonly properties: ReadonlyArray<PropertyRow>;
-  readonly sourceFiles: ReadonlyArray<string>;
-  readonly testFiles: ReadonlyArray<string>;
+
+  /**
+   * Merged list of immediate files AND immediate subfolders that have
+   * their own SPEC. Sorted by `display`. Renders as `## Children`.
+   */
+  readonly children: ReadonlyArray<ChildEntry>;
 }
 
 const emitResidualList = (
@@ -105,21 +117,17 @@ const emitSkipped = (
 };
 
 /**
- * Compute a relative anchor link from the SPEC.md (at `<folder>/SPEC.md`)
+ * Compute a relative anchor link from the SPEC.md (at `&lt;folder>/SPEC.md`)
  * to the declaration's source file + line. `#Lnnn` is GitHub/IDE-style.
  */
 const sourceLink = (folder: string, path: string, line: number): string =>
   `${relativeToFolder(folder, path)}#L${String(line)}`;
 
-const emitSignatureBlock = (e: ExportEntry): ReadonlyArray<string> => {
-  if (e.signature.length === 0) return [];
-  return ["", "```ts", e.signature, "```"];
-};
+const emitSignatureBlock = (e: ExportEntry): ReadonlyArray<string> =>
+  e.signature.length === 0 ? [] : ["", "```ts", e.signature, "```"];
 
-const emitDescription = (e: ExportEntry): ReadonlyArray<string> => {
-  if (e.description.length === 0) return [];
-  return ["", e.description];
-};
+const emitDescription = (e: ExportEntry): ReadonlyArray<string> =>
+  e.description.length === 0 ? [] : ["", e.description];
 
 const emitExportSection = (
   folder: string,
@@ -144,10 +152,17 @@ const emitPropertiesTable = (
     "|---|---|---|---|---|",
   ];
   for (const p of properties) {
-    const id = escapeForMarkdownTableCell(p.id);
-    const exports = p.exports
-      .map((s) => "`" + escapeForMarkdownTableCell(s) + "`")
-      .join(", ");
+    // `id` and exports are wrapped in backticks for the code-span look.
+    // Inside a markdown code span, `\` does NOT escape backticks, so
+    // simply escape-then-wrap leaves a single literal backtick in the
+    // value still capable of closing the span. Replace any backtick in
+    // the value with an apostrophe before wrapping. Authors should not
+    // be putting backticks in identifier-shaped fields anyway; the
+    // normalization preserves table grammar without losing readability.
+    const codeSpanSafe = (s: string): string =>
+      escapeForMarkdownTableCellProse(s).replace(/`/g, "'");
+    const id = codeSpanSafe(p.id);
+    const exports = p.exports.map((s) => "`" + codeSpanSafe(s) + "`").join(", ");
     const status = p.stubbed ? "todo" : "implemented";
     const claim = escapeForMarkdownTableCellProse(p.claim);
     lines.push(
@@ -234,12 +249,16 @@ export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => {
   ];
   if (a.exports.length === 0) lines.push("_No exports._");
   else for (const e of a.exports) lines.push(...emitExportSection(a.folder, e));
-  lines.push("## Files", "");
-  const allFiles = [...a.sourceFiles, ...a.testFiles].sort();
-  if (allFiles.length === 0) lines.push("_No files._");
-  else for (const f of allFiles) lines.push(`- \`${f}\``);
+  lines.push("## Children", "");
+  if (a.children.length === 0) lines.push("_No children._");
+  else for (const c of a.children) lines.push(emitChildLine(c));
   lines.push("", "## Properties", "", ...emitPropertiesTable(a.properties), "");
   return lines.join("\n");
+};
+
+const emitChildLine = (c: ChildEntry): string => {
+  const label = `[\`${c.display}\`](${c.link})`;
+  return c.purpose === null ? `- ${label}` : `- ${label} — ${escapeForMarkdownProse(c.purpose)}`;
 };
 
 type Shape = "Schema" | "RpcDefinition" | "function" | "type" | "Branded" | "unknown";

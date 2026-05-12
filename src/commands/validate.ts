@@ -68,7 +68,6 @@ export const VALIDATE_GAP_EXIT_CODES = {
 interface ValidateInput {
   readonly folder: Option.Option<string>;
   readonly mode: "planned" | "implemented";
-  readonly formatVersionCheck: boolean;
 }
 
 interface ValidatePassReport {
@@ -90,7 +89,7 @@ const validateOneFolder = (
 ): Effect.Effect<string, ValidateGapError> =>
   Effect.gen(function* () {
     const inspection = yield* catchDirectiveErrors(
-      inspectFolder(ctx.fs, folder, inputs, ctx.projectCtx),
+      inspectFolder({ fs: ctx.fs, path: ctx.path, folder, inputs, ctx: ctx.projectCtx }),
     );
     yield* failOnIssues(inspection.issues, ctx.mode);
     const meta = buildSpecMeta(inspection.analysis, ctx.projectCtx);

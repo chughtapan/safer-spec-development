@@ -39,6 +39,24 @@ const injectArchitectureOptions = (rules, options) =>
 // Domain decomposition: each domain owns its types, private schema
 // constructors, and tagged errors. Errors stay with their producer modules,
 // and shared types live in the domain that owns them.
+// The 11 dotted `@spec.*` directive tags the codemod's grammar uses. ACG
+// 0.0.13 turns on `jsdoc/check-tag-names`, which rejects anything not in its
+// built-in whitelist. The tags are the codemod's contract surface (parsed
+// by `src/spec/directives/`); register them as defined.
+const SPEC_DIRECTIVE_TAGS = [
+  "spec.purpose",
+  "spec.ignore",
+  "spec.assume",
+  "spec.guarantee",
+  "spec.residual-contract",
+  "spec.skip",
+  "spec.ignore-export",
+  "spec.property",
+  "spec.type",
+  "spec.exports",
+  "spec.claim",
+];
+
 const ARCHITECTURE_OPTIONS = {
   forbiddenSubpathSegments: [],
   implementationPathSegments: [],
@@ -89,6 +107,21 @@ const ARCHITECTURE_OPTIONS = {
     },
   ],
   packageRuntime: "node",
+  // commands/ legitimately holds six @effect/cli Command entrypoints plus
+  // their shared orchestration helpers (project-context, validate-pipeline,
+  // validate-checks, folder-discovery, version, index). 12 prod children
+  // is the cohesive shape; further splitting would fragment the command
+  // layer.
+  folderChildCountOverrides: [
+    {
+      folder: "commands",
+      maxChildren: 12,
+      maxChildrenIncludingTests: 20,
+      maxUnpairedTestChildren: 20,
+      reason:
+        "commands/ holds six @effect/cli Command entrypoints (init, generate, validate, doctor, explain, migrate) plus index.ts (CLI composition root), version.ts (format-version constant), project-context.ts (project-wide loader), validate-pipeline.ts (shared analysis pipeline), validate-checks.ts (cross-check effects), and folder-discovery.ts (recursive + immediate folder walks). Each is a distinct cohesive concern; further splitting fragments the command layer",
+    },
+  ],
 };
 
 export default [
@@ -142,6 +175,7 @@ export default [
       // fills the body"). Replacing every reference would obscure the
       // contract the codemod's design depends on.
       "sonarjs/todo-tag": "off",
+      "jsdoc/check-tag-names": ["error", { definedTags: SPEC_DIRECTIVE_TAGS }],
     },
   },
 
@@ -183,6 +217,7 @@ export default [
       ),
       "sonarjs/no-empty-test-file": "off",
       "sonarjs/todo-tag": "off",
+      "jsdoc/check-tag-names": ["error", { definedTags: SPEC_DIRECTIVE_TAGS }],
       "import/no-relative-parent-imports": "error",
       "import/no-relative-packages": "error",
     },

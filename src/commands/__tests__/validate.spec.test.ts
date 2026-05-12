@@ -62,3 +62,47 @@ itSpec.todo("properties-table-self-host-bodied", {
   type: "Inclusion",
   exports: [validate],
 });
+
+/**
+ * @spec.property validate-flags-misplaced-per-export-directive
+ * @spec.type Exception Raising
+ * @spec.exports validate
+ * @spec.claim a per-export directive (`@spec.assume`/`@spec.guarantee`/`@spec.residual-contract`/`@spec.skip`) placed in file-level JSDoc, or naming a symbol the folder doesn't export, fails as MissingSpecPropertyError with exit code 11
+ */
+itSpec.todo("validate-flags-misplaced-per-export-directive", {
+  type: "Exception Raising",
+  exports: [validate],
+});
+
+/**
+ * @spec.property validate-drift-gate-uses-folder-wide-export-set
+ * @spec.type Constant Equality
+ * @spec.exports validate
+ * @spec.claim directives that reference internal helpers (exported by a non-barrel source file in the folder) validate successfully; the drift gate's known-exports set is the union of every local source file's exports, not the barrel only
+ */
+itSpec.todo("validate-drift-gate-uses-folder-wide-export-set", {
+  type: "Constant Equality",
+  exports: [validate],
+});
+
+/**
+ * @spec.property validate-drift-ignores-external-source-directives
+ * @spec.type Constant Equality
+ * @spec.exports validate
+ * @spec.claim a barrel re-exporting a subset of symbols from a sibling-folder source file validates without flagging the source file's other (unrelated) per-export directives as drift; drift checks scope to local sources only
+ */
+itSpec.todo("validate-drift-ignores-external-source-directives", {
+  type: "Constant Equality",
+  exports: [validate],
+});
+
+/**
+ * @spec.property validate-records-git-worktree-head-sha
+ * @spec.type Constant Equality
+ * @spec.exports validate
+ * @spec.claim when run from a git worktree (`.git` is a file with a `gitdir:` pointer, not a directory), `generatedAtSha` resolves to the actual HEAD SHA via the pointer, not `uncommitted`
+ */
+itSpec.todo("validate-records-git-worktree-head-sha", {
+  type: "Constant Equality",
+  exports: [validate],
+});

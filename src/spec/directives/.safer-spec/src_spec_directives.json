@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/directives",
-  "generatedAtSha": "e42329e753e07ca4d07a08118b9ccb496416965c",
+  "generatedAtSha": "d7cd35669c398f0ffc8171b3279c307874b1c08f",
   "exports": [
     {
       "name": "DIRECTIVE_BODY_MAX_CHARS",
@@ -24,8 +24,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/directives/shared.ts",
-        "line": 19,
-        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+        "line": 17,
+        "sha": "d7cd35669c398f0ffc8171b3279c307874b1c08f"
       }
     },
     {
@@ -49,8 +49,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/directives/shared.ts",
-        "line": 30,
-        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+        "line": 28,
+        "sha": "d7cd35669c398f0ffc8171b3279c307874b1c08f"
       }
     },
     {
@@ -74,8 +74,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/directives/shared.ts",
-        "line": 40,
-        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+        "line": 38,
+        "sha": "d7cd35669c398f0ffc8171b3279c307874b1c08f"
       }
     },
     {
@@ -99,8 +99,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/directives/shared.ts",
-        "line": 49,
-        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+        "line": 47,
+        "sha": "d7cd35669c398f0ffc8171b3279c307874b1c08f"
       }
     },
     {
@@ -124,8 +124,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/directives/shared.ts",
-        "line": 57,
-        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+        "line": 55,
+        "sha": "d7cd35669c398f0ffc8171b3279c307874b1c08f"
       }
     },
     {
@@ -149,8 +149,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/directives/index.ts",
-        "line": 67,
-        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+        "line": 69,
+        "sha": "d7cd35669c398f0ffc8171b3279c307874b1c08f"
       }
     },
     {
@@ -174,8 +174,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/directives/index.ts",
-        "line": 87,
-        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+        "line": 89,
+        "sha": "d7cd35669c398f0ffc8171b3279c307874b1c08f"
       }
     },
     {
@@ -204,8 +204,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/directives/index.ts",
-        "line": 247,
-        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+        "line": 284,
+        "sha": "d7cd35669c398f0ffc8171b3279c307874b1c08f"
       }
     }
   ],

@@ -19,11 +19,10 @@
  *   intra-file symbols actually exist; this resolver returns the
  *   `LinkResolution` so the emit step can stamp an anchor.
  *
- * @spec.guarantee Unresolved internal references resolve to `intra-file`
- *   placeholders that the validate gate inspects; unresolved external
- *   references return `UnresolvedExternal` (no failure).
- *   reason: internal drift is correctable in-repo via validate; external
- *           misses depend on foreign-package shapes outside our control.
+ *   Unresolved internal references resolve to `intra-file` placeholders
+ *   that the validate gate inspects; unresolved external references
+ *   return `UnresolvedExternal` (no failure). Per-export guarantees are
+ *   on the individual exports below.
  */
 
 import { Data, Effect } from "effect";
@@ -119,11 +118,15 @@ export const resolveSymbol = (
   });
 
 /**
- * Path-relative-to-folder for source links inside `<folder>/SPEC.md`.
+ * Path-relative-to-folder for source links inside `&lt;folder>/SPEC.md`.
  * Same-folder: `./name.ts`. Cross-folder: `../...`. Absolute/external:
  * passthrough.
  */
 export const relativeToFolder = (folder: string, target: string): string => {
+  // Project-root sentinel: a SPEC.md at the repo root reaches every file
+  // via `./<target>`. Treating `.` as one path segment would emit `../…`
+  // and point outside the repo.
+  if (folder === ".") return "./" + target.replace(/^\.?\/?/, "");
   const prefix = folder + "/";
   if (target.startsWith(prefix)) return "./" + target.slice(prefix.length);
   if (target.startsWith("/") || /^[a-zA-Z]+:/.test(target)) return target;

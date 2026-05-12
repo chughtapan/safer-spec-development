@@ -1,7 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable max-classes-per-file -- the CLI binary emits two
-   closely-related tagged errors (CliExitCode, CliUsageError); co-locating
-   them with the binary they belong to is per-domain ownership. */
+ 
 /**
  * @spec.purpose CLI binary. Composes the six subcommands (`init`, `generate`,
  *   `validate`, `doctor`, `explain`, `migrate`) into the top-level
@@ -94,19 +92,24 @@ const generateCommand = Command.make(
 const validateFolderOpt = Options.text("folder").pipe(Options.optional);
 const validatePlannedOpt = Options.boolean("planned").pipe(Options.withDefault(false));
 const validateImplementedOpt = Options.boolean("implemented").pipe(Options.withDefault(false));
-const validateFormatVersionCheckOpt = Options.boolean("format-version-check").pipe(
-  Options.withDefault(false),
-);
+
+// Effect's default logger writes to stdout; validate diagnostics
+// belong on stderr so scripts piping the success path's stdout don't
+// receive the error body.
+const writeStderr = (message: string): Effect.Effect<void> =>
+  Effect.sync(() => {
+    process.stderr.write(`${message}\n`);
+  });
 
 const handleValidateError = (
   e: ValidateGapError | CliUsageError,
 ): Effect.Effect<never, CliExitCode> =>
   Effect.gen(function* () {
     if (e._tag === "CliUsageError") {
-      yield* Effect.logError(`usage error in ${e.subcommand}: ${e.reason}`);
+      yield* writeStderr(`usage error in ${e.subcommand}: ${e.reason}`);
     } else {
       const formatted = yield* formatDiagnostic(e);
-      yield* Effect.logError(formatted);
+      yield* writeStderr(formatted);
     }
     return yield* Effect.fail(new CliExitCode({ code: CLI_EXIT_CODES[e._tag] }));
   });
@@ -117,9 +120,8 @@ const validateCommand = Command.make(
     folder: validateFolderOpt,
     planned: validatePlannedOpt,
     implemented: validateImplementedOpt,
-    formatVersionCheck: validateFormatVersionCheckOpt,
   },
-  ({ folder, planned, implemented, formatVersionCheck }) =>
+  ({ folder, planned, implemented }) =>
     Effect.gen(function* () {
       if (planned && implemented) {
         return yield* Effect.fail(
@@ -130,7 +132,7 @@ const validateCommand = Command.make(
         );
       }
       const mode: "planned" | "implemented" = planned ? "planned" : "implemented";
-      const report = yield* validate({ folder, mode, formatVersionCheck });
+      const report = yield* validate({ folder, mode });
       yield* Effect.log(
         `validate passed across ${report.foldersValidated.length} folders`,
       );

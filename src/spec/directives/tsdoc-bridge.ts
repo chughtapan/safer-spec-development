@@ -113,17 +113,28 @@ export const rawBodyBetween = (
 };
 
 const TSDOC_UNDEFINED_TAG_ID = "tsdoc-undefined-tag";
-const SPEC_TAG_TEXT_RE = /@(spec[A-Za-z]{0,32})/;
+// Malformed dotted spec tags (e.g. `@spec.residual_contract` with `_`
+// instead of `-`) bypass `rewriteDottedTags` and reach TSDoc as `@spec`
+// followed by invalid characters; TSDoc emits this message rather than
+// `tsdoc-undefined-tag`. Surface it as JsDocUnknownDirectiveError too so
+// the closed-grammar promise actually holds.
+const TSDOC_CHARS_AFTER_TAG_ID = "tsdoc-characters-after-block-tag";
+const SPEC_TAG_TEXT_RE = /@(spec[A-Za-z._-]{0,32})/;
 
 export interface UndefinedTagHit {
   readonly name: string;
   readonly offset: number;
 }
 
+const SPEC_TAG_ERROR_IDS: ReadonlySet<string> = new Set([
+  TSDOC_UNDEFINED_TAG_ID,
+  TSDOC_CHARS_AFTER_TAG_ID,
+]);
+
 const matchUndefinedSpecTag = (
   msg: ParserContext["log"]["messages"][number],
 ): UndefinedTagHit | null => {
-  if (msg.messageId !== TSDOC_UNDEFINED_TAG_ID) return null;
+  if (!SPEC_TAG_ERROR_IDS.has(msg.messageId)) return null;
   const m = SPEC_TAG_TEXT_RE.exec(msg.tokenSequence?.toString() ?? "");
   if (m === null) return null;
   return {
@@ -144,6 +155,43 @@ export const firstUndefinedSpecTag = (
   for (const msg of parsed.log.messages) {
     const hit = matchUndefinedSpecTag(msg);
     if (hit !== null) return hit;
+  }
+  return null;
+};
+
+// After `rewriteDottedTags` runs, any remaining `@spec.<…>` at a block-tag
+// position is malformed — the rewrite handles only `[a-z][a-z-]*` bodies,
+// so `@spec.foo_bar`, `@spec.foo.bar`, `@spec.Type`, etc. survive in
+// dotted form. TSDoc treats those as `@spec` + invalid trailing chars or
+// truncates the token, so the parser-message path misses them. Catch
+// them with a direct scan so malformed directives fail closed.
+const MALFORMED_DOTTED_SPEC_RE =
+  /(?:^[\t ]*\*[\t ]?|^\/\*\*[\t ]?)@spec\.\S+/gm;
+
+export const firstMalformedDottedSpecTag = (
+  rewrittenText: string,
+): UndefinedTagHit | null => {
+  MALFORMED_DOTTED_SPEC_RE.lastIndex = 0;
+  const m = MALFORMED_DOTTED_SPEC_RE.exec(rewrittenText);
+  if (m === null) return null;
+  const atPos = m.index + m[0].indexOf("@");
+  return { name: rewrittenText.slice(atPos + 1, m.index + m[0].length), offset: atPos };
+};
+
+// First block-tag-position `@<letter>` start in `rawText` at offset
+// >= `from`. A block tag = `@` at the start of the JSDoc opener
+// (`/**`) or immediately after a continuation prefix (`\n[\t ]*\*[\t ]?`).
+// Used by the directive parser to bound a spec block's body at the next
+// JSDoc tag regardless of whether that tag is a `@spec*` block or a
+// standard `@param`/`@returns`/etc.
+const BLOCK_TAG_RE = /(?:^|\n)[\t ]*(?:\*[\t ]?)?(@[A-Za-z])/g;
+
+export const nextBlockTagStart = (rawText: string, from: number): number | null => {
+  BLOCK_TAG_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = BLOCK_TAG_RE.exec(rawText)) !== null) {
+    const atPos = m.index + m[0].lastIndexOf("@");
+    if (atPos >= from) return atPos;
   }
   return null;
 };

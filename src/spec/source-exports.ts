@@ -17,6 +17,7 @@ import type { ExportEntry, ExportKind } from "@safer/spec/emit.js";
 
 export interface DeclaredExport {
   readonly name: string;
+
   /**
    * Underlying declaration's own name. For `export { foo as bar }`, `name`
    * is `bar` (the public alias) and `declaredName` is `foo` (the symbol
@@ -51,7 +52,7 @@ const stripFunctionBody = (
 /**
  * Find the offset of the class body's opening `{` by walking braces
  * right-to-left from the closing `}`. This skips `{...}` that appear
- * inside type arguments (`<{ readonly code: number }>` etc.), which a
+ * inside type arguments (`&lt;{ readonly code: number }>` etc.), which a
  * naive `indexOf("{")` would match first.
  */
 const findClassBodyOpenBrace = (trimmed: string): number => {
@@ -85,7 +86,11 @@ const factsFromVariable = (
   const anchor = statement ?? node;
   const fullText = anchor.getText();
   const init = node.getInitializer();
-  if (init !== undefined && Node.isArrowFunction(init)) {
+  // Both `export const f = (x) => …` and `export const f = function (x) { … }`
+  // are functional exports; without the function-expression branch the
+  // second form fell through to the `const` case and emitted the whole
+  // body into SPEC.md / sidecar.
+  if (init !== undefined && (Node.isArrowFunction(init) || Node.isFunctionExpression(init))) {
     const body = init.getBody();
     const offset = body.getStart() - anchor.getStart();
     return {
@@ -121,18 +126,14 @@ const factsFromClass = (node: Node): DeclarationFacts | null => {
   };
 };
 
-const factsFromOther = (node: Node): DeclarationFacts => {
-  if (Node.isTypeAliasDeclaration(node)) {
-    return { kind: "type", signature: node.getText(), anchor: node };
-  }
-  if (Node.isInterfaceDeclaration(node)) {
-    return { kind: "interface", signature: node.getText(), anchor: node };
-  }
-  if (Node.isEnumDeclaration(node)) {
-    return { kind: "enum", signature: node.getText(), anchor: node };
-  }
-  return { kind: "other", signature: node.getText(), anchor: node };
+const otherKind = (node: Node): ExportKind => {
+  if (Node.isTypeAliasDeclaration(node)) return "type";
+  if (Node.isInterfaceDeclaration(node)) return "interface";
+  if (Node.isEnumDeclaration(node)) return "enum";
+  return "other";
 };
+const factsFromOther = (node: Node): DeclarationFacts =>
+  ({ kind: otherKind(node), signature: node.getText(), anchor: node });
 
 const declarationFacts = (node: Node): DeclarationFacts =>
   factsFromVariable(node) ??
@@ -169,14 +170,6 @@ export interface CollectExportsOptions {
   readonly baseUrl?: string;
 }
 
-/**
- * @spec.guarantee "result is source-ordered; barrel re-exports resolve to their target declarations when targets are supplied via siblings + paths"
- *   reason: emit.ts's canonical sort; re-export resolution needs target
- *           files registered and tsconfig aliases configured.
- * @spec.residual-contract "unresolvable re-exports are silently dropped"
- *   reason: ts-morph cannot follow `export ... from` without the target
- *           file registered on the same Project.
- */
 // ts-morph's in-memory FileSystem reports paths with a leading "/" (the
 // virtual root). Strip it so committed SPEC.md links + sidecar sourceRef
 // paths are repo-relative (e.g. `src/commands/index.ts`, not
@@ -196,6 +189,14 @@ const buildCompilerOptions = (
   };
 };
 
+/**
+ * @spec.guarantee "result is source-ordered; barrel re-exports resolve to their target declarations when targets are supplied via siblings + paths"
+ *   reason: emit.ts's canonical sort; re-export resolution needs target
+ *           files registered and tsconfig aliases configured.
+ * @spec.residual-contract "unresolvable re-exports are silently dropped"
+ *   reason: ts-morph cannot follow `export ... from` without the target
+ *           file registered on the same Project.
+ */
 export const collectExports = (
   filePath: string,
   source: string,
@@ -266,36 +267,22 @@ export const uniqueExternalSources = (
 };
 
 const mergeOne = (entry: ExportEntry, d: Directive): ExportEntry => {
-  switch (d._tag) {
-    case "assume":
-      return {
-        ...entry,
-        assumes: [...entry.assumes, { claim: d.claim, reason: d.reason }],
-      };
-    case "guarantee":
-      return {
-        ...entry,
-        guarantees: [...entry.guarantees, { claim: d.claim, reason: d.reason }],
-      };
-    case "residual-contract":
-      return {
-        ...entry,
-        residualContract:
-          d.body === "none"
-            ? { _tag: "none", reason: d.reason }
-            : { _tag: "some", body: d.body, reason: d.reason },
-      };
-    case "skip":
-      return {
-        ...entry,
-        skipped: [
-          ...entry.skipped,
-          { propertyType: d.propertyType, reason: d.reason },
-        ],
-      };
-    default:
-      return entry;
+  if (d._tag === "assume") {
+    return { ...entry, assumes: [...entry.assumes, { claim: d.claim, reason: d.reason }] };
   }
+  if (d._tag === "guarantee") {
+    return { ...entry, guarantees: [...entry.guarantees, { claim: d.claim, reason: d.reason }] };
+  }
+  if (d._tag === "residual-contract") {
+    const rc = d.body === "none"
+      ? { _tag: "none" as const, reason: d.reason }
+      : { _tag: "some" as const, body: d.body, reason: d.reason };
+    return { ...entry, residualContract: rc };
+  }
+  if (d._tag === "skip") {
+    return { ...entry, skipped: [...entry.skipped, { propertyType: d.propertyType, reason: d.reason }] };
+  }
+  return entry;
 };
 
 const collectIgnoredExportNames = (
@@ -308,13 +295,6 @@ const collectIgnoredExportNames = (
   return ignored;
 };
 
-/**
- * @spec.guarantee "every declared export not named by an `@spec.ignore-export` directive appears in the result exactly once; directives whose location.exportName matches a declaration are merged into that entry"
- *   reason: contract for emit.ts's Public surface section.
- * @spec.residual-contract "directives whose exportName names a non-declared symbol are silently dropped"
- *   reason: validate gate surfaces these as MissingSpecPropertyError;
- *           generate just emits what it sees.
- */
 const seedEntry = (d: DeclaredExport): ExportEntry => ({
   name: d.name,
   kind: d.kind,
@@ -341,52 +321,123 @@ const indexAliases = (kept: ReadonlyArray<DeclaredExport>): Map<string, string> 
   return out;
 };
 
-const resolvePublicName = (
-  targetName: string | null,
+export interface BuildExportEntriesResult {
+  readonly entries: ReadonlyArray<ExportEntry>;
+
+  /**
+   * Per-export directives flagged as drift: located in a local source
+   * file but with an `exportName` that isn't part of the folder's
+   * known-exports set (renamed/deleted symbol, misplaced directive).
+   * External (cross-folder re-export target) directives are merged into
+   * entries when they match an alias, but never flagged as drift for
+   * this folder; that responsibility belongs to the owning folder's
+   * validate run.
+   */
+  readonly unmatched: ReadonlyArray<LocatedDirective>;
+}
+
+/**
+ * Optional strict-mode inputs for the drift gate. Validate passes
+ * both; generate omits the bundle entirely.
+ */
+export interface BuildStrictOptions {
+  /** Union of every symbol exported by any source file in the folder. */
+  readonly folderKnownExports: ReadonlySet<string>;
+  /** Paths of files inside the folder; drift only fires for these. */
+  readonly localSources: ReadonlySet<string>;
+}
+
+interface BuildState {
+  readonly byName: Map<string, ExportEntry>;
+  readonly aliases: ReadonlyMap<string, string>;
+  readonly strict: boolean;
+  readonly known: ReadonlySet<string>;
+  readonly localSources: ReadonlySet<string>;
+  readonly unmatched: LocatedDirective[];
+}
+
+const resolvePublic = (
+  name: string,
   byName: ReadonlyMap<string, ExportEntry>,
   aliases: ReadonlyMap<string, string>,
-): string | null => {
-  if (targetName === null) return null;
-  if (byName.has(targetName)) return targetName;
-  return aliases.get(targetName) ?? null;
+): string | null => byName.has(name) ? name : aliases.get(name) ?? null;
+
+// Per-export tags whose contract is meaningless without a target
+// declaration. When one appears with `location.exportName === null`
+// (placed in file-level JSDoc or above a bare `export { ... }`
+// statement), strict validate flags it as misplaced.
+const PER_EXPORT_TAGS: ReadonlySet<Directive["_tag"]> = new Set([
+  "assume", "guarantee", "residual-contract", "skip",
+]);
+
+// True when an unmatched directive is real drift in THIS folder: must
+// be located in a local source file, then either a per-export tag with
+// no exportName, OR a per-export tag whose exportName isn't in the
+// folder's known-exports set. Always false in non-strict mode, for
+// `ignore-export`, and for directives in external (cross-folder)
+// source files (those are drift for some OTHER folder, not this one).
+const isDrift = (located: LocatedDirective, state: BuildState): boolean => {
+  if (!state.strict) return false;
+  if (!state.localSources.has(located.location.path)) return false;
+  const { directive, location } = located;
+  if (location.exportName === null) return PER_EXPORT_TAGS.has(directive._tag);
+  return directive._tag !== "ignore-export" && !state.known.has(location.exportName);
 };
 
-export const buildExportEntries = (
-  declarations: ReadonlyArray<DeclaredExport>,
-  directives: ReadonlyArray<LocatedDirective>,
-): ReadonlyArray<ExportEntry> => {
-  const ignored = collectIgnoredExportNames(directives);
-  // `@spec.ignore-export foo` on `foo` is parsed under the underlying
-  // name; matching both `name` (public alias) and `declaredName` drops the
-  // export regardless of which name the author wrote in the directive.
-  const kept = declarations.filter(
-    (d) => !ignored.has(d.name) && !ignored.has(d.declaredName),
-  );
-  const byName = new Map<string, ExportEntry>(kept.map((d) => [d.name, seedEntry(d)]));
-  const aliases = indexAliases(kept);
-  for (const { directive, location } of directives) {
-    const publicName = resolvePublicName(location.exportName, byName, aliases);
-    if (publicName === null) continue;
-    const entry = byName.get(publicName);
-    if (entry !== undefined) byName.set(publicName, mergeOne(entry, directive));
+const resolveOrFlag = (located: LocatedDirective, state: BuildState): void => {
+  const name = located.location.exportName;
+  const publicName = name === null ? null : resolvePublic(name, state.byName, state.aliases);
+  if (publicName !== null) {
+    const entry = state.byName.get(publicName);
+    if (entry !== undefined) state.byName.set(publicName, mergeOne(entry, located.directive));
+    return;
   }
-  return [...byName.values()];
+  if (isDrift(located, state)) state.unmatched.push(located);
 };
 
 /**
- * Folder purpose is canonical to the `<folder>/index.ts` barrel.
- * Per-file `@spec.purpose` directives on non-index sources describe the
- * file's local intent and do not represent the folder.
+ * @spec.guarantee "every declared export not named by an `@spec.ignore-export` directive appears in entries exactly once; directives matching a declaration are merged; unmatched per-export directives are returned via `unmatched` when `folderKnownExports` is supplied"
+ *   reason: contract for emit.ts's Public surface section + validate's
+ *           drift gate (MissingSpecPropertyError routing).
+ * @spec.residual-contract "callers that pass `folderKnownExports = undefined` skip the drift gate entirely; the returned `unmatched` is then always empty"
+ *   reason: generate is a producer (no gate); validate is the gate. The
+ *           parameter is the discriminator.
  */
-export const findPurpose = (
+export const buildExportEntries = (
+  declarations: ReadonlyArray<DeclaredExport>,
   directives: ReadonlyArray<LocatedDirective>,
-  indexFilePath: string,
-): string | null => {
+  strict?: BuildStrictOptions,
+): BuildExportEntriesResult => {
+  const ignored = collectIgnoredExportNames(directives);
+  const kept = declarations.filter(
+    (d) => !ignored.has(d.name) && !ignored.has(d.declaredName),
+  );
+  const state: BuildState = {
+    byName: new Map(kept.map((d) => [d.name, seedEntry(d)])),
+    aliases: indexAliases(kept),
+    strict: strict !== undefined,
+    known: strict?.folderKnownExports ?? new Set<string>(),
+    localSources: strict?.localSources ?? new Set<string>(),
+    unmatched: [],
+  };
+  for (const located of directives) resolveOrFlag(located, state);
+  return { entries: [...state.byName.values()], unmatched: state.unmatched };
+};
+
+/**
+ * Per-file `@spec.purpose` index. First occurrence wins (matches emit's
+ * source-order convention). Callers read the folder's index.ts purpose
+ * as `map.get(indexFilePath) ?? null`; the SPEC.md Files section reads
+ * per-file purposes the same way.
+ */
+export const indexFilePurposes = (
+  directives: ReadonlyArray<LocatedDirective>,
+): ReadonlyMap<string, string> => {
+  const out = new Map<string, string>();
   for (const { directive, location } of directives) {
-    if (directive._tag === "purpose" && location.path === indexFilePath) {
-      return directive.body;
-    }
+    if (directive._tag !== "purpose") continue;
+    if (!out.has(location.path)) out.set(location.path, directive.body);
   }
-  return null;
+  return out;
 };
 

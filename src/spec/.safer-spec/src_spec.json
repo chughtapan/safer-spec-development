@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec",
-  "generatedAtSha": "e42329e753e07ca4d07a08118b9ccb496416965c",
+  "generatedAtSha": "d7cd35669c398f0ffc8171b3279c307874b1c08f",
   "exports": [
     {
       "name": "ItSpec",
@@ -19,13 +19,35 @@
       ],
       "observedPropertyTypes": [],
       "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override",
+        "reason": "behavioral residue beyond the call signature; downstream authors need to know the property runner is not configured through Vitest."
+      },
+      "residualAssumes": [
+        {
+          "claim": "first positional `id` arg matches the `@spec.property` JSDoc directive value above the call site",
+          "reason": "cross-check enforced by `validate --implemented`; mismatch is exit code 11 (MISSING_SPEC_PROPERTY)."
+        },
+        {
+          "claim": "JSDoc directives above this call match `id`, `meta.type`, and `meta.exports` member names",
+          "reason": "cross-check enforced by `validate --implemented`."
+        }
+      ],
+      "residualGuarantees": [
+        {
+          "claim": "registers the property as a Vitest todo placeholder under `id`",
+          "reason": "side-effect contract; the call mutates Vitest's collector, observable only at runtime."
+        },
+        {
+          "claim": "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`",
+          "reason": "side-effect contract; runtime registration with Vitest."
+        }
+      ],
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
         "line": 25,
-        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+        "sha": "d7cd35669c398f0ffc8171b3279c307874b1c08f"
       }
     },
     {
@@ -50,7 +72,7 @@
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
         "line": 56,
-        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+        "sha": "d7cd35669c398f0ffc8171b3279c307874b1c08f"
       }
     }
   ],

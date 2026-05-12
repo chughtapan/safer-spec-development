@@ -48,6 +48,8 @@ import {
 import {
   TSDOC_LOWERCASE_TO_INTERNAL,
   blockSpans,
+  firstMalformedDottedSpecTag,
+  nextBlockTagStart,
   firstUndefinedSpecTag,
   offsetToLine,
   parseJsDocText,
@@ -153,8 +155,25 @@ const isDefaultExport = (node: Node): boolean => {
   return typeof probe.hasDefaultKeyword === "function" && probe.hasDefaultKeyword();
 };
 
+// Member nodes (method/property signatures or implementations inside an
+// interface/class) carry their own name, but per-export directives are
+// supposed to bind to the CONTAINING declaration, not the member. Walk
+// up past these to the enclosing exportable node.
+const MEMBER_KINDS: ReadonlySet<SyntaxKind> = new Set([
+  SyntaxKind.MethodSignature,
+  SyntaxKind.PropertySignature,
+  SyntaxKind.MethodDeclaration,
+  SyntaxKind.PropertyDeclaration,
+  SyntaxKind.GetAccessor,
+  SyntaxKind.SetAccessor,
+]);
+const isMember = (node: Node): boolean => MEMBER_KINDS.has(node.getKind());
+
 const enclosingExportName = (jsdoc: JSDoc): string | null => {
-  const parent = jsdoc.getParent() as Node | undefined;
+  let parent: Node | undefined = jsdoc.getParent() as Node | undefined;
+  while (parent !== undefined && isMember(parent)) {
+    parent = parent.getParent();
+  }
   if (parent === undefined) return null;
   const direct = firstVarDeclName(parent) ?? namedNodeName(parent);
   if (direct !== null) return direct;
@@ -212,6 +231,21 @@ const parseOneJsDoc = (
   Effect.gen(function* () {
     const rawText = rewriteDottedTags(jsdoc.getText());
     const jsdocStartLine = jsdoc.getStartLineNumber();
+    // Pre-flight: any `@spec.<…>` left in dotted form after the rewrite
+    // is a malformed directive name. The rewrite only handles
+    // `[a-z][a-z-]*` bodies; underscores, uppercase, and double-dotted
+    // forms slip through to TSDoc as something it can't classify as a
+    // tag, so the parser-message path doesn't always surface them.
+    const malformed = firstMalformedDottedSpecTag(rawText);
+    if (malformed !== null) {
+      return yield* Effect.fail(
+        new JsDocUnknownDirectiveError({
+          path,
+          line: offsetToLine(rawText, malformed.offset, jsdocStartLine),
+          directive: malformed.name,
+        }),
+      );
+    }
     const parsed = parseJsDocText(rawText);
     const unknown = firstUndefinedSpecTag(parsed);
     if (unknown !== null) {
@@ -231,9 +265,12 @@ const parseOneJsDoc = (
     };
     const spans = blockSpans(parsed.docComment.customBlocks);
     const out: LocatedDirective[] = [];
-    for (let i = 0; i < spans.length; i++) {
-      const span = spans[i]!;
-      const next = spans[i + 1]?.tagStart ?? null;
+    for (const span of spans) {
+      // Bound the body at the next JSDoc block tag of ANY kind — using
+      // only the next spec block let a trailing `@param`/`@returns`/etc.
+      // get absorbed into the spec body and serialized as part of the
+      // contract.
+      const next = nextBlockTagStart(rawText, span.tagEnd);
       const located = yield* parseOneSpan(ctx, span, next);
       if (located !== null) out.push(located);
     }

@@ -6,13 +6,8 @@
  *   Co-located with the directive grammar (`directives.ts`) since
  *   `enforceLengthCap` shares the cap constant and emits the same overflow
  *   error class. The four escape functions are exported as the
- *   spec domain's emit-time sanitization boundary.
- *
- * @spec.guarantee Every output of these functions is safe to interpolate into
- *   its target surface (Markdown / YAML / JSON) without producing an extra
- *   syntactic structure.
- *   reason: directives are user-controlled JSDoc; agents read this content as
- *           part of downstream dispatch context.
+ *   spec domain's emit-time sanitization boundary. Each function's own
+ *   `@spec.guarantee` documents its surface-specific safety claim.
  */
 
 import { Effect } from "effect";
@@ -75,7 +70,7 @@ export const escapeForYaml = (
 
 /**
  * @spec.guarantee "output is JSON-string-safe; quotes, backslashes, control characters are escaped"
- *   reason: trust contract; emitted into `.safer-spec/<folder>.json`.
+ *   reason: trust contract; emitted into `.safer-spec/&lt;folder>.json`.
  * @spec.residual-contract "the escaping is one-way"
  *   reason: same as escapeForMarkdown.
  */
@@ -83,22 +78,6 @@ export const escapeForJson = (
   input: string,
   _context: EscapeContext,
 ): Effect.Effect<string, never> => Effect.sync(() => JSON.stringify(input));
-
-/**
- * @spec.guarantee "output is safe to interpolate into a single markdown-table cell; pipes are backslash-escaped and CR/LF are replaced with the HTML `<br>` token so the table grammar is preserved"
- *   reason: GFM/CommonMark tables use `|` as column delimiter and treat the
- *           first newline as row terminator; raw user-controlled directive
- *           text would otherwise break or extend rows.
- * @spec.residual-contract "intra-cell `\\` is escaped to `\\\\` before pipe-escape so the resulting backslash-pipe sequence is unambiguous; output remains markdown text (not HTML-escaped beyond the `<br>` substitution)"
- *   reason: the surrounding prose-escape (escapeForMarkdown) is the right
- *           tool for non-table contexts; this helper is the table-only
- *           additive layer.
- */
-export const escapeForMarkdownTableCell = (input: string): string =>
-  input
-    .replace(/\\/g, "\\\\")
-    .replace(/\|/g, "\\|")
-    .replace(/\r?\n/g, "<br>");
 
 /**
  * @spec.guarantee "safe inside an un-code-spanned table cell; pipes, backticks, asterisks, underscores, brackets, angle brackets are escaped; CR/LF become `<br>`; control chars stripped; single pass so backslashes are not double-escaped"

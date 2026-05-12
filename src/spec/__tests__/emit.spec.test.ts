@@ -83,3 +83,47 @@ itSpec.todo("emit-residual-bodies-escaped", {
   type: "Constant Bounds Checking",
   exports: [emitMarkdown],
 });
+
+/**
+ * @spec.property emit-children-section-mixes-subfolders-files-tests
+ * @spec.type Inclusion
+ * @spec.exports emitMarkdown
+ * @spec.claim `## Children` lists immediate SPEC'd subfolders (linking to `&lt;sub>/SPEC.md`) before source files before tests; each row carries the file or subfolder `@spec.purpose` body when present
+ */
+itSpec.todo("emit-children-section-mixes-subfolders-files-tests", {
+  type: "Inclusion",
+  exports: [emitMarkdown],
+});
+
+/**
+ * @spec.property emit-root-folder-spec-links-stay-in-repo
+ * @spec.type Constant Equality
+ * @spec.exports emitMarkdown
+ * @spec.claim a SPEC.md at the repo root (`folder === "."`) reaches every file via `./&lt;target>`; `relativeToFolder` never emits `../...` for the root sentinel
+ */
+itSpec.todo("emit-root-folder-spec-links-stay-in-repo", {
+  type: "Constant Equality",
+  exports: [emitMarkdown],
+});
+
+/**
+ * @spec.property emit-properties-table-cells-are-code-span-safe
+ * @spec.type Constant Bounds Checking
+ * @spec.exports emitMarkdown
+ * @spec.claim a backtick (or other markdown markup) inside a property `id` / `exports` cell never closes the surrounding code span; the table grammar (column count, row terminator) survives any author-controlled directive content
+ */
+itSpec.todo("emit-properties-table-cells-are-code-span-safe", {
+  type: "Constant Bounds Checking",
+  exports: [emitMarkdown],
+});
+
+/**
+ * @spec.property emit-file-purpose-rendered-with-link
+ * @spec.type Inclusion
+ * @spec.exports emitMarkdown
+ * @spec.claim every entry in `## Children` for a file with a top-of-file `@spec.purpose` renders as `[\`&lt;rel-path>\`](./&lt;rel-path>) — &lt;purpose body>`; files without `@spec.purpose` render as link-only
+ */
+itSpec.todo("emit-file-purpose-rendered-with-link", {
+  type: "Inclusion",
+  exports: [emitMarkdown],
+});
