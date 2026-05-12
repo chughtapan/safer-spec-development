@@ -159,26 +159,11 @@ const aggregate = (stats: ReadonlyArray<FastCheckTaskStats>): AggregatedCoverage
 interface FolderBucket {
   readonly folder: string;
   readonly stats: Array<FastCheckTaskStats>;
-  readonly testFiles: Array<string>;
+  // Test file paths in TWO views: `rel` is projectRoot-relative
+  // (POSIX-style) for hash input identity with validate; `abs` is the
+  // absolute path used to read bytes regardless of the reporter's cwd.
+  readonly testFiles: Array<{ readonly rel: string; readonly abs: string }>;
 }
-
-const addToBuckets = (
-  buckets: Map<string, FolderBucket>,
-  folder: string,
-  filepath: string,
-  collected: ReadonlyArray<FastCheckTaskStats>,
-): void => {
-  if (collected.length === 0) return;
-  // Root-folder tests (`foo.spec.test.ts` or `__tests__/foo.spec.test.ts`
-  // at the project root) resolve to folder === "". The rest of the CLI
-  // uses the `.` sentinel for that case (sidecarSlug, generate,
-  // validate); preserve the stats by re-mapping here.
-  const key = folder.length === 0 ? "." : folder;
-  const bucket = buckets.get(key) ?? { folder: key, stats: [], testFiles: [] };
-  bucket.stats.push(...collected);
-  bucket.testFiles.push(filepath);
-  buckets.set(key, bucket);
-};
 
 const groupByFolder = (
   files: ReadonlyArray<MinimalFile>,
@@ -188,13 +173,25 @@ const groupByFolder = (
   for (const file of files) {
     const collected: Array<FastCheckTaskStats> = [];
     walkTaskMeta(file, collected);
-    // Store test file paths as projectRoot-relative so the test-tree
-    // hash matches what validate computes from `inputs.tests` (also
-    // projectRoot-relative). Reporter's `file.filepath` is absolute.
+    // Root-folder tests (`foo.spec.test.ts` / `__tests__/...` at the
+    // project root) resolve to folder === ""; the rest of the CLI uses
+    // the `.` sentinel (sidecarSlug, generate, validate all agree).
+    const folder = folderOfTestFile(file.filepath, projectRoot);
+    const key = folder.length === 0 ? "." : folder;
+    // Every test file in a folder counts toward the test-tree hash —
+    // even files with zero fast-check stats — because validate hashes
+    // all of `inputs.tests`. Bucket creation is gated on the bucket
+    // having SOME stats elsewhere (handled at write time).
     const rel = nodePath.relative(projectRoot, file.filepath).split(nodePath.sep).join("/");
-    addToBuckets(buckets, folderOfTestFile(file.filepath, projectRoot), rel, collected);
+    const bucket = buckets.get(key) ?? { folder: key, stats: [], testFiles: [] };
+    bucket.stats.push(...collected);
+    bucket.testFiles.push({ rel, abs: file.filepath });
+    buckets.set(key, bucket);
   }
-  return [...buckets.values()];
+  // Drop buckets that produced no stats at all — those folders had no
+  // implemented itSpec.prop and don't need an execution sidecar (the
+  // planned → implemented ratchet rule from `checkExecutionSidecarPresent`).
+  return [...buckets.values()].filter((b) => b.stats.length > 0);
 };
 
 export const hashTestTree = (paths: ReadonlyArray<string>, read: (p: string) => string): string => {
@@ -217,16 +214,20 @@ const writeOneSidecar = (
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const propertyIds = [...new Set(bucket.stats.map((s) => s.propertyId))].sort();
+    // Read each test file via its absolute path (independent of the
+    // reporter's cwd) but key the hash inputs by the projectRoot-relative
+    // path so the hash matches validate's identical computation.
     const reads = yield* Effect.forEach(
       bucket.testFiles,
-      (p) => fs.readFileString(p).pipe(
-        Effect.map((content) => [p, content] as const),
-        Effect.catchAll(() => Effect.succeed([p, ""] as const)),
+      (tf) => fs.readFileString(tf.abs).pipe(
+        Effect.map((content) => [tf.rel, content] as const),
+        Effect.catchAll(() => Effect.succeed([tf.rel, ""] as const)),
       ),
       { concurrency: 1 },
     );
-    const byPath = new Map(reads);
-    const testTreeHash = hashTestTree(bucket.testFiles, (p) => byPath.get(p) ?? "");
+    const byRel = new Map(reads);
+    const relPaths = bucket.testFiles.map((tf) => tf.rel);
+    const testTreeHash = hashTestTree(relPaths, (p) => byRel.get(p) ?? "");
     const sidecar: ExecutionSidecar = {
       formatVersion: EXECUTION_SIDECAR_FORMAT_VERSION,
       folder: bucket.folder,
