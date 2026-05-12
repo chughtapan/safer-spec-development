@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: ab75c5d5ad913ba964100e83d3c977cffc495bde
+generatedAtSha: f989cb2f115f4fa26b1857aa334d12a4100acd85
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -56,8 +56,6 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
 
 ## Children
 
-- [`__tests__/cli.spec.test.ts`](./__tests__/cli.spec.test.ts) — Property stubs for the CLI surface. Exception Raising: the CLI rejects invalid flag combos with a structured \`CliUsageError\`. The \`validate\` subcommand exits with one of {0, 11, 12, 13} according to the validate gap-class map.  The CLI subcommand handlers are inlined in \`commands/index.ts\`; properties reference the \`validate\` command as the export under test.
-- [`__tests__/validate.spec.test.ts`](./__tests__/validate.spec.test.ts) — Property stubs for the \`validate\` command entrypoint. Validate enforces four cross-checks: JSDoc directives exist on every itSpec call, JSDoc values match runtime metadata, committed SPEC.md equals regenerated output, and every implemented property has a non-empty body.
 - [`doctor.ts`](./doctor.ts) — \`doctor\` command entrypoint. Health check of configs, deps, sidecar dir, format-version compatibility. Surfaces config drift and version skew before the user hits cryptic gate failures.  Tagged error \`DoctorError\` is co-located here.
 - [`explain.ts`](./explain.ts) — \`explain\` command entrypoint. Looks up an error code (e.g. \`MISSING\_SPEC\_PROPERTY\`, \`spec-property-type-coverage\`) and returns the corresponding \`docs/errors.md\` entry.  Tagged error \`ExplainError\` is co-located here.
 - [`folder-discovery.ts`](./folder-discovery.ts) — Folder-discovery helpers used by \`generate\` and \`validate\`: recursive walk for the no-\`--folder\` mode (\`discoverFolders\`), immediate-children walk for the parent SPEC.md's \`## Children\` section (\`discoverImmediateSubfolders\`), and the \`buildChildren\` helper that composes the merged file + subfolder list emit consumes. Extracted from \`validate-pipeline.ts\` so each file fits the strict max-lines cap.
@@ -70,6 +68,8 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
 - [`validate-pipeline.ts`](./validate-pipeline.ts) — Shared analysis pipeline for \`validate\`. Walks the same inputs as \`generate\` (sources, tests, index barrel) and returns the \`FolderAnalysis\` that the markdown emitter consumes plus the per-test issues list (\`ItSpecIssue\[\]\`) that \`validate.ts\` maps to its gap-class exit codes.
 - [`validate.ts`](./validate.ts) — \`validate\` command entrypoint. Walks each folder that has an \`index.ts\` barrel, runs the same analysis pipeline as \`generate\`, diffs the regenerated SPEC.md + sidecar against the on-disk artifacts, enforces coverage thresholds, and reports gap-class failures via tagged errors mapped to POSIX exit codes {1, 11, 12, 13}.  \`commands/index.ts\` translates each tag at the runtime boundary. The per-check effects and their tagged errors live in \`commands/validate-checks.ts\`; the shared analysis pipeline (folder walking, directive parsing, sidecar regeneration, threshold lookup) lives in \`commands/validate-pipeline.ts\`. This file is orchestration only.  \`--planned\`: regenerate SPEC.md + sidecar, diff on-disk; enforce per-folder coverage thresholds; per-test directive completeness is enforced via \`extractProperties\` issues + the diff check.  \`--implemented\`: planned-mode checks plus every \`itSpec.prop\` body is non-empty (no \`itSpec.todo\` placeholder).  Diagnostics carry a problem / cause / fix / docsLink quartet so agents can route the next remediation step.
 - [`version.ts`](./version.ts) — Format version constant for SPEC.md frontmatter and the \`.safer-spec/&lt;folder&gt;.json\` sidecar JSON. Co-located with the commands because \`migrate.ts\` bumps it during format-version transitions and \`generate.ts\` stamps it onto every emitted SPEC.md.
+- [`__tests__/cli.spec.test.ts`](./__tests__/cli.spec.test.ts) — Property stubs for the CLI surface. Exception Raising: the CLI rejects invalid flag combos with a structured \`CliUsageError\`. The \`validate\` subcommand exits with one of {0, 11, 12, 13} according to the validate gap-class map.  The CLI subcommand handlers are inlined in \`commands/index.ts\`; properties reference the \`validate\` command as the export under test.
+- [`__tests__/validate.spec.test.ts`](./__tests__/validate.spec.test.ts) — Property stubs for the \`validate\` command entrypoint. Validate enforces four cross-checks: JSDoc directives exist on every itSpec call, JSDoc values match runtime metadata, committed SPEC.md equals regenerated output, and every implemented property has a non-empty body.
 
 ## Properties
 

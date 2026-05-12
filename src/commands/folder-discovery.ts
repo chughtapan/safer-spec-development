@@ -101,8 +101,10 @@ export interface BuildChildrenArgs {
 }
 
 /**
- * @spec.guarantee "merged list of files (sources + tests) and immediate SPEC'd subfolders, sorted by display label; each entry carries its display, relative link, and `@spec.purpose` if available"
- *   reason: the SPEC.md `## Children` section renders this list verbatim.
+ * @spec.guarantee "result emits in three concatenated groups: immediate SPEC'd subfolders (alphabetic), source files (alphabetic), then test files (alphabetic)"
+ *   reason: implementation surface (subfolders + sources) leads
+ *           `## Children`; tests are secondary documentation grouped at
+ *           the end so the section reads as primary-then-secondary.
  * @spec.residual-contract "files are displayed by their path relative to the folder; subfolders are displayed with a trailing slash"
  *   reason: visual cue for readers; subfolder links target `&lt;sub>/SPEC.md`,
  *           file links target `./&lt;rel>`.
@@ -123,6 +125,11 @@ export const buildChildren = (
       purpose: purposeByPath.get(path.join(sub, "index.ts")) ?? null,
     };
   };
-  return [...sources.map(fileEntry), ...tests.map(fileEntry), ...subfolders.map(subEntry)]
-    .sort((a, b) => a.display.localeCompare(b.display));
+  const byDisplay = (a: { display: string }, b: { display: string }) =>
+    a.display.localeCompare(b.display);
+  return [
+    ...subfolders.map(subEntry).sort(byDisplay),
+    ...sources.map(fileEntry).sort(byDisplay),
+    ...tests.map(fileEntry).sort(byDisplay),
+  ];
 };
