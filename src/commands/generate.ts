@@ -38,7 +38,6 @@ import {
   buildSpecMeta,
   discoverFolders,
   discoverImmediateSubfolders,
-  loadExecutionSidecar,
   loadProjectContext,
   type ProjectContext,
 } from "@safer/commands/validate-pipeline.js";
@@ -313,8 +312,12 @@ export const generate = (
     const written: string[] = [];
     for (const folder of folders) {
       const analysis = yield* buildAnalysis(bx, folder);
-      const execution = yield* loadExecutionSidecar(fs, path, folder);
-      const meta = buildSpecMeta(analysis, ctx, execution);
+      // Generate emits the committed artifact; execution metrics are
+      // untracked test-run output. Folding them in here would make
+      // committed SPEC.md depend on whether Vitest happened to run
+      // locally. `validate --implemented` reads execution sidecars in
+      // memory and gates against thresholds without touching disk.
+      const meta = buildSpecMeta(analysis, ctx, null);
       const markdown = emitMarkdown(analysis, meta);
       const sidecarJson = yield* renderSidecar(buildSpecArtifact(analysis, meta), folder);
       if (!input.write || input.dryRun) {

@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec",
-  "generatedAtSha": "9092ba39169c07adc8288b9f38ffcaf2a4b2cd4b",
+  "generatedAtSha": "8f6b81062d761eaa31233d813cda27856f83c2f5",
   "exports": [
     {
       "name": "ItSpec",
@@ -47,7 +47,7 @@
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
         "line": 53,
-        "sha": "9092ba39169c07adc8288b9f38ffcaf2a4b2cd4b"
+        "sha": "8f6b81062d761eaa31233d813cda27856f83c2f5"
       }
     },
     {
@@ -72,13 +72,12 @@
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
         "line": 118,
-        "sha": "9092ba39169c07adc8288b9f38ffcaf2a4b2cd4b"
+        "sha": "8f6b81062d761eaa31233d813cda27856f83c2f5"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0,
-    "preconditionPassRate": 1
+    "typeCoverage": 0
   },
   "thresholds": {
     "typeCoverage": 0,

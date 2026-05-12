@@ -155,10 +155,15 @@ const addToBuckets = (
   folder: string,
   collected: ReadonlyArray<FastCheckTaskStats>,
 ): void => {
-  if (folder.length === 0 || collected.length === 0) return;
-  const bucket = buckets.get(folder) ?? { folder, stats: [] };
+  if (collected.length === 0) return;
+  // Root-folder tests (`foo.spec.test.ts` or `__tests__/foo.spec.test.ts`
+  // at the project root) resolve to folder === "". The rest of the CLI
+  // uses the `.` sentinel for that case (sidecarSlug, generate,
+  // validate); preserve the stats by re-mapping here.
+  const key = folder.length === 0 ? "." : folder;
+  const bucket = buckets.get(key) ?? { folder: key, stats: [] };
   bucket.stats.push(...collected);
-  buckets.set(folder, bucket);
+  buckets.set(key, bucket);
 };
 
 const groupByFolder = (

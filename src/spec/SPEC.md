@@ -1,7 +1,7 @@
 ---
 folder: src/spec
 format-version: 0.1.0
-generatedAtSha: 9092ba39169c07adc8288b9f38ffcaf2a4b2cd4b
+generatedAtSha: 8f6b81062d761eaa31233d813cda27856f83c2f5
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -12,7 +12,7 @@ generatedFrom:
 coverage:
   typeCoverage: 0
   classifierCoverage: null
-  preconditionPassRate: 1
+  preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
   typeCoverage: 0

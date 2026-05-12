@@ -94,7 +94,12 @@ const validateOneFolder = (
       inspectFolder({ fs: ctx.fs, path: ctx.path, folder, inputs, ctx: ctx.projectCtx }),
     );
     yield* failOnIssues(inspection.issues, ctx.mode);
-    const execution = yield* loadExecutionSidecar(ctx.fs, ctx.path, folder);
+    // Execution sidecars are untracked test-run output; folding them into
+    // `--planned` makes drift checks depend on whether Vitest happened to
+    // run locally. Only implemented mode pulls them.
+    const execution = ctx.mode === "implemented"
+      ? yield* loadExecutionSidecar(ctx.fs, ctx.path, folder)
+      : null;
     const meta = buildSpecMeta(inspection.analysis, ctx.projectCtx, execution);
     const regenerated = regenerateMarkdown(inspection.analysis, meta);
     yield* checkDrift(ctx.fs, ctx.path.join(folder, "SPEC.md"), regenerated);
