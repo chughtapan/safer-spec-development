@@ -113,7 +113,7 @@ const validateOneFolder = (
       return folder;
     }
     const execution = yield* loadExecutionSidecar(ctx.fs, ctx.path, folder);
-    yield* checkExecutionSidecarPresent(inspection.analysis, folder, execution !== null);
+    yield* checkExecutionSidecarPresent(inspection.analysis, folder, execution);
     yield* checkImplBodies(inspection.analysis);
     const gateMeta = buildSpecMeta(inspection.analysis, ctx.projectCtx, execution);
     yield* checkThresholds(folder, inspection.analysis, gateMeta);

@@ -34,6 +34,7 @@ import { NodeContext } from "@effect/platform-node";
 // `sidecar-writer-coalesces-path-separators-into-slug` property.
 
 interface FastCheckTaskStats {
+  readonly propertyId: string;
   readonly numRuns: number;
   readonly numSkips: number;
   readonly classifiers: ReadonlyArray<string>;
@@ -47,6 +48,7 @@ const sidecarSlug = (folder: string): string => {
 const EXECUTION_SIDECAR_FORMAT_VERSION = "1" as const;
 
 const FastCheckTaskStatsSchema = Schema.Struct({
+  propertyId: Schema.String,
   numRuns: Schema.Number,
   numSkips: Schema.Number,
   classifiers: Schema.Array(Schema.String),
@@ -56,6 +58,11 @@ const ExecutionSidecarSchema = Schema.Struct({
   formatVersion: Schema.Literal(EXECUTION_SIDECAR_FORMAT_VERSION),
   folder: Schema.String,
   generatedAtSha: Schema.String,
+  // Sorted, deduplicated property IDs the reporter observed for this
+  // folder. Validate compares this set against the current folder's
+  // implemented properties; mismatch = stale sidecar (test set changed
+  // since the last `pnpm test` run).
+  propertyIds: Schema.Array(Schema.String),
   classifierCoverage: Schema.NullOr(Schema.Number),
   preconditionPassRate: Schema.NullOr(Schema.Number),
   branchCoverageFromSpecTests: Schema.NullOr(Schema.Number),
@@ -186,10 +193,12 @@ const writeOneSidecar = (
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
+    const propertyIds = [...new Set(bucket.stats.map((s) => s.propertyId))].sort();
     const sidecar: ExecutionSidecar = {
       formatVersion: EXECUTION_SIDECAR_FORMAT_VERSION,
       folder: bucket.folder,
       generatedAtSha,
+      propertyIds,
       ...aggregate(bucket.stats),
     };
     const encoded = yield* Schema.encode(ExecutionSidecarSchema)(sidecar).pipe(

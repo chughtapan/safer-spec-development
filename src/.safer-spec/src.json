@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src",
-  "generatedAtSha": "b469db08d1f35b908dec5c004a6c13f91009c154",
+  "generatedAtSha": "b7fea4274d0df8795ecf5419e47c5ecebb6dd6f7",
   "exports": [
     {
       "name": "PROPERTY_TYPES",
@@ -33,7 +33,7 @@
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 27,
-        "sha": "b469db08d1f35b908dec5c004a6c13f91009c154"
+        "sha": "b7fea4274d0df8795ecf5419e47c5ecebb6dd6f7"
       }
     },
     {
@@ -58,7 +58,7 @@
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 39,
-        "sha": "b469db08d1f35b908dec5c004a6c13f91009c154"
+        "sha": "b7fea4274d0df8795ecf5419e47c5ecebb6dd6f7"
       }
     },
     {
@@ -104,8 +104,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
-        "line": 53,
-        "sha": "b469db08d1f35b908dec5c004a6c13f91009c154"
+        "line": 54,
+        "sha": "b7fea4274d0df8795ecf5419e47c5ecebb6dd6f7"
       }
     },
     {
@@ -129,8 +129,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
-        "line": 118,
-        "sha": "b469db08d1f35b908dec5c004a6c13f91009c154"
+        "line": 121,
+        "sha": "b7fea4274d0df8795ecf5419e47c5ecebb6dd6f7"
       }
     }
   ],

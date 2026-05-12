@@ -263,17 +263,34 @@ export const checkImplBodies = (
 export const checkExecutionSidecarPresent = (
   analysis: FolderAnalysis,
   folder: string,
-  hasExecutionSidecar: boolean,
+  execution: { readonly propertyIds: ReadonlyArray<string> } | null,
 ): Effect.Effect<void, MissingImplError> => {
-  const implemented = analysis.properties.find((p) => !p.stubbed);
-  if (implemented === undefined || hasExecutionSidecar) return Effect.succeed(void 0);
+  const expected = analysis.properties.filter((p) => !p.stubbed).map((p) => p.id).sort();
+  if (expected.length === 0) return Effect.succeed(void 0);
+  if (execution === null) {
+    return Effect.fail(
+      new MissingImplError({
+        location: folder,
+        diagnostic: mkDiagnostic(
+          `missing reporter sidecar: ${folder}/.safer-spec/<slug>.execution.json not on disk`,
+          "validate --implemented requires the Vitest reporter sidecar so classifier coverage and precondition pass rate can be checked against thresholds",
+          "run `pnpm test` (or `pnpm vitest run`) to regenerate the execution sidecar before validating",
+          "missing-impl",
+        ),
+      }),
+    );
+  }
+  const got = [...execution.propertyIds].sort();
+  if (got.length === expected.length && got.every((id, i) => id === expected[i])) {
+    return Effect.succeed(void 0);
+  }
   return Effect.fail(
     new MissingImplError({
       location: folder,
       diagnostic: mkDiagnostic(
-        `missing reporter sidecar: ${folder}/.safer-spec/<slug>.execution.json not on disk`,
-        "validate --implemented requires the Vitest reporter sidecar so classifier coverage and precondition pass rate can be checked against thresholds",
-        "run `pnpm test` (or `pnpm vitest run`) to regenerate the execution sidecar before validating",
+        `stale reporter sidecar: ${folder}/.safer-spec/<slug>.execution.json covers a different property set than the current tests (sidecar: [${got.join(", ")}], expected: [${expected.join(", ")}])`,
+        "validate --implemented uses the sidecar's per-property stats; a sidecar that covers a different property set than what `extractProperties` sees now can't gate this run",
+        "rerun `pnpm test` so the reporter rewrites the sidecar against the current implemented property set",
         "missing-impl",
       ),
     }),

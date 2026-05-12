@@ -36,6 +36,7 @@ interface PropertyMeta {
 // pulling in `@safer/*` aliases (which aren't resolvable until vite's
 // tsconfigPaths plugin is wired).
 interface FastCheckTaskStats {
+  readonly propertyId: string;
   readonly numRuns: number;
   readonly numSkips: number;
   readonly classifiers: ReadonlyArray<string>;
@@ -85,8 +86,10 @@ export interface ItSpec {
 const recordStats = <Ts>(
   taskMeta: TaskMetaSlot,
   details: fc.RunDetails<Ts>,
+  propertyId: string,
 ): void => {
   taskMeta.fastCheck = {
+    propertyId,
     numRuns: details.numRuns,
     numSkips: details.numSkips,
     classifiers: [],
@@ -107,7 +110,7 @@ const runProperty = <T>(
       new PropertyFailureError({ id, message: `fast-check check threw: ${String(cause)}` }),
   }).pipe(
     Effect.flatMap((details) => {
-      recordStats(taskMeta, details);
+      recordStats(taskMeta, details, id);
       if (!details.failed) return Effect.void;
       return Effect.fail(
         new PropertyFailureError({ id, message: failureMessage(details) }),
