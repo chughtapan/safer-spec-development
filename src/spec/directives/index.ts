@@ -155,8 +155,25 @@ const isDefaultExport = (node: Node): boolean => {
   return typeof probe.hasDefaultKeyword === "function" && probe.hasDefaultKeyword();
 };
 
+// Member nodes (method/property signatures or implementations inside an
+// interface/class) carry their own name, but per-export directives are
+// supposed to bind to the CONTAINING declaration, not the member. Walk
+// up past these to the enclosing exportable node.
+const MEMBER_KINDS: ReadonlySet<SyntaxKind> = new Set([
+  SyntaxKind.MethodSignature,
+  SyntaxKind.PropertySignature,
+  SyntaxKind.MethodDeclaration,
+  SyntaxKind.PropertyDeclaration,
+  SyntaxKind.GetAccessor,
+  SyntaxKind.SetAccessor,
+]);
+const isMember = (node: Node): boolean => MEMBER_KINDS.has(node.getKind());
+
 const enclosingExportName = (jsdoc: JSDoc): string | null => {
-  const parent = jsdoc.getParent() as Node | undefined;
+  let parent: Node | undefined = jsdoc.getParent() as Node | undefined;
+  while (parent !== undefined && isMember(parent)) {
+    parent = parent.getParent();
+  }
   if (parent === undefined) return null;
   const direct = firstVarDeclName(parent) ?? namedNodeName(parent);
   if (direct !== null) return direct;

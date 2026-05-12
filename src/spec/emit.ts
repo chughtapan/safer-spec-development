@@ -152,13 +152,17 @@ const emitPropertiesTable = (
     "|---|---|---|---|---|",
   ];
   for (const p of properties) {
-    // `id` and exports are wrapped in backticks for the code-span look;
-    // use the prose+table escape so a backtick (or other markup) inside
-    // the value can't close the code span and break the row grammar.
-    const id = escapeForMarkdownTableCellProse(p.id);
-    const exports = p.exports
-      .map((s) => "`" + escapeForMarkdownTableCellProse(s) + "`")
-      .join(", ");
+    // `id` and exports are wrapped in backticks for the code-span look.
+    // Inside a markdown code span, `\` does NOT escape backticks, so
+    // simply escape-then-wrap leaves a single literal backtick in the
+    // value still capable of closing the span. Replace any backtick in
+    // the value with an apostrophe before wrapping. Authors should not
+    // be putting backticks in identifier-shaped fields anyway; the
+    // normalization preserves table grammar without losing readability.
+    const codeSpanSafe = (s: string): string =>
+      escapeForMarkdownTableCellProse(s).replace(/`/g, "'");
+    const id = codeSpanSafe(p.id);
+    const exports = p.exports.map((s) => "`" + codeSpanSafe(s) + "`").join(", ");
     const status = p.stubbed ? "todo" : "implemented";
     const claim = escapeForMarkdownTableCellProse(p.claim);
     lines.push(

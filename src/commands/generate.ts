@@ -233,7 +233,7 @@ const buildAnalysis = (
     return {
       folder,
       purpose: purposeByPath.get(indexFilePath) ?? null,
-      exports: buildExportEntries(declarations, directives),
+      exports: buildExportEntries(declarations, directives).entries,
       properties,
       children,
     };

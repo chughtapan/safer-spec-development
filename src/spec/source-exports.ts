@@ -126,18 +126,14 @@ const factsFromClass = (node: Node): DeclarationFacts | null => {
   };
 };
 
-const factsFromOther = (node: Node): DeclarationFacts => {
-  if (Node.isTypeAliasDeclaration(node)) {
-    return { kind: "type", signature: node.getText(), anchor: node };
-  }
-  if (Node.isInterfaceDeclaration(node)) {
-    return { kind: "interface", signature: node.getText(), anchor: node };
-  }
-  if (Node.isEnumDeclaration(node)) {
-    return { kind: "enum", signature: node.getText(), anchor: node };
-  }
-  return { kind: "other", signature: node.getText(), anchor: node };
+const otherKind = (node: Node): ExportKind => {
+  if (Node.isTypeAliasDeclaration(node)) return "type";
+  if (Node.isInterfaceDeclaration(node)) return "interface";
+  if (Node.isEnumDeclaration(node)) return "enum";
+  return "other";
 };
+const factsFromOther = (node: Node): DeclarationFacts =>
+  ({ kind: otherKind(node), signature: node.getText(), anchor: node });
 
 const declarationFacts = (node: Node): DeclarationFacts =>
   factsFromVariable(node) ??
@@ -346,36 +342,67 @@ const indexAliases = (kept: ReadonlyArray<DeclaredExport>): Map<string, string> 
   return out;
 };
 
-const resolvePublicName = (
-  targetName: string | null,
+export interface BuildExportEntriesResult {
+  readonly entries: ReadonlyArray<ExportEntry>;
+
+  /**
+   * Per-export directives whose `location.exportName` didn't resolve to
+   * any declaration (renamed/deleted export, or directive placed on a
+   * non-exported symbol). Validate surfaces these so source-of-truth
+   * JSDoc can't silently drift from what the folder actually exports.
+   */
+  readonly unmatched: ReadonlyArray<LocatedDirective>;
+}
+
+type MergeOutcome =
+  | { readonly kind: "merged"; readonly publicName: string; readonly entry: ExportEntry }
+  | { readonly kind: "unmatched" }
+  | { readonly kind: "skipped" };
+
+const classifyDirective = (
+  located: LocatedDirective,
   byName: ReadonlyMap<string, ExportEntry>,
   aliases: ReadonlyMap<string, string>,
-): string | null => {
-  if (targetName === null) return null;
-  if (byName.has(targetName)) return targetName;
-  return aliases.get(targetName) ?? null;
+): MergeOutcome => {
+  const { directive, location } = located;
+  // File-level (`@spec.purpose`, `@spec.ignore`) carry exportName=null
+  // and aren't per-export; ignore-export naming an absent declaration
+  // is a deliberate skip. Unresolved per-export directives are drift.
+  if (location.exportName === null) return { kind: "skipped" };
+  const publicName = byName.has(location.exportName)
+    ? location.exportName
+    : aliases.get(location.exportName) ?? null;
+  if (publicName === null) {
+    return directive._tag === "ignore-export" ? { kind: "skipped" } : { kind: "unmatched" };
+  }
+  const entry = byName.get(publicName);
+  if (entry === undefined) return { kind: "skipped" };
+  return { kind: "merged", publicName, entry: mergeOne(entry, directive) };
 };
 
 export const buildExportEntries = (
   declarations: ReadonlyArray<DeclaredExport>,
   directives: ReadonlyArray<LocatedDirective>,
-): ReadonlyArray<ExportEntry> => {
+  barrelPath?: string,
+): BuildExportEntriesResult => {
   const ignored = collectIgnoredExportNames(directives);
   // `@spec.ignore-export foo` on `foo` is parsed under the underlying
-  // name; matching both `name` (public alias) and `declaredName` drops the
-  // export regardless of which name the author wrote in the directive.
+  // name; match both `name` (public alias) and `declaredName` so the
+  // ignore takes effect regardless of which form the author wrote.
   const kept = declarations.filter(
     (d) => !ignored.has(d.name) && !ignored.has(d.declaredName),
   );
   const byName = new Map<string, ExportEntry>(kept.map((d) => [d.name, seedEntry(d)]));
   const aliases = indexAliases(kept);
-  for (const { directive, location } of directives) {
-    const publicName = resolvePublicName(location.exportName, byName, aliases);
-    if (publicName === null) continue;
-    const entry = byName.get(publicName);
-    if (entry !== undefined) byName.set(publicName, mergeOne(entry, directive));
+  const unmatched: LocatedDirective[] = [];
+  for (const located of directives) {
+    const outcome = classifyDirective(located, byName, aliases);
+    if (outcome.kind === "merged") byName.set(outcome.publicName, outcome.entry);
+    else if (outcome.kind === "unmatched" && located.location.path === barrelPath) {
+      unmatched.push(located);
+    }
   }
-  return [...byName.values()];
+  return { entries: [...byName.values()], unmatched };
 };
 
 /**

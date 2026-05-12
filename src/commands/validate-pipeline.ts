@@ -212,15 +212,22 @@ export const inspectFolder = ({ fs, path, folder, inputs, ctx }: InspectArgs): E
     const children = buildChildren({
       folder, sources: inputs.sources, tests: inputs.tests, subfolders, purposeByPath, path,
     });
+    const built = buildExportEntries(declarations, directives, inputs.indexFilePath);
+    const unmatchedIssues: ReadonlyArray<ItSpecIssue> = built.unmatched.map((d) => ({
+      kind: "directive-mismatch",
+      path: d.location.path,
+      line: d.location.line,
+      detail: `@spec.${d.directive._tag} on "${d.location.exportName ?? "?"}" does not match any export in this folder`,
+    }));
     return {
       analysis: {
         folder,
         purpose: purposeByPath.get(inputs.indexFilePath) ?? null,
-        exports: buildExportEntries(declarations, directives),
+        exports: built.entries,
         properties: tests.rows,
         children,
       },
-      issues: tests.issues,
+      issues: [...tests.issues, ...unmatchedIssues],
     };
   }).pipe(Effect.withSpan("commands/validate-pipeline/inspectFolder"));
 

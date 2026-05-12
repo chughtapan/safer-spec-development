@@ -1,7 +1,7 @@
 ---
 folder: src/spec
 format-version: 0.1.0
-generatedAtSha: 92544b2b3b3bcee5b552ef03f02b2955ca4e67cf
+generatedAtSha: 263ba9411ba749e3f7a8a107d485a1115a473a4e
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -62,6 +62,16 @@ export interface ItSpec {
   ): void;
 }
 ```
+
+**Assumes:**
+- "first positional \`id\` arg matches the \`@spec.property\` JSDoc directive value above the call site" — _cross-check enforced by \`validate --implemented\`; mismatch is exit code 11 (MISSING\_SPEC\_PROPERTY)._
+- "JSDoc directives above this call match \`id\`, \`meta.type\`, and \`meta.exports\` member names" — _cross-check enforced by \`validate --implemented\`._
+
+**Guarantees:**
+- "registers the property as a Vitest todo placeholder under \`id\`" — _side-effect contract; the call mutates Vitest's collector, observable only at runtime._
+- "registers a fast-check property under \`id\` that runs \`body\` against samples drawn from \`arb\`" — _side-effect contract; runtime registration with Vitest._
+
+**Residual contract:** "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override" — _behavioral residue beyond the call signature; downstream authors need to know the property runner is not configured through Vitest._
 
 ### [`itSpec`](./it-spec.ts#L56)
 
