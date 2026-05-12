@@ -59,7 +59,13 @@ export const normalizeFolder = (folder: string): string => {
     : folder;
   const start = skipLeadingDotSlash(rebased);
   const end = stripTrailingSep(rebased, start);
-  return start === 0 && end === rebased.length ? rebased : rebased.slice(start, end);
+  const sliced = start === 0 && end === rebased.length
+    ? rebased
+    : rebased.slice(start, end);
+  // `--folder ./` and `--folder /` strip to empty; preserve the
+  // project-root sentinel so downstream `fs.readDirectory` reads "."
+  // rather than `""` (which fails even when `./index.ts` exists).
+  return sliced.length === 0 ? "." : sliced;
 };
 
 const toRepoRelative = (abs: string): string => {

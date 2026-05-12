@@ -356,7 +356,12 @@ export const buildExportEntries = (
   directives: ReadonlyArray<LocatedDirective>,
 ): ReadonlyArray<ExportEntry> => {
   const ignored = collectIgnoredExportNames(directives);
-  const kept = declarations.filter((d) => !ignored.has(d.name));
+  // `@spec.ignore-export foo` on `foo` is parsed under the underlying
+  // name; matching both `name` (public alias) and `declaredName` drops the
+  // export regardless of which name the author wrote in the directive.
+  const kept = declarations.filter(
+    (d) => !ignored.has(d.name) && !ignored.has(d.declaredName),
+  );
   const byName = new Map<string, ExportEntry>(kept.map((d) => [d.name, seedEntry(d)]));
   const aliases = indexAliases(kept);
   for (const { directive, location } of directives) {
