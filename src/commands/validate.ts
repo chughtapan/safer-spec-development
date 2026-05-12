@@ -94,27 +94,29 @@ const validateOneFolder = (
       inspectFolder({ fs: ctx.fs, path: ctx.path, folder, inputs, ctx: ctx.projectCtx }),
     );
     yield* failOnIssues(inspection.issues, ctx.mode);
-    // Execution sidecars are untracked test-run output; folding them into
-    // `--planned` makes drift checks depend on whether Vitest happened to
-    // run locally. Only implemented mode pulls them.
-    const execution = ctx.mode === "implemented"
-      ? yield* loadExecutionSidecar(ctx.fs, ctx.path, folder)
-      : null;
-    const meta = buildSpecMeta(inspection.analysis, ctx.projectCtx, execution);
-    const regenerated = regenerateMarkdown(inspection.analysis, meta);
+    // `driftMeta` always uses execution=null so regenerated drift artifacts
+    // match what `generate` writes to disk (committed artifacts never carry
+    // execution metrics). `gateMeta` is enriched with execution metrics
+    // only for the implemented threshold check and never feeds drift regen.
+    const driftMeta = buildSpecMeta(inspection.analysis, ctx.projectCtx, null);
+    const regenerated = regenerateMarkdown(inspection.analysis, driftMeta);
     yield* checkDrift(ctx.fs, ctx.path.join(folder, "SPEC.md"), regenerated);
-    const sidecarJson = yield* regenerateSidecar(inspection.analysis, meta);
+    const sidecarJson = yield* regenerateSidecar(inspection.analysis, driftMeta);
     const sidecarPath = ctx.path.join(
       folder,
       ".safer-spec",
       `${sidecarSlug(folder)}.json`,
     );
     yield* checkSidecarDrift(ctx.fs, sidecarPath, sidecarJson);
-    if (ctx.mode === "implemented") {
-      yield* checkExecutionSidecarPresent(inspection.analysis, folder, execution !== null);
-      yield* checkImplBodies(inspection.analysis);
+    if (ctx.mode !== "implemented") {
+      yield* checkThresholds(folder, inspection.analysis, driftMeta);
+      return folder;
     }
-    yield* checkThresholds(folder, inspection.analysis, meta);
+    const execution = yield* loadExecutionSidecar(ctx.fs, ctx.path, folder);
+    yield* checkExecutionSidecarPresent(inspection.analysis, folder, execution !== null);
+    yield* checkImplBodies(inspection.analysis);
+    const gateMeta = buildSpecMeta(inspection.analysis, ctx.projectCtx, execution);
+    yield* checkThresholds(folder, inspection.analysis, gateMeta);
     return folder;
   });
 
