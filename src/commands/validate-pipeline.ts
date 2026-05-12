@@ -155,6 +155,27 @@ const collectKnownExports = (ctx: ProjectContext): ReadonlySet<string> => {
   return out;
 };
 
+// Folder-scoped variant: only the names exported by source files IN this
+// folder. Used by `buildExportEntries` to flag truly-stale directives
+// (exportName not exported anywhere in the folder, barrel or otherwise).
+const folderExportNames = (
+  sources: ReadonlyArray<string>,
+  ctx: ProjectContext,
+): ReadonlySet<string> => {
+  const out = new Set<string>();
+  for (const sourcePath of sources) {
+    const sf = ctx.sources.find((s) => s.path === sourcePath);
+    if (sf === undefined) continue;
+    for (const d of collectExports(sf.path, sf.source, {
+      siblings: ctx.sources, paths: ctx.paths, baseUrl: ctx.baseUrl,
+    })) {
+      out.add(d.name);
+      out.add(d.declaredName);
+    }
+  }
+  return out;
+};
+
 const parseTests = (
   fs: FileSystem.FileSystem,
   tests: ReadonlyArray<string>,
@@ -212,7 +233,8 @@ export const inspectFolder = ({ fs, path, folder, inputs, ctx }: InspectArgs): E
     const children = buildChildren({
       folder, sources: inputs.sources, tests: inputs.tests, subfolders, purposeByPath, path,
     });
-    const built = buildExportEntries(declarations, directives, inputs.indexFilePath);
+    const folderKnown = folderExportNames(inputs.sources, ctx);
+    const built = buildExportEntries(declarations, directives, folderKnown);
     const unmatchedIssues: ReadonlyArray<ItSpecIssue> = built.unmatched.map((d) => ({
       kind: "directive-mismatch",
       path: d.location.path,
@@ -233,12 +255,6 @@ export const inspectFolder = ({ fs, path, folder, inputs, ctx }: InspectArgs): E
 
 
 
-/**
- * @spec.guarantee "builds a `SpecMeta` from run-level context + analysis-derived coverage"
- *   reason: emit's frontmatter + sidecar both require meta.
- * @spec.residual-contract "classifier coverage and precondition pass rate are null in this slice; populated only when `validate --implemented` consumes Vitest reporter sidecars"
- *   reason: lifecycle contract.
- */
 const DEFAULT_GENERATED_FROM = {
   jsdoc: "ts-morph + @microsoft/tsdoc",
   exports: "ts-morph getExportedDeclarations",
@@ -247,6 +263,12 @@ const DEFAULT_GENERATED_FROM = {
   eslint: "eslint-plugin-agent-code-guard",
 } as const;
 
+/**
+ * @spec.guarantee "builds a `SpecMeta` from run-level context + analysis-derived coverage"
+ *   reason: emit's frontmatter + sidecar both require meta.
+ * @spec.residual-contract "classifier coverage and precondition pass rate are null in this slice; populated only when `validate --implemented` consumes Vitest reporter sidecars"
+ *   reason: lifecycle contract.
+ */
 export const buildSpecMeta = (
   analysis: FolderAnalysis,
   ctx: ProjectContext,

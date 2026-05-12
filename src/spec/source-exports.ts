@@ -170,14 +170,6 @@ export interface CollectExportsOptions {
   readonly baseUrl?: string;
 }
 
-/**
- * @spec.guarantee "result is source-ordered; barrel re-exports resolve to their target declarations when targets are supplied via siblings + paths"
- *   reason: emit.ts's canonical sort; re-export resolution needs target
- *           files registered and tsconfig aliases configured.
- * @spec.residual-contract "unresolvable re-exports are silently dropped"
- *   reason: ts-morph cannot follow `export ... from` without the target
- *           file registered on the same Project.
- */
 // ts-morph's in-memory FileSystem reports paths with a leading "/" (the
 // virtual root). Strip it so committed SPEC.md links + sidecar sourceRef
 // paths are repo-relative (e.g. `src/commands/index.ts`, not
@@ -197,6 +189,14 @@ const buildCompilerOptions = (
   };
 };
 
+/**
+ * @spec.guarantee "result is source-ordered; barrel re-exports resolve to their target declarations when targets are supplied via siblings + paths"
+ *   reason: emit.ts's canonical sort; re-export resolution needs target
+ *           files registered and tsconfig aliases configured.
+ * @spec.residual-contract "unresolvable re-exports are silently dropped"
+ *   reason: ts-morph cannot follow `export ... from` without the target
+ *           file registered on the same Project.
+ */
 export const collectExports = (
   filePath: string,
   source: string,
@@ -309,13 +309,6 @@ const collectIgnoredExportNames = (
   return ignored;
 };
 
-/**
- * @spec.guarantee "every declared export not named by an `@spec.ignore-export` directive appears in the result exactly once; directives whose location.exportName matches a declaration are merged into that entry"
- *   reason: contract for emit.ts's Public surface section.
- * @spec.residual-contract "directives whose exportName names a non-declared symbol are silently dropped"
- *   reason: validate gate surfaces these as MissingSpecPropertyError;
- *           generate just emits what it sees.
- */
 const seedEntry = (d: DeclaredExport): ExportEntry => ({
   name: d.name,
   kind: d.kind,
@@ -346,63 +339,72 @@ export interface BuildExportEntriesResult {
   readonly entries: ReadonlyArray<ExportEntry>;
 
   /**
-   * Per-export directives whose `location.exportName` didn't resolve to
-   * any declaration (renamed/deleted export, or directive placed on a
-   * non-exported symbol). Validate surfaces these so source-of-truth
-   * JSDoc can't silently drift from what the folder actually exports.
+   * Per-export directives whose `location.exportName` doesn't resolve
+   * to any symbol exported by ANY source file in the folder (not just
+   * the barrel). Catches renamed/deleted exports plus directives left
+   * on non-barrel files whose target was removed. Pass
+   * `folderKnownExports` undefined to skip the check entirely
+   * (generate doesn't gate; validate does).
    */
   readonly unmatched: ReadonlyArray<LocatedDirective>;
 }
 
-type MergeOutcome =
-  | { readonly kind: "merged"; readonly publicName: string; readonly entry: ExportEntry }
-  | { readonly kind: "unmatched" }
-  | { readonly kind: "skipped" };
+interface BuildState {
+  readonly byName: Map<string, ExportEntry>;
+  readonly aliases: ReadonlyMap<string, string>;
+  readonly strict: boolean;
+  readonly known: ReadonlySet<string>;
+  readonly unmatched: LocatedDirective[];
+}
 
-const classifyDirective = (
-  located: LocatedDirective,
+const resolvePublic = (
+  name: string,
   byName: ReadonlyMap<string, ExportEntry>,
   aliases: ReadonlyMap<string, string>,
-): MergeOutcome => {
+): string | null => byName.has(name) ? name : aliases.get(name) ?? null;
+
+const resolveOrFlag = (located: LocatedDirective, state: BuildState): void => {
   const { directive, location } = located;
-  // File-level (`@spec.purpose`, `@spec.ignore`) carry exportName=null
-  // and aren't per-export; ignore-export naming an absent declaration
-  // is a deliberate skip. Unresolved per-export directives are drift.
-  if (location.exportName === null) return { kind: "skipped" };
-  const publicName = byName.has(location.exportName)
-    ? location.exportName
-    : aliases.get(location.exportName) ?? null;
-  if (publicName === null) {
-    return directive._tag === "ignore-export" ? { kind: "skipped" } : { kind: "unmatched" };
+  if (location.exportName === null) return;
+  const publicName = resolvePublic(location.exportName, state.byName, state.aliases);
+  if (publicName !== null) {
+    const entry = state.byName.get(publicName);
+    if (entry !== undefined) state.byName.set(publicName, mergeOne(entry, directive));
+    return;
   }
-  const entry = byName.get(publicName);
-  if (entry === undefined) return { kind: "skipped" };
-  return { kind: "merged", publicName, entry: mergeOne(entry, directive) };
+  // Unresolved per-export directive: stale if strict mode + name not in
+  // the folder's source-file export union. `ignore-export` names a
+  // deliberately absent declaration, never stale.
+  if (directive._tag === "ignore-export" || !state.strict) return;
+  if (!state.known.has(location.exportName)) state.unmatched.push(located);
 };
 
+/**
+ * @spec.guarantee "every declared export not named by an `@spec.ignore-export` directive appears in entries exactly once; directives matching a declaration are merged; unmatched per-export directives are returned via `unmatched` when `folderKnownExports` is supplied"
+ *   reason: contract for emit.ts's Public surface section + validate's
+ *           drift gate (MissingSpecPropertyError routing).
+ * @spec.residual-contract "callers that pass `folderKnownExports = undefined` skip the drift gate entirely; the returned `unmatched` is then always empty"
+ *   reason: generate is a producer (no gate); validate is the gate. The
+ *           parameter is the discriminator.
+ */
 export const buildExportEntries = (
   declarations: ReadonlyArray<DeclaredExport>,
   directives: ReadonlyArray<LocatedDirective>,
-  barrelPath?: string,
+  folderKnownExports?: ReadonlySet<string>,
 ): BuildExportEntriesResult => {
   const ignored = collectIgnoredExportNames(directives);
-  // `@spec.ignore-export foo` on `foo` is parsed under the underlying
-  // name; match both `name` (public alias) and `declaredName` so the
-  // ignore takes effect regardless of which form the author wrote.
   const kept = declarations.filter(
     (d) => !ignored.has(d.name) && !ignored.has(d.declaredName),
   );
-  const byName = new Map<string, ExportEntry>(kept.map((d) => [d.name, seedEntry(d)]));
-  const aliases = indexAliases(kept);
-  const unmatched: LocatedDirective[] = [];
-  for (const located of directives) {
-    const outcome = classifyDirective(located, byName, aliases);
-    if (outcome.kind === "merged") byName.set(outcome.publicName, outcome.entry);
-    else if (outcome.kind === "unmatched" && located.location.path === barrelPath) {
-      unmatched.push(located);
-    }
-  }
-  return { entries: [...byName.values()], unmatched };
+  const state: BuildState = {
+    byName: new Map(kept.map((d) => [d.name, seedEntry(d)])),
+    aliases: indexAliases(kept),
+    strict: folderKnownExports !== undefined,
+    known: folderKnownExports ?? new Set<string>(),
+    unmatched: [],
+  };
+  for (const located of directives) resolveOrFlag(located, state);
+  return { entries: [...state.byName.values()], unmatched: state.unmatched };
 };
 
 /**
