@@ -81,10 +81,12 @@ const isSourceFile = (n: string): boolean =>
 
 // Maps a folder path to a stable sidecar slug. The project-root sentinel
 // `.` resolves to `root` so the sidecar isn't `.safer-spec/.json` (a
-// dotfile-prefixed name sidecar consumers easily miss).
+// dotfile-prefixed name sidecar consumers easily miss). Both `/` and
+// `\` are coalesced so the slug stays a single filename even when
+// `path.join`/discovery emits Windows-style separators.
 const folderSlug = (folder: FolderPath): string => {
   if (folder === ".") return "root";
-  return folder.replace(/^\.\//, "").replace(/\//g, "_");
+  return folder.replace(/^\.[/\\]/, "").replace(/[/\\]+/g, "_");
 };
 
 const causeOf = (e: unknown): string => {

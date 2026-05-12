@@ -84,22 +84,6 @@ export const escapeForJson = (
 ): Effect.Effect<string, never> => Effect.sync(() => JSON.stringify(input));
 
 /**
- * @spec.guarantee "output is safe to interpolate into a single markdown-table cell; pipes are backslash-escaped and CR/LF are replaced with the HTML `<br>` token so the table grammar is preserved"
- *   reason: GFM/CommonMark tables use `|` as column delimiter and treat the
- *           first newline as row terminator; raw user-controlled directive
- *           text would otherwise break or extend rows.
- * @spec.residual-contract "intra-cell `\\` is escaped to `\\\\` before pipe-escape so the resulting backslash-pipe sequence is unambiguous; output remains markdown text (not HTML-escaped beyond the `<br>` substitution)"
- *   reason: the surrounding prose-escape (escapeForMarkdown) is the right
- *           tool for non-table contexts; this helper is the table-only
- *           additive layer.
- */
-export const escapeForMarkdownTableCell = (input: string): string =>
-  input
-    .replace(/\\/g, "\\\\")
-    .replace(/\|/g, "\\|")
-    .replace(/\r?\n/g, "<br>");
-
-/**
  * @spec.guarantee "safe inside an un-code-spanned table cell; pipes, backticks, asterisks, underscores, brackets, angle brackets are escaped; CR/LF become `<br>`; control chars stripped; single pass so backslashes are not double-escaped"
  *   reason: property-table `Claim` carries author-controlled directive prose;
  *           chaining prose + table-cell helpers would double-escape `\\`.

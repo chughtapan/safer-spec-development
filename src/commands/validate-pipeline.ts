@@ -317,9 +317,11 @@ export const stripVolatileJson = (text: string): string =>
 
 // Slug for the per-folder sidecar JSON path. The project-root sentinel
 // `.` maps to `root` (see `generate.ts` `folderSlug` for rationale).
+// Both `/` and `\` are coalesced so the slug stays a single filename
+// when Windows-style path separators reach this helper.
 export const sidecarSlug = (folder: string): string => {
   if (folder === ".") return "root";
-  return folder.replace(/^\.\//, "").replace(/\//g, "_");
+  return folder.replace(/^\.[/\\]/, "").replace(/[/\\]+/g, "_");
 };
 
 /**

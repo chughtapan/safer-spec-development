@@ -9,7 +9,6 @@ import { PROPERTY_TYPES, type PropertyType } from "@safer/property-types/index.j
 import { SPEC_FORMAT_VERSION } from "@safer/commands/version.js";
 import {
   escapeForMarkdownProse,
-  escapeForMarkdownTableCell,
   escapeForMarkdownTableCellProse,
 } from "@safer/spec/escape.js";
 import { relativeToFolder } from "@safer/spec/link-resolver.js";
@@ -153,9 +152,12 @@ const emitPropertiesTable = (
     "|---|---|---|---|---|",
   ];
   for (const p of properties) {
-    const id = escapeForMarkdownTableCell(p.id);
+    // `id` and exports are wrapped in backticks for the code-span look;
+    // use the prose+table escape so a backtick (or other markup) inside
+    // the value can't close the code span and break the row grammar.
+    const id = escapeForMarkdownTableCellProse(p.id);
     const exports = p.exports
-      .map((s) => "`" + escapeForMarkdownTableCell(s) + "`")
+      .map((s) => "`" + escapeForMarkdownTableCellProse(s) + "`")
       .join(", ");
     const status = p.stubbed ? "todo" : "implemented";
     const claim = escapeForMarkdownTableCellProse(p.claim);

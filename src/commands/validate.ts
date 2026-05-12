@@ -68,7 +68,6 @@ export const VALIDATE_GAP_EXIT_CODES = {
 interface ValidateInput {
   readonly folder: Option.Option<string>;
   readonly mode: "planned" | "implemented";
-  readonly formatVersionCheck: boolean;
 }
 
 interface ValidatePassReport {

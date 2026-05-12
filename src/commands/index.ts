@@ -92,9 +92,6 @@ const generateCommand = Command.make(
 const validateFolderOpt = Options.text("folder").pipe(Options.optional);
 const validatePlannedOpt = Options.boolean("planned").pipe(Options.withDefault(false));
 const validateImplementedOpt = Options.boolean("implemented").pipe(Options.withDefault(false));
-const validateFormatVersionCheckOpt = Options.boolean("format-version-check").pipe(
-  Options.withDefault(false),
-);
 
 const handleValidateError = (
   e: ValidateGapError | CliUsageError,
@@ -115,9 +112,8 @@ const validateCommand = Command.make(
     folder: validateFolderOpt,
     planned: validatePlannedOpt,
     implemented: validateImplementedOpt,
-    formatVersionCheck: validateFormatVersionCheckOpt,
   },
-  ({ folder, planned, implemented, formatVersionCheck }) =>
+  ({ folder, planned, implemented }) =>
     Effect.gen(function* () {
       if (planned && implemented) {
         return yield* Effect.fail(
@@ -128,7 +124,7 @@ const validateCommand = Command.make(
         );
       }
       const mode: "planned" | "implemented" = planned ? "planned" : "implemented";
-      const report = yield* validate({ folder, mode, formatVersionCheck });
+      const report = yield* validate({ folder, mode });
       yield* Effect.log(
         `validate passed across ${report.foldersValidated.length} folders`,
       );

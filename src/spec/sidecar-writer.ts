@@ -37,10 +37,11 @@ interface SidecarWritePayload {
 
 // Mirrors `commands/generate.ts` `folderSlug` and `validate-pipeline.ts`
 // `sidecarSlug`: the root sentinel `.` maps to `root` so write/validate
-// agree on the on-disk path.
+// agree on the on-disk path. Both `/` and `\` are coalesced so the slug
+// is a single filename even when discovery emits Windows separators.
 const folderSlug = (folder: string): string => {
   if (folder === ".") return "root";
-  return folder.replace(/^\.\//, "").replace(/\//g, "_");
+  return folder.replace(/^\.[/\\]/, "").replace(/[/\\]+/g, "_");
 };
 
 const schemaErrorFor = (
