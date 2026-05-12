@@ -17,22 +17,16 @@
  *   CLI's composition root, so this file owns its runtime boundary.
  */
 
+import { createHash } from "node:crypto";
 import * as nodePath from "node:path";
 import { Config, Effect, Schema } from "effect";
 import { FileSystem, Path } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
 
-// Reporter is loaded by `vitest.config.ts` BEFORE vite's tsconfig-paths
-// plugin is registered, so node resolves this module's import chain
-// without any `@safer/*` alias support. Any import from this file (and
-// anything it transitively pulls in) must therefore be resolvable by
-// plain node ESM. That excludes the rest of the spec domain — which IS
-// aliased — so this file keeps the slug helper inline rather than
-// reaching across the alias boundary. The shared definition still lives
-// in `sidecar-writer.ts` (consumed by `commands/`); the two copies are
-// the same trivial expression and the reporter test pins them via the
-// `sidecar-writer-coalesces-path-separators-into-slug` property.
-
+// Reporter is loaded by `vitest.config.ts` BEFORE the tsconfig-paths
+// plugin is registered, so imports must resolve via plain node ESM
+// (no `@safer/*` aliases). Slug helper inlined to avoid crossing the
+// alias boundary; pinned to the sidecar-writer copy by property test.
 interface FastCheckTaskStats {
   readonly propertyId: string;
   readonly numRuns: number;
@@ -63,6 +57,12 @@ const ExecutionSidecarSchema = Schema.Struct({
   // implemented properties; mismatch = stale sidecar (test set changed
   // since the last `pnpm test` run).
   propertyIds: Schema.Array(Schema.String),
+  // SHA-256 of the concatenated test-file bytes (lex-sorted by path)
+  // the reporter observed at write-time. Validate recomputes the hash
+  // from the current files on disk and rejects the sidecar when they
+  // differ — catches edits to property bodies / arbitraries that don't
+  // change the propertyIds set.
+  testTreeHash: Schema.String,
   classifierCoverage: Schema.NullOr(Schema.Number),
   preconditionPassRate: Schema.NullOr(Schema.Number),
   branchCoverageFromSpecTests: Schema.NullOr(Schema.Number),
@@ -159,11 +159,13 @@ const aggregate = (stats: ReadonlyArray<FastCheckTaskStats>): AggregatedCoverage
 interface FolderBucket {
   readonly folder: string;
   readonly stats: Array<FastCheckTaskStats>;
+  readonly testFiles: Array<string>;
 }
 
 const addToBuckets = (
   buckets: Map<string, FolderBucket>,
   folder: string,
+  filepath: string,
   collected: ReadonlyArray<FastCheckTaskStats>,
 ): void => {
   if (collected.length === 0) return;
@@ -172,8 +174,9 @@ const addToBuckets = (
   // uses the `.` sentinel for that case (sidecarSlug, generate,
   // validate); preserve the stats by re-mapping here.
   const key = folder.length === 0 ? "." : folder;
-  const bucket = buckets.get(key) ?? { folder: key, stats: [] };
+  const bucket = buckets.get(key) ?? { folder: key, stats: [], testFiles: [] };
   bucket.stats.push(...collected);
+  bucket.testFiles.push(filepath);
   buckets.set(key, bucket);
 };
 
@@ -185,9 +188,24 @@ const groupByFolder = (
   for (const file of files) {
     const collected: Array<FastCheckTaskStats> = [];
     walkTaskMeta(file, collected);
-    addToBuckets(buckets, folderOfTestFile(file.filepath, projectRoot), collected);
+    // Store test file paths as projectRoot-relative so the test-tree
+    // hash matches what validate computes from `inputs.tests` (also
+    // projectRoot-relative). Reporter's `file.filepath` is absolute.
+    const rel = nodePath.relative(projectRoot, file.filepath).split(nodePath.sep).join("/");
+    addToBuckets(buckets, folderOfTestFile(file.filepath, projectRoot), rel, collected);
   }
   return [...buckets.values()];
+};
+
+export const hashTestTree = (paths: ReadonlyArray<string>, read: (p: string) => string): string => {
+  const h = createHash("sha256");
+  for (const p of [...paths].sort()) {
+    h.update(p);
+    h.update("\0");
+    h.update(read(p));
+    h.update("\0");
+  }
+  return h.digest("hex");
 };
 
 const writeOneSidecar = (
@@ -199,11 +217,22 @@ const writeOneSidecar = (
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const propertyIds = [...new Set(bucket.stats.map((s) => s.propertyId))].sort();
+    const reads = yield* Effect.forEach(
+      bucket.testFiles,
+      (p) => fs.readFileString(p).pipe(
+        Effect.map((content) => [p, content] as const),
+        Effect.catchAll(() => Effect.succeed([p, ""] as const)),
+      ),
+      { concurrency: 1 },
+    );
+    const byPath = new Map(reads);
+    const testTreeHash = hashTestTree(bucket.testFiles, (p) => byPath.get(p) ?? "");
     const sidecar: ExecutionSidecar = {
       formatVersion: EXECUTION_SIDECAR_FORMAT_VERSION,
       folder: bucket.folder,
       generatedAtSha,
       propertyIds,
+      testTreeHash,
       ...aggregate(bucket.stats),
     };
     const encoded = yield* Schema.encode(ExecutionSidecarSchema)(sidecar).pipe(

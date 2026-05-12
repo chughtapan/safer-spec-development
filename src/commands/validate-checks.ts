@@ -260,41 +260,39 @@ export const checkImplBodies = (
  *           body exists would falsely block the planned → implemented
  *           ratchet.
  */
+export interface ExecutionSidecarCheck {
+  readonly propertyIds: ReadonlyArray<string>;
+  readonly testTreeHash: string;
+}
+
+const fail = (folder: string, problem: string, cause: string, fix: string) =>
+  Effect.fail(new MissingImplError({
+    location: folder,
+    diagnostic: mkDiagnostic(problem, cause, fix, "missing-impl"),
+  }));
+
 export const checkExecutionSidecarPresent = (
   analysis: FolderAnalysis,
   folder: string,
-  execution: { readonly propertyIds: ReadonlyArray<string> } | null,
+  execution: ExecutionSidecarCheck | null,
+  currentTestTreeHash: string,
 ): Effect.Effect<void, MissingImplError> => {
   const expected = analysis.properties.filter((p) => !p.stubbed).map((p) => p.id).sort();
   if (expected.length === 0) return Effect.succeed(void 0);
-  if (execution === null) {
-    return Effect.fail(
-      new MissingImplError({
-        location: folder,
-        diagnostic: mkDiagnostic(
-          `missing reporter sidecar: ${folder}/.safer-spec/<slug>.execution.json not on disk`,
-          "validate --implemented requires the Vitest reporter sidecar so classifier coverage and precondition pass rate can be checked against thresholds",
-          "run `pnpm test` (or `pnpm vitest run`) to regenerate the execution sidecar before validating",
-          "missing-impl",
-        ),
-      }),
-    );
-  }
+  if (execution === null) return fail(folder,
+    `missing reporter sidecar: ${folder}/.safer-spec/<slug>.execution.json not on disk`,
+    "validate --implemented requires the Vitest reporter sidecar so classifier coverage and precondition pass rate can be checked against thresholds",
+    "run `pnpm test` (or `pnpm vitest run`) to regenerate the execution sidecar before validating");
   const got = [...execution.propertyIds].sort();
-  if (got.length === expected.length && got.every((id, i) => id === expected[i])) {
-    return Effect.succeed(void 0);
-  }
-  return Effect.fail(
-    new MissingImplError({
-      location: folder,
-      diagnostic: mkDiagnostic(
-        `stale reporter sidecar: ${folder}/.safer-spec/<slug>.execution.json covers a different property set than the current tests (sidecar: [${got.join(", ")}], expected: [${expected.join(", ")}])`,
-        "validate --implemented uses the sidecar's per-property stats; a sidecar that covers a different property set than what `extractProperties` sees now can't gate this run",
-        "rerun `pnpm test` so the reporter rewrites the sidecar against the current implemented property set",
-        "missing-impl",
-      ),
-    }),
-  );
+  if (!(got.length === expected.length && got.every((id, i) => id === expected[i]))) return fail(folder,
+    `stale reporter sidecar: covers a different property set than the current tests (sidecar: [${got.join(", ")}], expected: [${expected.join(", ")}])`,
+    "validate --implemented uses the sidecar's per-property stats; a sidecar that covers a different property set than what `extractProperties` sees now can't gate this run",
+    "rerun `pnpm test` so the reporter rewrites the sidecar against the current implemented property set");
+  if (execution.testTreeHash !== currentTestTreeHash) return fail(folder,
+    `stale reporter sidecar: emitted against a test tree whose bytes differ from what's on disk now`,
+    "propertyIds match but a test file's body / arbitrary / precondition changed since the last `pnpm test` run; the stored stats no longer prove the current bodies executed",
+    "rerun `pnpm test` to regenerate the sidecar against the current test-tree contents");
+  return Effect.succeed(void 0);
 };
 
 const issueToError = (issue: ItSpecIssue): ValidateGapError => {

@@ -26,6 +26,7 @@
 
 import { FileSystem, Path } from "@effect/platform";
 import { Effect, Option } from "effect";
+import { hashTestTree } from "@safer/spec/reporter.js";
 import { normalizeFolder } from "@safer/commands/project-context.js";
 import {
   buildSpecMeta,
@@ -84,6 +85,23 @@ interface ValidateCtx {
   readonly projectCtx: ProjectContext;
 }
 
+const computeFolderTestTreeHash = (
+  fs: FileSystem.FileSystem,
+  testPaths: ReadonlyArray<string>,
+): Effect.Effect<string, never> =>
+  Effect.gen(function* () {
+    const reads = yield* Effect.forEach(
+      testPaths,
+      (p) => fs.readFileString(p).pipe(
+        Effect.map((content) => [p, content] as const),
+        Effect.catchAll(() => Effect.succeed([p, ""] as const)),
+      ),
+      { concurrency: 1 },
+    );
+    const byPath = new Map(reads);
+    return hashTestTree(testPaths, (p) => byPath.get(p) ?? "");
+  });
+
 const validateOneFolder = (
   ctx: ValidateCtx,
   folder: string,
@@ -113,7 +131,8 @@ const validateOneFolder = (
       return folder;
     }
     const execution = yield* loadExecutionSidecar(ctx.fs, ctx.path, folder);
-    yield* checkExecutionSidecarPresent(inspection.analysis, folder, execution);
+    const currentHash = yield* computeFolderTestTreeHash(ctx.fs, inputs.tests);
+    yield* checkExecutionSidecarPresent(inspection.analysis, folder, execution, currentHash);
     yield* checkImplBodies(inspection.analysis);
     const gateMeta = buildSpecMeta(inspection.analysis, ctx.projectCtx, execution);
     yield* checkThresholds(folder, inspection.analysis, gateMeta);
