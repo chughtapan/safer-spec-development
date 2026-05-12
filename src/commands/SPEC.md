@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: b4271d58e2df4ae38c9a3f1ec5a98824998439f1
+generatedAtSha: 56fb20877098d5f6e56425f07bebdc9f9d87e093
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations

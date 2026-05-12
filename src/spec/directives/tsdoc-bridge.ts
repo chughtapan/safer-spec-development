@@ -159,6 +159,25 @@ export const firstUndefinedSpecTag = (
   return null;
 };
 
+// After `rewriteDottedTags` runs, any remaining `@spec.<…>` at a block-tag
+// position is malformed — the rewrite handles only `[a-z][a-z-]*` bodies,
+// so `@spec.foo_bar`, `@spec.foo.bar`, `@spec.Type`, etc. survive in
+// dotted form. TSDoc treats those as `@spec` + invalid trailing chars or
+// truncates the token, so the parser-message path misses them. Catch
+// them with a direct scan so malformed directives fail closed.
+const MALFORMED_DOTTED_SPEC_RE =
+  /(?:^[\t ]*\*[\t ]?|^\/\*\*[\t ]?)@spec\.\S+/gm;
+
+export const firstMalformedDottedSpecTag = (
+  rewrittenText: string,
+): UndefinedTagHit | null => {
+  MALFORMED_DOTTED_SPEC_RE.lastIndex = 0;
+  const m = MALFORMED_DOTTED_SPEC_RE.exec(rewrittenText);
+  if (m === null) return null;
+  const atPos = m.index + m[0].indexOf("@");
+  return { name: rewrittenText.slice(atPos + 1, m.index + m[0].length), offset: atPos };
+};
+
 // First block-tag-position `@<letter>` start in `rawText` at offset
 // >= `from`. A block tag = `@` at the start of the JSDoc opener
 // (`/**`) or immediately after a continuation prefix (`\n[\t ]*\*[\t ]?`).

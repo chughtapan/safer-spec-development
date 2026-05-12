@@ -1,7 +1,7 @@
 ---
 folder: src/spec/directives
 format-version: 0.1.0
-generatedAtSha: b4271d58e2df4ae38c9a3f1ec5a98824998439f1
+generatedAtSha: 56fb20877098d5f6e56425f07bebdc9f9d87e093
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -88,7 +88,7 @@ export type ParseError =
   | JsDocUnknownDirectiveError;
 ```
 
-### [`Directive`](./index.ts#L68)
+### [`Directive`](./index.ts#L69)
 
 ```ts
 export type Directive =
@@ -105,7 +105,7 @@ export type Directive =
   | ClaimDirective;
 ```
 
-### [`LocatedDirective`](./index.ts#L88)
+### [`LocatedDirective`](./index.ts#L89)
 
 ```ts
 export interface LocatedDirective {
@@ -114,7 +114,7 @@ export interface LocatedDirective {
 }
 ```
 
-### [`parseFileDirectives`](./index.ts#L251)
+### [`parseFileDirectives`](./index.ts#L267)
 
 ```ts
 export const parseFileDirectives = (

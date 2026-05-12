@@ -48,6 +48,7 @@ import {
 import {
   TSDOC_LOWERCASE_TO_INTERNAL,
   blockSpans,
+  firstMalformedDottedSpecTag,
   nextBlockTagStart,
   firstUndefinedSpecTag,
   offsetToLine,
@@ -213,6 +214,21 @@ const parseOneJsDoc = (
   Effect.gen(function* () {
     const rawText = rewriteDottedTags(jsdoc.getText());
     const jsdocStartLine = jsdoc.getStartLineNumber();
+    // Pre-flight: any `@spec.<…>` left in dotted form after the rewrite
+    // is a malformed directive name. The rewrite only handles
+    // `[a-z][a-z-]*` bodies; underscores, uppercase, and double-dotted
+    // forms slip through to TSDoc as something it can't classify as a
+    // tag, so the parser-message path doesn't always surface them.
+    const malformed = firstMalformedDottedSpecTag(rawText);
+    if (malformed !== null) {
+      return yield* Effect.fail(
+        new JsDocUnknownDirectiveError({
+          path,
+          line: offsetToLine(rawText, malformed.offset, jsdocStartLine),
+          directive: malformed.name,
+        }),
+      );
+    }
     const parsed = parseJsDocText(rawText);
     const unknown = firstUndefinedSpecTag(parsed);
     if (unknown !== null) {
