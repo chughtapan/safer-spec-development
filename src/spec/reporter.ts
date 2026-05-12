@@ -165,12 +165,20 @@ interface FolderBucket {
   readonly testFiles: Array<{ readonly rel: string; readonly abs: string }>;
 }
 
+// Validate's `isTestFile` predicate (collectFolderInputs only treats
+// `.spec.test.ts` as a codemod test file). The reporter must use the
+// same filter so the hash inputs stay symmetric — Vitest hands us every
+// `*.test.ts`, including ordinary tests downstream consumers run.
+const isSpecTestFile = (filepath: string): boolean =>
+  filepath.endsWith(".spec.test.ts");
+
 const groupByFolder = (
   files: ReadonlyArray<MinimalFile>,
   projectRoot: string,
 ): ReadonlyArray<FolderBucket> => {
   const buckets = new Map<string, FolderBucket>();
   for (const file of files) {
+    if (!isSpecTestFile(file.filepath)) continue;
     const collected: Array<FastCheckTaskStats> = [];
     walkTaskMeta(file, collected);
     // Root-folder tests (`foo.spec.test.ts` / `__tests__/...` at the
@@ -178,10 +186,6 @@ const groupByFolder = (
     // the `.` sentinel (sidecarSlug, generate, validate all agree).
     const folder = folderOfTestFile(file.filepath, projectRoot);
     const key = folder.length === 0 ? "." : folder;
-    // Every test file in a folder counts toward the test-tree hash —
-    // even files with zero fast-check stats — because validate hashes
-    // all of `inputs.tests`. Bucket creation is gated on the bucket
-    // having SOME stats elsewhere (handled at write time).
     const rel = nodePath.relative(projectRoot, file.filepath).split(nodePath.sep).join("/");
     const bucket = buckets.get(key) ?? { folder: key, stats: [], testFiles: [] };
     bucket.stats.push(...collected);
