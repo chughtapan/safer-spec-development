@@ -138,7 +138,7 @@ const validateOneFolder = (
       return folder;
     }
     const execution = yield* loadExecutionSidecar(ctx.fs, ctx.path, folder);
-    const currentHash = yield* computeFolderTestTreeHash(ctx.fs, inputs.tests);
+    const currentHash = yield* computeFolderTestTreeHash(ctx.fs, [...inputs.sources, ...inputs.tests]);
     yield* checkExecutionSidecarPresent(inspection.analysis, folder, execution, currentHash);
     yield* checkImplBodies(inspection.analysis);
     const gateMeta = buildSpecMeta(inspection.analysis, ctx.projectCtx, execution);

@@ -205,6 +205,30 @@ export const hashTestTree = (paths: ReadonlyArray<string>, read: (p: string) => 
   return h.digest("hex");
 };
 
+// Enumerate the folder's source files (`.ts`, excluding `.d.ts` and
+// `.spec.test.ts`) — mirror of `collectFolderInputs` in
+// validate-pipeline.ts. Both must produce the same set so the
+// treeHash inputs match.
+const enumerateSourcePaths = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  projectRoot: string,
+  folder: string,
+): Effect.Effect<Array<{ readonly rel: string; readonly abs: string }>, never> =>
+  Effect.gen(function* () {
+    const folderAbs = path.isAbsolute(folder) ? folder : path.join(projectRoot, folder);
+    const entries = yield* fs.readDirectory(folderAbs)
+      .pipe(Effect.catchAll(() => Effect.succeed([] as ReadonlyArray<string>)));
+    const out: Array<{ readonly rel: string; readonly abs: string }> = [];
+    for (const name of entries) {
+      if (!name.endsWith(".ts") || name.endsWith(".d.ts") || name.endsWith(".spec.test.ts")) continue;
+      const abs = path.join(folderAbs, name);
+      const rel = nodePath.relative(projectRoot, abs).split(nodePath.sep).join("/");
+      out.push({ rel, abs });
+    }
+    return out;
+  });
+
 const writeOneSidecar = (
   bucket: FolderBucket,
   generatedAtSha: string,
@@ -214,11 +238,14 @@ const writeOneSidecar = (
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const propertyIds = [...new Set(bucket.stats.map((s) => s.propertyId))].sort();
-    // Read each test file via its absolute path (independent of the
-    // reporter's cwd) but key the hash inputs by the projectRoot-relative
-    // path so the hash matches validate's identical computation.
+    const sourcePaths = yield* enumerateSourcePaths(fs, path, projectRoot, bucket.folder);
+    // Hash inputs cover BOTH source files and test files in the folder so
+    // an implementation-only edit between `pnpm test` and validate also
+    // invalidates the sidecar. Read by absolute path; key by POSIX-style
+    // projectRoot-relative path (matches what validate hashes).
+    const allFiles = [...sourcePaths, ...bucket.testFiles];
     const reads = yield* Effect.forEach(
-      bucket.testFiles,
+      allFiles,
       (tf) => fs.readFileString(tf.abs).pipe(
         Effect.map((content) => [tf.rel, content] as const),
         Effect.catchAll(() => Effect.succeed([tf.rel, ""] as const)),
@@ -226,7 +253,7 @@ const writeOneSidecar = (
       { concurrency: 1 },
     );
     const byRel = new Map(reads);
-    const relPaths = bucket.testFiles.map((tf) => tf.rel);
+    const relPaths = allFiles.map((tf) => tf.rel);
     const testTreeHash = hashTestTree(relPaths, (p) => byRel.get(p) ?? "");
     const sidecar: ExecutionSidecar = {
       formatVersion: EXECUTION_SIDECAR_FORMAT_VERSION,
