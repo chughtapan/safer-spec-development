@@ -189,6 +189,7 @@ const groupByFolder = (
 const writeOneSidecar = (
   bucket: FolderBucket,
   generatedAtSha: string,
+  projectRoot: string,
 ): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
@@ -204,7 +205,11 @@ const writeOneSidecar = (
     const encoded = yield* Schema.encode(ExecutionSidecarSchema)(sidecar).pipe(
       Effect.catchAll(() => Effect.succeed(sidecar)),
     );
-    const dir = path.join(bucket.folder, ".safer-spec");
+    // bucket.folder is relative to projectRoot (set in groupByFolder).
+    // Anchor at projectRoot so monorepo workspace consumers writing from
+    // a sub-package config land sidecars inside that workspace rather
+    // than under whatever process.cwd() happens to be at test time.
+    const dir = path.join(projectRoot, bucket.folder, ".safer-spec");
     const file = path.join(dir, `${sidecarSlug(bucket.folder)}.execution.json`);
     yield* fs
       .makeDirectory(dir, { recursive: true })
@@ -218,8 +223,9 @@ const writeOneSidecar = (
 const writeAll = (
   buckets: ReadonlyArray<FolderBucket>,
   generatedAtSha: string,
+  projectRoot: string,
 ): Effect.Effect<void, never, FileSystem.FileSystem | Path.Path> =>
-  Effect.forEach(buckets, (b) => writeOneSidecar(b, generatedAtSha), {
+  Effect.forEach(buckets, (b) => writeOneSidecar(b, generatedAtSha, projectRoot), {
     discard: true,
     concurrency: 1,
   });
@@ -236,7 +242,7 @@ const runReporter = (
     const sha = yield* Effect.orElseSucceed(ShaConfig, () => "uncommitted");
     const buckets = groupByFolder(files, projectRoot);
     if (buckets.length === 0) return;
-    yield* writeAll(buckets, sha);
+    yield* writeAll(buckets, sha, projectRoot);
   });
 
 /**
