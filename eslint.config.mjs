@@ -85,6 +85,11 @@ const ARCHITECTURE_OPTIONS = {
       reason:
         "the itSpec.prop helper takes `fc.Arbitrary<T>` directly; fast-check IS the property-test runtime contract",
     },
+    {
+      package: "@effect/platform-node",
+      reason:
+        "the SaferSpecExecutionReporter class composes NodeContext.layer at its Vitest boundary; Vitest invokes the reporter outside the codemod's CLI composition root, so the reporter owns its node runtime — this is the only public surface that legitimately mentions @effect/platform-node",
+    },
   ],
   layers: [
     {

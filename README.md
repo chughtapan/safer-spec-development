@@ -23,7 +23,7 @@ files written by the package's Vitest reporter. Register it in your
 
 ```ts
 import { defineConfig } from "vitest/config";
-import { SaferSpecExecutionReporter } from "@chughtapan/safer-spec-development";
+import { SaferSpecExecutionReporter } from "@chughtapan/safer-spec-development/reporter";
 
 export default defineConfig({
   test: {
@@ -31,6 +31,11 @@ export default defineConfig({
   },
 });
 ```
+
+Import the reporter from the dedicated `/reporter` subpath, not the
+package root. The root barrel pulls in `itSpec`, which transitively
+imports `vitest`'s test API — Vitest forbids that from a config file
+and will throw `Vitest failed to access its internal state`.
 
 The reporter writes one sidecar per folder whose tests ran. Validate
 compares the sidecar's property-id set against the folder's current

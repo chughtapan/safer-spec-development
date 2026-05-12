@@ -1,10 +1,12 @@
 /**
  * @spec.purpose
  *   Library facade. Re-exports the test-author surface: the `itSpec`
- *   helper, the closed property-type taxonomy, and the Vitest reporter
- *   class downstream consumers register in their own `vitest.config.ts`
- *   so `validate --implemented` can find the per-folder execution
- *   sidecar. The `safer-spec` binary (commands/index.ts) is the
+ *   helper and the closed property-type taxonomy. The
+ *   `SaferSpecExecutionReporter` class lives at a dedicated subpath
+ *   (`@chughtapan/safer-spec-development/reporter`) so consumers can
+ *   import it from `vitest.config.ts` without transitively loading
+ *   `vitest`'s test API (which throws when imported from a config
+ *   file). The `safer-spec` binary (commands/index.ts) is the
  *   integration point for command execution (`generate`, `validate`,
  *   `doctor`, `explain`); those are not re-exported. Folder onboarding
  *   and format-version migration ship as coding-agent skills under
@@ -16,8 +18,4 @@
  */
 
 export { PROPERTY_TYPES, type PropertyType } from "./property-types/index.js";
-export {
-  itSpec,
-  type ItSpec,
-  SaferSpecExecutionReporter,
-} from "./spec/index.js";
+export { itSpec, type ItSpec } from "./spec/index.js";

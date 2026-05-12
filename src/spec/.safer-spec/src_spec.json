@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec",
-  "generatedAtSha": "1e75276801201f68b505182d46170cf5712cfe78",
+  "generatedAtSha": "5dc835394d76a31d773e74db0c029d5750969ac5",
   "exports": [
     {
       "name": "ItSpec",
@@ -47,7 +47,7 @@
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
         "line": 54,
-        "sha": "1e75276801201f68b505182d46170cf5712cfe78"
+        "sha": "5dc835394d76a31d773e74db0c029d5750969ac5"
       }
     },
     {
@@ -72,41 +72,7 @@
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
         "line": 121,
-        "sha": "1e75276801201f68b505182d46170cf5712cfe78"
-      }
-    },
-    {
-      "name": "SaferSpecExecutionReporter",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "filesystem failures are swallowed; the reporter must not crash the test run on a partial sidecar (validate will surface the missing sidecar via its own gap error)",
-        "reason": "separation of concerns; reporting is best-effort, validation is the strict gate."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "on `onFinished`, walks the File tree, aggregates fast-check stats per enclosing folder, and writes one `folder/.safer-spec/slug.execution.json` per folder with measurable stats",
-          "reason": "validate --implemented consumes these sidecars to populate SpecMeta.coverage; the reporter is the typed write boundary."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/reporter.ts",
-        "line": 250,
-        "sha": "1e75276801201f68b505182d46170cf5712cfe78"
+        "sha": "5dc835394d76a31d773e74db0c029d5750969ac5"
       }
     }
   ],
