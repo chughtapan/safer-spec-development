@@ -48,6 +48,7 @@ import {
 import {
   TSDOC_LOWERCASE_TO_INTERNAL,
   blockSpans,
+  nextBlockTagStart,
   firstUndefinedSpecTag,
   offsetToLine,
   parseJsDocText,
@@ -231,9 +232,12 @@ const parseOneJsDoc = (
     };
     const spans = blockSpans(parsed.docComment.customBlocks);
     const out: LocatedDirective[] = [];
-    for (let i = 0; i < spans.length; i++) {
-      const span = spans[i]!;
-      const next = spans[i + 1]?.tagStart ?? null;
+    for (const span of spans) {
+      // Bound the body at the next JSDoc block tag of ANY kind — using
+      // only the next spec block let a trailing `@param`/`@returns`/etc.
+      // get absorbed into the spec body and serialized as part of the
+      // contract.
+      const next = nextBlockTagStart(rawText, span.tagEnd);
       const located = yield* parseOneSpan(ctx, span, next);
       if (located !== null) out.push(located);
     }
