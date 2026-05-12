@@ -5,9 +5,7 @@
  *   uses (unquote, splitReason).
  */
 
-/* eslint-disable max-classes-per-file -- the three closely-related
-   directive parse errors live in one file because they share the same
-   payload shape and lifecycle. */
+ 
 
 import { Data, Effect, Schema } from "effect";
 
@@ -104,8 +102,8 @@ export const unquote = (s: string): string => {
 
 /**
  * Split a body into (head, reason) at the first `reason:` keyword. Both
- * inline form (`@spec.skip "X" reason: <why>`, single line) and the
- * multi-line form (`@spec.skip "X"\n  reason: <why>`) are accepted.
+ * inline form (`@spec.skip "X" reason: &lt;why>`, single line) and the
+ * multi-line form (`@spec.skip "X"\n  reason: &lt;why>`) are accepted.
  *
  * Parts are normalized to single-line form: continuation indentation
  * from JSDoc source (extra spaces after `* `) is collapsed so the

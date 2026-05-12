@@ -7,7 +7,6 @@
  *   Schema constructor is private to this module; the public boundary is
  *   `decodeSpecFrontmatter` (decode unknown YAML output into the typed
  *   shape).
- *
  * @spec.residual-contract none
  *   reason: shape and refinements captured by Effect Schema.
  */

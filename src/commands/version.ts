@@ -1,6 +1,6 @@
 /**
  * @spec.purpose Format version constant for SPEC.md frontmatter and the
- *   `.safer-spec/<folder>.json` sidecar JSON. Co-located with the
+ *   `.safer-spec/&lt;folder>.json` sidecar JSON. Co-located with the
  *   commands because `migrate.ts` bumps it during format-version
  *   transitions and `generate.ts` stamps it onto every emitted SPEC.md.
  */

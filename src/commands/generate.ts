@@ -2,11 +2,10 @@
  * @spec.purpose `generate` command entrypoint. Walks one folder under
  *   `--folder X`, parses `@spec*` JSDoc directives, extracts `itSpec.*`
  *   call sites + JSDoc from `*.spec.test.ts`, composes a `FolderAnalysis`,
- *   and emits one `SPEC.md` plus one `.safer-spec/<slug>.json` sidecar.
+ *   and emits one `SPEC.md` plus one `.safer-spec/&lt;slug>.json` sidecar.
  *   Tagged errors `GenerateError` and `GenerateIOError` are co-located.
  */
-/* eslint-disable max-classes-per-file -- two tagged-error variants
-   (user-error + IO-failure) co-located with the producer. */
+ 
 
 import { FileSystem, Path } from "@effect/platform";
 import { Brand, Data, Effect, Option } from "effect";
@@ -29,7 +28,7 @@ import { serializeSidecar } from "@safer/spec/sidecar-writer.js";
 import {
   buildExportEntries,
   collectExports,
-  findPurpose,
+  indexFilePurposes,
   uniqueExternalSources,
   type DeclaredExport,
 } from "@safer/spec/source-exports.js";
@@ -120,22 +119,6 @@ const collectFolderFiles = (
     return { sources, tests };
   });
 
-const parseSources = (
-  fs: FileSystem.FileSystem,
-  folder: FolderPath,
-  sources: ReadonlyArray<string>,
-): Effect.Effect<ReadonlyArray<LocatedDirective>, GenerateIOError | DirectiveParseError> =>
-  Effect.gen(function* () {
-    const out: LocatedDirective[] = [];
-    for (const filePath of sources) {
-      const source = yield* fs
-        .readFileString(filePath)
-        .pipe(Effect.mapError(ioToGenerate(folder, filePath)));
-      out.push(...(yield* parseFileDirectives(filePath, source)));
-    }
-    return out;
-  });
-
 const exportsOfFile = (
   fs: FileSystem.FileSystem,
   folder: FolderPath,
@@ -151,30 +134,34 @@ const exportsOfFile = (
     });
   });
 
+interface TestParse {
+  readonly rows: ReadonlyArray<PropertyRow>;
+  readonly directives: ReadonlyArray<LocatedDirective>;
+}
+
 const parseTests = (
   fs: FileSystem.FileSystem,
   folder: FolderPath,
   tests: ReadonlyArray<string>,
   declaredExports: ReadonlySet<string>,
-): Effect.Effect<ReadonlyArray<PropertyRow>, GenerateIOError | DirectiveParseError> =>
+): Effect.Effect<TestParse, GenerateIOError | DirectiveParseError> =>
   Effect.gen(function* () {
     const rows: PropertyRow[] = [];
+    const directives: LocatedDirective[] = [];
     for (const filePath of tests) {
       const source = yield* fs
         .readFileString(filePath)
         .pipe(Effect.mapError(ioToGenerate(folder, filePath)));
       const dirs = yield* parseFileDirectives(filePath, source);
+      directives.push(...dirs);
       rows.push(...extractProperties(filePath, source, dirs, declaredExports).rows);
     }
-    return rows;
+    return { rows, directives };
   });
 
-// Project-wide symbol existence set: union of `export …` names across every
-// source file in `ctx.sources`. Passed into `extractProperties` so its typo
-// gate rejects opts.exports names that don't exist anywhere in the project,
-// without rejecting legitimate cross-folder symbol references (tests in
-// `<folder>/__tests__/` often describe properties of symbols imported from
-// sibling subfolders).
+// Project-wide symbol existence set; loosens `extractProperties` typo gate
+// to accept cross-folder symbol references while rejecting non-existent
+// names. See round-14 fix commit for rationale.
 const collectKnownExports = (ctx: ProjectContext): ReadonlySet<string> => {
   const out = new Set<string>();
   for (const sf of ctx.sources) {
@@ -212,19 +199,23 @@ const buildAnalysis = (
       }));
     }
     const declarations = yield* exportsOfFile(bx.fs, folder, indexFilePath, bx.ctx);
-    const externalSources = uniqueExternalSources(declarations, sources);
-    const directives = [
-      ...(yield* parseSources(bx.fs, folder, sources)),
-      ...(yield* parseSources(bx.fs, folder, externalSources)),
-    ];
-    const properties = yield* parseTests(bx.fs, folder, tests, bx.knownExports);
+    const directives: LocatedDirective[] = [];
+    for (const filePath of [...sources, ...uniqueExternalSources(declarations, sources)]) {
+      const source = yield* bx.fs.readFileString(filePath)
+        .pipe(Effect.mapError(ioToGenerate(folder, filePath)));
+      directives.push(...(yield* parseFileDirectives(filePath, source)));
+    }
+    const { rows: properties, directives: testDirectives } =
+      yield* parseTests(bx.fs, folder, tests, bx.knownExports);
+    const purposeByPath = indexFilePurposes([...directives, ...testDirectives]);
+    const toEntry = (p: string) => ({ path: p, purpose: purposeByPath.get(p) ?? null });
     return {
       folder,
-      purpose: findPurpose(directives, indexFilePath),
+      purpose: purposeByPath.get(indexFilePath) ?? null,
       exports: buildExportEntries(declarations, directives),
       properties,
-      sourceFiles: sources,
-      testFiles: tests,
+      sourceFiles: sources.map(toEntry),
+      testFiles: tests.map(toEntry),
     };
   });
 

@@ -1,7 +1,7 @@
 ---
 folder: src
 format-version: 0.1.0
-generatedAtSha: e42329e753e07ca4d07a08118b9ccb496416965c
+generatedAtSha: 2861f143a5d64b74b7732ca55008094e36d6a60a
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -114,7 +114,7 @@ export const itSpec: ItSpec = {
 
 ## Files
 
-- `src/index.ts`
+- [`src/index.ts`](./index.ts) — Library facade. Re-exports the test-author surface: the \`itSpec\` helper and the closed property-type taxonomy. The \`safer-spec\` binary (commands/index.ts) is the integration point for command execution (\`generate\`, \`validate\`, \`init\`, \`doctor\`, \`migrate\`, \`explain\`); those are not re-exported from this facade.  This barrel carries \`@spec.purpose\` only. Per-export \`@spec.assume\`, \`@spec.guarantee\`, and \`@spec.residual-contract\` directives live on the declarations in their source modules.
 
 ## Properties
 

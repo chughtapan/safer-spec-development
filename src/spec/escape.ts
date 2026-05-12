@@ -7,7 +7,6 @@
  *   `enforceLengthCap` shares the cap constant and emits the same overflow
  *   error class. The four escape functions are exported as the
  *   spec domain's emit-time sanitization boundary.
- *
  * @spec.guarantee Every output of these functions is safe to interpolate into
  *   its target surface (Markdown / YAML / JSON) without producing an extra
  *   syntactic structure.
@@ -75,7 +74,7 @@ export const escapeForYaml = (
 
 /**
  * @spec.guarantee "output is JSON-string-safe; quotes, backslashes, control characters are escaped"
- *   reason: trust contract; emitted into `.safer-spec/<folder>.json`.
+ *   reason: trust contract; emitted into `.safer-spec/&lt;folder>.json`.
  * @spec.residual-contract "the escaping is one-way"
  *   reason: same as escapeForMarkdown.
  */

@@ -18,7 +18,7 @@ import { parseFileDirectives } from "@safer/spec/directives/index.js";
  * @spec.property jsdoc-parser-rejects-unknown-directive
  * @spec.type Exception Raising
  * @spec.exports parseFileDirectives
- * @spec.claim unknown @spec.* directive names fail with JsDocUnknownDirectiveError on the Effect error channel
+ * @spec.claim unknown `@spec.*` directive names fail with JsDocUnknownDirectiveError on the Effect error channel
  */
 itSpec.todo("jsdoc-parser-rejects-unknown-directive", {
   type: "Exception Raising",

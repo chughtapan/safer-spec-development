@@ -1,5 +1,5 @@
 /**
- * @spec.purpose Writes `.safer-spec/<folder>.json` sidecar files. Sanitizes
+ * @spec.purpose Writes `.safer-spec/&lt;folder>.json` sidecar files. Sanitizes
  *   every string field on emit (size cap + escape) at the sidecar trust
  *   boundary.
  *
@@ -9,8 +9,7 @@
  *   `serializeSidecar` encodes a `SpecArtifact` through the canonical Schema
  *   constructor (private to `sidecar.ts`), producing a JSON string with a
  *   trailing newline. `writeSidecar` writes that JSON to
- *   `.safer-spec/<folder-slug>.json`, creating the directory on first run.
- *
+ *   `.safer-spec/&lt;folder-slug>.json`, creating the directory on first run.
  * @spec.guarantee Output JSON decodes back into `SpecArtifact` via
  *   `decodeSpecArtifact`. Roundtrip property is enforced in the sidecar
  *   domain's `__tests__/`.

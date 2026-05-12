@@ -39,6 +39,24 @@ const injectArchitectureOptions = (rules, options) =>
 // Domain decomposition: each domain owns its types, private schema
 // constructors, and tagged errors. Errors stay with their producer modules,
 // and shared types live in the domain that owns them.
+// The 11 dotted `@spec.*` directive tags the codemod's grammar uses. ACG
+// 0.0.13 turns on `jsdoc/check-tag-names`, which rejects anything not in its
+// built-in whitelist. The tags are the codemod's contract surface (parsed
+// by `src/spec/directives/`); register them as defined.
+const SPEC_DIRECTIVE_TAGS = [
+  "spec.purpose",
+  "spec.ignore",
+  "spec.assume",
+  "spec.guarantee",
+  "spec.residual-contract",
+  "spec.skip",
+  "spec.ignore-export",
+  "spec.property",
+  "spec.type",
+  "spec.exports",
+  "spec.claim",
+];
+
 const ARCHITECTURE_OPTIONS = {
   forbiddenSubpathSegments: [],
   implementationPathSegments: [],
@@ -142,6 +160,7 @@ export default [
       // fills the body"). Replacing every reference would obscure the
       // contract the codemod's design depends on.
       "sonarjs/todo-tag": "off",
+      "jsdoc/check-tag-names": ["error", { definedTags: SPEC_DIRECTIVE_TAGS }],
     },
   },
 
@@ -183,6 +202,7 @@ export default [
       ),
       "sonarjs/no-empty-test-file": "off",
       "sonarjs/todo-tag": "off",
+      "jsdoc/check-tag-names": ["error", { definedTags: SPEC_DIRECTIVE_TAGS }],
       "import/no-relative-parent-imports": "error",
       "import/no-relative-packages": "error",
     },

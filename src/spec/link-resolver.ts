@@ -18,7 +18,6 @@
  *   build-time `validate` gate is responsible for fail-closed checking that
  *   intra-file symbols actually exist; this resolver returns the
  *   `LinkResolution` so the emit step can stamp an anchor.
- *
  * @spec.guarantee Unresolved internal references resolve to `intra-file`
  *   placeholders that the validate gate inspects; unresolved external
  *   references return `UnresolvedExternal` (no failure).
@@ -119,7 +118,7 @@ export const resolveSymbol = (
   });
 
 /**
- * Path-relative-to-folder for source links inside `<folder>/SPEC.md`.
+ * Path-relative-to-folder for source links inside `&lt;folder>/SPEC.md`.
  * Same-folder: `./name.ts`. Cross-folder: `../...`. Absolute/external:
  * passthrough.
  */

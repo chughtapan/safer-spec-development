@@ -1,7 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable max-classes-per-file -- the CLI binary emits two
-   closely-related tagged errors (CliExitCode, CliUsageError); co-locating
-   them with the binary they belong to is per-domain ownership. */
+ 
 /**
  * @spec.purpose CLI binary. Composes the six subcommands (`init`, `generate`,
  *   `validate`, `doctor`, `explain`, `migrate`) into the top-level

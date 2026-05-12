@@ -9,9 +9,7 @@
  *   `validate.ts` (this module is internal to the commands layer).
  */
 
-/* eslint-disable max-classes-per-file -- validate's four gap-class errors are
-   tagged-union variants co-located with the check effect that emits each one;
-   per-domain ownership keeps the producer and the error class in one file. */
+ 
 
 import { FileSystem } from "@effect/platform";
 import { Data, Effect, Schema } from "effect";

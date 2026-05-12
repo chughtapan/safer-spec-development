@@ -17,6 +17,7 @@ import type { ExportEntry, ExportKind } from "@safer/spec/emit.js";
 
 export interface DeclaredExport {
   readonly name: string;
+
   /**
    * Underlying declaration's own name. For `export { foo as bar }`, `name`
    * is `bar` (the public alias) and `declaredName` is `foo` (the symbol
@@ -51,7 +52,7 @@ const stripFunctionBody = (
 /**
  * Find the offset of the class body's opening `{` by walking braces
  * right-to-left from the closing `}`. This skips `{...}` that appear
- * inside type arguments (`<{ readonly code: number }>` etc.), which a
+ * inside type arguments (`&lt;{ readonly code: number }>` etc.), which a
  * naive `indexOf("{")` would match first.
  */
 const findClassBodyOpenBrace = (trimmed: string): number => {
@@ -374,19 +375,19 @@ export const buildExportEntries = (
 };
 
 /**
- * Folder purpose is canonical to the `<folder>/index.ts` barrel.
- * Per-file `@spec.purpose` directives on non-index sources describe the
- * file's local intent and do not represent the folder.
+ * Per-file `@spec.purpose` index. First occurrence wins (matches emit's
+ * source-order convention). Callers read the folder's index.ts purpose
+ * as `map.get(indexFilePath) ?? null`; the SPEC.md Files section reads
+ * per-file purposes the same way.
  */
-export const findPurpose = (
+export const indexFilePurposes = (
   directives: ReadonlyArray<LocatedDirective>,
-  indexFilePath: string,
-): string | null => {
+): ReadonlyMap<string, string> => {
+  const out = new Map<string, string>();
   for (const { directive, location } of directives) {
-    if (directive._tag === "purpose" && location.path === indexFilePath) {
-      return directive.body;
-    }
+    if (directive._tag !== "purpose") continue;
+    if (!out.has(location.path)) out.set(location.path, directive.body);
   }
-  return null;
+  return out;
 };
 

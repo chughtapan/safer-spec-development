@@ -9,8 +9,8 @@
  *   (p=0.3299), Constant Inclusion (p=0.8969).
  *
  *   The codemod assumes ALL property types apply to every export by default.
- *   Opting out is explicit via per-export `@spec.skip "<PropertyType>"
- *   reason: <why>` directives. There is no built-in matrix mapping export
+ *   Opting out is explicit via per-export `@spec.skip "&lt;PropertyType>"
+ *   reason: &lt;why>` directives. There is no built-in matrix mapping export
  *   shapes to required property types — that prescription belongs in the
  *   author's `@spec.skip` reasons, not in the tool.
  *

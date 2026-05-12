@@ -21,6 +21,7 @@ export class ProjectContextError extends Data.TaggedError("ProjectContextError")
 export interface ProjectContext {
   readonly sources: ReadonlyArray<SourceFile>;
   readonly paths: Readonly<Record<string, ReadonlyArray<string>>>;
+
   /**
    * tsconfig.compilerOptions.baseUrl (the root `paths` resolve relative to).
    * Defaults to "." when tsconfig omits it; TypeScript requires baseUrl when

@@ -28,7 +28,7 @@ import { serializeSidecar } from "@safer/spec/sidecar-writer.js";
 import {
   buildExportEntries,
   collectExports,
-  findPurpose,
+  indexFilePurposes,
   uniqueExternalSources,
 } from "@safer/spec/source-exports.js";
 import { extractProperties, type ItSpecIssue } from "@safer/spec/todos.js";
@@ -127,6 +127,7 @@ const parseSources = (
 interface TestParseResult {
   readonly rows: ReadonlyArray<PropertyRow>;
   readonly issues: ReadonlyArray<ItSpecIssue>;
+  readonly directives: ReadonlyArray<LocatedDirective>;
 }
 
 // Project-wide symbol existence set (same rationale as
@@ -155,14 +156,16 @@ const parseTests = (
   Effect.gen(function* () {
     const rows: PropertyRow[] = [];
     const issues: ItSpecIssue[] = [];
+    const directives: LocatedDirective[] = [];
     for (const p of tests) {
       const src = yield* readSource(fs, p);
       const parsed = yield* parseFileDirectives(p, src);
+      directives.push(...parsed);
       const r = extractProperties(p, src, parsed, declaredExports);
       rows.push(...r.rows);
       issues.push(...r.issues);
     }
-    return { rows, issues };
+    return { rows, issues, directives };
   });
 
 export interface FolderInspection {
@@ -195,14 +198,16 @@ export const inspectFolder = (
     const externalDirectives = yield* parseSources(fs, externalSources);
     const directives = [...localDirectives, ...externalDirectives];
     const tests = yield* parseTests(fs, inputs.tests, collectKnownExports(ctx));
+    const purposeByPath = indexFilePurposes([...directives, ...tests.directives]);
+    const toEntry = (p: string) => ({ path: p, purpose: purposeByPath.get(p) ?? null });
     return {
       analysis: {
         folder,
-        purpose: findPurpose(directives, inputs.indexFilePath),
+        purpose: purposeByPath.get(inputs.indexFilePath) ?? null,
         exports: buildExportEntries(declarations, directives),
         properties: tests.rows,
-        sourceFiles: inputs.sources,
-        testFiles: inputs.tests,
+        sourceFiles: inputs.sources.map(toEntry),
+        testFiles: inputs.tests.map(toEntry),
       },
       issues: tests.issues,
     };
@@ -298,7 +303,7 @@ const SHA_LINE_JSON = /"(generatedAtSha|sha)":\s*"[^"]*"/g;
 export const stripVolatileJson = (text: string): string =>
   text.replace(SHA_LINE_JSON, '"$1": "<NORMALIZED>"');
 
-/** Slug for the per-folder sidecar JSON path: `<folder>/.safer-spec/<slug>.json`. */
+/** Slug for the per-folder sidecar JSON path: `&lt;folder>/.safer-spec/&lt;slug>.json`. */
 export const sidecarSlug = (folder: string): string =>
   folder.replace(/^\.\//, "").replace(/\//g, "_");
 
@@ -346,7 +351,7 @@ const walkOnce = (
  * @spec.guarantee "returns every directory under `root` that contains an `index.ts` barrel; results are insertion-ordered (root-first depth-first)"
  *   reason: contract; both `generate` and `validate` iterate this list when
  *           no `--folder` is given. Walking from `.` finds barrels under any
- *           top-level layout (`src/`, `packages/<name>/`, app workspaces).
+ *           top-level layout (`src/`, `packages/&lt;name>/`, app workspaces).
  * @spec.residual-contract "dot-prefixed directories, `__tests__`, `node_modules`, `dist`, `build`, `coverage`, and `.safer-spec` are skipped; symlinks are not followed"
  *   reason: avoid descending into vendored dependencies, build output, and
  *           the codemod's own sidecar dirs.

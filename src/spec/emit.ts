@@ -57,13 +57,19 @@ export interface PropertyRow {
   readonly stubbed: boolean;
 }
 
+interface FileEntry {
+  readonly path: string;
+  /** First-block JSDoc `@spec.purpose` body, or null if the file has none. */
+  readonly purpose: string | null;
+}
+
 export interface FolderAnalysis {
   readonly folder: string;
   readonly purpose: string | null;
   readonly exports: ReadonlyArray<ExportEntry>;
   readonly properties: ReadonlyArray<PropertyRow>;
-  readonly sourceFiles: ReadonlyArray<string>;
-  readonly testFiles: ReadonlyArray<string>;
+  readonly sourceFiles: ReadonlyArray<FileEntry>;
+  readonly testFiles: ReadonlyArray<FileEntry>;
 }
 
 const emitResidualList = (
@@ -105,21 +111,17 @@ const emitSkipped = (
 };
 
 /**
- * Compute a relative anchor link from the SPEC.md (at `<folder>/SPEC.md`)
+ * Compute a relative anchor link from the SPEC.md (at `&lt;folder>/SPEC.md`)
  * to the declaration's source file + line. `#Lnnn` is GitHub/IDE-style.
  */
 const sourceLink = (folder: string, path: string, line: number): string =>
   `${relativeToFolder(folder, path)}#L${String(line)}`;
 
-const emitSignatureBlock = (e: ExportEntry): ReadonlyArray<string> => {
-  if (e.signature.length === 0) return [];
-  return ["", "```ts", e.signature, "```"];
-};
+const emitSignatureBlock = (e: ExportEntry): ReadonlyArray<string> =>
+  e.signature.length === 0 ? [] : ["", "```ts", e.signature, "```"];
 
-const emitDescription = (e: ExportEntry): ReadonlyArray<string> => {
-  if (e.description.length === 0) return [];
-  return ["", e.description];
-};
+const emitDescription = (e: ExportEntry): ReadonlyArray<string> =>
+  e.description.length === 0 ? [] : ["", e.description];
 
 const emitExportSection = (
   folder: string,
@@ -235,11 +237,18 @@ export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => {
   if (a.exports.length === 0) lines.push("_No exports._");
   else for (const e of a.exports) lines.push(...emitExportSection(a.folder, e));
   lines.push("## Files", "");
-  const allFiles = [...a.sourceFiles, ...a.testFiles].sort();
+  const allFiles = [...a.sourceFiles, ...a.testFiles]
+    .slice()
+    .sort((x, y) => x.path.localeCompare(y.path));
   if (allFiles.length === 0) lines.push("_No files._");
-  else for (const f of allFiles) lines.push(`- \`${f}\``);
+  else for (const f of allFiles) lines.push(emitFileLine(a.folder, f));
   lines.push("", "## Properties", "", ...emitPropertiesTable(a.properties), "");
   return lines.join("\n");
+};
+
+const emitFileLine = (folder: string, f: FileEntry): string => {
+  const label = `[\`${f.path}\`](${relativeToFolder(folder, f.path)})`;
+  return f.purpose === null ? `- ${label}` : `- ${label} — ${escapeForMarkdownProse(f.purpose)}`;
 };
 
 type Shape = "Schema" | "RpcDefinition" | "function" | "type" | "Branded" | "unknown";
