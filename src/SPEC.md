@@ -1,7 +1,7 @@
 ---
 folder: src
 format-version: 0.1.0
-generatedAtSha: b7fea4274d0df8795ecf5419e47c5ecebb6dd6f7
+generatedAtSha: 1e75276801201f68b505182d46170cf5712cfe78
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -24,7 +24,7 @@ thresholds:
 
 ## Purpose
 
-Library facade. Re-exports the test-author surface: the `itSpec` helper and the closed property-type taxonomy. The `safer-spec` binary (commands/index.ts) is the integration point for command execution (`generate`, `validate`, `init`, `doctor`, `migrate`, `explain`); those are not re-exported from this facade.
+Library facade. Re-exports the test-author surface: the `itSpec` helper, the closed property-type taxonomy, and the Vitest reporter class downstream consumers register in their own `vitest.config.ts` so `validate --implemented` can find the per-folder execution sidecar. The `safer-spec` binary (commands/index.ts) is the integration point for command execution (`generate`, `validate`, `init`, `doctor`, `migrate`, `explain`); those are not re-exported.
 
 This barrel carries `@spec.purpose` only. Per-export `@spec.assume`, `@spec.guarantee`, and `@spec.residual-contract` directives live on the declarations in their source modules.
 
@@ -125,12 +125,23 @@ export const itSpec: ItSpec = {
 };
 ```
 
+### [`SaferSpecExecutionReporter`](./spec/reporter.ts#L250)
+
+```ts
+export class SaferSpecExecutionReporter { /* ... */ }
+```
+
+**Guarantees:**
+- "on \`onFinished\`, walks the File tree, aggregates fast-check stats per enclosing folder, and writes one \`folder/.safer-spec/slug.execution.json\` per folder with measurable stats" — _validate --implemented consumes these sidecars to populate SpecMeta.coverage; the reporter is the typed write boundary._
+
+**Residual contract:** "filesystem failures are swallowed; the reporter must not crash the test run on a partial sidecar (validate will surface the missing sidecar via its own gap error)" — _separation of concerns; reporting is best-effort, validation is the strict gate._
+
 ## Children
 
 - [`commands/`](./commands/SPEC.md) — CLI binary. Composes the six subcommands (\`init\`, \`generate\`, \`validate\`, \`doctor\`, \`explain\`, \`migrate\`) into the top-level \`safer-spec\` Command, then translates each tagged failure into \`process.exit(N)\` at the runtime boundary.  Exit-code mapping at this boundary: - \`MissingSpecPropertyError\` → exit 11 - \`MissingStubError\`         → exit 12 - \`MissingImplError\`         → exit 13 - \`CliUsageError\`            → exit 2 (POSIX usage convention) - any other defect / failure → \`NodeRuntime.runMain\` default (non-zero)  Tagged errors \`CliExitCode\` and \`CliUsageError\` are co-located here.
 - [`property-types/`](./property-types/SPEC.md) — Closed taxonomy of property assertion types. Terminal domain — no upward dependencies.  The 9 OOPSLA-significant property types (Roundtrip, Inclusion, Exception Raising, …). Source: Ravi & Coblenz, OOPSLA 2025 (12 categories), filtered to the 9 statistically significant ones. Dropped: Generated-Expression Bounds Checking (p=0.0627), Generated-Expression Non-Equality (p=0.3299), Constant Inclusion (p=0.8969).  The codemod assumes ALL property types apply to every export by default. Opting out is explicit via per-export \`@spec.skip "&lt;PropertyType&gt;" reason: &lt;why&gt;\` directives. There is no built-in matrix mapping export shapes to required property types — that prescription belongs in the author's \`@spec.skip\` reasons, not in the tool.  Per-repo extension via \`safer-spec.config.ts\` \`propertyTypesExtension: PropertyType\[\]\`.
-- [`spec/`](./spec/SPEC.md) — Spec domain barrel. Anchors \`src/spec/SPEC.md\` (codemod requires every folder with a SPEC to expose an \`index.ts\` barrel) and re-exports the test-author surface (\`itSpec\`, \`ItSpec\`) consumed by the package facade. The richer spec-format machinery (directive parser, emitter, sidecar writer, link resolver) is consumed directly by \`commands/\` via path aliases; routing it through this barrel would be ceremony without a caller.
-- [`index.ts`](./index.ts) — Library facade. Re-exports the test-author surface: the \`itSpec\` helper and the closed property-type taxonomy. The \`safer-spec\` binary (commands/index.ts) is the integration point for command execution (\`generate\`, \`validate\`, \`init\`, \`doctor\`, \`migrate\`, \`explain\`); those are not re-exported from this facade.  This barrel carries \`@spec.purpose\` only. Per-export \`@spec.assume\`, \`@spec.guarantee\`, and \`@spec.residual-contract\` directives live on the declarations in their source modules.
+- [`spec/`](./spec/SPEC.md) — Spec domain barrel. Anchors \`src/spec/SPEC.md\` (codemod requires every folder with a SPEC to expose an \`index.ts\` barrel) and re-exports the test-author surface (\`itSpec\`, \`ItSpec\`) plus the Vitest reporter class (\`SaferSpecExecutionReporter\`) consumers register in their own \`vitest.config.ts\` so \`validate --implemented\` can find the per-folder execution sidecar. The richer spec-format machinery (directive parser, emitter, sidecar writer, link resolver) is consumed directly by \`commands/\` via path aliases; routing it through this barrel would be ceremony without a caller.
+- [`index.ts`](./index.ts) — Library facade. Re-exports the test-author surface: the \`itSpec\` helper, the closed property-type taxonomy, and the Vitest reporter class downstream consumers register in their own \`vitest.config.ts\` so \`validate --implemented\` can find the per-folder execution sidecar. The \`safer-spec\` binary (commands/index.ts) is the integration point for command execution (\`generate\`, \`validate\`, \`init\`, \`doctor\`, \`migrate\`, \`explain\`); those are not re-exported.  This barrel carries \`@spec.purpose\` only. Per-export \`@spec.assume\`, \`@spec.guarantee\`, and \`@spec.residual-contract\` directives live on the declarations in their source modules.
 
 ## Properties
 
