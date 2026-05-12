@@ -56,7 +56,6 @@ class GenerateIOError extends Data.TaggedError("GenerateIOError")<{
 }> {}
 
 interface GenerateInput {
-  /** `Option.none()` is not yet supported; the first slice requires a folder. */
   readonly folder: Option.Option<string>;
   readonly write: boolean;
   readonly dryRun: boolean;
@@ -83,15 +82,11 @@ const folderSlug = (folder: FolderPath): string =>
   folder.replace(/^\.\//, "").replace(/\//g, "_");
 
 const causeOf = (e: unknown): string => {
-  if (typeof e === "object" && e !== null && "message" in e) {
-    const m = (e as { message: unknown }).message;
-    if (typeof m === "string") return m;
-  }
-  return String(e);
+  if (typeof e !== "object" || e === null || !("message" in e)) return String(e);
+  const m = (e as { message: unknown }).message;
+  return typeof m === "string" ? m : String(e);
 };
-
-const ioToGenerate =
-  (folder: FolderPath, path: string) =>
+const ioToGenerate = (folder: FolderPath, path: string) =>
   (e: unknown): GenerateIOError =>
     new GenerateIOError({ folder, path, cause: causeOf(e) });
 
@@ -141,23 +136,18 @@ const parseSources = (
     return out;
   });
 
-const collectIndexDeclarations = (
+const exportsOfFile = (
   fs: FileSystem.FileSystem,
   folder: FolderPath,
-  indexFilePath: string,
+  filePath: string,
   ctx: ProjectContext,
 ): Effect.Effect<ReadonlyArray<DeclaredExport>, GenerateIOError> =>
   Effect.gen(function* () {
-    const indexFile = ctx.sources.find((s) => s.path === indexFilePath);
-    const indexSource =
-      indexFile?.source ??
-      (yield* fs
-        .readFileString(indexFilePath)
-        .pipe(Effect.mapError(ioToGenerate(folder, indexFilePath))));
-    return collectExports(indexFilePath, indexSource, {
-      siblings: ctx.sources,
-      paths: ctx.paths,
-      baseUrl: ctx.baseUrl,
+    const cached = ctx.sources.find((s) => s.path === filePath);
+    const src = cached?.source ??
+      (yield* fs.readFileString(filePath).pipe(Effect.mapError(ioToGenerate(folder, filePath))));
+    return collectExports(filePath, src, {
+      siblings: ctx.sources, paths: ctx.paths, baseUrl: ctx.baseUrl,
     });
   });
 
@@ -165,6 +155,7 @@ const parseTests = (
   fs: FileSystem.FileSystem,
   folder: FolderPath,
   tests: ReadonlyArray<string>,
+  declaredExports: ReadonlySet<string>,
 ): Effect.Effect<ReadonlyArray<PropertyRow>, GenerateIOError | DirectiveParseError> =>
   Effect.gen(function* () {
     const rows: PropertyRow[] = [];
@@ -173,43 +164,60 @@ const parseTests = (
         .readFileString(filePath)
         .pipe(Effect.mapError(ioToGenerate(folder, filePath)));
       const dirs = yield* parseFileDirectives(filePath, source);
-      rows.push(...extractProperties(filePath, source, dirs).rows);
+      rows.push(...extractProperties(filePath, source, dirs, declaredExports).rows);
     }
     return rows;
   });
 
+// Project-wide symbol existence set: union of `export …` names across every
+// source file in `ctx.sources`. Passed into `extractProperties` so its typo
+// gate rejects opts.exports names that don't exist anywhere in the project,
+// without rejecting legitimate cross-folder symbol references (tests in
+// `<folder>/__tests__/` often describe properties of symbols imported from
+// sibling subfolders).
+const collectKnownExports = (ctx: ProjectContext): ReadonlySet<string> => {
+  const out = new Set<string>();
+  for (const sf of ctx.sources) {
+    for (const d of collectExports(sf.path, sf.source, {
+      siblings: ctx.sources, paths: ctx.paths, baseUrl: ctx.baseUrl,
+    })) {
+      out.add(d.name);
+      out.add(d.declaredName);
+    }
+  }
+  return out;
+};
+
+interface BuildCtx {
+  readonly fs: FileSystem.FileSystem;
+  readonly path: Path.Path;
+  readonly ctx: ProjectContext;
+  readonly knownExports: ReadonlySet<string>;
+}
+
 const buildAnalysis = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
+  bx: BuildCtx,
   folder: FolderPath,
-  ctx: ProjectContext,
 ): Effect.Effect<FolderAnalysis, GenerateAnyError> =>
   Effect.gen(function* () {
-    const entries = yield* fs
-      .readDirectory(folder)
-      .pipe(
-        Effect.map((es) => [...es].sort()),
-        Effect.mapError(ioToGenerate(folder, folder)),
-      );
-    const { sources, tests } = yield* collectFolderFiles(fs, path, folder, entries);
-    const indexFilePath = sources.find((p) => path.basename(p) === "index.ts");
+    const entries = yield* bx.fs.readDirectory(folder).pipe(
+      Effect.map((es) => [...es].sort()),
+      Effect.mapError(ioToGenerate(folder, folder)),
+    );
+    const { sources, tests } = yield* collectFolderFiles(bx.fs, bx.path, folder, entries);
+    const indexFilePath = sources.find((p) => bx.path.basename(p) === "index.ts");
     if (indexFilePath === undefined) {
-      return yield* Effect.fail(
-        new GenerateError({
-          folder,
-          reason: "folder has no `index.ts` barrel; folder spec requires one",
-        }),
-      );
+      return yield* Effect.fail(new GenerateError({
+        folder, reason: "folder has no `index.ts` barrel; folder spec requires one",
+      }));
     }
-    const declarations = yield* collectIndexDeclarations(fs, folder, indexFilePath, ctx);
-    // Cross-folder re-exports: a barrel importing `{ X } from "../other"`
-    // needs X's source parsed too, else its `@spec.guarantee` etc. drop.
+    const declarations = yield* exportsOfFile(bx.fs, folder, indexFilePath, bx.ctx);
     const externalSources = uniqueExternalSources(declarations, sources);
     const directives = [
-      ...(yield* parseSources(fs, folder, sources)),
-      ...(yield* parseSources(fs, folder, externalSources)),
+      ...(yield* parseSources(bx.fs, folder, sources)),
+      ...(yield* parseSources(bx.fs, folder, externalSources)),
     ];
-    const properties = yield* parseTests(fs, folder, tests);
+    const properties = yield* parseTests(bx.fs, folder, tests, bx.knownExports);
     return {
       folder,
       purpose: findPurpose(directives, indexFilePath),
@@ -266,7 +274,7 @@ const resolveFolders = (
   if (Option.isSome(input.folder)) {
     return Effect.succeed([FolderPath(normalizeFolder(input.folder.value))]);
   }
-  return discoverFolders(fs, path, "src").pipe(
+  return discoverFolders(fs, path, ".").pipe(
     Effect.map((discovered) => discovered.map(FolderPath)),
   );
 };
@@ -299,7 +307,7 @@ export const generate = (
       return yield* Effect.fail(
         new GenerateError({
           folder: FolderPath("<none>"),
-          reason: "no folders to generate (none under `src` contain `index.ts`)",
+          reason: "no folders to generate (no `index.ts` barrel under the project root)",
         }),
       );
     }
@@ -308,9 +316,10 @@ export const generate = (
         Effect.die(new Error(`failed to load project context: ${e.cause}`)),
       ),
     );
+    const bx: BuildCtx = { fs, path, ctx, knownExports: collectKnownExports(ctx) };
     const written: string[] = [];
     for (const folder of folders) {
-      const analysis = yield* buildAnalysis(fs, path, folder, ctx);
+      const analysis = yield* buildAnalysis(bx, folder);
       const meta = buildSpecMeta(analysis, ctx);
       const markdown = emitMarkdown(analysis, meta);
       const sidecarJson = yield* renderSidecar(buildSpecArtifact(analysis, meta), folder);

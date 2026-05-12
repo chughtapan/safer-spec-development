@@ -129,7 +129,7 @@ const resolveFolders = (
 ): Effect.Effect<ReadonlyArray<string>, never> =>
   Option.isSome(input.folder)
     ? Effect.succeed([normalizeFolder(input.folder.value)])
-    : discoverFolders(fs, path, "src");
+    : discoverFolders(fs, path, ".");
 
 /**
  * @spec.assume "the underlying `generate` step is deterministic at the same tree SHA"

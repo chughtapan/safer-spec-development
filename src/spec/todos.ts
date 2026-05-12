@@ -153,6 +153,7 @@ const sameArray = (
 interface CrossCheckCtx {
   readonly path: string;
   readonly line: number;
+  readonly declaredExports: ReadonlySet<string>;
 }
 
 const mismatch = (ctx: CrossCheckCtx, detail: string): ItSpecIssue => ({
@@ -205,6 +206,14 @@ const checkType = (
   return mismatch(ctx, `JSDoc @spec.type "${found.type.propertyType}" vs itSpec opts.type "${value}"`);
 };
 
+const unknownNames = (
+  names: ReadonlyArray<string>,
+  declaredExports: ReadonlySet<string>,
+): ReadonlyArray<string> =>
+  declaredExports.size === 0
+    ? []
+    : names.filter((n) => !declaredExports.has(n));
+
 const checkExports = (
   call: CallExpression,
   found: RequiredDirectives,
@@ -222,17 +231,31 @@ const checkExports = (
       `JSDoc @spec.exports [${declared.join(", ")}] vs itSpec opts.exports [] (runtime metadata empty or omitted)`,
     );
   }
-  if (sameArray([...runtime].sort(), [...declared].sort())) return null;
-  return mismatch(ctx, `JSDoc @spec.exports [${declared.join(", ")}] vs itSpec opts.exports [${runtime.join(", ")}]`);
+  if (!sameArray([...runtime].sort(), [...declared].sort())) {
+    return mismatch(ctx, `JSDoc @spec.exports [${declared.join(", ")}] vs itSpec opts.exports [${runtime.join(", ")}]`);
+  }
+  // JSDoc and runtime agree; cross-check that the symbols actually exist
+  // somewhere in the folder's source files. Without this gate, a shared
+  // typo (both JSDoc and runtime reference a non-existent or local-helper
+  // name) would produce a spec row for a symbol the folder never exports.
+  // The set is folder-wide (any source file's `export …`), not barrel-only:
+  // tests legitimately describe properties of sibling-imported symbols that
+  // are not re-exported through `index.ts`.
+  const missing = unknownNames(runtime, ctx.declaredExports);
+  if (missing.length > 0) {
+    return mismatch(
+      ctx,
+      `itSpec opts.exports references symbol(s) [${missing.join(", ")}] not exported by any file in the folder`,
+    );
+  }
+  return null;
 };
 
 const crossCheckIssues = (
   call: CallExpression,
   found: RequiredDirectives,
-  path: string,
-  line: number,
+  ctx: CrossCheckCtx,
 ): ReadonlyArray<ItSpecIssue> => {
-  const ctx: CrossCheckCtx = { path, line };
   const issues: ItSpecIssue[] = [];
   for (const check of [checkProperty, checkType, checkExports]) {
     const i = check(call, found, ctx);
@@ -264,6 +287,7 @@ const isTriviallyEmptyBody = (call: CallExpression): boolean => {
 interface BuildContext {
   readonly filePath: string;
   readonly directives: ReadonlyArray<LocatedDirective>;
+  readonly declaredExports: ReadonlySet<string>;
 }
 
 const buildForCall = (
@@ -286,7 +310,11 @@ const buildForCall = (
     });
     return { row: null, issues };
   }
-  issues.push(...crossCheckIssues(call, found, ctx.filePath, site.line));
+  issues.push(...crossCheckIssues(call, found, {
+    path: ctx.filePath,
+    line: site.line,
+    declaredExports: ctx.declaredExports,
+  }));
   if (!site.stubbed && isTriviallyEmptyBody(call)) {
     issues.push({
       kind: "empty-body",
@@ -309,10 +337,10 @@ const buildForCall = (
 };
 
 /**
- * @spec.guarantee "every returned row has all four required directives bound to the JSDoc immediately preceding the itSpec call; issues surface missing directives, JSDoc↔runtime mismatches, and empty itSpec.prop bodies"
- *   reason: contract; `## Properties` table assumes one-to-one rows;
- *           validate's gap-class errors are derived from issues.
- * @spec.residual-contract "calls under nested ExpressionStatements (e.g. inside an iife) are not bound; their JSDoc lookup returns null and falls into missing-directive"
+ * @spec.guarantee "rows carry all four required directives bound to the JSDoc immediately preceding the itSpec call; issues cover missing directives, JSDoc↔runtime mismatch, opts.exports outside `declaredExports`, and empty prop bodies"
+ *   reason: validate's gap-class errors derive from issues; `declaredExports`
+ *           empty skips the barrel-membership gate (back-compat).
+ * @spec.residual-contract "calls under nested ExpressionStatements are not bound; JSDoc lookup returns null and the call falls into missing-directive"
  *   reason: ts-morph's getJsDocs is a property of the immediate parent
  *           statement; nested forms are not in scope for this slice.
  */
@@ -320,12 +348,13 @@ export const extractProperties = (
   filePath: string,
   source: string,
   directives: ReadonlyArray<LocatedDirective>,
+  declaredExports: ReadonlySet<string> = new Set(),
 ): ExtractResult => {
   const project = new Project({ useInMemoryFileSystem: true });
   const sf = project.createSourceFile(filePath, source, { overwrite: true });
   const rows: PropertyRow[] = [];
   const issues: ItSpecIssue[] = [];
-  const ctx: BuildContext = { filePath, directives };
+  const ctx: BuildContext = { filePath, directives, declaredExports };
   for (const call of sf.getDescendantsOfKind(SyntaxKind.CallExpression)) {
     const { row, issues: callIssues } = buildForCall(ctx, call);
     if (row !== null) rows.push(row);

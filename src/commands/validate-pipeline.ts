@@ -129,9 +129,28 @@ interface TestParseResult {
   readonly issues: ReadonlyArray<ItSpecIssue>;
 }
 
+// Project-wide symbol existence set (same rationale as
+// `commands/generate.ts` `collectKnownExports`): union of `export …` names
+// across every source file in `ctx.sources`. Loosens the new typo gate to
+// reject opts.exports names that don't exist anywhere while still allowing
+// cross-folder references the dogfood depends on.
+const collectKnownExports = (ctx: ProjectContext): ReadonlySet<string> => {
+  const out = new Set<string>();
+  for (const sf of ctx.sources) {
+    for (const d of collectExports(sf.path, sf.source, {
+      siblings: ctx.sources, paths: ctx.paths, baseUrl: ctx.baseUrl,
+    })) {
+      out.add(d.name);
+      out.add(d.declaredName);
+    }
+  }
+  return out;
+};
+
 const parseTests = (
   fs: FileSystem.FileSystem,
   tests: ReadonlyArray<string>,
+  declaredExports: ReadonlySet<string>,
 ): Effect.Effect<TestParseResult, DirectiveParseError> =>
   Effect.gen(function* () {
     const rows: PropertyRow[] = [];
@@ -139,7 +158,7 @@ const parseTests = (
     for (const p of tests) {
       const src = yield* readSource(fs, p);
       const parsed = yield* parseFileDirectives(p, src);
-      const r = extractProperties(p, src, parsed);
+      const r = extractProperties(p, src, parsed, declaredExports);
       rows.push(...r.rows);
       issues.push(...r.issues);
     }
@@ -175,7 +194,7 @@ export const inspectFolder = (
     const localDirectives = yield* parseSources(fs, inputs.sources);
     const externalDirectives = yield* parseSources(fs, externalSources);
     const directives = [...localDirectives, ...externalDirectives];
-    const tests = yield* parseTests(fs, inputs.tests);
+    const tests = yield* parseTests(fs, inputs.tests, collectKnownExports(ctx));
     return {
       analysis: {
         folder,
@@ -298,6 +317,15 @@ export const regenerateSidecar = (
     ),
   );
 
+const SKIP_DIRS_DISCOVERY: ReadonlySet<string> = new Set([
+  "__tests__",
+  "node_modules",
+  "dist",
+  "build",
+  "coverage",
+  ".safer-spec",
+]);
+
 const walkOnce = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
@@ -308,17 +336,20 @@ const walkOnce = (
     const entries = yield* readDirSafe(fs, dir);
     if (entries.includes("index.ts")) out.push(dir);
     for (const name of entries) {
-      if (name === "__tests__" || name.startsWith(".")) continue;
+      if (name.startsWith(".") || SKIP_DIRS_DISCOVERY.has(name)) continue;
       const full = path.join(dir, name);
       if (yield* isDirectory(fs, full)) yield* walkOnce(fs, path, full, out);
     }
   });
 
 /**
- * @spec.guarantee "returns every directory under `root` that contains an `index.ts` barrel"
- *   reason: contract; validate iterates this list when no `--folder` is given.
- * @spec.residual-contract "dot-prefixed directories and `__tests__` are skipped; symlinks are not followed"
- *   reason: scope-of-this-slice contract.
+ * @spec.guarantee "returns every directory under `root` that contains an `index.ts` barrel; results are insertion-ordered (root-first depth-first)"
+ *   reason: contract; both `generate` and `validate` iterate this list when
+ *           no `--folder` is given. Walking from `.` finds barrels under any
+ *           top-level layout (`src/`, `packages/<name>/`, app workspaces).
+ * @spec.residual-contract "dot-prefixed directories, `__tests__`, `node_modules`, `dist`, `build`, `coverage`, and `.safer-spec` are skipped; symlinks are not followed"
+ *   reason: avoid descending into vendored dependencies, build output, and
+ *           the codemod's own sidecar dirs.
  */
 export const discoverFolders = (
   fs: FileSystem.FileSystem,
