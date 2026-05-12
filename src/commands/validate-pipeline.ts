@@ -33,6 +33,13 @@ import {
 } from "@safer/spec/source-exports.js";
 import { extractProperties, type ItSpecIssue } from "@safer/spec/todos.js";
 import type { ProjectContext } from "@safer/commands/project-context.js";
+import {
+  buildChildren,
+  discoverFolders,
+  discoverImmediateSubfolders,
+} from "@safer/commands/folder-discovery.js";
+
+export { discoverFolders, discoverImmediateSubfolders, buildChildren };
 
 export {
   loadProjectContext,
@@ -177,41 +184,46 @@ export interface FolderInspection {
  * @spec.guarantee "produces the same FolderAnalysis shape `generate` emits + the per-test issues list; regenerate-and-compare on `analysis` is byte-deterministic"
  *   reason: roundtrip contract; validate's drift check relies on it.
  */
-export const inspectFolder = (
-  fs: FileSystem.FileSystem,
-  folder: string,
-  inputs: FolderInputs,
-  ctx: ProjectContext,
-): Effect.Effect<FolderInspection, DirectiveParseError> =>
+export interface InspectArgs {
+  readonly fs: FileSystem.FileSystem;
+  readonly path: Path.Path;
+  readonly folder: string;
+  readonly inputs: FolderInputs;
+  readonly ctx: ProjectContext;
+}
+
+export const inspectFolder = ({ fs, path, folder, inputs, ctx }: InspectArgs): Effect.Effect<FolderInspection, DirectiveParseError> =>
   Effect.gen(function* () {
     const indexFile = ctx.sources.find((s) => s.path === inputs.indexFilePath);
     const indexSrc = indexFile?.source ?? (yield* readSource(fs, inputs.indexFilePath));
     const declarations = collectExports(inputs.indexFilePath, indexSrc, {
-      siblings: ctx.sources,
-      paths: ctx.paths,
-      baseUrl: ctx.baseUrl,
+      siblings: ctx.sources, paths: ctx.paths, baseUrl: ctx.baseUrl,
     });
-    // Cross-folder re-export targets get their directives parsed too;
-    // otherwise `@spec.guarantee` on a re-exported symbol is dropped.
     const externalSources = uniqueExternalSources(declarations, inputs.sources);
     const localDirectives = yield* parseSources(fs, inputs.sources);
     const externalDirectives = yield* parseSources(fs, externalSources);
     const directives = [...localDirectives, ...externalDirectives];
     const tests = yield* parseTests(fs, inputs.tests, collectKnownExports(ctx));
-    const purposeByPath = indexFilePurposes([...directives, ...tests.directives]);
-    const toEntry = (p: string) => ({ path: p, purpose: purposeByPath.get(p) ?? null });
+    const subfolders = yield* discoverImmediateSubfolders(fs, path, folder);
+    const subDirectives = yield* parseSources(fs, subfolders.map((s) => path.join(s, "index.ts")));
+    const purposeByPath = indexFilePurposes([
+      ...directives, ...tests.directives, ...subDirectives,
+    ]);
+    const children = buildChildren({
+      folder, sources: inputs.sources, tests: inputs.tests, subfolders, purposeByPath, path,
+    });
     return {
       analysis: {
         folder,
         purpose: purposeByPath.get(inputs.indexFilePath) ?? null,
         exports: buildExportEntries(declarations, directives),
         properties: tests.rows,
-        sourceFiles: inputs.sources.map(toEntry),
-        testFiles: inputs.tests.map(toEntry),
+        children,
       },
       issues: tests.issues,
     };
   }).pipe(Effect.withSpan("commands/validate-pipeline/inspectFolder"));
+
 
 
 /**
@@ -322,47 +334,3 @@ export const regenerateSidecar = (
     ),
   );
 
-const SKIP_DIRS_DISCOVERY: ReadonlySet<string> = new Set([
-  "__tests__",
-  "node_modules",
-  "dist",
-  "build",
-  "coverage",
-  ".safer-spec",
-]);
-
-const walkOnce = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  dir: string,
-  out: string[],
-): Effect.Effect<void, never> =>
-  Effect.gen(function* () {
-    const entries = yield* readDirSafe(fs, dir);
-    if (entries.includes("index.ts")) out.push(dir);
-    for (const name of entries) {
-      if (name.startsWith(".") || SKIP_DIRS_DISCOVERY.has(name)) continue;
-      const full = path.join(dir, name);
-      if (yield* isDirectory(fs, full)) yield* walkOnce(fs, path, full, out);
-    }
-  });
-
-/**
- * @spec.guarantee "returns every directory under `root` that contains an `index.ts` barrel; results are insertion-ordered (root-first depth-first)"
- *   reason: contract; both `generate` and `validate` iterate this list when
- *           no `--folder` is given. Walking from `.` finds barrels under any
- *           top-level layout (`src/`, `packages/&lt;name>/`, app workspaces).
- * @spec.residual-contract "dot-prefixed directories, `__tests__`, `node_modules`, `dist`, `build`, `coverage`, and `.safer-spec` are skipped; symlinks are not followed"
- *   reason: avoid descending into vendored dependencies, build output, and
- *           the codemod's own sidecar dirs.
- */
-export const discoverFolders = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  root: string,
-): Effect.Effect<ReadonlyArray<string>, never> =>
-  Effect.gen(function* () {
-    const out: string[] = [];
-    yield* walkOnce(fs, path, root, out);
-    return out;
-  }).pipe(Effect.withSpan("commands/validate-pipeline/discoverFolders"));

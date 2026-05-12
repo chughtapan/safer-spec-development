@@ -107,6 +107,21 @@ const ARCHITECTURE_OPTIONS = {
     },
   ],
   packageRuntime: "node",
+  // commands/ legitimately holds six @effect/cli Command entrypoints plus
+  // their shared orchestration helpers (project-context, validate-pipeline,
+  // validate-checks, folder-discovery, version, index). 12 prod children
+  // is the cohesive shape; further splitting would fragment the command
+  // layer.
+  folderChildCountOverrides: [
+    {
+      folder: "commands",
+      maxChildren: 12,
+      maxChildrenIncludingTests: 20,
+      maxUnpairedTestChildren: 20,
+      reason:
+        "commands/ holds six @effect/cli Command entrypoints (init, generate, validate, doctor, explain, migrate) plus index.ts (CLI composition root), version.ts (format-version constant), project-context.ts (project-wide loader), validate-pipeline.ts (shared analysis pipeline), validate-checks.ts (cross-check effects), and folder-discovery.ts (recursive + immediate folder walks). Each is a distinct cohesive concern; further splitting fragments the command layer",
+    },
+  ],
 };
 
 export default [

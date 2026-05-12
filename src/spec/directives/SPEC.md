@@ -1,7 +1,7 @@
 ---
 folder: src/spec/directives
 format-version: 0.1.0
-generatedAtSha: 2861f143a5d64b74b7732ca55008094e36d6a60a
+generatedAtSha: ab75c5d5ad913ba964100e83d3c977cffc495bde
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -126,14 +126,14 @@ export const parseFileDirectives = (
 **Guarantees:**
 - "every emitted directive validates against the closed grammar before downstream consumption" — _trust-boundary; agents consume parsed directive bodies as context._
 
-## Files
+## Children
 
-- [`src/spec/directives/file-level.ts`](./file-level.ts) — File-level directives — \`@spec.purpose\` and \`@spec.ignore\`. These attach to \`index.ts\` barrels; the parser treats their location \`exportName\` as \`null\`.
-- [`src/spec/directives/index.ts`](./index.ts) — Directive grammar entry point. Walks TypeScript source via ts-morph and dispatches each parsed TSDoc block (via \`tsdoc-bridge\`) to its per-population parser. Returns the typed \`LocatedDirective\` stream.  The population modules (\`file-level\`, \`per-export\`, \`per-test\`) co-locate each directive's Schema with its parse function. The \`tsdoc-bridge\` module owns the TSDoc configuration and the byte-accurate body extraction.
-- [`src/spec/directives/per-export.ts`](./per-export.ts) — Per-export directives — \`@spec.assume\`, \`@spec.guarantee\`, \`@spec.residual-contract\`, \`@spec.skip\`, \`@spec.ignore-export\`. These attach to public-surface exported declarations; the parser records the declaration's name in \`location.exportName\`. Each directive in this population carries a required \`reason:\` line.
-- [`src/spec/directives/per-test.ts`](./per-test.ts) — Per-test directives — \`@spec.property\`, \`@spec.type\`, \`@spec.exports\`, \`@spec.claim\`. These attach above each \`itSpec.prop\`/\`itSpec.todo\` call site; the parser records \`location.exportName\` as \`null\`.
-- [`src/spec/directives/shared.ts`](./shared.ts) — Shared infrastructure for the per-population directive modules: size caps, the \`ParseError\` union, the three tagged errors the parser can emit, and the small string helpers each population uses (unquote, splitReason).
-- [`src/spec/directives/tsdoc-bridge.ts`](./tsdoc-bridge.ts) — \`@microsoft/tsdoc\` adapter layer. Owns the TSDoc configuration (closed set of \`@specXxx\` block-tag definitions), the parser singleton, the TSDoc-tag ↔ internal-name map, and the byte- accurate body extraction that bypasses TSDoc's content tree (so embedded \`@\`-references and angle-bracketed placeholders in prose bodies survive intact).
+- [`file-level.ts`](./file-level.ts) — File-level directives — \`@spec.purpose\` and \`@spec.ignore\`. These attach to \`index.ts\` barrels; the parser treats their location \`exportName\` as \`null\`.
+- [`index.ts`](./index.ts) — Directive grammar entry point. Walks TypeScript source via ts-morph and dispatches each parsed TSDoc block (via \`tsdoc-bridge\`) to its per-population parser. Returns the typed \`LocatedDirective\` stream.  The population modules (\`file-level\`, \`per-export\`, \`per-test\`) co-locate each directive's Schema with its parse function. The \`tsdoc-bridge\` module owns the TSDoc configuration and the byte-accurate body extraction.
+- [`per-export.ts`](./per-export.ts) — Per-export directives — \`@spec.assume\`, \`@spec.guarantee\`, \`@spec.residual-contract\`, \`@spec.skip\`, \`@spec.ignore-export\`. These attach to public-surface exported declarations; the parser records the declaration's name in \`location.exportName\`. Each directive in this population carries a required \`reason:\` line.
+- [`per-test.ts`](./per-test.ts) — Per-test directives — \`@spec.property\`, \`@spec.type\`, \`@spec.exports\`, \`@spec.claim\`. These attach above each \`itSpec.prop\`/\`itSpec.todo\` call site; the parser records \`location.exportName\` as \`null\`.
+- [`shared.ts`](./shared.ts) — Shared infrastructure for the per-population directive modules: size caps, the \`ParseError\` union, the three tagged errors the parser can emit, and the small string helpers each population uses (unquote, splitReason).
+- [`tsdoc-bridge.ts`](./tsdoc-bridge.ts) — \`@microsoft/tsdoc\` adapter layer. Owns the TSDoc configuration (closed set of \`@specXxx\` block-tag definitions), the parser singleton, the TSDoc-tag ↔ internal-name map, and the byte- accurate body extraction that bypasses TSDoc's content tree (so embedded \`@\`-references and angle-bracketed placeholders in prose bodies survive intact).
 
 ## Properties
 

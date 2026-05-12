@@ -1,7 +1,7 @@
 ---
 folder: src/property-types
 format-version: 0.1.0
-generatedAtSha: 2861f143a5d64b74b7732ca55008094e36d6a60a
+generatedAtSha: ab75c5d5ad913ba964100e83d3c977cffc495bde
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -61,9 +61,9 @@ export const PROPERTY_TYPES = [
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 ```
 
-## Files
+## Children
 
-- [`src/property-types/index.ts`](./index.ts) — Closed taxonomy of property assertion types. Terminal domain — no upward dependencies.  The 9 OOPSLA-significant property types (Roundtrip, Inclusion, Exception Raising, …). Source: Ravi & Coblenz, OOPSLA 2025 (12 categories), filtered to the 9 statistically significant ones. Dropped: Generated-Expression Bounds Checking (p=0.0627), Generated-Expression Non-Equality (p=0.3299), Constant Inclusion (p=0.8969).  The codemod assumes ALL property types apply to every export by default. Opting out is explicit via per-export \`@spec.skip "&lt;PropertyType&gt;" reason: &lt;why&gt;\` directives. There is no built-in matrix mapping export shapes to required property types — that prescription belongs in the author's \`@spec.skip\` reasons, not in the tool.  Per-repo extension via \`safer-spec.config.ts\` \`propertyTypesExtension: PropertyType\[\]\`.
+- [`index.ts`](./index.ts) — Closed taxonomy of property assertion types. Terminal domain — no upward dependencies.  The 9 OOPSLA-significant property types (Roundtrip, Inclusion, Exception Raising, …). Source: Ravi & Coblenz, OOPSLA 2025 (12 categories), filtered to the 9 statistically significant ones. Dropped: Generated-Expression Bounds Checking (p=0.0627), Generated-Expression Non-Equality (p=0.3299), Constant Inclusion (p=0.8969).  The codemod assumes ALL property types apply to every export by default. Opting out is explicit via per-export \`@spec.skip "&lt;PropertyType&gt;" reason: &lt;why&gt;\` directives. There is no built-in matrix mapping export shapes to required property types — that prescription belongs in the author's \`@spec.skip\` reasons, not in the tool.  Per-repo extension via \`safer-spec.config.ts\` \`propertyTypesExtension: PropertyType\[\]\`.
 
 ## Properties
 

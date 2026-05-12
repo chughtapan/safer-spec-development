@@ -57,9 +57,12 @@ export interface PropertyRow {
   readonly stubbed: boolean;
 }
 
-interface FileEntry {
-  readonly path: string;
-  /** First-block JSDoc `@spec.purpose` body, or null if the file has none. */
+interface ChildEntry {
+  /** Display label inside the backticks (e.g. `directives/`, `emit.ts`). */
+  readonly display: string;
+  /** Link target relative to the folder's SPEC.md (`./directives/SPEC.md`, `./emit.ts`). */
+  readonly link: string;
+  /** First-block JSDoc `@spec.purpose` body, or null when the child has none. */
   readonly purpose: string | null;
 }
 
@@ -68,8 +71,12 @@ export interface FolderAnalysis {
   readonly purpose: string | null;
   readonly exports: ReadonlyArray<ExportEntry>;
   readonly properties: ReadonlyArray<PropertyRow>;
-  readonly sourceFiles: ReadonlyArray<FileEntry>;
-  readonly testFiles: ReadonlyArray<FileEntry>;
+
+  /**
+   * Merged list of immediate files AND immediate subfolders that have
+   * their own SPEC. Sorted by `display`. Renders as `## Children`.
+   */
+  readonly children: ReadonlyArray<ChildEntry>;
 }
 
 const emitResidualList = (
@@ -236,19 +243,16 @@ export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => {
   ];
   if (a.exports.length === 0) lines.push("_No exports._");
   else for (const e of a.exports) lines.push(...emitExportSection(a.folder, e));
-  lines.push("## Files", "");
-  const allFiles = [...a.sourceFiles, ...a.testFiles]
-    .slice()
-    .sort((x, y) => x.path.localeCompare(y.path));
-  if (allFiles.length === 0) lines.push("_No files._");
-  else for (const f of allFiles) lines.push(emitFileLine(a.folder, f));
+  lines.push("## Children", "");
+  if (a.children.length === 0) lines.push("_No children._");
+  else for (const c of a.children) lines.push(emitChildLine(c));
   lines.push("", "## Properties", "", ...emitPropertiesTable(a.properties), "");
   return lines.join("\n");
 };
 
-const emitFileLine = (folder: string, f: FileEntry): string => {
-  const label = `[\`${f.path}\`](${relativeToFolder(folder, f.path)})`;
-  return f.purpose === null ? `- ${label}` : `- ${label} — ${escapeForMarkdownProse(f.purpose)}`;
+const emitChildLine = (c: ChildEntry): string => {
+  const label = `[\`${c.display}\`](${c.link})`;
+  return c.purpose === null ? `- ${label}` : `- ${label} — ${escapeForMarkdownProse(c.purpose)}`;
 };
 
 type Shape = "Schema" | "RpcDefinition" | "function" | "type" | "Branded" | "unknown";
