@@ -315,9 +315,12 @@ const SHA_LINE_JSON = /"(generatedAtSha|sha)":\s*"[^"]*"/g;
 export const stripVolatileJson = (text: string): string =>
   text.replace(SHA_LINE_JSON, '"$1": "<NORMALIZED>"');
 
-/** Slug for the per-folder sidecar JSON path: `&lt;folder>/.safer-spec/&lt;slug>.json`. */
-export const sidecarSlug = (folder: string): string =>
-  folder.replace(/^\.\//, "").replace(/\//g, "_");
+// Slug for the per-folder sidecar JSON path. The project-root sentinel
+// `.` maps to `root` (see `generate.ts` `folderSlug` for rationale).
+export const sidecarSlug = (folder: string): string => {
+  if (folder === ".") return "root";
+  return folder.replace(/^\.\//, "").replace(/\//g, "_");
+};
 
 /**
  * @spec.guarantee "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; SidecarSchemaError is a defect (artifact our own emitter produced)"

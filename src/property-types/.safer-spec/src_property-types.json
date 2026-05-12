@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/property-types",
-  "generatedAtSha": "f989cb2f115f4fa26b1857aa334d12a4100acd85",
+  "generatedAtSha": "9eb391a9b92929aac4e8b3746d1a62a787e54219",
   "exports": [
     {
       "name": "PROPERTY_TYPES",
@@ -33,7 +33,7 @@
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 27,
-        "sha": "f989cb2f115f4fa26b1857aa334d12a4100acd85"
+        "sha": "9eb391a9b92929aac4e8b3746d1a62a787e54219"
       }
     },
     {
@@ -58,7 +58,7 @@
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 39,
-        "sha": "f989cb2f115f4fa26b1857aa334d12a4100acd85"
+        "sha": "9eb391a9b92929aac4e8b3746d1a62a787e54219"
       }
     }
   ],

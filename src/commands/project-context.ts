@@ -201,19 +201,49 @@ const readTsConfigBits = (
       ),
     );
 
+// Resolves `<root>/.git` to the directory holding HEAD. For a normal repo
+// that's the dir itself; for a worktree or submodule, `.git` is a FILE
+// containing `gitdir: <path>` and we follow that pointer. Path is resolved
+// relative to <root>/.git's parent when not absolute.
+const resolveGitDir = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  root: string,
+): Effect.Effect<string, never> => {
+  const gitPath = path.join(root, ".git");
+  return fs.stat(gitPath).pipe(
+    Effect.flatMap((s) =>
+      s.type === "Directory"
+        ? Effect.succeed(gitPath)
+        : fs.readFileString(gitPath).pipe(
+            Effect.map((text) => {
+              const line = text.trim();
+              const pointer = line.startsWith("gitdir: ") ? line.slice(8) : line;
+              return nodePath.isAbsolute(pointer) ? pointer : path.join(root, pointer);
+            }),
+          ),
+    ),
+    Effect.catchAll(() => Effect.succeed(gitPath)),
+  );
+};
+
 const readGitSha = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
   root: string,
 ): Effect.Effect<string, never> =>
-  fs.readFileString(path.join(root, ".git", "HEAD")).pipe(
-    Effect.flatMap((text) => {
-      const trimmed = text.trim();
-      if (!trimmed.startsWith("ref: ")) return Effect.succeed(trimmed);
-      return fs
-        .readFileString(path.join(root, ".git", trimmed.slice(5)))
-        .pipe(Effect.map((t) => t.trim()));
-    }),
+  resolveGitDir(fs, path, root).pipe(
+    Effect.flatMap((gitDir) =>
+      fs.readFileString(path.join(gitDir, "HEAD")).pipe(
+        Effect.flatMap((text) => {
+          const trimmed = text.trim();
+          if (!trimmed.startsWith("ref: ")) return Effect.succeed(trimmed);
+          return fs
+            .readFileString(path.join(gitDir, trimmed.slice(5)))
+            .pipe(Effect.map((t) => t.trim()));
+        }),
+      ),
+    ),
     Effect.catchAll(() => Effect.succeed("uncommitted")),
   );
 

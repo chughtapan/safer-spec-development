@@ -86,7 +86,11 @@ const factsFromVariable = (
   const anchor = statement ?? node;
   const fullText = anchor.getText();
   const init = node.getInitializer();
-  if (init !== undefined && Node.isArrowFunction(init)) {
+  // Both `export const f = (x) => …` and `export const f = function (x) { … }`
+  // are functional exports; without the function-expression branch the
+  // second form fell through to the `const` case and emitted the whole
+  // body into SPEC.md / sidecar.
+  if (init !== undefined && (Node.isArrowFunction(init) || Node.isFunctionExpression(init))) {
     const body = init.getBody();
     const offset = body.getStart() - anchor.getStart();
     return {

@@ -79,8 +79,13 @@ const isTestFile = (n: string): boolean => n.endsWith(".spec.test.ts");
 const isSourceFile = (n: string): boolean =>
   n.endsWith(".ts") && !isTestFile(n) && !n.endsWith(".d.ts");
 
-const folderSlug = (folder: FolderPath): string =>
-  folder.replace(/^\.\//, "").replace(/\//g, "_");
+// Maps a folder path to a stable sidecar slug. The project-root sentinel
+// `.` resolves to `root` so the sidecar isn't `.safer-spec/.json` (a
+// dotfile-prefixed name sidecar consumers easily miss).
+const folderSlug = (folder: FolderPath): string => {
+  if (folder === ".") return "root";
+  return folder.replace(/^\.\//, "").replace(/\//g, "_");
+};
 
 const causeOf = (e: unknown): string => {
   if (typeof e !== "object" || e === null || !("message" in e)) return String(e);
