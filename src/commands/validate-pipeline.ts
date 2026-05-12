@@ -233,8 +233,10 @@ export const inspectFolder = ({ fs, path, folder, inputs, ctx }: InspectArgs): E
     const children = buildChildren({
       folder, sources: inputs.sources, tests: inputs.tests, subfolders, purposeByPath, path,
     });
-    const folderKnown = folderExportNames(inputs.sources, ctx);
-    const built = buildExportEntries(declarations, directives, folderKnown);
+    const built = buildExportEntries(declarations, directives, {
+      folderKnownExports: folderExportNames(inputs.sources, ctx),
+      localSources: new Set(inputs.sources),
+    });
     const unmatchedIssues: ReadonlyArray<ItSpecIssue> = built.unmatched.map((d) => ({
       kind: "directive-mismatch",
       path: d.location.path,

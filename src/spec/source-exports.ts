@@ -325,14 +325,26 @@ export interface BuildExportEntriesResult {
   readonly entries: ReadonlyArray<ExportEntry>;
 
   /**
-   * Per-export directives whose `location.exportName` doesn't resolve
-   * to any symbol exported by ANY source file in the folder (not just
-   * the barrel). Catches renamed/deleted exports plus directives left
-   * on non-barrel files whose target was removed. Pass
-   * `folderKnownExports` undefined to skip the check entirely
-   * (generate doesn't gate; validate does).
+   * Per-export directives flagged as drift: located in a local source
+   * file but with an `exportName` that isn't part of the folder's
+   * known-exports set (renamed/deleted symbol, misplaced directive).
+   * External (cross-folder re-export target) directives are merged into
+   * entries when they match an alias, but never flagged as drift for
+   * this folder; that responsibility belongs to the owning folder's
+   * validate run.
    */
   readonly unmatched: ReadonlyArray<LocatedDirective>;
+}
+
+/**
+ * Optional strict-mode inputs for the drift gate. Validate passes
+ * both; generate omits the bundle entirely.
+ */
+export interface BuildStrictOptions {
+  /** Union of every symbol exported by any source file in the folder. */
+  readonly folderKnownExports: ReadonlySet<string>;
+  /** Paths of files inside the folder; drift only fires for these. */
+  readonly localSources: ReadonlySet<string>;
 }
 
 interface BuildState {
@@ -340,6 +352,7 @@ interface BuildState {
   readonly aliases: ReadonlyMap<string, string>;
   readonly strict: boolean;
   readonly known: ReadonlySet<string>;
+  readonly localSources: ReadonlySet<string>;
   readonly unmatched: LocatedDirective[];
 }
 
@@ -357,13 +370,15 @@ const PER_EXPORT_TAGS: ReadonlySet<Directive["_tag"]> = new Set([
   "assume", "guarantee", "residual-contract", "skip",
 ]);
 
-// True when an unmatched directive is real drift: per-export tag with
+// True when an unmatched directive is real drift in THIS folder: must
+// be located in a local source file, then either a per-export tag with
 // no exportName, OR a per-export tag whose exportName isn't in the
-// folder's known-exports set. Always false in non-strict (generate)
-// mode and for `ignore-export` (which names a deliberately absent
-// declaration).
+// folder's known-exports set. Always false in non-strict mode, for
+// `ignore-export`, and for directives in external (cross-folder)
+// source files (those are drift for some OTHER folder, not this one).
 const isDrift = (located: LocatedDirective, state: BuildState): boolean => {
   if (!state.strict) return false;
+  if (!state.localSources.has(located.location.path)) return false;
   const { directive, location } = located;
   if (location.exportName === null) return PER_EXPORT_TAGS.has(directive._tag);
   return directive._tag !== "ignore-export" && !state.known.has(location.exportName);
@@ -391,7 +406,7 @@ const resolveOrFlag = (located: LocatedDirective, state: BuildState): void => {
 export const buildExportEntries = (
   declarations: ReadonlyArray<DeclaredExport>,
   directives: ReadonlyArray<LocatedDirective>,
-  folderKnownExports?: ReadonlySet<string>,
+  strict?: BuildStrictOptions,
 ): BuildExportEntriesResult => {
   const ignored = collectIgnoredExportNames(directives);
   const kept = declarations.filter(
@@ -400,8 +415,9 @@ export const buildExportEntries = (
   const state: BuildState = {
     byName: new Map(kept.map((d) => [d.name, seedEntry(d)])),
     aliases: indexAliases(kept),
-    strict: folderKnownExports !== undefined,
-    known: folderKnownExports ?? new Set<string>(),
+    strict: strict !== undefined,
+    known: strict?.folderKnownExports ?? new Set<string>(),
+    localSources: strict?.localSources ?? new Set<string>(),
     unmatched: [],
   };
   for (const located of directives) resolveOrFlag(located, state);

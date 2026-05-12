@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src",
-  "generatedAtSha": "abec36933a44d10cf312b4bd009469306004e297",
+  "generatedAtSha": "a37904dc0b597598b8d19ab70d0215481c961ad4",
   "exports": [
     {
       "name": "ItSpec",
@@ -47,7 +47,7 @@
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
         "line": 25,
-        "sha": "abec36933a44d10cf312b4bd009469306004e297"
+        "sha": "a37904dc0b597598b8d19ab70d0215481c961ad4"
       }
     },
     {
@@ -80,7 +80,7 @@
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 27,
-        "sha": "abec36933a44d10cf312b4bd009469306004e297"
+        "sha": "a37904dc0b597598b8d19ab70d0215481c961ad4"
       }
     },
     {
@@ -105,7 +105,7 @@
       "sourceRef": {
         "path": "src/property-types/index.ts",
         "line": 39,
-        "sha": "abec36933a44d10cf312b4bd009469306004e297"
+        "sha": "a37904dc0b597598b8d19ab70d0215481c961ad4"
       }
     },
     {
@@ -130,7 +130,7 @@
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
         "line": 56,
-        "sha": "abec36933a44d10cf312b4bd009469306004e297"
+        "sha": "a37904dc0b597598b8d19ab70d0215481c961ad4"
       }
     }
   ],
