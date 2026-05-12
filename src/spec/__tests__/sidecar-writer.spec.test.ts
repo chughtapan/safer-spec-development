@@ -4,10 +4,46 @@
  *   string field is escape-on-emit.
  */
 
+import { FileSystem, Path } from "@effect/platform";
+import { NodeContext } from "@effect/platform-node";
+import { Data, Effect, Exit } from "effect";
 import * as fc from "fast-check";
 import { itSpec } from "@safer/spec/it-spec.js";
-import { decodeSpecArtifact } from "@safer/spec/sidecar.js";
+import { SPEC_FORMAT_VERSION } from "@safer/commands/version.js";
+import { PROPERTY_TYPES } from "@safer/property-types/index.js";
+import { decodeSpecArtifact, type SpecArtifact } from "@safer/spec/sidecar.js";
 import { serializeSidecar, sidecarSlug, writeSidecar } from "@safer/spec/sidecar-writer.js";
+
+class SidecarWriterAssertionError extends Data.TaggedError(
+  "SidecarWriterAssertionError",
+)<{ readonly detail: string }> {}
+
+const failIf = (
+  cond: boolean,
+  detail: string,
+): Effect.Effect<void, SidecarWriterAssertionError> =>
+  cond ? Effect.fail(new SidecarWriterAssertionError({ detail })) : Effect.void;
+
+const sampleArtifact = (folder: string): SpecArtifact => ({
+  formatVersion: SPEC_FORMAT_VERSION,
+  folder,
+  generatedAtSha: "0000000",
+  exports: [
+    {
+      name: "foo",
+      shape: "function",
+      requiredPropertyTypes: [...PROPERTY_TYPES],
+      observedPropertyTypes: [],
+      skipped: [],
+      residualContract: null,
+      residualAssumes: [],
+      residualGuarantees: [],
+      sourceRef: { path: `${folder}/index.ts`, line: 1, sha: "0000000" },
+    },
+  ],
+  coverage: { typeCoverage: 0 },
+  thresholds: { typeCoverage: 0, classifierCoverage: 0, preconditionPassRate: 0 },
+});
 
 /**
  * @spec.property sidecar-writer-roundtrip
@@ -15,10 +51,59 @@ import { serializeSidecar, sidecarSlug, writeSidecar } from "@safer/spec/sidecar
  * @spec.exports serializeSidecar, decodeSpecArtifact
  * @spec.claim decode(parse(serialize(artifact))) returns the original artifact at every well-formed input
  */
-itSpec.todo("sidecar-writer-roundtrip", {
-  type: "Roundtrip",
-  exports: [serializeSidecar, decodeSpecArtifact],
-});
+itSpec.prop(
+  "sidecar-writer-roundtrip",
+  { type: "Roundtrip", exports: [serializeSidecar, decodeSpecArtifact] },
+  fc.stringMatching(/^[a-z][a-z0-9_-]{0,12}$/),
+  (folder) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const artifact = sampleArtifact(folder);
+        const json = yield* serializeSidecar(artifact);
+        const decoded = yield* decodeSpecArtifact(JSON.parse(json));
+        yield* failIf(
+          JSON.stringify(decoded) !== JSON.stringify(artifact),
+          `roundtrip mismatch:\n  original: ${JSON.stringify(artifact)}\n  decoded:  ${JSON.stringify(decoded)}`,
+        );
+        yield* failIf(
+          !json.endsWith("\n"),
+          `serialized JSON must end with a newline`,
+        );
+      }),
+    ),
+);
+
+const writeAndCheck = (
+  tmpDir: string,
+  folder: string,
+): Effect.Effect<void, SidecarWriterAssertionError, FileSystem.FileSystem | Path.Path> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const folderAbs = path.join(tmpDir, folder);
+    // Pre-create folder as a FILE so writeSidecar's writeFileString fails:
+    // attempting to write inside a path whose parent is a regular file
+    // returns ENOTDIR on POSIX.
+    yield* fs.makeDirectory(tmpDir, { recursive: true })
+      .pipe(Effect.catchAll(() => Effect.void));
+    yield* fs.writeFileString(folderAbs, "not-a-dir")
+      .pipe(Effect.catchAll(() => Effect.void));
+    const exit = yield* Effect.exit(
+      writeSidecar({ folder: folderAbs, artifact: sampleArtifact(folder) }),
+    );
+    yield* failIf(
+      !Exit.isFailure(exit),
+      `expected writeSidecar to fail when folder path is a file, not a dir`,
+    );
+    const sidecarPath = path.join(folderAbs, ".safer-spec", `${sidecarSlug(folder)}.json`);
+    // Parent path is a regular file; fs.exists may itself fail with ENOTDIR.
+    // Either way, the sidecar file does not exist — the atomic claim holds.
+    const exists = yield* fs.exists(sidecarPath).pipe(Effect.catchAll(() => Effect.succeed(false)));
+    yield* failIf(
+      exists,
+      `partial sidecar left on disk at ${sidecarPath} after failed write`,
+    );
+  });
 
 /**
  * @spec.property sidecar-writer-atomic-on-failure
@@ -26,10 +111,18 @@ itSpec.todo("sidecar-writer-roundtrip", {
  * @spec.exports writeSidecar
  * @spec.claim partial sidecars are not left on disk on filesystem failures
  */
-itSpec.todo("sidecar-writer-atomic-on-failure", {
-  type: "Exception Raising",
-  exports: [writeSidecar],
-});
+itSpec.prop(
+  "sidecar-writer-atomic-on-failure",
+  { type: "Exception Raising", exports: [writeSidecar] },
+  fc.stringMatching(/^[a-z][a-z0-9_-]{2,8}$/),
+  (folder) => {
+    // eslint-disable-next-line sonarjs/pseudo-random -- test fixture uniqueness only
+    const tmpDir = `/tmp/safer-spec-sidecar-writer-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    return Effect.runPromise(
+      writeAndCheck(tmpDir, folder).pipe(Effect.provide(NodeContext.layer)),
+    );
+  },
+);
 
 /**
  * @spec.property sidecar-writer-maps-root-folder-to-root-slug

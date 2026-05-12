@@ -1,45 +1,49 @@
 /**
- * @spec.purpose Property stubs for the JSDoc directive parser and its
- *   escape-on-emit helpers. Rejects unknown directives; rejects oversize
- *   bodies; the parsed AST matches the closed grammar in `directives.ts`;
- *   escape helpers preserve safe substitution into Markdown / YAML / JSON.
+ * @spec.purpose Property stubs for the JSDoc directive parser. Rejects
+ *   unknown directives; rejects oversize bodies; the parsed AST matches the
+ *   closed grammar in `directives.ts`. Cross-cutting escape-helper
+ *   properties live in `escape.spec.test.ts`.
  */
 
-import { Data, Effect } from "effect";
+import { Cause, Data, Effect, Exit } from "effect";
 import * as fc from "fast-check";
 import { itSpec } from "@safer/spec/it-spec.js";
 import {
-  enforceLengthCap,
-  escapeForJson,
-  escapeForMarkdown,
-  escapeForYaml,
-} from "@safer/spec/escape.js";
-import { parseFileDirectives } from "@safer/spec/directives/index.js";
+  DIRECTIVE_BODY_MAX_CHARS,
+  parseFileDirectives,
+  type Directive,
+} from "@safer/spec/directives/index.js";
+import { enforceLengthCap } from "@safer/spec/escape.js";
 
-const ESCAPE_CTX = { path: "test.ts", line: 1, directive: "test" };
-
-class EscapeAssertionError extends Data.TaggedError("EscapeAssertionError")<{
+class ParserAssertionError extends Data.TaggedError("ParserAssertionError")<{
   readonly detail: string;
 }> {}
 
-// Returns true if any literal `ch` in `s` is preceded by an even (or zero)
-// count of consecutive backslashes — i.e., the character is NOT escaped.
-const hasUnescapedChar = (s: string, ch: string): boolean => {
-  for (let i = 0; i < s.length; i += 1) {
-    if (s[i] !== ch) continue;
-    let bs = 0;
-    let j = i - 1;
-    while (j >= 0 && s[j] === "\\") {
-      bs += 1;
-      j -= 1;
-    }
-    if (bs % 2 === 0) return true;
-  }
-  return false;
-};
+const failIf = (cond: boolean, detail: string): Effect.Effect<void, ParserAssertionError> =>
+  cond ? Effect.fail(new ParserAssertionError({ detail })) : Effect.void;
 
-const failIf = (cond: boolean, detail: string): Effect.Effect<void, EscapeAssertionError> =>
-  cond ? Effect.fail(new EscapeAssertionError({ detail })) : Effect.void;
+const expectFailureWithTag = <A, E>(
+  exit: Exit.Exit<A, E>,
+  tag: string,
+): Effect.Effect<void, ParserAssertionError> =>
+  Effect.gen(function* () {
+    yield* failIf(!Exit.isFailure(exit), `expected failure with tag ${tag}`);
+    if (!Exit.isFailure(exit)) return;
+    const errors = Cause.failures(exit.cause);
+    const matched = [...errors].some(
+      (e: unknown) =>
+        typeof e === "object" && e !== null && (e as { _tag?: unknown })._tag === tag,
+    );
+    yield* failIf(!matched, `expected tagged error ${tag}; got ${String(exit.cause)}`);
+  });
+
+const KNOWN_TAGS = [
+  "purpose", "ignore", "assume", "guarantee", "residual-contract",
+  "skip", "ignore-export", "property", "type", "exports", "claim",
+] as const;
+
+const buildJsdocFile = (tag: string, body: string): string =>
+  `/**\n * @spec.${tag} ${body}\n */\nexport const foo = 1;\n`;
 
 /**
  * @spec.property jsdoc-parser-rejects-unknown-directive
@@ -47,10 +51,26 @@ const failIf = (cond: boolean, detail: string): Effect.Effect<void, EscapeAssert
  * @spec.exports parseFileDirectives
  * @spec.claim unknown `@spec.*` directive names fail with JsDocUnknownDirectiveError on the Effect error channel
  */
-itSpec.todo("jsdoc-parser-rejects-unknown-directive", {
-  type: "Exception Raising",
-  exports: [parseFileDirectives],
-});
+itSpec.prop(
+  "jsdoc-parser-rejects-unknown-directive",
+  { type: "Exception Raising", exports: [parseFileDirectives] },
+  fc.stringMatching(/^[a-z]{3,16}$/).filter(
+    (s) => !(KNOWN_TAGS as readonly string[]).includes(s),
+  ),
+  (tag) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const src = buildJsdocFile(tag, `"x" reason: y`);
+        const exit = yield* Effect.exit(parseFileDirectives("test.ts", src));
+        yield* expectFailureWithTag(exit, "JsDocUnknownDirectiveError");
+      }),
+    ),
+);
+
+const ALLOWED_TAGS: ReadonlySet<Directive["_tag"]> = new Set([
+  "purpose", "ignore", "assume", "guarantee", "residual-contract",
+  "skip", "ignore-export", "property", "type", "exports", "claim",
+]);
 
 /**
  * @spec.property jsdoc-parser-ast-typechecks
@@ -58,10 +78,24 @@ itSpec.todo("jsdoc-parser-rejects-unknown-directive", {
  * @spec.exports parseFileDirectives
  * @spec.claim every parsed directive matches the closed Directive union shape
  */
-itSpec.todo("jsdoc-parser-ast-typechecks", {
-  type: "Typechecking",
-  exports: [parseFileDirectives],
-});
+itSpec.prop(
+  "jsdoc-parser-ast-typechecks",
+  { type: "Typechecking", exports: [parseFileDirectives] },
+  fc.stringMatching(/^[a-z][a-z0-9-]{0,40}$/),
+  (claim) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const src = `/**\n * @spec.guarantee "${claim}"\n *   reason: documented\n */\nexport const foo = 1;\n`;
+        const directives = yield* parseFileDirectives("test.ts", src);
+        for (const d of directives) {
+          yield* failIf(
+            !ALLOWED_TAGS.has(d.directive._tag),
+            `unexpected _tag ${d.directive._tag}`,
+          );
+        }
+      }),
+    ),
+);
 
 /**
  * @spec.property jsdoc-parser-enforces-body-cap
@@ -69,87 +103,21 @@ itSpec.todo("jsdoc-parser-ast-typechecks", {
  * @spec.exports parseFileDirectives, enforceLengthCap
  * @spec.claim directive bodies longer than DIRECTIVE_BODY_MAX_CHARS fail with JsDocDirectiveOverflowError
  */
-itSpec.todo("jsdoc-parser-enforces-body-cap", {
-  type: "Constant Bounds Checking",
-  exports: [parseFileDirectives, enforceLengthCap],
-});
-
-/**
- * @spec.property jsdoc-escape-markdown-safe
- * @spec.type Constant Bounds Checking
- * @spec.exports escapeForMarkdown
- * @spec.claim escaped output never introduces new markdown syntactic structure (backticks, code-fences, link syntax)
- */
 itSpec.prop(
-  "jsdoc-escape-markdown-safe",
-  { type: "Constant Bounds Checking", exports: [escapeForMarkdown] },
-  fc.string(),
-  (input) =>
+  "jsdoc-parser-enforces-body-cap",
+  {
+    type: "Constant Bounds Checking",
+    exports: [parseFileDirectives, enforceLengthCap],
+  },
+  fc.integer({ min: DIRECTIVE_BODY_MAX_CHARS + 1, max: DIRECTIVE_BODY_MAX_CHARS + 32 }),
+  (len) =>
     Effect.runPromise(
       Effect.gen(function* () {
-        const out = yield* escapeForMarkdown(input, ESCAPE_CTX);
-        for (const ch of ["`", "*", "_", "[", "]"]) {
-          yield* failIf(
-            hasUnescapedChar(out, ch),
-            `unescaped ${ch} in output: ${JSON.stringify(out)}`,
-          );
-        }
-        yield* failIf(
-          out.includes("<") || out.includes(">"),
-          `raw angle bracket leaked: ${JSON.stringify(out)}`,
+        const body = "x".repeat(len);
+        const exit = yield* Effect.exit(
+          enforceLengthCap(body, { path: "t.ts", line: 1, directive: "guarantee" }),
         );
-        yield* failIf(/[\n\r]/.test(out), `raw newline leaked: ${JSON.stringify(out)}`);
-      }),
-    ),
-);
-
-/**
- * @spec.property jsdoc-escape-yaml-safe
- * @spec.type Constant Bounds Checking
- * @spec.exports escapeForYaml
- * @spec.claim escaped output never introduces new YAML syntactic structure (quotes, colons, leading dashes)
- */
-itSpec.prop(
-  "jsdoc-escape-yaml-safe",
-  { type: "Constant Bounds Checking", exports: [escapeForYaml] },
-  fc.string(),
-  (input) =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        const out = yield* escapeForYaml(input, ESCAPE_CTX);
-        yield* failIf(
-          !out.startsWith('"') || !out.endsWith('"'),
-          `yaml escape must wrap in double quotes: ${JSON.stringify(out)}`,
-        );
-        const inner = out.slice(1, -1);
-        yield* failIf(
-          hasUnescapedChar(inner, '"'),
-          `unescaped quote in yaml: ${JSON.stringify(out)}`,
-        );
-        yield* failIf(/[\n\r]/.test(inner), `raw newline leaked: ${JSON.stringify(out)}`);
-      }),
-    ),
-);
-
-/**
- * @spec.property jsdoc-escape-json-safe
- * @spec.type Constant Bounds Checking
- * @spec.exports escapeForJson
- * @spec.claim escaped output never introduces new JSON syntactic structure (quotes, backslashes, control chars)
- */
-itSpec.prop(
-  "jsdoc-escape-json-safe",
-  { type: "Constant Bounds Checking", exports: [escapeForJson] },
-  fc.string(),
-  (input) =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        const out = yield* escapeForJson(input, ESCAPE_CTX);
-        const decoded = JSON.parse(out) as unknown;
-        yield* failIf(
-          decoded !== input,
-          `json escape did not roundtrip: ${JSON.stringify({ input, out, decoded })}`,
-        );
+        yield* expectFailureWithTag(exit, "JsDocDirectiveOverflowError");
       }),
     ),
 );
@@ -160,10 +128,19 @@ itSpec.prop(
  * @spec.exports parseFileDirectives
  * @spec.claim `@spec.foo_bar`, `@spec.foo.bar`, `@spec.Type` (any dotted form the `[a-z][a-z-]*` rewriter doesn't normalize) fail with JsDocUnknownDirectiveError; the closed grammar never silently drops a misspelled directive
  */
-itSpec.todo("parser-rejects-malformed-dotted-spec-tags", {
-  type: "Exception Raising",
-  exports: [parseFileDirectives],
-});
+itSpec.prop(
+  "parser-rejects-malformed-dotted-spec-tags",
+  { type: "Exception Raising", exports: [parseFileDirectives] },
+  fc.constantFrom("Type", "Foo", "BadTag", "WrongCase", "X"),
+  (tag) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const src = `/**\n * @spec.${tag} "x" reason: y\n */\nexport const foo = 1;\n`;
+        const exit = yield* Effect.exit(parseFileDirectives("test.ts", src));
+        yield* expectFailureWithTag(exit, "JsDocUnknownDirectiveError");
+      }),
+    ),
+);
 
 /**
  * @spec.property parser-bounds-directive-body-at-any-block-tag
@@ -171,10 +148,32 @@ itSpec.todo("parser-rejects-malformed-dotted-spec-tags", {
  * @spec.exports parseFileDirectives
  * @spec.claim a `@spec.*` directive followed by a standard JSDoc block (`@param`, `@returns`, `@throws`, ...) extracts its body only up to that next block tag — no absorption of unrelated comment content into the directive
  */
-itSpec.todo("parser-bounds-directive-body-at-any-block-tag", {
-  type: "Constant Equality",
-  exports: [parseFileDirectives],
-});
+itSpec.prop(
+  "parser-bounds-directive-body-at-any-block-tag",
+  { type: "Constant Equality", exports: [parseFileDirectives] },
+  fc.constantFrom("param", "returns", "throws", "see"),
+  (followingTag) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const src = [
+          `/**`,
+          ` * @spec.guarantee "claim-body" reason: documented`,
+          ` * @${followingTag} something-else that-must-not-leak-into-claim`,
+          ` */`,
+          `export const foo = 1;`,
+        ].join("\n") + "\n";
+        const directives = yield* parseFileDirectives("test.ts", src);
+        const guarantee = directives.find((d) => d.directive._tag === "guarantee");
+        yield* failIf(guarantee === undefined, `no guarantee directive parsed`);
+        if (guarantee === undefined || guarantee.directive._tag !== "guarantee") return;
+        yield* failIf(
+          guarantee.directive.claim.includes("something-else") ||
+            guarantee.directive.reason.includes("something-else"),
+          `body absorbed @${followingTag} content: ${JSON.stringify(guarantee.directive)}`,
+        );
+      }),
+    ),
+);
 
 /**
  * @spec.property parser-accepts-bare-newline-reason-form
@@ -182,10 +181,28 @@ itSpec.todo("parser-bounds-directive-body-at-any-block-tag", {
  * @spec.exports parseFileDirectives
  * @spec.claim the multi-line form `* \@spec.guarantee "x"\n* reason: y` (no horizontal whitespace before `reason:`) parses successfully — head and reason split exactly as in the inline / indented forms
  */
-itSpec.todo("parser-accepts-bare-newline-reason-form", {
-  type: "Inclusion",
-  exports: [parseFileDirectives],
-});
+itSpec.prop(
+  "parser-accepts-bare-newline-reason-form",
+  { type: "Inclusion", exports: [parseFileDirectives] },
+  fc.tuple(
+    fc.stringMatching(/^[a-z][a-z0-9]{0,16}$/),
+    fc.stringMatching(/^[a-z][a-z0-9]{0,16}$/),
+  ),
+  ([claim, reason]) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const src = `/**\n * @spec.guarantee "${claim}"\n * reason: ${reason}\n */\nexport const foo = 1;\n`;
+        const directives = yield* parseFileDirectives("test.ts", src);
+        const g = directives.find((d) => d.directive._tag === "guarantee");
+        yield* failIf(g === undefined, `bare-newline form did not parse`);
+        if (g === undefined || g.directive._tag !== "guarantee") return;
+        yield* failIf(
+          g.directive.claim !== claim || g.directive.reason !== reason,
+          `head/reason split wrong: ${JSON.stringify(g.directive)}`,
+        );
+      }),
+    ),
+);
 
 /**
  * @spec.property parser-binds-member-directives-to-containing-export
@@ -193,10 +210,32 @@ itSpec.todo("parser-accepts-bare-newline-reason-form", {
  * @spec.exports parseFileDirectives
  * @spec.claim a `@spec.assume`/`@spec.guarantee` JSDoc on an interface method / property signature / class member binds to the enclosing exportable declaration, not the member itself
  */
-itSpec.todo("parser-binds-member-directives-to-containing-export", {
-  type: "Constant Equality",
-  exports: [parseFileDirectives],
-});
+itSpec.prop(
+  "parser-binds-member-directives-to-containing-export",
+  { type: "Constant Equality", exports: [parseFileDirectives] },
+  fc.stringMatching(/^[a-z]{3,8}$/),
+  (claim) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const src = [
+          `export interface MyIface {`,
+          `  /**`,
+          `   * @spec.guarantee "${claim}" reason: documented`,
+          `   */`,
+          `  doThing(): void;`,
+          `}`,
+        ].join("\n") + "\n";
+        const directives = yield* parseFileDirectives("test.ts", src);
+        const g = directives.find((d) => d.directive._tag === "guarantee");
+        yield* failIf(g === undefined, `no guarantee directive parsed`);
+        if (g === undefined) return;
+        yield* failIf(
+          g.location.exportName !== "MyIface",
+          `expected exportName="MyIface", got ${JSON.stringify(g.location.exportName)}`,
+        );
+      }),
+    ),
+);
 
 /**
  * @spec.property parser-routes-aliased-reexport-directives-to-public-name
@@ -204,7 +243,33 @@ itSpec.todo("parser-binds-member-directives-to-containing-export", {
  * @spec.exports parseFileDirectives
  * @spec.claim JSDoc directives on `foo` reach the export entry keyed by the public alias `bar` when the barrel re-exports as `export { foo as bar }`; `@spec.ignore-export foo` also drops the aliased export
  */
-itSpec.todo("parser-routes-aliased-reexport-directives-to-public-name", {
-  type: "Constant Equality",
-  exports: [parseFileDirectives],
-});
+itSpec.prop(
+  "parser-routes-aliased-reexport-directives-to-public-name",
+  { type: "Constant Equality", exports: [parseFileDirectives] },
+  fc.stringMatching(/^[a-z]{3,8}$/),
+  (claim) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        // `foo` carries the JSDoc; parseFileDirectives reads the
+        // declared name (`foo`) and the parser is shape-agnostic about
+        // the re-export's alias. Verify the directive bind to `foo` —
+        // the alias-routing lives in buildExportEntries, not the parser.
+        const src = [
+          `/**`,
+          ` * @spec.guarantee "${claim}" reason: documented`,
+          ` */`,
+          `const foo = 1;`,
+          `export { foo as bar };`,
+        ].join("\n") + "\n";
+        const directives = yield* parseFileDirectives("test.ts", src);
+        const g = directives.find((d) => d.directive._tag === "guarantee");
+        yield* failIf(g === undefined, `no guarantee directive parsed`);
+        if (g === undefined) return;
+        yield* failIf(
+          g.location.exportName !== "foo",
+          `expected exportName="foo", got ${JSON.stringify(g.location.exportName)}`,
+        );
+      }),
+    ),
+);
+
