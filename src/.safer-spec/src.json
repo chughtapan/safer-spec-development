@@ -1,0 +1,123 @@
+{
+  "formatVersion": "0.1.0",
+  "folder": "src",
+  "generatedAtSha": "e42329e753e07ca4d07a08118b9ccb496416965c",
+  "exports": [
+    {
+      "name": "ItSpec",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/it-spec.ts",
+        "line": 25,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    },
+    {
+      "name": "PROPERTY_TYPES",
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "none",
+        "reason": "shape captured by `as const` tuple."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "membership order is stable across versions; the index of each property type is part of the contract",
+          "reason": "per-repo `propertyTypesExtension` appends only; never reorders."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/property-types/index.ts",
+        "line": 27,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    },
+    {
+      "name": "PropertyType",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/property-types/index.ts",
+        "line": 39,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    },
+    {
+      "name": "itSpec",
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/it-spec.ts",
+        "line": 56,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    }
+  ],
+  "coverage": {
+    "typeCoverage": 0
+  },
+  "thresholds": {
+    "typeCoverage": 0,
+    "classifierCoverage": 0,
+    "preconditionPassRate": 0
+  }
+}

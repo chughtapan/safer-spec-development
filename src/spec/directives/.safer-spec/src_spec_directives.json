@@ -1,0 +1,220 @@
+{
+  "formatVersion": "0.1.0",
+  "folder": "src/spec/directives",
+  "generatedAtSha": "e42329e753e07ca4d07a08118b9ccb496416965c",
+  "exports": [
+    {
+      "name": "DIRECTIVE_BODY_MAX_CHARS",
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/directives/shared.ts",
+        "line": 19,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    },
+    {
+      "name": "JsDocDirectiveOverflowError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/directives/shared.ts",
+        "line": 30,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    },
+    {
+      "name": "JsDocDirectiveParseError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/directives/shared.ts",
+        "line": 40,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    },
+    {
+      "name": "JsDocUnknownDirectiveError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/directives/shared.ts",
+        "line": 49,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    },
+    {
+      "name": "ParseError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/directives/shared.ts",
+        "line": 57,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    },
+    {
+      "name": "Directive",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/directives/index.ts",
+        "line": 67,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    },
+    {
+      "name": "LocatedDirective",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/directives/index.ts",
+        "line": 87,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    },
+    {
+      "name": "parseFileDirectives",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "every emitted directive validates against the closed grammar before downstream consumption",
+          "reason": "trust-boundary; agents consume parsed directive bodies as context."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/directives/index.ts",
+        "line": 247,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    }
+  ],
+  "coverage": {
+    "typeCoverage": 0
+  },
+  "thresholds": {
+    "typeCoverage": 0,
+    "classifierCoverage": 0,
+    "preconditionPassRate": 0
+  }
+}

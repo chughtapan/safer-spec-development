@@ -1,8 +1,44 @@
 import guard from "eslint-plugin-agent-code-guard";
+import importPlugin from "eslint-plugin-import";
 import tsParser from "@typescript-eslint/parser";
 
-// Architecture policy lists. Empty at v0.0.0 — populated as SPEC.md anchors
-// land and the right boundaries surface.
+// Severity promotion: `warn` rules in this repo are architectural drift
+// signals. Promoting warn to error at the config level keeps the gate inside
+// the config, not at the CLI flag, so the gate is the same in every
+// environment that loads the config.
+const promoteWarnToError = (rules) =>
+  Object.fromEntries(
+    Object.entries(rules).map(([k, v]) => {
+      const sev = Array.isArray(v) ? v[0] : v;
+      const promoted = sev === "warn" || sev === 1 ? "error" : sev;
+      return [k, Array.isArray(v) ? [promoted, ...v.slice(1)] : promoted];
+    }),
+  );
+
+// Architecture rule options are read per-rule, not from settings. Inject the
+// shared ARCHITECTURE_OPTIONS object into the architecture-family agent-code-guard
+// rules so layers, sharedFolderNames, and publicTypePackages actually reach
+// those rule implementations. Non-architecture rules (async-flow, effect,
+// safety, etc.) accept zero options and reject extras at validation time.
+const ARCHITECTURE_RULE_NAMES = new Set(
+  Object.keys(guard.configs.architecture.rules),
+);
+const injectArchitectureOptions = (rules, options) =>
+  Object.fromEntries(
+    Object.entries(rules).map(([k, v]) => {
+      if (!ARCHITECTURE_RULE_NAMES.has(k)) return [k, v];
+      const sev = Array.isArray(v) ? v[0] : v;
+      return [k, [sev, options]];
+    }),
+  );
+
+// Architecture policy. Every list entry carries a written reason — the act of
+// writing the reason IS the architectural decision (eslint-plugin-agent-code-guard
+// README "Declaring the contract is the point").
+//
+// Domain decomposition: each domain owns its types, private schema
+// constructors, and tagged errors. Errors stay with their producer modules,
+// and shared types live in the domain that owns them.
 const ARCHITECTURE_OPTIONS = {
   forbiddenSubpathSegments: [],
   implementationPathSegments: [],
@@ -10,8 +46,48 @@ const ARCHITECTURE_OPTIONS = {
   infrastructureTypePackages: [],
   allowedPublicSubpaths: [],
   allowedTestPublicSubpaths: [],
-  publicTypePackages: [],
-  layers: [],
+  publicTypePackages: [
+    {
+      package: "effect",
+      reason:
+        "the codemod's public API is Effect-native (Effect<T, E, R> return types, tagged errors); Effect IS the contract, not a hidden runtime detail",
+    },
+    {
+      package: "@effect/platform",
+      reason:
+        "FileSystem and Path are typed services in every public Effect return; the @effect/platform service tags are part of the contract callers wire up",
+    },
+    {
+      package: "@effect/cli",
+      reason:
+        "the CLI binary entry composes @effect/cli Command values; subcommands are values, not hidden types",
+    },
+    {
+      package: "fast-check",
+      reason:
+        "the itSpec.prop helper takes `fc.Arbitrary<T>` directly; fast-check IS the property-test runtime contract",
+    },
+  ],
+  layers: [
+    {
+      name: "commands",
+      folders: ["commands"],
+      reason:
+        "the six @effect/cli Command entries (generate, validate, init, doctor, migrate, explain) plus the binary composition root (index.ts) and format-version constant; the binary lives alongside its commands",
+    },
+    {
+      name: "domain",
+      folders: ["spec"],
+      reason:
+        "the spec format itself — directive grammar + parser, markdown emitter, sidecar JSON, escape helpers, link resolver, and the itSpec authoring helper. Commands orchestrate this domain",
+    },
+    {
+      name: "terminals",
+      folders: ["property-types"],
+      reason:
+        "no upward deps; property-types is the closed PropertyType taxonomy every other folder consumes",
+    },
+  ],
   packageRuntime: "node",
 };
 
@@ -26,10 +102,9 @@ export default [
     ],
   },
 
-  // Application source: recommended + strict + architecture.
-  // Use the preset's bundled plugins / settings so sonarjs auto-registers.
+  // Application source: recommended + strict + architecture, all promoted to error.
   {
-    files: ["packages/*/src/**/*.ts"],
+    files: ["src/**/*.ts"],
     ignores: ["**/*.test.ts", "**/*.spec.ts"],
     languageOptions: {
       parser: tsParser,
@@ -38,46 +113,78 @@ export default [
         sourceType: "module",
       },
     },
-    plugins: guard.configs.strict.plugins,
+    plugins: {
+      ...guard.configs.strict.plugins,
+      import: importPlugin,
+    },
     settings: {
       ...guard.configs.strict.settings,
       "agent-code-guard": ARCHITECTURE_OPTIONS,
     },
     rules: {
-      ...guard.configs.strict.rules,
-      ...guard.configs.architecture.rules,
-      // The codemod's design references Vitest's `it.todo` API by name in
-      // comments and module documentation; the rule flags "todo" as a stale-
-      // task marker. Disabled package-wide because the reference is doctrine,
-      // not deferred work.
+      ...injectArchitectureOptions(
+        promoteWarnToError(guard.configs.strict.rules),
+        ARCHITECTURE_OPTIONS,
+      ),
+      ...injectArchitectureOptions(
+        promoteWarnToError(guard.configs.architecture.rules),
+        ARCHITECTURE_OPTIONS,
+      ),
+      // Path aliases are the package-internal contract; relative cross-domain
+      // imports make refactors harder and obscure architectural boundaries.
+      "import/no-relative-parent-imports": "error",
+      "import/no-relative-packages": "error",
+      // Globally off: this codebase wraps Vitest's `it.todo` and uses the
+      // word "todo" throughout JSDoc to describe the placeholder state of
+      // stubbed properties. The rule treats lowercase "todo" in comments
+      // as a stale-task marker; here it is the cited Vitest API name and
+      // a domain term ("a property in todo state until the implementation
+      // fills the body"). Replacing every reference would obscure the
+      // contract the codemod's design depends on.
       "sonarjs/todo-tag": "off",
     },
   },
 
-  // Tests: strict preset + integration-test rules.
+  // Tests: strict + integration-test, all promoted to error.
+  //
+  // sonarjs/no-empty-test-file is held off in the test block because the
+  // codemod's `itSpec.todo(id, meta)` wrapper (see src/helper.ts) collects N
+  // todo tests at Vitest runtime that sonarjs's static check cannot trace
+  // through. The wrapper indirection is structural to the codemod's design
+  // (kind-detector reads property metadata from call args via ts-morph, not
+  // from Vitest's task object), so the static rule has nothing to assert on.
+  // Re-evaluate when sonarjs adds wrapper-aware empty-test detection.
   {
     files: [
-      "packages/*/src/**/*.{test,spec}.ts",
-      "packages/*/test/**/*.ts",
-      "packages/*/tests/**/*.ts",
+      "src/**/*.{test,spec}.ts",
+      "test/**/*.ts",
+      "tests/**/*.ts",
     ],
     languageOptions: {
       parser: tsParser,
       parserOptions: { ecmaVersion: 2022, sourceType: "module" },
     },
-    plugins: guard.configs.strict.plugins,
-    settings: guard.configs.strict.settings,
+    plugins: {
+      ...guard.configs.strict.plugins,
+      import: importPlugin,
+    },
+    settings: {
+      ...guard.configs.strict.settings,
+      "agent-code-guard": ARCHITECTURE_OPTIONS,
+    },
     rules: {
-      ...guard.configs.strict.rules,
-      ...guard.configs.integrationTests.rules,
-      // Same as above: Vitest's `it.todo` API name is referenced widely.
-      "sonarjs/todo-tag": "off",
-      // Spec test files declare property stubs via the `itSpec.todo()` wrapper
-      // (helper.ts); sonarjs's static check does not trace through the wrapper
-      // and reports the file as empty even though Vitest collects N todo tests
-      // at runtime. The kind-detector reads the property metadata from the
-      // call args via ts-morph at codemod time, not from Vitest's task object.
+      ...injectArchitectureOptions(
+        promoteWarnToError(guard.configs.strict.rules),
+        ARCHITECTURE_OPTIONS,
+      ),
+      ...injectArchitectureOptions(
+        promoteWarnToError(guard.configs.integrationTests.rules),
+        ARCHITECTURE_OPTIONS,
+      ),
       "sonarjs/no-empty-test-file": "off",
+      "sonarjs/todo-tag": "off",
+      "import/no-relative-parent-imports": "error",
+      "import/no-relative-packages": "error",
     },
   },
 ];

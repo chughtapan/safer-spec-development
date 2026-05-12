@@ -1,0 +1,65 @@
+{
+  "formatVersion": "0.1.0",
+  "folder": "src/spec",
+  "generatedAtSha": "e42329e753e07ca4d07a08118b9ccb496416965c",
+  "exports": [
+    {
+      "name": "ItSpec",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/it-spec.ts",
+        "line": 25,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    },
+    {
+      "name": "itSpec",
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/it-spec.ts",
+        "line": 56,
+        "sha": "e42329e753e07ca4d07a08118b9ccb496416965c"
+      }
+    }
+  ],
+  "coverage": {
+    "typeCoverage": 0
+  },
+  "thresholds": {
+    "typeCoverage": 0,
+    "classifierCoverage": 0,
+    "preconditionPassRate": 0
+  }
+}

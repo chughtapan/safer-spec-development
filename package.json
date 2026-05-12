@@ -1,23 +1,55 @@
 {
-  "name": "safer-spec-development-monorepo",
+  "name": "@chughtapan/safer-spec-development",
   "version": "0.0.0",
-  "private": true,
-  "description": "Per-folder SPEC.md TypeScript codemod (root workspace)",
+  "description": "Per-folder SPEC.md TypeScript codemod. Generates structured specs from source + JSDoc directives; validates property-type coverage + classifier coverage + precondition pass rate against fast-check property tests.",
+  "type": "module",
   "license": "MIT",
   "author": "Tapan Chugh",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "safer-spec": "./dist/commands/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/**",
+    "README.md"
+  ],
   "scripts": {
-    "build": "pnpm -r build",
-    "test": "pnpm -r test",
+    "build": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
+    "prepack": "tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
+    "test": "vitest run --passWithNoTests",
     "lint": "eslint . && agent-code-guard-knip",
     "lint:fix": "eslint . --fix",
-    "safer-spec": "pnpm --filter @chughtapan/safer-spec-development exec safer-spec"
+    "safer-spec": "node ./dist/commands/index.js"
+  },
+  "dependencies": {
+    "@effect/cli": "^0.73.0",
+    "@effect/platform": "^0.96.0",
+    "@effect/platform-node": "^0.106.0",
+    "@microsoft/tsdoc": "^0.16.0",
+    "effect": "^3.21.0",
+    "fast-check": "^3.23.0",
+    "ts-morph": "^28.0.0"
+  },
+  "peerDependencies": {
+    "vitest": ">=3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
     "eslint-plugin-agent-code-guard": "^0.0.11",
-    "typescript": "^5.5.0"
+    "eslint-plugin-import": "^2.32.0",
+    "tsc-alias": "^1.8.17",
+    "typescript": "^5.5.0",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^3.0.0"
   },
   "engines": {
     "node": ">=20.0.0",
