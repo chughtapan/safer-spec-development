@@ -123,6 +123,10 @@ export const resolveSymbol = (
  * passthrough.
  */
 export const relativeToFolder = (folder: string, target: string): string => {
+  // Project-root sentinel: a SPEC.md at the repo root reaches every file
+  // via `./<target>`. Treating `.` as one path segment would emit `../…`
+  // and point outside the repo.
+  if (folder === ".") return "./" + target.replace(/^\.?\/?/, "");
   const prefix = folder + "/";
   if (target.startsWith(prefix)) return "./" + target.slice(prefix.length);
   if (target.startsWith("/") || /^[a-zA-Z]+:/.test(target)) return target;

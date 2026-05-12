@@ -35,8 +35,13 @@ interface SidecarWritePayload {
   readonly artifact: SpecArtifact;
 }
 
-const folderSlug = (folder: string): string =>
-  folder.replace(/^\.\//, "").replace(/\//g, "_");
+// Mirrors `commands/generate.ts` `folderSlug` and `validate-pipeline.ts`
+// `sidecarSlug`: the root sentinel `.` maps to `root` so write/validate
+// agree on the on-disk path.
+const folderSlug = (folder: string): string => {
+  if (folder === ".") return "root";
+  return folder.replace(/^\.\//, "").replace(/\//g, "_");
+};
 
 const schemaErrorFor = (
   folder: string,
