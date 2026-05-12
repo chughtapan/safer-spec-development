@@ -85,21 +85,28 @@ interface ValidateCtx {
   readonly projectCtx: ProjectContext;
 }
 
+const toPosix = (p: string): string => p.split("\\").join("/");
+
 const computeFolderTestTreeHash = (
   fs: FileSystem.FileSystem,
   testPaths: ReadonlyArray<string>,
 ): Effect.Effect<string, never> =>
   Effect.gen(function* () {
+    // Reporter stores POSIX-style projectRoot-relative paths in the
+    // sidecar. The validate-side `inputs.tests` may contain `\` on
+    // Windows (collectFolderInputs builds via the platform Path service);
+    // normalize to POSIX so the hash input strings match exactly.
     const reads = yield* Effect.forEach(
       testPaths,
       (p) => fs.readFileString(p).pipe(
-        Effect.map((content) => [p, content] as const),
-        Effect.catchAll(() => Effect.succeed([p, ""] as const)),
+        Effect.map((content) => [toPosix(p), content] as const),
+        Effect.catchAll(() => Effect.succeed([toPosix(p), ""] as const)),
       ),
       { concurrency: 1 },
     );
     const byPath = new Map(reads);
-    return hashTestTree(testPaths, (p) => byPath.get(p) ?? "");
+    const posixPaths = testPaths.map(toPosix);
+    return hashTestTree(posixPaths, (p) => byPath.get(p) ?? "");
   });
 
 const validateOneFolder = (
