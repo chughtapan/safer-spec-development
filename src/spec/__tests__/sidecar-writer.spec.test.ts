@@ -29,3 +29,25 @@ itSpec.todo("sidecar-writer-atomic-on-failure", {
   type: "Exception Raising",
   exports: [writeSidecar],
 });
+
+/**
+ * @spec.property sidecar-writer-maps-root-folder-to-root-slug
+ * @spec.type Constant Equality
+ * @spec.exports writeSidecar
+ * @spec.claim folder `"."` (project root sentinel) writes to `.safer-spec/root.json`; the writer's slug helper agrees with `generate.ts`/`validate-pipeline.ts` so write and validate never disagree on the on-disk path
+ */
+itSpec.todo("sidecar-writer-maps-root-folder-to-root-slug", {
+  type: "Constant Equality",
+  exports: [writeSidecar],
+});
+
+/**
+ * @spec.property sidecar-writer-coalesces-path-separators-into-slug
+ * @spec.type Constant Equality
+ * @spec.exports writeSidecar
+ * @spec.claim folders containing `/` and `\` (Windows-style) produce a single-segment slug (`src_spec`, not a path with separators) so the sidecar file is one filename under `.safer-spec/`, never an unintended nested directory
+ */
+itSpec.todo("sidecar-writer-coalesces-path-separators-into-slug", {
+  type: "Constant Equality",
+  exports: [writeSidecar],
+});

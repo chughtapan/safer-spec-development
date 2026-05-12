@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: a37904dc0b597598b8d19ab70d0215481c961ad4
+generatedAtSha: d7cd35669c398f0ffc8171b3279c307874b1c08f
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -77,8 +77,16 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
 |---|---|---|---|---|
 | `cli-validate-rejects-conflicting-flags` | `Exception Raising` | `validate` | --planned and --implemented passed together fail with CliUsageError exit code 2 | todo |
 | `cli-validate-exit-code-contract` | `Exception Raising` | `validate` | ValidateGapError tags propagate to process.exit(N) with N in {11, 12, 13} | todo |
+| `generate-folderless-discovers-every-index-folder` | `Inclusion` | `generate` | \`safer-spec generate --write\` (no --folder) writes a SPEC.md + sidecar to every directory under the project root that contains an index.ts barrel | todo |
+| `folder-input-canonicalized-before-stamping` | `Constant Equality` | `generate` | \`--folder $PWD/src\`, \`--folder ./src/\`, and \`--folder src//commands\` produce byte-identical SPEC.md and sidecar artifacts to their canonical cwd-relative forms | todo |
+| `root-folder-uses-root-sidecar-slug` | `Constant Equality` | `generate` | \`--folder .\` (project root) writes the sidecar to \`.safer-spec/root.json\`, never \`.safer-spec/.json\`; generate, validate, and the sidecar-writer all agree on the slug | todo |
+| `validate-diagnostics-route-to-stderr` | `Constant Equality` | `validate` | \`safer-spec validate\` failures write the diagnostic body to stderr; stdout stays empty so success-path stdout-piping scripts aren't polluted | todo |
 | `validate-gate-determ` | `Roundtrip` | `validate` | two validate runs at the same tree SHA produce byte-identical reports modulo generated-at-sha | todo |
 | `validate-emits-gap-cls` | `Exception Raising` | `validate` | every gate failure emits a typed ValidateError with gapClass in {11, 12, 13} | todo |
 | `validate-diagnostic-shape` | `Typechecking` | `validate`, `formatDiagnostic` | every emitted diagnostic conforms to {problem, cause, fix, docsLink} | todo |
 | `properties-table-self-host` | `Inclusion` | `validate` | the codemod's own SPEC.md ## Properties table equals what generate would emit from this codemod's test JSDoc | todo |
 | `properties-table-self-host-bodied` | `Inclusion` | `validate` | every itSpec.prop in the codemod's own tree has a non-empty fast-check body (no it.todo, no empty body) | todo |
+| `validate-flags-misplaced-per-export-directive` | `Exception Raising` | `validate` | a per-export directive (\`@spec.assume\`/\`@spec.guarantee\`/\`@spec.residual-contract\`/\`@spec.skip\`) placed in file-level JSDoc, or naming a symbol the folder doesn't export, fails as MissingSpecPropertyError with exit code 11 | todo |
+| `validate-drift-gate-uses-folder-wide-export-set` | `Constant Equality` | `validate` | directives that reference internal helpers (exported by a non-barrel source file in the folder) validate successfully; the drift gate's known-exports set is the union of every local source file's exports, not the barrel only | todo |
+| `validate-drift-ignores-external-source-directives` | `Constant Equality` | `validate` | a barrel re-exporting a subset of symbols from a sibling-folder source file validates without flagging the source file's other (unrelated) per-export directives as drift; drift checks scope to local sources only | todo |
+| `validate-records-git-worktree-head-sha` | `Constant Equality` | `validate` | when run from a git worktree (\`.git\` is a file with a \`gitdir:\` pointer, not a directory), \`generatedAtSha\` resolves to the actual HEAD SHA via the pointer, not \`uncommitted\` | todo |

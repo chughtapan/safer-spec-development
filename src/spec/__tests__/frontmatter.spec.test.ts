@@ -39,3 +39,14 @@ itSpec.todo("frontmatter-decoded-shape", {
   type: "Typechecking",
   exports: [decodeSpecFrontmatter],
 });
+
+/**
+ * @spec.property frontmatter-decode-preserves-format-version
+ * @spec.type Inclusion
+ * @spec.exports decodeSpecFrontmatter
+ * @spec.claim every emitted SPEC.md carries `format-version: &lt;SPEC_FORMAT_VERSION>` in its YAML block and the decode boundary preserves that field on the decoded value (no silent strip during the schema decode)
+ */
+itSpec.todo("frontmatter-decode-preserves-format-version", {
+  type: "Inclusion",
+  exports: [decodeSpecFrontmatter],
+});

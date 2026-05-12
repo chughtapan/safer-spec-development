@@ -1,7 +1,7 @@
 ---
 folder: src/spec
 format-version: 0.1.0
-generatedAtSha: a37904dc0b597598b8d19ab70d0215481c961ad4
+generatedAtSha: d7cd35669c398f0ffc8171b3279c307874b1c08f
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -124,9 +124,14 @@ export const itSpec: ItSpec = {
 | `emit-public-surface-source-order` | `Inclusion` | `emitMarkdown` | Public surface section lists exports in source-order (matching the file's declaration order) | todo |
 | `emit-files-section-lex-sorted` | `Inclusion` | `emitMarkdown` | Files section lists sibling filenames in lexicographic order | todo |
 | `emit-residual-bodies-escaped` | `Constant Bounds Checking` | `emitMarkdown` | residual-contract bodies emitted into markdown go through escapeForMarkdown; no injection | todo |
+| `emit-children-section-mixes-subfolders-files-tests` | `Inclusion` | `emitMarkdown` | \`## Children\` lists immediate SPEC'd subfolders (linking to \`&lt;sub&gt;/SPEC.md\`) before source files before tests; each row carries the file or subfolder \`@spec.purpose\` body when present | todo |
+| `emit-root-folder-spec-links-stay-in-repo` | `Constant Equality` | `emitMarkdown` | a SPEC.md at the repo root (\`folder === "."\`) reaches every file via \`./&lt;target&gt;\`; \`relativeToFolder\` never emits \`../...\` for the root sentinel | todo |
+| `emit-properties-table-cells-are-code-span-safe` | `Constant Bounds Checking` | `emitMarkdown` | a backtick (or other markdown markup) inside a property \`id\` / \`exports\` cell never closes the surrounding code span; the table grammar (column count, row terminator) survives any author-controlled directive content | todo |
+| `emit-file-purpose-rendered-with-link` | `Inclusion` | `emitMarkdown` | every entry in \`## Children\` for a file with a top-of-file \`@spec.purpose\` renders as \`\[\\\`&lt;rel-path&gt;\\\`\](./&lt;rel-path&gt;) — &lt;purpose body&gt;\`; files without \`@spec.purpose\` render as link-only | todo |
 | `frontmatter-roundtrip` | `Roundtrip` | `decodeSpecFrontmatter` | YAML emit(decode(yaml)) is byte-equal to the original well-formed yaml frontmatter block | todo |
 | `frontmatter-rejects-malformed` | `Exception Raising` | `decodeSpecFrontmatter` | malformed YAML fails on the Effect error channel with a typed ParseError, never throws | todo |
 | `frontmatter-decoded-shape` | `Typechecking` | `decodeSpecFrontmatter` | decoded frontmatter matches the declared SpecFrontmatter type at every branch | todo |
+| `frontmatter-decode-preserves-format-version` | `Inclusion` | `decodeSpecFrontmatter` | every emitted SPEC.md carries \`format-version: &lt;SPEC\_FORMAT\_VERSION&gt;\` in its YAML block and the decode boundary preserves that field on the decoded value (no silent strip during the schema decode) | todo |
 | `link-resolver-intra-file-anchor-pinned` | `Inclusion` | `resolveSymbol` | every intra-file resolution returns href with a non-null sha-pinned anchor | todo |
 | `link-resolver-fails-internal-misses` | `Exception Raising` | `resolveSymbol` | unresolved internal references fail with LinkResolutionError; external misses return UnresolvedExternal | todo |
 | `jsdoc-parser-rejects-unknown-directive` | `Exception Raising` | `parseFileDirectives` | unknown \`@spec.\*\` directive names fail with JsDocUnknownDirectiveError on the Effect error channel | todo |
@@ -135,8 +140,17 @@ export const itSpec: ItSpec = {
 | `jsdoc-escape-markdown-safe` | `Constant Bounds Checking` | `escapeForMarkdown` | escaped output never introduces new markdown syntactic structure (backticks, code-fences, link syntax) | todo |
 | `jsdoc-escape-yaml-safe` | `Constant Bounds Checking` | `escapeForYaml` | escaped output never introduces new YAML syntactic structure (quotes, colons, leading dashes) | todo |
 | `jsdoc-escape-json-safe` | `Constant Bounds Checking` | `escapeForJson` | escaped output never introduces new JSON syntactic structure (quotes, backslashes, control chars) | todo |
+| `parser-rejects-malformed-dotted-spec-tags` | `Exception Raising` | `parseFileDirectives` | \`@spec.foo\_bar\`, \`@spec.foo.bar\`, \`@spec.Type\` (any dotted form the \`\[a-z\]\[a-z-\]\*\` rewriter doesn't normalize) fail with JsDocUnknownDirectiveError; the closed grammar never silently drops a misspelled directive | todo |
+| `parser-bounds-directive-body-at-any-block-tag` | `Constant Equality` | `parseFileDirectives` | a \`@spec.\*\` directive followed by a standard JSDoc block (\`@param\`, \`@returns\`, \`@throws\`, ...) extracts its body only up to that next block tag — no absorption of unrelated comment content into the directive | todo |
+| `parser-accepts-bare-newline-reason-form` | `Inclusion` | `parseFileDirectives` | the multi-line form \`\* \\@spec.guarantee "x"\\n\* reason: y\` (no horizontal whitespace before \`reason:\`) parses successfully — head and reason split exactly as in the inline / indented forms | todo |
+| `parser-binds-member-directives-to-containing-export` | `Constant Equality` | `parseFileDirectives` | a \`@spec.assume\`/\`@spec.guarantee\` JSDoc on an interface method / property signature / class member binds to the enclosing exportable declaration, not the member itself | todo |
+| `parser-routes-aliased-reexport-directives-to-public-name` | `Constant Equality` | `parseFileDirectives` | JSDoc directives on \`foo\` reach the export entry keyed by the public alias \`bar\` when the barrel re-exports as \`export { foo as bar }\`; \`@spec.ignore-export foo\` also drops the aliased export | todo |
 | `sidecar-writer-roundtrip` | `Roundtrip` | `serializeSidecar`, `decodeSpecArtifact` | decode(parse(serialize(artifact))) returns the original artifact at every well-formed input | todo |
 | `sidecar-writer-atomic-on-failure` | `Exception Raising` | `writeSidecar` | partial sidecars are not left on disk on filesystem failures | todo |
+| `sidecar-writer-maps-root-folder-to-root-slug` | `Constant Equality` | `writeSidecar` | folder \`"."\` (project root sentinel) writes to \`.safer-spec/root.json\`; the writer's slug helper agrees with \`generate.ts\`/\`validate-pipeline.ts\` so write and validate never disagree on the on-disk path | todo |
+| `sidecar-writer-coalesces-path-separators-into-slug` | `Constant Equality` | `writeSidecar` | folders containing \`/\` and \`\\\` (Windows-style) produce a single-segment slug (\`src\_spec\`, not a path with separators) so the sidecar file is one filename under \`.safer-spec/\`, never an unintended nested directory | todo |
 | `sidecar-roundtrip` | `Roundtrip` | `decodeSpecArtifact` | encode(decode(json)) is byte-equal to the original well-formed json | todo |
 | `sidecar-rejects-malformed` | `Exception Raising` | `decodeSpecArtifact` | malformed input fails on the Effect error channel with a typed ParseError, never throws | todo |
 | `sidecar-decoded-shape` | `Typechecking` | `decodeSpecArtifact` | decoded artifact matches the declared SpecArtifact type at every branch of the union | todo |
+| `sidecar-preserves-skip-reason-and-residual-contract` | `Inclusion` | `decodeSpecArtifact` | sidecar JSON carries the full \`@spec.skip\` payload (propertyType + reason) and the \`@spec.residual-contract\` payload (tagged "none"/"some" with reason and optional body); JSON-only consumers can distinguish a deliberate opt-out from an incomplete required set | todo |
+| `sidecar-classifies-function-expression-exports` | `Constant Equality` | `decodeSpecArtifact` | \`export const f = function (...) { ... }\` decodes with \`shape: "function"\` and the sidecar's signature is body-stripped, matching the arrow-form (\`export const f = (...) =&gt; {...}\`); the implementation body is never leaked through the sidecar | todo |
