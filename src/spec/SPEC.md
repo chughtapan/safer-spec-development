@@ -1,7 +1,7 @@
 ---
 folder: src/spec
 format-version: 0.1.0
-generatedAtSha: 56fb20877098d5f6e56425f07bebdc9f9d87e093
+generatedAtSha: 068f53b8559e388d755a39253cfed125f280f9fb
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
