@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: dcffdddcf7b82c045ff59db952f8eaa242da3ee9
+generatedAtSha: 540968b96ea26561e16fd49abf9be09e32a4097a
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -100,6 +100,9 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
 | `init-strips-comments-and-strings-before-picking-export` | `Inclusion` | `init` | \`// export const fake = 1\` and quoted-string text containing \`export const fake\` do not contribute candidates to the picker — only real declarations are considered | todo |
 | `init-accepts-abstract-class-as-runtime-export` | `Inclusion` | `init` | \`export abstract class Foo\` is treated as a runtime named export — the scaffolded stub imports \`Foo\` rather than the picker refusing the barrel | todo |
 | `init-star-scan-keeps-working-after-string-stripper` | `Inclusion` | `init` | direct/clause scans run on a strings+comments-stripped source while the star-re-export scan runs on the raw source — so a star-only barrel (\`export \* as ns from "./x"\` or \`export \* from "./x"\`) still resolves | todo |
+| `init-supports-generator-function-exports` | `Inclusion` | `init` | \`export function\* stream()\` and \`export async function\* stream()\` are recognized as runtime named exports — the scaffolded stub imports \`stream\` | todo |
+| `init-uses-top-level-namespace-as-stub-target` | `Inclusion` | `init` | \`export namespace api { export const inner = 1 }\` resolves to \`api\` (the top-level binding), never to nested \`inner\` — \`namespace\`/\`module\` keywords match earlier than nested \`export const\` declarations | todo |
+| `init-namespace-alias-star-requires-resolvable-target` | `Exception Raising` | `init` | \`export \* as ns from "./missing.js"\` only resolves when at least one TS candidate for the specifier exists on disk; otherwise the picker skips this match (so a commented/quoted star-alias cannot fabricate a stub target) | todo |
 | `validate-gate-determ` | `Roundtrip` | `validate` | two validate runs at the same tree SHA produce byte-identical reports modulo generated-at-sha | todo |
 | `validate-emits-gap-cls` | `Exception Raising` | `validate` | every gate failure emits a typed ValidateError with gapClass in {11, 12, 13} | todo |
 | `validate-diagnostic-shape` | `Typechecking` | `validate`, `formatDiagnostic` | every emitted diagnostic conforms to {problem, cause, fix, docsLink} | todo |

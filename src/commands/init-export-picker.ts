@@ -41,14 +41,18 @@
 import { FileSystem, Path } from "@effect/platform";
 import { Effect } from "effect";
 
-// Two passes keep each regex's sonarjs/regex-complexity score under the cap.
-// PRIMARY: bare-keyword declarations; `const(?!\s+enum)` rejects type-erased
-// `export const enum`. MODIFIED: declarations that start with a modifier
-// keyword (`async function`, `abstract class`) — both runtime-named.
+// Four narrow regexes keep each under sonarjs/regex-complexity (cap=20) and
+// sidestep `function\s*\*?` backtracking. `findFirstValueExport` picks the
+// earliest match across them. `const(?!\s+enum)` rejects type-erased
+// `export const enum`. `namespace`/`module` produce runtime named bindings.
 const VALUE_EXPORT_PRIMARY_RE =
-  /export\s+(?:const(?!\s+enum)|let|var|function|class|enum)\s+([A-Za-z_$][\w$]*)/g;
+  /export\s+(?:const(?!\s+enum)|let|var|class|enum)\s+([A-Za-z_$][\w$]*)/g;
+const VALUE_EXPORT_FUNCTION_RE =
+  /export\s+function\*?\s+([A-Za-z_$][\w$]*)/g;
+const VALUE_EXPORT_NAMESPACE_RE =
+  /export\s+(?:namespace|module)\s+([A-Za-z_$][\w$]*)/g;
 const VALUE_EXPORT_MODIFIED_RE =
-  /export\s+(?:async\s+function|abstract\s+class)\s+([A-Za-z_$][\w$]*)/g;
+  /export\s+(?:async\s+function\*?|abstract\s+class)\s+([A-Za-z_$][\w$]*)/g;
 const RE_EXPORT_CLAUSE_RE = /export(?!\s+type)\s*\{([^}]+)\}/g;
 const RE_EXPORT_AS_RE = /^([A-Za-z_$][\w$]*)\s+as\s+([A-Za-z_$][\w$]*)$/;
 const RE_EXPORT_PLAIN_RE = /^([A-Za-z_$][\w$]*)$/;
@@ -132,11 +136,14 @@ const earlier = (a: Match | null, b: Match | null): Match | null => {
 
 const findFirstValueExport = (code: string): Match | null => {
   VALUE_EXPORT_PRIMARY_RE.lastIndex = 0;
+  VALUE_EXPORT_FUNCTION_RE.lastIndex = 0;
+  VALUE_EXPORT_NAMESPACE_RE.lastIndex = 0;
   VALUE_EXPORT_MODIFIED_RE.lastIndex = 0;
-  return earlier(
-    toMatch(VALUE_EXPORT_PRIMARY_RE.exec(code)),
-    toMatch(VALUE_EXPORT_MODIFIED_RE.exec(code)),
-  );
+  const a = toMatch(VALUE_EXPORT_PRIMARY_RE.exec(code));
+  const b = toMatch(VALUE_EXPORT_FUNCTION_RE.exec(code));
+  const c = toMatch(VALUE_EXPORT_NAMESPACE_RE.exec(code));
+  const d = toMatch(VALUE_EXPORT_MODIFIED_RE.exec(code));
+  return earlier(earlier(a, b), earlier(c, d));
 };
 
 const findFirstNamedExport = (source: string): string | null => {
@@ -190,18 +197,40 @@ const followStarTarget = (
     return null;
   });
 
+const anyCandidateExists = (
+  ctx: PickerCtx,
+  baseDir: string,
+  specifier: string,
+): Effect.Effect<boolean, never> =>
+  Effect.gen(function* () {
+    for (const cand of tsCandidatesFor(specifier)) {
+      const candPath = ctx.path.resolve(baseDir, cand);
+      const candSource = yield* readSourceOrNull(ctx.fs, candPath);
+      if (candSource !== null) return true;
+    }
+    return false;
+  });
+
 const tryOneStarMatch = (
   ctx: PickerCtx,
   sourceFile: string,
   m: RegExpExecArray,
   depth: number,
-): Effect.Effect<string | null, never> => {
-  const nsAlias = m[1];
-  const specifier = m[2];
-  if (specifier === undefined) return Effect.succeed(null);
-  if (nsAlias !== undefined && nsAlias !== "default") return Effect.succeed(nsAlias);
-  return followStarTarget(ctx, ctx.path.dirname(sourceFile), specifier, depth);
-};
+): Effect.Effect<string | null, never> =>
+  Effect.gen(function* () {
+    const nsAlias = m[1];
+    const specifier = m[2];
+    if (specifier === undefined) return null;
+    const baseDir = ctx.path.dirname(sourceFile);
+    // Namespace-alias stars (`export * as ns from ...`) also require the
+    // target to resolve on disk — guards against commented or quoted
+    // star syntax that the raw-source scan would otherwise accept.
+    if (nsAlias !== undefined && nsAlias !== "default") {
+      const exists = yield* anyCandidateExists(ctx, baseDir, specifier);
+      return exists ? nsAlias : null;
+    }
+    return yield* followStarTarget(ctx, baseDir, specifier, depth);
+  });
 
 const resolveStarReExport = (
   ctx: PickerCtx,

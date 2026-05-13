@@ -196,3 +196,36 @@ itSpec.todo("init-star-scan-keeps-working-after-string-stripper", {
   type: "Inclusion",
   exports: [init],
 });
+
+/**
+ * @spec.property init-supports-generator-function-exports
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim `export function* stream()` and `export async function* stream()` are recognized as runtime named exports — the scaffolded stub imports `stream`
+ */
+itSpec.todo("init-supports-generator-function-exports", {
+  type: "Inclusion",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-uses-top-level-namespace-as-stub-target
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim `export namespace api { export const inner = 1 }` resolves to `api` (the top-level binding), never to nested `inner` — `namespace`/`module` keywords match earlier than nested `export const` declarations
+ */
+itSpec.todo("init-uses-top-level-namespace-as-stub-target", {
+  type: "Inclusion",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-namespace-alias-star-requires-resolvable-target
+ * @spec.type Exception Raising
+ * @spec.exports init
+ * @spec.claim `export * as ns from "./missing.js"` only resolves when at least one TS candidate for the specifier exists on disk; otherwise the picker skips this match (so a commented/quoted star-alias cannot fabricate a stub target)
+ */
+itSpec.todo("init-namespace-alias-star-requires-resolvable-target", {
+  type: "Exception Raising",
+  exports: [init],
+});
