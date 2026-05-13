@@ -273,3 +273,14 @@ itSpec.todo("init-skips-reserved-word-export-names", {
   type: "Exception Raising",
   exports: [init],
 });
+
+/**
+ * @spec.property init-skips-type-only-re-exports-of-value-symbols
+ * @spec.type Exception Raising
+ * @spec.exports init
+ * @spec.claim `export type { Foo } from "./foo.js"` (whole-clause type-only) and `export { type Foo } from "./foo.js"` (per-entry type-only) are skipped even when Foo resolves to a value declaration upstream — TypeScript erases the export on this barrel, so the stub would not compile
+ */
+itSpec.todo("init-skips-type-only-re-exports-of-value-symbols", {
+  type: "Exception Raising",
+  exports: [init],
+});

@@ -33,7 +33,7 @@
 
 import { FileSystem, Path } from "@effect/platform";
 import { Effect } from "effect";
-import { Project, type ExportDeclaration } from "ts-morph";
+import { Project, type ExportDeclaration, type ExportSpecifier } from "ts-morph";
 import {
   collectExports,
   type DeclaredExport,
@@ -59,20 +59,37 @@ const RESERVED_WORDS: ReadonlySet<string> = new Set([
   "void", "while", "with", "yield",
 ]);
 
-const isRuntimeNamed = (e: DeclaredExport): boolean => {
-  if (e.name === "default") return false;
-  if (!IDENT_RE.test(e.name)) return false;
-  if (RESERVED_WORDS.has(e.name)) return false;
-  if (e.kind === "type" || e.kind === "interface") return false;
-  if (e.kind === "enum" && CONST_ENUM_PREFIX_RE.test(e.signature)) return false;
-  return true;
+const isImportableName = (name: string): boolean => {
+  if (name === "default") return false;
+  if (!IDENT_RE.test(name)) return false;
+  return !RESERVED_WORDS.has(name);
+};
+
+const isErasingKind = (e: DeclaredExport): boolean => {
+  if (e.kind === "type" || e.kind === "interface") return true;
+  return e.kind === "enum" && CONST_ENUM_PREFIX_RE.test(e.signature);
+};
+
+// `export type { Foo } from "./x"` (or per-entry `export { type Foo }`)
+// re-binds `Foo` as a type-only export on this barrel even when the
+// target's underlying declaration is a value. collectExports follows the
+// alias and reports the value kind, so this filter catches the type-only
+// erasure separately by name.
+const isRuntimeNamed = (
+  e: DeclaredExport,
+  typeOnlyPublicNames: ReadonlySet<string>,
+): boolean => {
+  if (!isImportableName(e.name)) return false;
+  if (isErasingKind(e)) return false;
+  return !typeOnlyPublicNames.has(e.name);
 };
 
 const firstRuntimeExport = (
   entries: ReadonlyArray<DeclaredExport>,
+  typeOnlyPublicNames: ReadonlySet<string>,
 ): string | null => {
   for (const e of entries) {
-    if (isRuntimeNamed(e)) return e.name;
+    if (isRuntimeNamed(e, typeOnlyPublicNames)) return e.name;
   }
   return null;
 };
@@ -119,16 +136,40 @@ const resolveTarget = (
     return null;
   });
 
-const specifiersFromSource = (
-  filePath: string,
-  source: string,
-): ReadonlyArray<string> => {
+// SourceScan: specifiers feed the sibling pre-walk; typeOnlyPublicNames
+// catches `export type { Foo }` / `export { type Foo }` re-exports that
+// collectExports would otherwise resolve to a value declaration upstream.
+interface SourceScan {
+  readonly specifiers: ReadonlyArray<string>;
+  readonly typeOnlyPublicNames: ReadonlySet<string>;
+}
+
+const publicNameOf = (ne: ExportSpecifier): string => {
+  const alias = ne.getAliasNode();
+  return alias === undefined ? ne.getName() : alias.getText();
+};
+
+const scanOneDeclaration = (
+  decl: ExportDeclaration,
+  specifiers: string[],
+  typeOnly: Set<string>,
+): void => {
+  const moduleSpec = decl.getModuleSpecifierValue();
+  if (moduleSpec !== undefined) specifiers.push(moduleSpec);
+  for (const ne of decl.getNamedExports()) {
+    if (decl.isTypeOnly() || ne.isTypeOnly()) typeOnly.add(publicNameOf(ne));
+  }
+};
+
+const scanExportDeclarations = (filePath: string, source: string): SourceScan => {
   const project = new Project({ useInMemoryFileSystem: true });
   const sf = project.createSourceFile(filePath, source, { overwrite: true });
-  return sf
-    .getExportDeclarations()
-    .map((d: ExportDeclaration) => d.getModuleSpecifierValue())
-    .filter((s): s is string => s !== undefined);
+  const specifiers: string[] = [];
+  const typeOnly = new Set<string>();
+  for (const decl of sf.getExportDeclarations()) {
+    scanOneDeclaration(decl, specifiers, typeOnly);
+  }
+  return { specifiers, typeOnlyPublicNames: typeOnly };
 };
 
 interface CollectSiblingsCtx {
@@ -164,7 +205,7 @@ const collectSiblings = (
 ): Effect.Effect<void, never> =>
   Effect.gen(function* () {
     if (depth >= REEXPORT_MAX_DEPTH) return;
-    for (const spec of specifiersFromSource(rootFile, rootSource)) {
+    for (const spec of scanExportDeclarations(rootFile, rootSource).specifiers) {
       yield* visitOneSpecifier(ctx, rootFile, spec, depth);
     }
   });
@@ -206,7 +247,8 @@ export const readFirstExport = (
     const absIndex = path.resolve(indexPath);
     const source = yield* readSourceOrNull(fs, absIndex);
     if (source === null) return null;
+    const scan = scanExportDeclarations(absIndex, source);
     const siblings = yield* buildSiblings({ fs, path }, absIndex, source);
     const entries = collectExports(absIndex, source, { siblings });
-    return firstRuntimeExport(entries);
+    return firstRuntimeExport(entries, scan.typeOnlyPublicNames);
   }).pipe(Effect.withSpan("commands/init-export-picker/readFirstExport"));
