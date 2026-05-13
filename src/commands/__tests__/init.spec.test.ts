@@ -163,3 +163,25 @@ itSpec.todo("init-follows-bare-star-re-export-to-target", {
   type: "Inclusion",
   exports: [init],
 });
+
+/**
+ * @spec.property init-strips-comments-and-strings-before-picking-export
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim `// export const fake = 1` and quoted-string text containing `export const fake` do not contribute candidates to the picker — only real declarations are considered
+ */
+itSpec.todo("init-strips-comments-and-strings-before-picking-export", {
+  type: "Inclusion",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-accepts-abstract-class-as-runtime-export
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim `export abstract class Foo` is treated as a runtime named export — the scaffolded stub imports `Foo` rather than the picker refusing the barrel
+ */
+itSpec.todo("init-accepts-abstract-class-as-runtime-export", {
+  type: "Inclusion",
+  exports: [init],
+});

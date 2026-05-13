@@ -8,11 +8,17 @@
  *   only needs ONE valid runtime symbol to bind the generated test stub's
  *   `import { ... } from "../index.js"` line.
  *
+ *   Before scanning, line/block comments and string literals are blanked
+ *   out (replaced with same-length whitespace runs so source-position
+ *   tie-breaking stays correct). This keeps commented-out `export` lines
+ *   and quoted-string content from masquerading as real declarations.
+ *
  *   Resolution order on the read file:
  *     1. Direct value declarations
- *        (`export const|let|var|class|enum|function|async function`).
- *        `type` / `interface` / `const enum` are excluded — type-erased
- *        and not importable as runtime values.
+ *        (`export const|let|var|class|enum|function|async function|`
+ *        `abstract class`). `type` / `interface` / `const enum` are
+ *        excluded — type-erased and not importable as runtime values.
+ *        `abstract class` emits a runtime named export.
  *     2. `export { ... }` clauses (not `export type { ... }`). Per entry,
  *        `foo as bar` resolves to `bar` (publicly-bound name);
  *        `{ default }` and `{ foo as default }` skip; `{ default as foo }`
@@ -28,8 +34,14 @@
 import { FileSystem, Path } from "@effect/platform";
 import { Effect } from "effect";
 
-const VALUE_EXPORT_RE =
-  /export\s+(?:const(?!\s+enum)|let|var|async\s+function|function|class|enum)\s+([A-Za-z_$][\w$]*)/g;
+// Two passes keep each regex's sonarjs/regex-complexity score under the cap.
+// PRIMARY: bare-keyword declarations; `const(?!\s+enum)` rejects type-erased
+// `export const enum`. MODIFIED: declarations that start with a modifier
+// keyword (`async function`, `abstract class`) — both runtime-named.
+const VALUE_EXPORT_PRIMARY_RE =
+  /export\s+(?:const(?!\s+enum)|let|var|function|class|enum)\s+([A-Za-z_$][\w$]*)/g;
+const VALUE_EXPORT_MODIFIED_RE =
+  /export\s+(?:async\s+function|abstract\s+class)\s+([A-Za-z_$][\w$]*)/g;
 const RE_EXPORT_CLAUSE_RE = /export(?!\s+type)\s*\{([^}]+)\}/g;
 const RE_EXPORT_AS_RE = /^([A-Za-z_$][\w$]*)\s+as\s+([A-Za-z_$][\w$]*)$/;
 const RE_EXPORT_PLAIN_RE = /^([A-Za-z_$][\w$]*)$/;
@@ -76,13 +88,57 @@ const findFirstRuntimeReExport = (
   return null;
 };
 
+// Replace each match with same-length run of spaces so source indices stay
+// stable for the "earliest match wins" comparison after stripping. Strings
+// are scrubbed first so a `/*` inside a string literal cannot trip the
+// block-comment regex (and a `//` inside a string cannot trip line
+// comments).
+const STRIP_DOUBLE_STRING_RE = /"(?:\\.|[^"\\])*"/g;
+const STRIP_SINGLE_STRING_RE = /'(?:\\.|[^'\\])*'/g;
+const STRIP_TEMPLATE_RE = /`(?:\\.|[^`\\])*`/g;
+const STRIP_BLOCK_COMMENT_RE = /\/\*[\s\S]*?\*\//g;
+const STRIP_LINE_COMMENT_RE = /\/\/[^\n]*/g;
+
+const blankOut = (match: string): string => match.replace(/[^\n]/g, " ");
+
+const stripNonCode = (source: string): string =>
+  source
+    .replace(STRIP_DOUBLE_STRING_RE, blankOut)
+    .replace(STRIP_SINGLE_STRING_RE, blankOut)
+    .replace(STRIP_TEMPLATE_RE, blankOut)
+    .replace(STRIP_BLOCK_COMMENT_RE, blankOut)
+    .replace(STRIP_LINE_COMMENT_RE, blankOut);
+
+interface Match {
+  readonly idx: number;
+  readonly name: string;
+}
+
+const toMatch = (m: RegExpExecArray | null): Match | null =>
+  m === null ? null : { idx: m.index, name: m[1] ?? "" };
+
+const earlier = (a: Match | null, b: Match | null): Match | null => {
+  if (a === null) return b;
+  if (b === null) return a;
+  return a.idx <= b.idx ? a : b;
+};
+
+const findFirstValueExport = (code: string): Match | null => {
+  VALUE_EXPORT_PRIMARY_RE.lastIndex = 0;
+  VALUE_EXPORT_MODIFIED_RE.lastIndex = 0;
+  return earlier(
+    toMatch(VALUE_EXPORT_PRIMARY_RE.exec(code)),
+    toMatch(VALUE_EXPORT_MODIFIED_RE.exec(code)),
+  );
+};
+
 const findFirstNamedExport = (source: string): string | null => {
-  VALUE_EXPORT_RE.lastIndex = 0;
-  const direct = VALUE_EXPORT_RE.exec(source);
-  const reExport = findFirstRuntimeReExport(source);
+  const code = stripNonCode(source);
+  const direct = findFirstValueExport(code);
+  const reExport = findFirstRuntimeReExport(code);
   if (direct === null) return reExport === null ? null : reExport.name;
-  if (reExport === null) return direct[1] ?? null;
-  return direct.index <= reExport.idx ? (direct[1] ?? null) : reExport.name;
+  if (reExport === null) return direct.name;
+  return direct.idx <= reExport.idx ? direct.name : reExport.name;
 };
 
 const tsCandidatesFor = (specifier: string): ReadonlyArray<string> => {
@@ -148,9 +204,10 @@ const resolveStarReExport = (
 ): Effect.Effect<string | null, never> =>
   Effect.gen(function* () {
     if (depth >= STAR_MAX_DEPTH) return null;
+    const code = stripNonCode(source);
     STAR_REEXPORT_RE.lastIndex = 0;
     let m: RegExpExecArray | null;
-    while ((m = STAR_REEXPORT_RE.exec(source)) !== null) {
+    while ((m = STAR_REEXPORT_RE.exec(code)) !== null) {
       const resolved = yield* tryOneStarMatch(ctx, sourceFile, m, depth);
       if (resolved !== null) return resolved;
     }
