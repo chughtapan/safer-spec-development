@@ -52,6 +52,14 @@ const CLI_EXIT_CODES = {
   CliUsageError: 2,
 } as const satisfies Record<ValidateGapError["_tag"] | CliUsageError["_tag"], number>;
 
+// Effect's default logger writes to stdout; validate + init diagnostics
+// belong on stderr so scripts piping the success path's stdout don't
+// receive the error body.
+const writeStderr = (message: string): Effect.Effect<void> =>
+  Effect.sync(() => {
+    process.stderr.write(`${message}\n`);
+  });
+
 // --- init ---
 const initFolderArg = Args.text({ name: "folder" }).pipe(Args.optional);
 const initCommand = Command.make(
@@ -62,6 +70,11 @@ const initCommand = Command.make(
       Effect.flatMap((result) =>
         Effect.log(
           `init scaffolded ${result.filesCreated.length} files in ${result.folder}`,
+        ),
+      ),
+      Effect.catchTag("InitError", (e) =>
+        writeStderr(`init failed at ${e.folder}: ${e.reason}`).pipe(
+          Effect.flatMap(() => Effect.fail(new CliExitCode({ code: 1 }))),
         ),
       ),
     ),
@@ -92,14 +105,6 @@ const generateCommand = Command.make(
 const validateFolderOpt = Options.text("folder").pipe(Options.optional);
 const validatePlannedOpt = Options.boolean("planned").pipe(Options.withDefault(false));
 const validateImplementedOpt = Options.boolean("implemented").pipe(Options.withDefault(false));
-
-// Effect's default logger writes to stdout; validate diagnostics
-// belong on stderr so scripts piping the success path's stdout don't
-// receive the error body.
-const writeStderr = (message: string): Effect.Effect<void> =>
-  Effect.sync(() => {
-    process.stderr.write(`${message}\n`);
-  });
 
 const handleValidateError = (
   e: ValidateGapError | CliUsageError,
