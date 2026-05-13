@@ -229,3 +229,25 @@ itSpec.todo("init-namespace-alias-star-requires-resolvable-target", {
   type: "Exception Raising",
   exports: [init],
 });
+
+/**
+ * @spec.property init-ignores-commented-or-quoted-star-re-exports
+ * @spec.type Exception Raising
+ * @spec.exports init
+ * @spec.claim star-re-export detection uses `ts-morph`'s `getExportDeclarations` (which structurally ignores comments and string literals), so a barrel whose only `export *` text appears inside a comment or string is treated as having no exports and fails with InitError
+ */
+itSpec.todo("init-ignores-commented-or-quoted-star-re-exports", {
+  type: "Exception Raising",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-skips-non-identifier-export-names
+ * @spec.type Exception Raising
+ * @spec.exports init
+ * @spec.claim `export { x as "x-y" }` (string-literal public name) is skipped by the picker — the scaffolded stub never emits `import { x-y } from "../index.js"` (which would be a syntax error); a barrel whose only exports are non-identifier-named falls through to InitError
+ */
+itSpec.todo("init-skips-non-identifier-export-names", {
+  type: "Exception Raising",
+  exports: [init],
+});

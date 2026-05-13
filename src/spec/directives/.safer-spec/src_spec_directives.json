@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/directives",
-  "generatedAtSha": "c70ddc3972678a8d5f8f08d83604da0b724782f2",
+  "generatedAtSha": "5bfd76f7a9113cb39ee25b12b063f0cd4c6b0394",
   "exports": [
     {
       "name": "DIRECTIVE_BODY_MAX_CHARS",
@@ -25,7 +25,7 @@
       "sourceRef": {
         "path": "src/spec/directives/shared.ts",
         "line": 17,
-        "sha": "c70ddc3972678a8d5f8f08d83604da0b724782f2"
+        "sha": "5bfd76f7a9113cb39ee25b12b063f0cd4c6b0394"
       }
     },
     {
@@ -50,7 +50,7 @@
       "sourceRef": {
         "path": "src/spec/directives/shared.ts",
         "line": 28,
-        "sha": "c70ddc3972678a8d5f8f08d83604da0b724782f2"
+        "sha": "5bfd76f7a9113cb39ee25b12b063f0cd4c6b0394"
       }
     },
     {
@@ -75,7 +75,7 @@
       "sourceRef": {
         "path": "src/spec/directives/shared.ts",
         "line": 38,
-        "sha": "c70ddc3972678a8d5f8f08d83604da0b724782f2"
+        "sha": "5bfd76f7a9113cb39ee25b12b063f0cd4c6b0394"
       }
     },
     {
@@ -100,7 +100,7 @@
       "sourceRef": {
         "path": "src/spec/directives/shared.ts",
         "line": 47,
-        "sha": "c70ddc3972678a8d5f8f08d83604da0b724782f2"
+        "sha": "5bfd76f7a9113cb39ee25b12b063f0cd4c6b0394"
       }
     },
     {
@@ -125,7 +125,7 @@
       "sourceRef": {
         "path": "src/spec/directives/shared.ts",
         "line": 55,
-        "sha": "c70ddc3972678a8d5f8f08d83604da0b724782f2"
+        "sha": "5bfd76f7a9113cb39ee25b12b063f0cd4c6b0394"
       }
     },
     {
@@ -150,7 +150,7 @@
       "sourceRef": {
         "path": "src/spec/directives/index.ts",
         "line": 69,
-        "sha": "c70ddc3972678a8d5f8f08d83604da0b724782f2"
+        "sha": "5bfd76f7a9113cb39ee25b12b063f0cd4c6b0394"
       }
     },
     {
@@ -175,7 +175,7 @@
       "sourceRef": {
         "path": "src/spec/directives/index.ts",
         "line": 89,
-        "sha": "c70ddc3972678a8d5f8f08d83604da0b724782f2"
+        "sha": "5bfd76f7a9113cb39ee25b12b063f0cd4c6b0394"
       }
     },
     {
@@ -205,7 +205,7 @@
       "sourceRef": {
         "path": "src/spec/directives/index.ts",
         "line": 284,
-        "sha": "c70ddc3972678a8d5f8f08d83604da0b724782f2"
+        "sha": "5bfd76f7a9113cb39ee25b12b063f0cd4c6b0394"
       }
     }
   ],
