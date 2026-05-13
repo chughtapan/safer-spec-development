@@ -53,3 +53,36 @@ itSpec.todo("init-picks-default-folder-when-omitted", {
   type: "Inclusion",
   exports: [init],
 });
+
+/**
+ * @spec.property init-test-stub-imports-existing-barrel-export
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim when the target folder already has an index.ts with at least one named export, the scaffolded test stub imports that export name (not the unused `placeholder` symbol)
+ */
+itSpec.todo("init-test-stub-imports-existing-barrel-export", {
+  type: "Inclusion",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-refuses-existing-barrel-without-named-export
+ * @spec.type Exception Raising
+ * @spec.exports init
+ * @spec.claim when the target folder has an index.ts that declares no named export (only `export default` or empty), init fails with InitError naming the missing-named-export precondition
+ */
+itSpec.todo("init-refuses-existing-barrel-without-named-export", {
+  type: "Exception Raising",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-prefers-leaf-over-ancestor-when-both-lack-spec
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim when both `src/index.ts` and `src/components/index.ts` lack SPEC.md, init without --folder picks the deeper leaf, not the ancestor
+ */
+itSpec.todo("init-prefers-leaf-over-ancestor-when-both-lack-spec", {
+  type: "Inclusion",
+  exports: [init],
+});

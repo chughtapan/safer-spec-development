@@ -2,8 +2,11 @@
  * @spec.purpose
  *   `init` command entrypoint. Scaffolds a folder's `index.ts` barrel plus
  *   a single `itSpec.todo` property stub under `__tests__/&lt;slug>.spec.test.ts`.
- *   When `folder` is omitted, picks the first discovered `index.ts`-bearing
- *   leaf that does not yet carry a `SPEC.md`. Targets TTHW &lt;10 minutes.
+ *   When `folder` is omitted, picks a leaf folder (no descendant candidate)
+ *   among `index.ts`-bearing folders without a `SPEC.md`, so the default
+ *   target is always a leaf. When the target already has an `index.ts`, the
+ *   test stub imports the first named export of that barrel (refuses if none
+ *   exists). Targets TTHW &lt;10 minutes.
  *
  *   Tagged error `InitError` is co-located here.
  */
@@ -70,32 +73,55 @@ const folderSlug = (path: Path.Path, folder: string): string => {
   return trimmed.length === 0 ? "root" : trimmed;
 };
 
+const PLACEHOLDER_EXPORT = "placeholder";
+
 const indexTemplate = (): string =>
   `/**\n` +
   ` * @spec.purpose Scaffolded by \`safer-spec init\`. Replace this with what the folder owns.\n` +
   ` */\n` +
   `\n` +
-  `export const placeholder = "TODO" as const;\n`;
+  `export const ${PLACEHOLDER_EXPORT} = "TODO" as const;\n`;
 
-const testTemplate = (slug: string): string => {
-  const propertyId = `${slug}-placeholder-is-todo`;
+const NAMED_EXPORT_RE =
+  /export\s+(?:const|let|var|function|class|enum|interface|type|async\s+function)\s+([A-Za-z_$][\w$]*)/;
+const RE_EXPORT_RE = /export\s*(?:type\s*)?\{\s*([A-Za-z_$][\w$]*)/;
+
+const findFirstNamedExport = (source: string): string | null => {
+  const direct = NAMED_EXPORT_RE.exec(source);
+  if (direct !== null) return direct[1] ?? null;
+  const reExport = RE_EXPORT_RE.exec(source);
+  if (reExport !== null) return reExport[1] ?? null;
+  return null;
+};
+
+const readFirstExport = (
+  fs: FileSystem.FileSystem,
+  indexPath: string,
+): Effect.Effect<string | null, never> =>
+  fs.readFileString(indexPath).pipe(
+    Effect.map(findFirstNamedExport),
+    Effect.catchAll(() => Effect.succeed(null)),
+  );
+
+const testTemplate = (slug: string, exportName: string): string => {
+  const propertyId = `${slug}-${exportName}-stub`;
   return (
     `/**\n` +
     ` * @spec.purpose Scaffolded by \`safer-spec init\`. Replace this with what the tests assert.\n` +
     ` */\n` +
     `\n` +
     `import { itSpec } from "@chughtapan/safer-spec-development";\n` +
-    `import { placeholder } from "../index.js";\n` +
+    `import { ${exportName} } from "../index.js";\n` +
     `\n` +
     `/**\n` +
     ` * @spec.property ${propertyId}\n` +
     ` * @spec.type Constant Equality\n` +
-    ` * @spec.exports placeholder\n` +
-    ` * @spec.claim placeholder export equals "TODO"\n` +
+    ` * @spec.exports ${exportName}\n` +
+    ` * @spec.claim placeholder property for the \`${exportName}\` export; promote to itSpec.prop with a real claim\n` +
     ` */\n` +
     `itSpec.todo("${propertyId}", {\n` +
     `  type: "Constant Equality",\n` +
-    `  exports: [placeholder],\n` +
+    `  exports: [${exportName}],\n` +
     `});\n`
   );
 };
@@ -139,16 +165,27 @@ const refuseIfExisting = (
     }
   });
 
+const isAncestorOfAny = (
+  path: Path.Path,
+  candidate: string,
+  others: ReadonlyArray<string>,
+): boolean => {
+  const prefix = `${candidate}${path.sep}`;
+  return others.some((o) => o !== candidate && o.startsWith(prefix));
+};
+
 const pickDefaultFolder = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
 ): Effect.Effect<string, InitError> =>
   Effect.gen(function* () {
     const folders = yield* discoverFolders(fs, path, ".");
+    const candidates: string[] = [];
     for (const f of folders) {
-      const hasSpec = yield* fileExists(fs, path.join(f, "SPEC.md"));
-      if (!hasSpec) return f;
+      if (!(yield* fileExists(fs, path.join(f, "SPEC.md")))) candidates.push(f);
     }
+    const leaf = candidates.find((c) => !isAncestorOfAny(path, c, candidates));
+    if (leaf !== undefined) return leaf;
     return yield* Effect.fail(
       new InitError({
         folder: "<default>",
@@ -191,18 +228,39 @@ interface WriteCtx {
 const writeIndexIfMissing = (
   c: WriteCtx,
   written: string[],
-): Effect.Effect<void, InitError> =>
+): Effect.Effect<boolean, InitError> =>
   Effect.gen(function* () {
     const indexPath = c.path.join(c.folder, "index.ts");
-    if (yield* fileExists(c.fs, indexPath)) return;
+    if (yield* fileExists(c.fs, indexPath)) return false;
     yield* c.fs
       .writeFileString(indexPath, indexTemplate())
       .pipe(Effect.mapError(ioFail(c.folder, indexPath)));
     written.push(indexPath);
+    return true;
+  });
+
+const resolveStubExport = (
+  c: WriteCtx,
+  indexWasWritten: boolean,
+): Effect.Effect<string, InitError> =>
+  Effect.gen(function* () {
+    if (indexWasWritten) return PLACEHOLDER_EXPORT;
+    const indexPath = c.path.join(c.folder, "index.ts");
+    const found = yield* readFirstExport(c.fs, indexPath);
+    if (found !== null) return found;
+    return yield* Effect.fail(
+      new InitError({
+        folder: c.folder,
+        reason:
+          "existing `index.ts` declares no named export. Add `export const <name> = ...` (or a `function`/`class`/re-export) before re-running `init`, or remove the file to let init scaffold one.",
+        cause: "no named export matched in existing index.ts",
+      }),
+    );
   });
 
 const writeTestStub = (
   c: WriteCtx,
+  exportName: string,
   written: string[],
 ): Effect.Effect<void, InitError> =>
   Effect.gen(function* () {
@@ -214,16 +272,19 @@ const writeTestStub = (
     const testPath = c.path.join(testsDir, `${slug}.spec.test.ts`);
     if (yield* fileExists(c.fs, testPath)) return;
     yield* c.fs
-      .writeFileString(testPath, testTemplate(slug))
+      .writeFileString(testPath, testTemplate(slug, exportName))
       .pipe(Effect.mapError(ioFail(c.folder, testPath)));
     written.push(testPath);
   });
 
 /**
- * @spec.assume "the target folder either does not exist yet, is empty, or contains an `index.ts` without a SPEC.md"
- *   reason: lifecycle precondition; not encoded in the InitInput shape.
- * @spec.guarantee "writes are per-file via the FileSystem service; an already-present index.ts is preserved untouched and only the missing pieces are added"
- *   reason: side-effect contract; init must never overwrite existing work.
+ * @spec.assume "the target folder either does not exist yet, is empty, or contains an `index.ts` (with at least one named export) without a SPEC.md"
+ *   reason: lifecycle precondition; an existing barrel without named exports
+ *           cannot be paired with a meaningful test stub and InitError surfaces
+ *           the missing precondition.
+ * @spec.guarantee "writes are per-file via the FileSystem service; an already-present index.ts is preserved untouched and the test stub imports its first named export instead of the scaffold's `placeholder`"
+ *   reason: side-effect contract; init must never overwrite existing work and
+ *           must never emit a stub that references a symbol the barrel does not export.
  * @spec.residual-contract "scaffold templates are stable across patch versions; format-version bumps require migrate"
  *   reason: lifecycle contract beyond the Effect signature.
  */
@@ -242,7 +303,8 @@ export const init = (
     yield* refuseIfExisting(fs, path, folder);
     const written: string[] = [];
     const ctx: WriteCtx = { fs, path, folder };
-    yield* writeIndexIfMissing(ctx, written);
-    yield* writeTestStub(ctx, written);
+    const indexWasWritten = yield* writeIndexIfMissing(ctx, written);
+    const exportName = yield* resolveStubExport(ctx, indexWasWritten);
+    yield* writeTestStub(ctx, exportName, written);
     return { folder, filesCreated: written };
   }).pipe(Effect.withSpan("commands/init"));
