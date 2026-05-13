@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: 4882322fe919cd332a4c38e075fd574a0308e2ca
+generatedAtSha: 7ce4123c0f1eeea22ad0b6fa42be7a80ebc10e3f
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -110,6 +110,9 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
 | `init-skips-type-only-re-exports-of-value-symbols` | `Exception Raising` | `init` | \`export type { Foo } from "./foo.js"\` (whole-clause type-only) and \`export { type Foo } from "./foo.js"\` (per-entry type-only) are skipped even when Foo resolves to a value declaration upstream — TypeScript erases the export on this barrel, so the stub would not compile | todo |
 | `init-skips-type-only-star-re-exports` | `Exception Raising` | `init` | \`export type \* from "./x.js"\` and \`export type \* as ns from "./x.js"\` are skipped — their targets are not registered as collectExports siblings (so value names from x.js cannot leak through), and any namespace alias is added to the type-only-public-names filter | todo |
 | `init-skips-ambient-declare-exports` | `Exception Raising` | `init` | \`export declare const foo: string\` and \`export declare function foo()\` are skipped — \`declare\` is a TypeScript ambient declaration that emits no JS binding, so binding the stub to it would import a non-existent runtime symbol | todo |
+| `init-resolves-import-then-export-pattern` | `Inclusion` | `init` | \`import { Foo } from "./foo.js"; export { Foo };\` resolves to \`Foo\` — the picker walks BOTH \`export ... from\` and \`import ... from\` declarations when building the sibling graph, so locally-rebound re-exports resolve correctly | todo |
+| `init-propagates-type-only-filter-transitively` | `Exception Raising` | `init` | type-only re-exports survive \`export \*\` chains: if \`index.ts\` does \`export \* from "./barrel.js"\` and \`barrel.ts\` declares \`export { type X } from "./x.js"; export const Y = 1\`, the picker chooses \`Y\` (not \`X\`) — type-only names from intermediate barrels are merged into the root's filter | todo |
+| `init-handles-string-literal-export-aliases` | `Exception Raising` | `init` | \`export { type Foo as "Bar" } from "./x.js"\` correctly registers \`Bar\` (unquoted) as a type-only public name — \`getLiteralValue()\` strips the alias's surrounding quotes so the filter matches collectExports's reported name | todo |
 | `validate-gate-determ` | `Roundtrip` | `validate` | two validate runs at the same tree SHA produce byte-identical reports modulo generated-at-sha | todo |
 | `validate-emits-gap-cls` | `Exception Raising` | `validate` | every gate failure emits a typed ValidateError with gapClass in {11, 12, 13} | todo |
 | `validate-diagnostic-shape` | `Typechecking` | `validate`, `formatDiagnostic` | every emitted diagnostic conforms to {problem, cause, fix, docsLink} | todo |

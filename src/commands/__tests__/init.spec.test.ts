@@ -306,3 +306,36 @@ itSpec.todo("init-skips-ambient-declare-exports", {
   type: "Exception Raising",
   exports: [init],
 });
+
+/**
+ * @spec.property init-resolves-import-then-export-pattern
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim `import { Foo } from "./foo.js"; export { Foo };` resolves to `Foo` — the picker walks BOTH `export ... from` and `import ... from` declarations when building the sibling graph, so locally-rebound re-exports resolve correctly
+ */
+itSpec.todo("init-resolves-import-then-export-pattern", {
+  type: "Inclusion",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-propagates-type-only-filter-transitively
+ * @spec.type Exception Raising
+ * @spec.exports init
+ * @spec.claim type-only re-exports survive `export *` chains: if `index.ts` does `export * from "./barrel.js"` and `barrel.ts` declares `export { type X } from "./x.js"; export const Y = 1`, the picker chooses `Y` (not `X`) — type-only names from intermediate barrels are merged into the root's filter
+ */
+itSpec.todo("init-propagates-type-only-filter-transitively", {
+  type: "Exception Raising",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-handles-string-literal-export-aliases
+ * @spec.type Exception Raising
+ * @spec.exports init
+ * @spec.claim `export { type Foo as "Bar" } from "./x.js"` correctly registers `Bar` (unquoted) as a type-only public name — `getLiteralValue()` strips the alias's surrounding quotes so the filter matches collectExports's reported name
+ */
+itSpec.todo("init-handles-string-literal-export-aliases", {
+  type: "Exception Raising",
+  exports: [init],
+});

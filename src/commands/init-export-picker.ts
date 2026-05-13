@@ -33,7 +33,12 @@
 
 import { FileSystem, Path } from "@effect/platform";
 import { Effect } from "effect";
-import { Project, type ExportDeclaration, type ExportSpecifier } from "ts-morph";
+import {
+  Node,
+  Project,
+  type ExportDeclaration,
+  type ExportSpecifier,
+} from "ts-morph";
 import {
   collectExports,
   type DeclaredExport,
@@ -151,9 +156,15 @@ interface SourceScan {
   readonly typeOnlyPublicNames: ReadonlySet<string>;
 }
 
+// For `export { x as "Bar" }` the alias is a StringLiteral node — its
+// `getText()` returns the quoted form `"Bar"` while collectExports
+// reports the unquoted name `Bar`. Use `getLiteralValue()` for string
+// aliases so the filter sets share the same canonical name.
 const publicNameOf = (ne: ExportSpecifier): string => {
   const alias = ne.getAliasNode();
-  return alias === undefined ? ne.getName() : alias.getText();
+  if (alias === undefined) return ne.getName();
+  if (Node.isStringLiteral(alias)) return alias.getLiteralValue();
+  return alias.getText();
 };
 
 // Handle a whole-clause type-only declaration: don't register the
@@ -194,6 +205,14 @@ const scanExportDeclarations = (filePath: string, source: string): SourceScan =>
   for (const decl of sf.getExportDeclarations()) {
     scanOneDeclaration(decl, specifiers, typeOnly);
   }
+  // `import { Foo } from "./foo.js"; export { Foo };` — the export
+  // declaration has no `from`, so it lacks a specifier of its own.
+  // Register every imported module's specifier as well, so collectExports
+  // can resolve the locally-rebound name through the imported file.
+  for (const imp of sf.getImportDeclarations()) {
+    const spec = imp.getModuleSpecifierValue();
+    if (spec !== undefined && spec !== "") specifiers.push(spec);
+  }
   return { specifiers, typeOnlyPublicNames: typeOnly };
 };
 
@@ -201,6 +220,11 @@ interface CollectSiblingsCtx {
   readonly picker: PickerCtx;
   readonly out: SourceFile[];
   readonly seen: Set<string>;
+  // Type-only public names from intermediate barrels — `export *` chains
+  // preserve type-only-ness per the ES spec, but ts-morph's resolution
+  // lifts the names back into the value namespace. Merging each sibling's
+  // own type-only set into this ensures the root filter blocks them.
+  readonly typeOnly: Set<string>;
 }
 
 const visitOneSpecifier = (
@@ -219,6 +243,8 @@ const visitOneSpecifier = (
     if (ctx.seen.has(target.path)) return;
     ctx.seen.add(target.path);
     ctx.out.push({ path: target.path, source: target.source });
+    const subScan = scanExportDeclarations(target.path, target.source);
+    for (const n of subScan.typeOnlyPublicNames) ctx.typeOnly.add(n);
     yield* collectSiblings(ctx, target.path, target.source, depth + 1);
   });
 
@@ -235,15 +261,22 @@ const collectSiblings = (
     }
   });
 
+interface SiblingsResult {
+  readonly siblings: ReadonlyArray<SourceFile>;
+  readonly typeOnly: ReadonlySet<string>;
+}
+
 const buildSiblings = (
   picker: PickerCtx,
   rootFile: string,
   rootSource: string,
-): Effect.Effect<ReadonlyArray<SourceFile>, never> =>
+): Effect.Effect<SiblingsResult, never> =>
   Effect.gen(function* () {
-    const ctx: CollectSiblingsCtx = { picker, out: [], seen: new Set() };
+    const ctx: CollectSiblingsCtx = {
+      picker, out: [], seen: new Set(), typeOnly: new Set(),
+    };
     yield* collectSiblings(ctx, rootFile, rootSource, 0);
-    return ctx.out;
+    return { siblings: ctx.out, typeOnly: ctx.typeOnly };
   });
 
 /**
@@ -273,7 +306,10 @@ export const readFirstExport = (
     const source = yield* readSourceOrNull(fs, absIndex);
     if (source === null) return null;
     const scan = scanExportDeclarations(absIndex, source);
-    const siblings = yield* buildSiblings({ fs, path }, absIndex, source);
-    const entries = collectExports(absIndex, source, { siblings });
-    return firstRuntimeExport(entries, scan.typeOnlyPublicNames);
+    const built = yield* buildSiblings({ fs, path }, absIndex, source);
+    const entries = collectExports(absIndex, source, { siblings: built.siblings });
+    // Merge root and transitive type-only filters.
+    const typeOnly = new Set<string>(scan.typeOnlyPublicNames);
+    for (const n of built.typeOnly) typeOnly.add(n);
+    return firstRuntimeExport(entries, typeOnly);
   }).pipe(Effect.withSpan("commands/init-export-picker/readFirstExport"));
