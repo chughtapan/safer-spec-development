@@ -1,7 +1,7 @@
 ---
 folder: src/spec/directives
 format-version: 0.1.0
-generatedAtSha: 744797a18200c3d2b9d377fddf607ba0e76f797f
+generatedAtSha: 5269a9225cb8a9779bccf32e5a2016fd1b96d0c0
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations

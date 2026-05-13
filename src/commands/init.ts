@@ -83,10 +83,12 @@ const indexTemplate = (): string =>
   `export const ${PLACEHOLDER_EXPORT} = "TODO" as const;\n`;
 
 // Runtime-value declarations only. `type` and `interface` are deliberately
-// excluded — they erase at compile time and cannot back a runtime import in
-// the generated stub.
+// excluded — they erase at compile time and cannot back a runtime import.
+// `const(?!\s+enum)` rejects `export const enum Foo` (also erased under
+// default TS config) so the regex doesn't capture the next token `enum` as
+// the export name.
 const VALUE_EXPORT_RE =
-  /export\s+(?:const|let|var|async\s+function|function|class|enum)\s+([A-Za-z_$][\w$]*)/g;
+  /export\s+(?:const(?!\s+enum)|let|var|async\s+function|function|class|enum)\s+([A-Za-z_$][\w$]*)/g;
 // `export { ... }` but NOT `export type { ... }`. The negative lookahead skips
 // type-only re-export clauses; entries inside a value clause that themselves
 // carry a `type ` prefix are filtered when parsing the clause body.
@@ -94,16 +96,32 @@ const RE_EXPORT_CLAUSE_RE = /export(?!\s+type)\s*\{([^}]+)\}/g;
 const RE_EXPORT_AS_RE = /^([A-Za-z_$][\w$]*)\s+as\s+([A-Za-z_$][\w$]*)$/;
 const RE_EXPORT_PLAIN_RE = /^([A-Za-z_$][\w$]*)$/;
 
+// For `foo as bar` the publicly-bound name is `bar`. The public name
+// `default` (`foo as default`) is not a valid named import.
+const pickAliasedPublicName = (part: string): string | null => {
+  const m = RE_EXPORT_AS_RE.exec(part);
+  if (m === null) return null;
+  const publicName = m[2];
+  if (publicName === undefined || publicName === "default") return null;
+  return publicName;
+};
+
+// `export { default }` re-exports the default export under the literal
+// name `default` — also not a valid named import.
+const pickPlainName = (part: string): string | null => {
+  const m = RE_EXPORT_PLAIN_RE.exec(part);
+  if (m === null) return null;
+  const name = m[1];
+  if (name === undefined || name === "default") return null;
+  return name;
+};
+
 const firstRuntimeNameInClause = (body: string): string | null => {
   for (const raw of body.split(",")) {
     const part = raw.trim();
     if (part === "" || part.startsWith("type ")) continue;
-    const aliased = RE_EXPORT_AS_RE.exec(part);
-    // For `foo as bar` the publicly-bound name is `bar`; importing `foo`
-    // from the barrel fails at typecheck because `foo` is not exported.
-    if (aliased !== null) return aliased[2] ?? null;
-    const plain = RE_EXPORT_PLAIN_RE.exec(part);
-    if (plain !== null) return plain[1] ?? null;
+    const name = pickAliasedPublicName(part) ?? pickPlainName(part);
+    if (name !== null) return name;
   }
   return null;
 };

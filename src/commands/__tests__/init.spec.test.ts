@@ -119,3 +119,25 @@ itSpec.todo("init-uses-re-export-alias-public-name", {
   type: "Inclusion",
   exports: [init],
 });
+
+/**
+ * @spec.property init-skips-const-enum-when-picking-stub-target
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim `export const enum Foo` is treated as a type-only declaration and skipped by the export picker — the scaffolded stub binds to a later runtime-value export, never to the `enum` keyword
+ */
+itSpec.todo("init-skips-const-enum-when-picking-stub-target", {
+  type: "Inclusion",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-skips-default-re-exports-when-picking-stub-target
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim re-export clauses that publicly bind to `default` (`export { default }`, `export { foo as default }`) are skipped — the scaffolded stub never emits `import { default }`
+ */
+itSpec.todo("init-skips-default-re-exports-when-picking-stub-target", {
+  type: "Inclusion",
+  exports: [init],
+});

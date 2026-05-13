@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: 744797a18200c3d2b9d377fddf607ba0e76f797f
+generatedAtSha: 5269a9225cb8a9779bccf32e5a2016fd1b96d0c0
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -92,6 +92,8 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
 | `init-prefers-deeper-leaf-when-root-also-lacks-spec` | `Inclusion` | `init` | when \`./index.ts\` (project root) and a descendant both lack SPEC.md, init picks the descendant — the project root never wins the default-leaf selection if any descendant candidate exists | todo |
 | `init-skips-type-only-exports-when-picking-stub-target` | `Inclusion` | `init` | when an existing barrel's first export is \`type\` or \`interface\` (erased at runtime), the scaffolded stub skips it and binds to the first runtime-value export instead | todo |
 | `init-uses-re-export-alias-public-name` | `Inclusion` | `init` | for an \`export { internal as publicName }\` re-export the scaffolded stub imports \`publicName\` (the publicly-bound symbol), not \`internal\` (the local-only name) | todo |
+| `init-skips-const-enum-when-picking-stub-target` | `Inclusion` | `init` | \`export const enum Foo\` is treated as a type-only declaration and skipped by the export picker — the scaffolded stub binds to a later runtime-value export, never to the \`enum\` keyword | todo |
+| `init-skips-default-re-exports-when-picking-stub-target` | `Inclusion` | `init` | re-export clauses that publicly bind to \`default\` (\`export { default }\`, \`export { foo as default }\`) are skipped — the scaffolded stub never emits \`import { default }\` | todo |
 | `validate-gate-determ` | `Roundtrip` | `validate` | two validate runs at the same tree SHA produce byte-identical reports modulo generated-at-sha | todo |
 | `validate-emits-gap-cls` | `Exception Raising` | `validate` | every gate failure emits a typed ValidateError with gapClass in {11, 12, 13} | todo |
 | `validate-diagnostic-shape` | `Typechecking` | `validate`, `formatDiagnostic` | every emitted diagnostic conforms to {problem, cause, fix, docsLink} | todo |
