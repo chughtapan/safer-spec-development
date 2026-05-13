@@ -65,9 +65,16 @@ const isImportableName = (name: string): boolean => {
   return !RESERVED_WORDS.has(name);
 };
 
+// `export declare const x` / `export declare function f()` are ambient
+// — TypeScript emits no runtime binding, so the scaffolded stub would
+// fail at runtime. Detect via signature prefix; collectExports doesn't
+// flag ambient-ness in its kind taxonomy.
+const AMBIENT_DECLARE_PREFIX_RE = /^\s*export\s+declare\b/;
+
 const isErasingKind = (e: DeclaredExport): boolean => {
   if (e.kind === "type" || e.kind === "interface") return true;
-  return e.kind === "enum" && CONST_ENUM_PREFIX_RE.test(e.signature);
+  if (e.kind === "enum" && CONST_ENUM_PREFIX_RE.test(e.signature)) return true;
+  return AMBIENT_DECLARE_PREFIX_RE.test(e.signature);
 };
 
 // `export type { Foo } from "./x"` (or per-entry `export { type Foo }`)
@@ -149,15 +156,33 @@ const publicNameOf = (ne: ExportSpecifier): string => {
   return alias === undefined ? ne.getName() : alias.getText();
 };
 
+// Handle a whole-clause type-only declaration: don't register the
+// target as a collectExports sibling (otherwise its value names leak
+// through), and mark whichever public names this clause introduces
+// (named entries, or the namespace alias for `export type * as ns`)
+// as type-only so they're filtered if collectExports surfaces them.
+const recordTypeOnlyDecl = (
+  decl: ExportDeclaration,
+  typeOnly: Set<string>,
+): void => {
+  const ns = decl.getNamespaceExport();
+  if (ns !== undefined) typeOnly.add(ns.getName());
+  for (const ne of decl.getNamedExports()) typeOnly.add(publicNameOf(ne));
+};
+
 const scanOneDeclaration = (
   decl: ExportDeclaration,
   specifiers: string[],
   typeOnly: Set<string>,
 ): void => {
+  if (decl.isTypeOnly()) {
+    recordTypeOnlyDecl(decl, typeOnly);
+    return;
+  }
   const moduleSpec = decl.getModuleSpecifierValue();
   if (moduleSpec !== undefined) specifiers.push(moduleSpec);
   for (const ne of decl.getNamedExports()) {
-    if (decl.isTypeOnly() || ne.isTypeOnly()) typeOnly.add(publicNameOf(ne));
+    if (ne.isTypeOnly()) typeOnly.add(publicNameOf(ne));
   }
 };
 

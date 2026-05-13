@@ -284,3 +284,25 @@ itSpec.todo("init-skips-type-only-re-exports-of-value-symbols", {
   type: "Exception Raising",
   exports: [init],
 });
+
+/**
+ * @spec.property init-skips-type-only-star-re-exports
+ * @spec.type Exception Raising
+ * @spec.exports init
+ * @spec.claim `export type * from "./x.js"` and `export type * as ns from "./x.js"` are skipped — their targets are not registered as collectExports siblings (so value names from x.js cannot leak through), and any namespace alias is added to the type-only-public-names filter
+ */
+itSpec.todo("init-skips-type-only-star-re-exports", {
+  type: "Exception Raising",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-skips-ambient-declare-exports
+ * @spec.type Exception Raising
+ * @spec.exports init
+ * @spec.claim `export declare const foo: string` and `export declare function foo()` are skipped — `declare` is a TypeScript ambient declaration that emits no JS binding, so binding the stub to it would import a non-existent runtime symbol
+ */
+itSpec.todo("init-skips-ambient-declare-exports", {
+  type: "Exception Raising",
+  exports: [init],
+});

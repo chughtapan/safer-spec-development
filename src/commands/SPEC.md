@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: 8f853327fad70d3d8a06efe58af1fd2a6837b202
+generatedAtSha: 4882322fe919cd332a4c38e075fd574a0308e2ca
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -108,6 +108,8 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
 | `init-resolves-named-re-export-barrels` | `Inclusion` | `init` | \`export { Foo } from "./foo.js"\` resolves to \`Foo\` (or whichever first runtime-named export \`foo.ts\` declares) — the picker pre-walks every re-export specifier, registers each target file as a \`collectExports\` sibling, and lets ts-morph resolve the entire dependency graph in one pass | todo |
 | `init-skips-reserved-word-export-names` | `Exception Raising` | `init` | \`export { x as class }\` (re-binding to an ES reserved word) is skipped by the picker — the stub never emits \`import { class } from ...\` (rejected by tsc); a barrel whose only exports re-bind to reserved words falls through to InitError | todo |
 | `init-skips-type-only-re-exports-of-value-symbols` | `Exception Raising` | `init` | \`export type { Foo } from "./foo.js"\` (whole-clause type-only) and \`export { type Foo } from "./foo.js"\` (per-entry type-only) are skipped even when Foo resolves to a value declaration upstream — TypeScript erases the export on this barrel, so the stub would not compile | todo |
+| `init-skips-type-only-star-re-exports` | `Exception Raising` | `init` | \`export type \* from "./x.js"\` and \`export type \* as ns from "./x.js"\` are skipped — their targets are not registered as collectExports siblings (so value names from x.js cannot leak through), and any namespace alias is added to the type-only-public-names filter | todo |
+| `init-skips-ambient-declare-exports` | `Exception Raising` | `init` | \`export declare const foo: string\` and \`export declare function foo()\` are skipped — \`declare\` is a TypeScript ambient declaration that emits no JS binding, so binding the stub to it would import a non-existent runtime symbol | todo |
 | `validate-gate-determ` | `Roundtrip` | `validate` | two validate runs at the same tree SHA produce byte-identical reports modulo generated-at-sha | todo |
 | `validate-emits-gap-cls` | `Exception Raising` | `validate` | every gate failure emits a typed ValidateError with gapClass in {11, 12, 13} | todo |
 | `validate-diagnostic-shape` | `Typechecking` | `validate`, `formatDiagnostic` | every emitted diagnostic conforms to {problem, cause, fix, docsLink} | todo |
