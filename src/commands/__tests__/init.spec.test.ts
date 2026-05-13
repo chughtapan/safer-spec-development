@@ -251,3 +251,25 @@ itSpec.todo("init-skips-non-identifier-export-names", {
   type: "Exception Raising",
   exports: [init],
 });
+
+/**
+ * @spec.property init-resolves-named-re-export-barrels
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim `export { Foo } from "./foo.js"` resolves to `Foo` (or whichever first runtime-named export `foo.ts` declares) — the picker pre-walks every re-export specifier, registers each target file as a `collectExports` sibling, and lets ts-morph resolve the entire dependency graph in one pass
+ */
+itSpec.todo("init-resolves-named-re-export-barrels", {
+  type: "Inclusion",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-skips-reserved-word-export-names
+ * @spec.type Exception Raising
+ * @spec.exports init
+ * @spec.claim `export { x as class }` (re-binding to an ES reserved word) is skipped by the picker — the stub never emits `import { class } from ...` (rejected by tsc); a barrel whose only exports re-bind to reserved words falls through to InitError
+ */
+itSpec.todo("init-skips-reserved-word-export-names", {
+  type: "Exception Raising",
+  exports: [init],
+});
