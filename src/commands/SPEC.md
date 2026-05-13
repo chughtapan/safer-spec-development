@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: d7cd35669c398f0ffc8171b3279c307874b1c08f
+generatedAtSha: 9092ba39169c07adc8288b9f38ffcaf2a4b2cd4b
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -24,7 +24,9 @@ thresholds:
 
 ## Purpose
 
-CLI binary. Composes the six subcommands (`init`, `generate`, `validate`, `doctor`, `explain`, `migrate`) into the top-level `safer-spec` Command, then translates each tagged failure into `process.exit(N)` at the runtime boundary.
+CLI binary. Composes the four subcommands (`generate`, `validate`, `doctor`, `explain`) into the top-level `safer-spec` Command, then translates each tagged failure into `process.exit(N)` at the runtime boundary.
+
+`init` and `migrate` are intentionally NOT CLI commands. Both are project-lifecycle flows that depend on judgment a regex / ts-morph resolver can't make reliably (which export to bind the stub to; which format-version diffs need human review). They ship as coding-agent skills (`skills/safer-spec-init/SKILL.md`, `skills/safer-spec-migrate/SKILL.md`) — the agent reads the existing barrel + spec format, scaffolds the right shape, and leaves the diff for human review.
 
 Exit-code mapping at this boundary:
 - `MissingSpecPropertyError` → exit 11
@@ -37,7 +39,7 @@ Tagged errors `CliExitCode` and `CliUsageError` are co-located here.
 
 ## Public surface
 
-### [`CliExitCode`](./index.ts#L35)
+### [`CliExitCode`](./index.ts#L42)
 
 ```ts
 export class CliExitCode extends Data.TaggedError("CliExitCode")<{
@@ -45,7 +47,7 @@ export class CliExitCode extends Data.TaggedError("CliExitCode")<{
 }> { /* ... */ }
 ```
 
-### [`CliUsageError`](./index.ts#L39)
+### [`CliUsageError`](./index.ts#L46)
 
 ```ts
 export class CliUsageError extends Data.TaggedError("CliUsageError")<{
@@ -60,14 +62,12 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
 - [`explain.ts`](./explain.ts) — \`explain\` command entrypoint. Looks up an error code (e.g. \`MISSING\_SPEC\_PROPERTY\`, \`spec-property-type-coverage\`) and returns the corresponding \`docs/errors.md\` entry.  Tagged error \`ExplainError\` is co-located here.
 - [`folder-discovery.ts`](./folder-discovery.ts) — Folder-discovery helpers used by \`generate\` and \`validate\`: recursive walk for the no-\`--folder\` mode (\`discoverFolders\`), immediate-children walk for the parent SPEC.md's \`## Children\` section (\`discoverImmediateSubfolders\`), and the \`buildChildren\` helper that composes the merged file + subfolder list emit consumes. Extracted from \`validate-pipeline.ts\` so each file fits the strict max-lines cap.
 - [`generate.ts`](./generate.ts) — \`generate\` command entrypoint. Walks one folder under \`--folder X\`, parses \`@spec\*\` JSDoc directives, extracts \`itSpec.\*\` call sites + JSDoc from \`\*.spec.test.ts\`, composes a \`FolderAnalysis\`, and emits one \`SPEC.md\` plus one \`.safer-spec/&lt;slug&gt;.json\` sidecar. Tagged errors \`GenerateError\` and \`GenerateIOError\` are co-located.
-- [`index.ts`](./index.ts) — CLI binary. Composes the six subcommands (\`init\`, \`generate\`, \`validate\`, \`doctor\`, \`explain\`, \`migrate\`) into the top-level \`safer-spec\` Command, then translates each tagged failure into \`process.exit(N)\` at the runtime boundary.  Exit-code mapping at this boundary: - \`MissingSpecPropertyError\` → exit 11 - \`MissingStubError\`         → exit 12 - \`MissingImplError\`         → exit 13 - \`CliUsageError\`            → exit 2 (POSIX usage convention) - any other defect / failure → \`NodeRuntime.runMain\` default (non-zero)  Tagged errors \`CliExitCode\` and \`CliUsageError\` are co-located here.
-- [`init.ts`](./init.ts) — \`init\` command entrypoint. Scaffolds first SPEC.md + stub \`\*.spec.test.ts\` + \`safer-spec.config.{ts,json}\` in a fresh repo. Picks a leaf folder with \`index.ts\` if no folder given. Lenient starter thresholds. Targets TTHW &lt;10 minutes.  Tagged error \`InitError\` is co-located here.
-- [`migrate.ts`](./migrate.ts) — \`migrate\` command entrypoint. Walks SPEC.md + config files for format-version transitions; emits a diff for human review; idempotent. Format-version bumps are signposted in CHANGELOG before migration support changes.  Tagged error \`MigrateError\` is co-located here.
+- [`index.ts`](./index.ts) — CLI binary. Composes the four subcommands (\`generate\`, \`validate\`, \`doctor\`, \`explain\`) into the top-level \`safer-spec\` Command, then translates each tagged failure into \`process.exit(N)\` at the runtime boundary.  \`init\` and \`migrate\` are intentionally NOT CLI commands. Both are project-lifecycle flows that depend on judgment a regex / ts-morph resolver can't make reliably (which export to bind the stub to; which format-version diffs need human review). They ship as coding-agent skills (\`skills/safer-spec-init/SKILL.md\`, \`skills/safer-spec-migrate/SKILL.md\`) — the agent reads the existing barrel + spec format, scaffolds the right shape, and leaves the diff for human review.  Exit-code mapping at this boundary: - \`MissingSpecPropertyError\` → exit 11 - \`MissingStubError\`         → exit 12 - \`MissingImplError\`         → exit 13 - \`CliUsageError\`            → exit 2 (POSIX usage convention) - any other defect / failure → \`NodeRuntime.runMain\` default (non-zero)  Tagged errors \`CliExitCode\` and \`CliUsageError\` are co-located here.
 - [`project-context.ts`](./project-context.ts) — Project-wide loader for the codemod. Walks the project tree for every non-test \`.ts\` source, reads the tsconfig \`paths\` map, and reads the current git HEAD SHA. \`collectExports\` consumes the sources + paths so barrel re-exports across files and aliases resolve; emit needs the SHA for SpecFrontmatter and SpecArtifact metadata.  Tagged error \`ProjectContextError\` is co-located here.
 - [`validate-checks.ts`](./validate-checks.ts) — Validate's gap-class cross-checks. Co-locates the four tagged errors (MissingSpecPropertyError, MissingStubError, MissingImplError, NoFoldersResolvedError) with the check effects that emit them and the diagnostic-builder helpers that shape their bodies.  Extracted from \`validate.ts\` to keep the orchestration file under the strict max-lines cap; the public surface still routes through \`validate.ts\` (this module is internal to the commands layer).
 - [`validate-pipeline.ts`](./validate-pipeline.ts) — Shared analysis pipeline for \`validate\`. Walks the same inputs as \`generate\` (sources, tests, index barrel) and returns the \`FolderAnalysis\` that the markdown emitter consumes plus the per-test issues list (\`ItSpecIssue\[\]\`) that \`validate.ts\` maps to its gap-class exit codes.
 - [`validate.ts`](./validate.ts) — \`validate\` command entrypoint. Walks each folder that has an \`index.ts\` barrel, runs the same analysis pipeline as \`generate\`, diffs the regenerated SPEC.md + sidecar against the on-disk artifacts, enforces coverage thresholds, and reports gap-class failures via tagged errors mapped to POSIX exit codes {1, 11, 12, 13}.  \`commands/index.ts\` translates each tag at the runtime boundary. The per-check effects and their tagged errors live in \`commands/validate-checks.ts\`; the shared analysis pipeline (folder walking, directive parsing, sidecar regeneration, threshold lookup) lives in \`commands/validate-pipeline.ts\`. This file is orchestration only.  \`--planned\`: regenerate SPEC.md + sidecar, diff on-disk; enforce per-folder coverage thresholds; per-test directive completeness is enforced via \`extractProperties\` issues + the diff check.  \`--implemented\`: planned-mode checks plus every \`itSpec.prop\` body is non-empty (no \`itSpec.todo\` placeholder).  Diagnostics carry a problem / cause / fix / docsLink quartet so agents can route the next remediation step.
-- [`version.ts`](./version.ts) — Format version constant for SPEC.md frontmatter and the \`.safer-spec/&lt;folder&gt;.json\` sidecar JSON. Co-located with the commands because \`migrate.ts\` bumps it during format-version transitions and \`generate.ts\` stamps it onto every emitted SPEC.md.
+- [`version.ts`](./version.ts) — Format version constant for SPEC.md frontmatter and the \`.safer-spec/&lt;folder&gt;.json\` sidecar JSON. Co-located with the commands because \`generate.ts\` stamps it onto every emitted SPEC.md. CHANGELOG signposts bumps before they ship; the \`safer-spec-migrate\` skill walks committed artifacts across the bump.
 - [`__tests__/cli.spec.test.ts`](./__tests__/cli.spec.test.ts) — Property stubs for the CLI surface. Exception Raising: the CLI rejects invalid flag combos with a structured \`CliUsageError\`. The \`validate\` subcommand exits with one of {0, 11, 12, 13} according to the validate gap-class map.  The CLI subcommand handlers are inlined in \`commands/index.ts\`; properties reference the \`validate\` command as the export under test.
 - [`__tests__/validate.spec.test.ts`](./__tests__/validate.spec.test.ts) — Property stubs for the \`validate\` command entrypoint. Validate enforces four cross-checks: JSDoc directives exist on every itSpec call, JSDoc values match runtime metadata, committed SPEC.md equals regenerated output, and every implemented property has a non-empty body.
 

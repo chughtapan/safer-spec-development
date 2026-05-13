@@ -9,7 +9,7 @@ are defined; mode implementations may still be incomplete.
 
 ```bash
 pnpm add -D @chughtapan/safer-spec-development
-pnpm safer-spec init packages/identity        # scaffold first SPEC.md + property stub
+# Onboard the first folder via the safer-spec-init coding-agent skill (see below).
 pnpm safer-spec generate                       # regenerate SPEC.md per folder
 pnpm safer-spec validate --implemented         # CI gate
 ```
@@ -17,14 +17,30 @@ pnpm safer-spec validate --implemented         # CI gate
 ## CLI surface
 
 ```
-safer-spec init [folder]                       scaffold first SPEC.md + config
 safer-spec generate [--folder X] [--write|--dry-run] [--watch]
 safer-spec validate [--folder X] [--planned|--implemented]
 safer-spec doctor                              health check
 safer-spec explain <error-code>                error docs
-safer-spec migrate                             apply format-version transitions
 safer-spec --version
 safer-spec --help
 ```
+
+## Skills (agent-driven flows)
+
+Folder onboarding (`init`) and format-version migration (`migrate`) are not
+CLI commands — they ship as coding-agent skills in [`skills/`](./skills/):
+
+- [`skills/safer-spec-init`](./skills/safer-spec-init/SKILL.md) — scaffold a
+  folder's first `SPEC.md` + property-test stub. The agent reads the
+  existing `index.ts` (if any), picks the right runtime-named export to
+  bind the stub against, and writes both files.
+- [`skills/safer-spec-migrate`](./skills/safer-spec-migrate/SKILL.md) — walk
+  committed SPEC artifacts for format-version transitions; produces a
+  per-file diff for human review.
+
+These flows depend on judgment (which export is value-bearing on a given
+barrel; which format-version diffs need human eyes) that a regex /
+ts-morph picker baked into the CLI handles unreliably — so they live as
+SKILL docs a coding agent reads and executes.
 
 See [`docs/DESIGN.md`](docs/DESIGN.md) for the architecture.
