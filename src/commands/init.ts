@@ -82,16 +82,54 @@ const indexTemplate = (): string =>
   `\n` +
   `export const ${PLACEHOLDER_EXPORT} = "TODO" as const;\n`;
 
-const NAMED_EXPORT_RE =
-  /export\s+(?:const|let|var|function|class|enum|interface|type|async\s+function)\s+([A-Za-z_$][\w$]*)/;
-const RE_EXPORT_RE = /export\s*(?:type\s*)?\{\s*([A-Za-z_$][\w$]*)/;
+// Runtime-value declarations only. `type` and `interface` are deliberately
+// excluded — they erase at compile time and cannot back a runtime import in
+// the generated stub.
+const VALUE_EXPORT_RE =
+  /export\s+(?:const|let|var|async\s+function|function|class|enum)\s+([A-Za-z_$][\w$]*)/g;
+// `export { ... }` but NOT `export type { ... }`. The negative lookahead skips
+// type-only re-export clauses; entries inside a value clause that themselves
+// carry a `type ` prefix are filtered when parsing the clause body.
+const RE_EXPORT_CLAUSE_RE = /export(?!\s+type)\s*\{([^}]+)\}/g;
+const RE_EXPORT_AS_RE = /^([A-Za-z_$][\w$]*)\s+as\s+([A-Za-z_$][\w$]*)$/;
+const RE_EXPORT_PLAIN_RE = /^([A-Za-z_$][\w$]*)$/;
+
+const firstRuntimeNameInClause = (body: string): string | null => {
+  for (const raw of body.split(",")) {
+    const part = raw.trim();
+    if (part === "" || part.startsWith("type ")) continue;
+    const aliased = RE_EXPORT_AS_RE.exec(part);
+    // For `foo as bar` the publicly-bound name is `bar`; importing `foo`
+    // from the barrel fails at typecheck because `foo` is not exported.
+    if (aliased !== null) return aliased[2] ?? null;
+    const plain = RE_EXPORT_PLAIN_RE.exec(part);
+    if (plain !== null) return plain[1] ?? null;
+  }
+  return null;
+};
+
+const findFirstRuntimeReExport = (
+  source: string,
+): { readonly idx: number; readonly name: string } | null => {
+  RE_EXPORT_CLAUSE_RE.lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = RE_EXPORT_CLAUSE_RE.exec(source)) !== null) {
+    const name = firstRuntimeNameInClause(m[1] ?? "");
+    if (name !== null) return { idx: m.index, name };
+  }
+  return null;
+};
 
 const findFirstNamedExport = (source: string): string | null => {
-  const direct = NAMED_EXPORT_RE.exec(source);
-  if (direct !== null) return direct[1] ?? null;
-  const reExport = RE_EXPORT_RE.exec(source);
-  if (reExport !== null) return reExport[1] ?? null;
-  return null;
+  // Pick whichever match (direct value declaration vs. re-export clause)
+  // appears earliest in source order, so the chosen export tracks the
+  // barrel's own first runtime symbol.
+  VALUE_EXPORT_RE.lastIndex = 0;
+  const direct = VALUE_EXPORT_RE.exec(source);
+  const reExport = findFirstRuntimeReExport(source);
+  if (direct === null) return reExport === null ? null : reExport.name;
+  if (reExport === null) return direct[1] ?? null;
+  return direct.index <= reExport.idx ? (direct[1] ?? null) : reExport.name;
 };
 
 const readFirstExport = (
@@ -170,6 +208,11 @@ const isAncestorOfAny = (
   candidate: string,
   others: ReadonlyArray<string>,
 ): boolean => {
+  // discoverFolders yields the project root as `.` and descendants as `src`,
+  // `src/components`, etc. — without a `./` prefix. A literal-prefix check
+  // therefore never matches; treat `.` as an ancestor of every sibling
+  // candidate so the leaf preference still picks the deeper folder.
+  if (candidate === ".") return others.some((o) => o !== ".");
   const prefix = `${candidate}${path.sep}`;
   return others.some((o) => o !== candidate && o.startsWith(prefix));
 };

@@ -86,3 +86,36 @@ itSpec.todo("init-prefers-leaf-over-ancestor-when-both-lack-spec", {
   type: "Inclusion",
   exports: [init],
 });
+
+/**
+ * @spec.property init-prefers-deeper-leaf-when-root-also-lacks-spec
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim when `./index.ts` (project root) and a descendant both lack SPEC.md, init picks the descendant — the project root never wins the default-leaf selection if any descendant candidate exists
+ */
+itSpec.todo("init-prefers-deeper-leaf-when-root-also-lacks-spec", {
+  type: "Inclusion",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-skips-type-only-exports-when-picking-stub-target
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim when an existing barrel's first export is `type` or `interface` (erased at runtime), the scaffolded stub skips it and binds to the first runtime-value export instead
+ */
+itSpec.todo("init-skips-type-only-exports-when-picking-stub-target", {
+  type: "Inclusion",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-uses-re-export-alias-public-name
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim for an `export { internal as publicName }` re-export the scaffolded stub imports `publicName` (the publicly-bound symbol), not `internal` (the local-only name)
+ */
+itSpec.todo("init-uses-re-export-alias-public-name", {
+  type: "Inclusion",
+  exports: [init],
+});

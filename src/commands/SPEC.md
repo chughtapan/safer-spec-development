@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: 53d268756e336e946ffebc8b58f51e9d3dda0c0a
+generatedAtSha: 744797a18200c3d2b9d377fddf607ba0e76f797f
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -89,6 +89,9 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
 | `init-test-stub-imports-existing-barrel-export` | `Inclusion` | `init` | when the target folder already has an index.ts with at least one named export, the scaffolded test stub imports that export name (not the unused \`placeholder\` symbol) | todo |
 | `init-refuses-existing-barrel-without-named-export` | `Exception Raising` | `init` | when the target folder has an index.ts that declares no named export (only \`export default\` or empty), init fails with InitError naming the missing-named-export precondition | todo |
 | `init-prefers-leaf-over-ancestor-when-both-lack-spec` | `Inclusion` | `init` | when both \`src/index.ts\` and \`src/components/index.ts\` lack SPEC.md, init without --folder picks the deeper leaf, not the ancestor | todo |
+| `init-prefers-deeper-leaf-when-root-also-lacks-spec` | `Inclusion` | `init` | when \`./index.ts\` (project root) and a descendant both lack SPEC.md, init picks the descendant — the project root never wins the default-leaf selection if any descendant candidate exists | todo |
+| `init-skips-type-only-exports-when-picking-stub-target` | `Inclusion` | `init` | when an existing barrel's first export is \`type\` or \`interface\` (erased at runtime), the scaffolded stub skips it and binds to the first runtime-value export instead | todo |
+| `init-uses-re-export-alias-public-name` | `Inclusion` | `init` | for an \`export { internal as publicName }\` re-export the scaffolded stub imports \`publicName\` (the publicly-bound symbol), not \`internal\` (the local-only name) | todo |
 | `validate-gate-determ` | `Roundtrip` | `validate` | two validate runs at the same tree SHA produce byte-identical reports modulo generated-at-sha | todo |
 | `validate-emits-gap-cls` | `Exception Raising` | `validate` | every gate failure emits a typed ValidateError with gapClass in {11, 12, 13} | todo |
 | `validate-diagnostic-shape` | `Typechecking` | `validate`, `formatDiagnostic` | every emitted diagnostic conforms to {problem, cause, fix, docsLink} | todo |
