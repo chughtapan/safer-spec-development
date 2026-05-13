@@ -141,3 +141,25 @@ itSpec.todo("init-skips-default-re-exports-when-picking-stub-target", {
   type: "Inclusion",
   exports: [init],
 });
+
+/**
+ * @spec.property init-uses-namespace-alias-on-star-re-export
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim for `export * as ns from "./x.js"` the scaffolded stub imports `ns` (the runtime module-namespace binding) without recursing into the target file
+ */
+itSpec.todo("init-uses-namespace-alias-on-star-re-export", {
+  type: "Inclusion",
+  exports: [init],
+});
+
+/**
+ * @spec.property init-follows-bare-star-re-export-to-target
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim for `export * from "./x.js"` the picker reads `./x.ts` (or `.tsx`/index variants), finds the first runtime-named export there, and imports it under that name — bounded by STAR_MAX_DEPTH levels of recursion
+ */
+itSpec.todo("init-follows-bare-star-re-export-to-target", {
+  type: "Inclusion",
+  exports: [init],
+});

@@ -5,8 +5,11 @@
  *   When `folder` is omitted, picks a leaf folder (no descendant candidate)
  *   among `index.ts`-bearing folders without a `SPEC.md`, so the default
  *   target is always a leaf. When the target already has an `index.ts`, the
- *   test stub imports the first named export of that barrel (refuses if none
- *   exists). Targets TTHW &lt;10 minutes.
+ *   test stub imports the first named runtime export of that barrel; the
+ *   picker resolves direct value declarations, `export { ... }` clauses,
+ *   `export * as ns from ...` namespace aliases, and follows
+ *   `export * from ...` re-exports up to STAR_MAX_DEPTH levels deep.
+ *   Refuses if no runtime-named export resolves. Targets TTHW &lt;10 minutes.
  *
  *   Tagged error `InitError` is co-located here.
  */
@@ -14,6 +17,7 @@
 import { FileSystem, Path } from "@effect/platform";
 import { Data, Effect, Option } from "effect";
 import { discoverFolders } from "@safer/commands/folder-discovery.js";
+import { readFirstExport } from "@safer/commands/init-export-picker.js";
 import { normalizeFolder } from "@safer/commands/project-context.js";
 
 export class InitError extends Data.TaggedError("InitError")<{
@@ -81,83 +85,6 @@ const indexTemplate = (): string =>
   ` */\n` +
   `\n` +
   `export const ${PLACEHOLDER_EXPORT} = "TODO" as const;\n`;
-
-// Runtime-value declarations only. `type` and `interface` are deliberately
-// excluded — they erase at compile time and cannot back a runtime import.
-// `const(?!\s+enum)` rejects `export const enum Foo` (also erased under
-// default TS config) so the regex doesn't capture the next token `enum` as
-// the export name.
-const VALUE_EXPORT_RE =
-  /export\s+(?:const(?!\s+enum)|let|var|async\s+function|function|class|enum)\s+([A-Za-z_$][\w$]*)/g;
-// `export { ... }` but NOT `export type { ... }`. The negative lookahead skips
-// type-only re-export clauses; entries inside a value clause that themselves
-// carry a `type ` prefix are filtered when parsing the clause body.
-const RE_EXPORT_CLAUSE_RE = /export(?!\s+type)\s*\{([^}]+)\}/g;
-const RE_EXPORT_AS_RE = /^([A-Za-z_$][\w$]*)\s+as\s+([A-Za-z_$][\w$]*)$/;
-const RE_EXPORT_PLAIN_RE = /^([A-Za-z_$][\w$]*)$/;
-
-// For `foo as bar` the publicly-bound name is `bar`. The public name
-// `default` (`foo as default`) is not a valid named import.
-const pickAliasedPublicName = (part: string): string | null => {
-  const m = RE_EXPORT_AS_RE.exec(part);
-  if (m === null) return null;
-  const publicName = m[2];
-  if (publicName === undefined || publicName === "default") return null;
-  return publicName;
-};
-
-// `export { default }` re-exports the default export under the literal
-// name `default` — also not a valid named import.
-const pickPlainName = (part: string): string | null => {
-  const m = RE_EXPORT_PLAIN_RE.exec(part);
-  if (m === null) return null;
-  const name = m[1];
-  if (name === undefined || name === "default") return null;
-  return name;
-};
-
-const firstRuntimeNameInClause = (body: string): string | null => {
-  for (const raw of body.split(",")) {
-    const part = raw.trim();
-    if (part === "" || part.startsWith("type ")) continue;
-    const name = pickAliasedPublicName(part) ?? pickPlainName(part);
-    if (name !== null) return name;
-  }
-  return null;
-};
-
-const findFirstRuntimeReExport = (
-  source: string,
-): { readonly idx: number; readonly name: string } | null => {
-  RE_EXPORT_CLAUSE_RE.lastIndex = 0;
-  let m: RegExpExecArray | null;
-  while ((m = RE_EXPORT_CLAUSE_RE.exec(source)) !== null) {
-    const name = firstRuntimeNameInClause(m[1] ?? "");
-    if (name !== null) return { idx: m.index, name };
-  }
-  return null;
-};
-
-const findFirstNamedExport = (source: string): string | null => {
-  // Pick whichever match (direct value declaration vs. re-export clause)
-  // appears earliest in source order, so the chosen export tracks the
-  // barrel's own first runtime symbol.
-  VALUE_EXPORT_RE.lastIndex = 0;
-  const direct = VALUE_EXPORT_RE.exec(source);
-  const reExport = findFirstRuntimeReExport(source);
-  if (direct === null) return reExport === null ? null : reExport.name;
-  if (reExport === null) return direct[1] ?? null;
-  return direct.index <= reExport.idx ? (direct[1] ?? null) : reExport.name;
-};
-
-const readFirstExport = (
-  fs: FileSystem.FileSystem,
-  indexPath: string,
-): Effect.Effect<string | null, never> =>
-  fs.readFileString(indexPath).pipe(
-    Effect.map(findFirstNamedExport),
-    Effect.catchAll(() => Effect.succeed(null)),
-  );
 
 const testTemplate = (slug: string, exportName: string): string => {
   const propertyId = `${slug}-${exportName}-stub`;
@@ -307,7 +234,7 @@ const resolveStubExport = (
   Effect.gen(function* () {
     if (indexWasWritten) return PLACEHOLDER_EXPORT;
     const indexPath = c.path.join(c.folder, "index.ts");
-    const found = yield* readFirstExport(c.fs, indexPath);
+    const found = yield* readFirstExport(c.fs, c.path, indexPath);
     if (found !== null) return found;
     return yield* Effect.fail(
       new InitError({
