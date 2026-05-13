@@ -185,3 +185,14 @@ itSpec.todo("init-accepts-abstract-class-as-runtime-export", {
   type: "Inclusion",
   exports: [init],
 });
+
+/**
+ * @spec.property init-star-scan-keeps-working-after-string-stripper
+ * @spec.type Inclusion
+ * @spec.exports init
+ * @spec.claim direct/clause scans run on a strings+comments-stripped source while the star-re-export scan runs on the raw source — so a star-only barrel (`export * as ns from "./x"` or `export * from "./x"`) still resolves
+ */
+itSpec.todo("init-star-scan-keeps-working-after-string-stripper", {
+  type: "Inclusion",
+  exports: [init],
+});

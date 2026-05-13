@@ -8,10 +8,17 @@
  *   only needs ONE valid runtime symbol to bind the generated test stub's
  *   `import { ... } from "../index.js"` line.
  *
- *   Before scanning, line/block comments and string literals are blanked
- *   out (replaced with same-length whitespace runs so source-position
+ *   Before scanning for direct value declarations and `export { ... }`
+ *   clauses, line/block comments and string literals are blanked out
+ *   (replaced with same-length whitespace runs so source-position
  *   tie-breaking stays correct). This keeps commented-out `export` lines
  *   and quoted-string content from masquerading as real declarations.
+ *
+ *   The `export *` scan runs against the RAW source — `from "./x.js"`'s
+ *   module specifier is itself a string literal that the scrubber would
+ *   blank out, so applying the same stripping there would mask every
+ *   real star re-export. The target file must resolve on disk, which
+ *   bounds false positives from commented-out star syntax.
  *
  *   Resolution order on the read file:
  *     1. Direct value declarations
@@ -204,10 +211,15 @@ const resolveStarReExport = (
 ): Effect.Effect<string | null, never> =>
   Effect.gen(function* () {
     if (depth >= STAR_MAX_DEPTH) return null;
-    const code = stripNonCode(source);
+    // Run against the raw source — the module specifier in `from "./x.js"`
+    // is itself a string literal, so `stripNonCode` (which the
+    // direct/clause scanners use) would blank it and the star regex
+    // would never see a quoted specifier. False positives from commented
+    // or quoted star-export syntax are rare and bounded by the
+    // file-must-exist check inside `followStarTarget`.
     STAR_REEXPORT_RE.lastIndex = 0;
     let m: RegExpExecArray | null;
-    while ((m = STAR_REEXPORT_RE.exec(code)) !== null) {
+    while ((m = STAR_REEXPORT_RE.exec(source)) !== null) {
       const resolved = yield* tryOneStarMatch(ctx, sourceFile, m, depth);
       if (resolved !== null) return resolved;
     }
