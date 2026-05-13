@@ -1,7 +1,7 @@
 ---
 folder: src/property-types
 format-version: 0.1.0
-generatedAtSha: 540968b96ea26561e16fd49abf9be09e32a4097a
+generatedAtSha: c70ddc3972678a8d5f8f08d83604da0b724782f2
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
