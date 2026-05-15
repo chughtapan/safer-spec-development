@@ -100,6 +100,32 @@ itSpec.todo("<slug>-<export_name>-stub", {
 
 Replace `<EXPORT_NAME>` literally with the picked export name. Replace `<slug>` and `<export_name>` (lowercased identifier) in the property id and JSDoc.
 
+### Collision handling
+
+If the picked export name is `itSpec`, the simple template emits two `import { itSpec }` lines (one for the helper, one for the subject) — a duplicate-identifier TypeScript error. Use this variant instead:
+
+```ts
+/**
+ * @spec.purpose Scaffolded by `safer-spec-init`. Replace this with what the tests assert.
+ */
+
+import { itSpec } from "@chughtapan/safer-spec-development";
+import * as subject from "../index.js";
+
+/**
+ * @spec.property <slug>-itspec-stub
+ * @spec.type Constant Equality
+ * @spec.exports itSpec
+ * @spec.claim placeholder property for the `itSpec` export; promote to itSpec.prop with a real claim
+ */
+itSpec.todo("<slug>-itspec-stub", {
+  type: "Constant Equality",
+  exports: [subject.itSpec],
+});
+```
+
+The `@spec.exports` directive still names `itSpec` — the cross-check matches the name string, not the local binding. The same workaround applies to any future helper-name collision: namespace-import the subject and reference its members through `subject.<name>`.
+
 ## Refusals
 
 Refuse the scaffold (do NOT write any file) when:
