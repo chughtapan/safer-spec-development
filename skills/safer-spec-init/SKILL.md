@@ -103,10 +103,11 @@ Replace `<EXPORT_NAME>` literally with the picked export name. Replace `<slug>` 
 Refuse the scaffold (do NOT write any file) when:
 
 1. `<folder>/SPEC.md` already exists.
-2. `<folder>/index.ts` exists AND `<folder>/__tests__/<slug>.spec.test.ts` exists — the folder is already scaffolded; refresh with `pnpm safer-spec generate --folder <folder> --write`.
-3. `<folder>/index.ts` exists but contains no acceptable runtime-named export (see *Picking the export* above).
+2. `<folder>/__tests__/<slug>.spec.test.ts` already exists. The test stub path collides with a real test file — overwriting it would clobber the user's work. Refuse even when `index.ts` is missing.
+3. `<folder>/index.ts` exists AND `<folder>/__tests__/<slug>.spec.test.ts` exists (redundant with #2 but kept as documentation: "the folder is already scaffolded; refresh with `pnpm safer-spec generate --folder <folder> --write`").
+4. `<folder>/index.ts` exists but contains no acceptable runtime-named export (see *Picking the export* above).
 
-Each refusal exits cleanly. Tell the user the specific reason and the remediation step.
+Each refusal exits cleanly. Tell the user the specific reason and the remediation step. For case 2 specifically: ask whether the existing test file is the intended owner of this stub slot — if yes, run `generate --write` against the folder instead; if not, ask where the new stub should live (a non-conflicting filename).
 
 ## After writing
 
