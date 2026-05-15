@@ -91,7 +91,7 @@ const ARCHITECTURE_OPTIONS = {
       name: "commands",
       folders: ["commands"],
       reason:
-        "the six @effect/cli Command entries (generate, validate, init, doctor, migrate, explain) plus the binary composition root (index.ts) and format-version constant; the binary lives alongside its commands",
+        "the four @effect/cli Command entries (generate, validate, doctor, explain) plus the binary composition root (index.ts) and format-version constant; init and migrate ship as coding-agent skills, not CLI code",
     },
     {
       name: "domain",
@@ -107,19 +107,18 @@ const ARCHITECTURE_OPTIONS = {
     },
   ],
   packageRuntime: "node",
-  // commands/ legitimately holds six @effect/cli Command entrypoints plus
-  // their shared orchestration helpers (project-context, validate-pipeline,
-  // validate-checks, folder-discovery, version, index). 12 prod children
-  // is the cohesive shape; further splitting would fragment the command
-  // layer.
+  // commands/ holds four @effect/cli Command entrypoints plus their shared
+  // orchestration helpers. 10 prod children is the cohesive shape after
+  // init + migrate moved out to skill docs; further splitting fragments
+  // the command layer.
   folderChildCountOverrides: [
     {
       folder: "commands",
-      maxChildren: 12,
-      maxChildrenIncludingTests: 20,
-      maxUnpairedTestChildren: 20,
+      maxChildren: 10,
+      maxChildrenIncludingTests: 16,
+      maxUnpairedTestChildren: 16,
       reason:
-        "commands/ holds six @effect/cli Command entrypoints (init, generate, validate, doctor, explain, migrate) plus index.ts (CLI composition root), version.ts (format-version constant), project-context.ts (project-wide loader), validate-pipeline.ts (shared analysis pipeline), validate-checks.ts (cross-check effects), and folder-discovery.ts (recursive + immediate folder walks). Each is a distinct cohesive concern; further splitting fragments the command layer",
+        "commands/ holds four @effect/cli Command entrypoints (generate, validate, doctor, explain) plus index.ts (CLI composition root), version.ts (format-version constant), project-context.ts (project-wide loader), validate-pipeline.ts (shared analysis pipeline), validate-checks.ts (cross-check effects), and folder-discovery.ts (recursive + immediate folder walks). Each is a distinct cohesive concern; further splitting fragments the command layer. init/migrate ship as skills under skills/",
     },
   ],
 };

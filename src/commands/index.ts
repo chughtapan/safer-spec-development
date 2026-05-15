@@ -1,10 +1,19 @@
 #!/usr/bin/env node
  
 /**
- * @spec.purpose CLI binary. Composes the six subcommands (`init`, `generate`,
- *   `validate`, `doctor`, `explain`, `migrate`) into the top-level
- *   `safer-spec` Command, then translates each tagged failure into
- *   `process.exit(N)` at the runtime boundary.
+ * @spec.purpose CLI binary. Composes the four subcommands (`generate`,
+ *   `validate`, `doctor`, `explain`) into the top-level `safer-spec`
+ *   Command, then translates each tagged failure into `process.exit(N)`
+ *   at the runtime boundary.
+ *
+ *   `init` and `migrate` are intentionally NOT CLI commands. Both are
+ *   project-lifecycle flows that depend on judgment a regex / ts-morph
+ *   resolver can't make reliably (which export to bind the stub to;
+ *   which format-version diffs need human review). They ship as
+ *   coding-agent skills (`skills/safer-spec-init/SKILL.md`,
+ *   `skills/safer-spec-migrate/SKILL.md`) — the agent reads the
+ *   existing barrel + spec format, scaffolds the right shape, and
+ *   leaves the diff for human review.
  *
  *   Exit-code mapping at this boundary:
  *     - `MissingSpecPropertyError` → exit 11
@@ -22,8 +31,6 @@ import { Data, Effect } from "effect";
 import { doctor } from "@safer/commands/doctor.js";
 import { explain } from "@safer/commands/explain.js";
 import { generate } from "@safer/commands/generate.js";
-import { init } from "@safer/commands/init.js";
-import { migrate } from "@safer/commands/migrate.js";
 import {
   formatDiagnostic,
   validate,
@@ -51,21 +58,6 @@ const CLI_EXIT_CODES = {
   ...VALIDATE_GAP_EXIT_CODES,
   CliUsageError: 2,
 } as const satisfies Record<ValidateGapError["_tag"] | CliUsageError["_tag"], number>;
-
-// --- init ---
-const initFolderArg = Args.text({ name: "folder" }).pipe(Args.optional);
-const initCommand = Command.make(
-  "init",
-  { folder: initFolderArg },
-  ({ folder }) =>
-    init({ folder }).pipe(
-      Effect.flatMap((result) =>
-        Effect.log(
-          `init scaffolded ${result.filesCreated.length} files in ${result.folder}`,
-        ),
-      ),
-    ),
-);
 
 // --- generate ---
 const generateFolderOpt = Options.text("folder").pipe(Options.optional);
@@ -163,29 +155,6 @@ const explainCommand = Command.make(
     ),
 );
 
-// --- migrate ---
-const migrateFromOpt = Options.text("from").pipe(
-  Options.withDefault(SPEC_FORMAT_VERSION),
-);
-const migrateToOpt = Options.text("to").pipe(
-  Options.withDefault(SPEC_FORMAT_VERSION),
-);
-const migrateDryRunOpt = Options.boolean("dry-run").pipe(
-  Options.withDefault(true),
-);
-const migrateCommand = Command.make(
-  "migrate",
-  { from: migrateFromOpt, to: migrateToOpt, dryRun: migrateDryRunOpt },
-  ({ from, to, dryRun }) =>
-    migrate({ fromVersion: from, toVersion: to, dryRun }).pipe(
-      Effect.flatMap((result) =>
-        Effect.log(
-          `migrate ${result.fromVersion} → ${result.toVersion} (${result.filesUpdated.length} files)`,
-        ),
-      ),
-    ),
-);
-
 // --- root ---
 const root = Command.make("safer-spec", {}, () =>
   Effect.log("safer-spec — per-folder SPEC.md codemod. Pass --help."),
@@ -193,12 +162,10 @@ const root = Command.make("safer-spec", {}, () =>
 
 const command = root.pipe(
   Command.withSubcommands([
-    initCommand,
     generateCommand,
     validateCommand,
     doctorCommand,
     explainCommand,
-    migrateCommand,
   ]),
 );
 

@@ -60,7 +60,7 @@ technical layers.
 
 | Domain | Folder | Owns |
 |---|---|---|
-| Commands | `commands/` | `safer-spec` binary entrypoint, the six @effect/cli Commands (`init`, `generate`, `validate`, `doctor`, `migrate`, `explain`), and the format-version constant. |
+| Commands | `commands/` | `safer-spec` binary entrypoint, the four @effect/cli Commands (`generate`, `validate`, `doctor`, `explain`), and the format-version constant. |
 | Spec artifact | `spec/` | JSDoc directive grammar + parser, markdown emitter, frontmatter schema, sidecar JSON schema + writer, escape helpers, link resolver, and the `itSpec` authoring helper. |
 | Terminals | `property-types/` | Closed `PropertyType` enum (9 OOPSLA-significant property types). |
 
@@ -171,16 +171,30 @@ if a repo wants them, live in the author's `@spec.skip` reasons.
 
 | Command | Job |
 |---|---|
-| `safer-spec init [folder]` | Scaffold an initial `SPEC.md`, config, and property-test stub. |
 | `safer-spec generate [--folder X] [--write|--dry-run] [--watch]` | Regenerate markdown and sidecar artifacts. |
 | `safer-spec validate [--folder X] [--planned|--implemented]` | Regenerate in memory, diff artifacts, and assert gates. |
 | `safer-spec doctor` | Check config, dependencies, sidecar layout, and format-version compatibility. |
 | `safer-spec explain <error-code>` | Return the docs entry for a validation or lint diagnostic. |
-| `safer-spec migrate` | Apply format-version transitions to specs and config. |
 
 `--planned` validates metadata that can exist before property bodies are
 implemented. `--implemented` also requires classifier and precondition data
 from test execution sidecars.
+
+## Skills (agent-driven flows)
+
+Folder onboarding and format-version migration ship as coding-agent
+skills under [`skills/`](../skills/), not as CLI commands.
+
+| Skill | Job |
+|---|---|
+| [`safer-spec-init`](../skills/safer-spec-init/SKILL.md) | Scaffold a folder's first `SPEC.md` + property-test stub. The agent reads the existing `index.ts` (if any), picks the right runtime-named export to bind the stub to, and writes both files. |
+| [`safer-spec-migrate`](../skills/safer-spec-migrate/SKILL.md) | Walk committed SPEC artifacts for `SPEC_FORMAT_VERSION` transitions. Regenerate via `generate --write`, then diff for human review. |
+
+The rationale for keeping these out of the CLI: both depend on judgment
+(which export is value-bearing on a given barrel; which format-version
+diffs need human eyes) that a regex / ts-morph picker baked into the
+CLI surface handles unreliably. A coding agent applies the rules
+documented in each `SKILL.md` by reading TypeScript directly.
 
 ## Validation Gates
 

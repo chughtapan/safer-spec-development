@@ -304,7 +304,7 @@ export const unresolvedFolderError = (
     diagnostic: mkDiagnostic(
       `requested folder '${requested}' did not resolve to any folder containing index.ts`,
       "no folder matched --folder, or the matched folder lacks an index.ts barrel",
-      "check the path for typos, or scaffold an index.ts barrel via `safer-spec init <folder>`",
+      "check the path for typos, or scaffold the folder's index.ts via the `safer-spec-init` coding-agent skill",
       "no-folders-resolved",
     ),
   });
