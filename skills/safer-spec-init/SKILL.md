@@ -36,12 +36,14 @@ const inner = 1; export { inner as PublicName };      // pick PublicName
 import { Foo } from "./foo.js"; export { Foo };       // pick Foo
 ```
 
-**Accept** re-exports from another file when that target exposes a runtime-named export. Walk one level: read the target file, apply these same rules, return the resolved name.
+**Accept** re-exports from another file when the chain eventually reaches a runtime-named export. **Walk transitively** — `generate` and `validate` register every reachable sibling source on their ts-morph project and follow the graph, so this skill must too. Recurse with a `seen` set keyed by absolute file path to terminate cycles; cap the depth at something generous (e.g. 6 hops) so a malformed chain doesn't loop forever.
 
-- `export { Foo } from "./foo.js"` → resolve `Foo` against `./foo.ts`.
-- `export { foo as Bar } from "./foo.js"` → pick `Bar` (the public name).
-- `export * from "./foo.js"` → first runtime-named export of `./foo.ts`.
-- `export * as ns from "./foo.js"` → pick `ns` (the namespace binding) if `./foo.ts` exists.
+- `export { Foo } from "./foo.js"` → resolve `Foo` against `./foo.ts`. If `foo.ts` is itself a barrel (`export { Foo } from "./bar.js"`), keep walking.
+- `export { foo as Bar } from "./foo.js"` → the public binding is `Bar`. Confirm `foo` resolves to a runtime export in the chain; pick `Bar` as the import name.
+- `export * from "./foo.js"` → walk into `./foo.ts`, apply these same rules to find its first runtime-named export. If `foo.ts` has only `export * from "./bar.js"`, recurse into `./bar.ts`. The picked name is whatever ultimately resolves.
+- `export * as ns from "./foo.js"` → pick `ns` (the namespace binding) if any candidate path for `./foo.ts` exists on disk.
+
+If recursion exceeds the depth cap or hits a cycle, fall through to the no-runtime-export refusal — the chain is too deep or malformed for this skill to scaffold against confidently.
 
 **Skip** (do not pick these — they erase at compile time or aren't valid named imports):
 
