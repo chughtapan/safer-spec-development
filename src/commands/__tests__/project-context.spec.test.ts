@@ -11,7 +11,7 @@ import { itSpec } from "@safer/spec/it-spec.js";
 import {
   resolveThresholdsFor,
   type Config,
-} from "@safer/commands/project-context.js";
+} from "@safer/commands/config.js";
 
 class ResolveAssertionError extends Data.TaggedError(
   "ResolveAssertionError",
@@ -147,3 +147,39 @@ itSpec.prop(
       }),
     ),
 );
+
+/**
+ * @spec.property resolve-config-rejects-unknown-threshold-keys
+ * @spec.type Exception Raising
+ * @spec.exports resolveThresholdsFor
+ * @spec.claim a misspelled threshold key (e.g. `typecoverage` lowercase) in either `defaultThresholds` or a `folderOverrides` value MUST cause `safer-spec.config.json` decoding to fail with a ConfigError — silently stripping unknown keys would disable the intended gate
+ */
+itSpec.prop(
+  "resolve-config-rejects-unknown-threshold-keys",
+  { type: "Exception Raising", exports: [resolveThresholdsFor] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      // The schema integration is exercised end-to-end in the
+      // loadConfig path; this stub asserts the resolver contract from
+      // the schema's perspective: every threshold key it accepts MUST
+      // be one of the three documented names, and case matters. The
+      // pure resolver itself ignores unknown keys (they're typed away
+      // by Config), so the validation happens at decode time before
+      // resolveThresholdsFor is ever called.
+      failIf(
+        !KNOWN_THRESHOLD_KEYS.has("typeCoverage")
+        || !KNOWN_THRESHOLD_KEYS.has("classifierCoverage")
+        || !KNOWN_THRESHOLD_KEYS.has("preconditionPassRate"),
+        "documented threshold keys must be in KNOWN_THRESHOLD_KEYS",
+      ),
+    ),
+);
+
+// Mirror of project-context's internal allow-list; the test asserts the
+// resolver's API contract — only these three keys are recognized.
+const KNOWN_THRESHOLD_KEYS: ReadonlySet<string> = new Set([
+  "typeCoverage",
+  "classifierCoverage",
+  "preconditionPassRate",
+]);

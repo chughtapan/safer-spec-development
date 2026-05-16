@@ -36,10 +36,8 @@ import {
   uniqueExternalSources,
 } from "@safer/spec/source-exports.js";
 import { extractProperties, type ItSpecIssue } from "@safer/spec/todos.js";
-import {
-  resolveThresholdsFor,
-  type ProjectContext,
-} from "@safer/commands/project-context.js";
+import { resolveThresholdsFor } from "@safer/commands/config.js";
+import type { ProjectContext } from "@safer/commands/project-context.js";
 import {
   buildChildren,
   discoverFolders,

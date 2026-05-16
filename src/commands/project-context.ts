@@ -1,53 +1,31 @@
 /**
  * @spec.purpose Project-wide loader for the codemod. Walks the project tree
  *   for every non-test `.ts` source, reads the tsconfig `paths` map, the
- *   git HEAD SHA, and the optional `safer-spec.config.json` (per-folder
- *   threshold overrides). `collectExports` consumes the sources + paths
+ *   git HEAD SHA, and the optional `safer-spec.config.json` (via
+ *   `commands/config.ts`). `collectExports` consumes the sources + paths
  *   so barrel re-exports across files and aliases resolve; emit needs the
  *   SHA for SpecFrontmatter and SpecArtifact metadata; validate's
- *   threshold gate reads `config` per-folder via `resolveThresholdsFor`.
+ *   threshold gate reads `config` per-folder via `resolveThresholdsFor`
+ *   (also from `commands/config.ts`).
  *
- *   Tagged errors `ProjectContextError` and `ConfigError` are co-located
- *   here.
+ *   Tagged error `ProjectContextError` is co-located here; `ConfigError`
+ *   lives in `commands/config.ts` with the schema it guards.
  */
 
 import * as nodePath from "node:path";
 import { FileSystem, Path } from "@effect/platform";
-import { Data, Effect, Schema } from "effect";
+import { Data, Effect } from "effect";
 import type { SourceFile } from "@safer/spec/source-exports.js";
+import {
+  loadConfig,
+  type Config,
+  type ConfigError,
+} from "@safer/commands/config.js";
 
 export class ProjectContextError extends Data.TaggedError("ProjectContextError")<{
   readonly path: string;
   readonly cause: string;
 }> {}
-
-export class ConfigError extends Data.TaggedError("ConfigError")<{
-  readonly path: string;
-  readonly cause: string;
-}> {}
-
-const RatioSchema = Schema.Number.pipe(Schema.between(0, 1));
-
-const ThresholdsSchema = Schema.Struct({
-  typeCoverage: Schema.optional(RatioSchema),
-  classifierCoverage: Schema.optional(RatioSchema),
-  preconditionPassRate: Schema.optional(RatioSchema),
-});
-
-const ConfigSchema = Schema.Struct({
-  defaultThresholds: Schema.optional(ThresholdsSchema),
-  folderOverrides: Schema.optional(
-    Schema.Record({ key: Schema.String, value: ThresholdsSchema }),
-  ),
-});
-
-export type Config = Schema.Schema.Type<typeof ConfigSchema>;
-
-export interface Thresholds {
-  readonly typeCoverage: number;
-  readonly classifierCoverage: number;
-  readonly preconditionPassRate: number;
-}
 
 export interface ProjectContext {
   readonly sources: ReadonlyArray<SourceFile>;
@@ -64,58 +42,6 @@ export interface ProjectContext {
   // Resolve per-folder thresholds via `resolveThresholdsFor(ctx.config, folder)`.
   readonly config: Config;
 }
-
-// Permissive defaults: validate gates only when a threshold is non-zero. The
-// codemod ships with 0s so projects whose property bodies aren't filled in
-// pass by default; `safer-spec.config.json` raises individual metrics +
-// per-folder overrides once the project's tests are populated.
-const DEFAULT_THRESHOLDS: Thresholds = {
-  typeCoverage: 0,
-  classifierCoverage: 0,
-  preconditionPassRate: 0,
-};
-
-const EMPTY_CONFIG: Config = {};
-
-const pickThreshold = (
-  override: number | undefined,
-  baseline: number | undefined,
-  fallback: number,
-): number => override ?? baseline ?? fallback;
-
-/**
- * @spec.guarantee "returns a Thresholds value with each metric resolved in three-layer priority: folder override > defaultThresholds > 0"
- *   reason: validate's gate reads this per-folder; the layered fallback
- *           lets projects raise a baseline + tighten specific folders
- *           without restating the baseline everywhere.
- * @spec.residual-contract "folder match is exact-string against the normalized folder path; glob patterns are NOT supported in this slice"
- *   reason: scope limit; glob lookup is a future enhancement that needs a
- *           defined longest-match resolution rule.
- */
-export const resolveThresholdsFor = (
-  config: Config,
-  folder: string,
-): Thresholds => {
-  const baseline = config.defaultThresholds ?? {};
-  const override = config.folderOverrides?.[folder] ?? {};
-  return {
-    typeCoverage: pickThreshold(
-      override.typeCoverage,
-      baseline.typeCoverage,
-      DEFAULT_THRESHOLDS.typeCoverage,
-    ),
-    classifierCoverage: pickThreshold(
-      override.classifierCoverage,
-      baseline.classifierCoverage,
-      DEFAULT_THRESHOLDS.classifierCoverage,
-    ),
-    preconditionPassRate: pickThreshold(
-      override.preconditionPassRate,
-      baseline.preconditionPassRate,
-      DEFAULT_THRESHOLDS.preconditionPassRate,
-    ),
-  };
-};
 
 /**
  * Normalize the user-supplied `--folder` value into a path the codemod
@@ -324,44 +250,6 @@ const readGitSha = (
     Effect.catchAll(() => Effect.succeed("uncommitted")),
   );
 
-// Reads `<root>/safer-spec.config.json` and decodes via ConfigSchema.
-// Missing file → permissive empty config (all-zero thresholds remain in
-// effect). File present but malformed → ConfigError (fail loudly, since a
-// project author who wrote a config wants the contents respected).
-const decodeConfig = Schema.decodeUnknown(ConfigSchema);
-
-const decodeConfigSource = (
-  text: string,
-  configPath: string,
-): Effect.Effect<Config, ConfigError> =>
-  Effect.try({
-    try: () => JSON.parse(text) as unknown,
-    catch: (e) =>
-      new ConfigError({ path: configPath, cause: `invalid JSON: ${String(e)}` }),
-  }).pipe(
-    Effect.flatMap((parsed) =>
-      decodeConfig(parsed).pipe(
-        Effect.catchTag("ParseError", (e) =>
-          Effect.fail(new ConfigError({ path: configPath, cause: e.message })),
-        ),
-      ),
-    ),
-  );
-
-const loadConfig = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  root: string,
-): Effect.Effect<Config, ConfigError> => {
-  const configPath = path.join(root, "safer-spec.config.json");
-  return fs.readFileString(configPath).pipe(
-    Effect.matchEffect({
-      onFailure: () => Effect.succeed(EMPTY_CONFIG),
-      onSuccess: (text) => decodeConfigSource(text, configPath),
-    }),
-    Effect.withSpan("commands/project-context/loadConfig"),
-  );
-};
 
 /**
  * @spec.guarantee "loads project-wide context (every non-test `.ts` under `root`, tsconfig `paths`, git HEAD SHA, `safer-spec.config.json`); collectExports consumes sources+paths so barrel re-exports resolve"
