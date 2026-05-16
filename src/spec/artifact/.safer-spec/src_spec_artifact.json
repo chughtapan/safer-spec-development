@@ -1,47 +1,12 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "d0e6357820960428cd2201eae84a477e2c06862e",
+  "generatedAtSha": "ef221bd06633c16c0b894dcff2bb375773a4be5b",
   "exports": [
-    {
-      "name": "BuildSpecMetaArgs",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/coverage.ts",
-        "line": 24,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
-      }
-    },
     {
       "name": "ExportKind",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -50,7 +15,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -86,7 +51,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 43,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -127,23 +92,13 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 45,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
       "name": "ExportEntry",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -151,24 +106,14 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 46,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "line": 47,
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
       "name": "ThresholdShortfall",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -177,23 +122,13 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 60,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
       "name": "PropertyRow",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -201,33 +136,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 61,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
-      }
-    },
-    {
-      "name": "ExecutionSidecar",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/reporter.ts",
-        "line": 71,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "line": 62,
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -262,23 +172,13 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 76,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
       "name": "FolderAnalysis",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -286,8 +186,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 79,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "line": 80,
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -327,48 +227,13 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 85,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
-      }
-    },
-    {
-      "name": "SpecArtifact",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/sidecar.ts",
-        "line": 95,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
       "name": "SpecMeta",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -376,8 +241,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 186,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "line": 187,
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -415,7 +280,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 222,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -449,7 +314,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 245,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -487,8 +352,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 248,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "line": 249,
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -527,8 +392,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 313,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "line": 315,
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     }
   ],

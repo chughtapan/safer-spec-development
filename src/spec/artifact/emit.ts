@@ -34,7 +34,8 @@ export type ExportKind =
 
 // Type aliases and interfaces erase at compile time — they have no
 // runtime values to subject to property tests, so typeCoverage's
-// denominator and `findMissingPropertyTypes`'s required-set exclude
+// denominator, `findMissingPropertyTypes`'s required-set, AND
+// `requiredPropertyTypesFor` (the sidecar's per-export field) exclude
 // them. Counting them would force authors to declare 9 @spec.skip
 // directives on every type alias / interface (ceremony for a contract
 // that can never bear weight).
@@ -299,6 +300,7 @@ const observedPropertyTypesFor = (
 };
 
 const requiredPropertyTypesFor = (e: ExportEntry): ReadonlyArray<PropertyType> => {
+  if (!isValueBearing(e)) return [];
   const skipped = skippedPropertyTypes(e);
   return PROPERTY_TYPES.filter((pt) => !skipped.has(pt));
 };

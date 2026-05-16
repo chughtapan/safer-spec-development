@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: d0e6357820960428cd2201eae84a477e2c06862e
+generatedAtSha: ef221bd06633c16c0b894dcff2bb375773a4be5b
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -35,16 +35,6 @@ by sidecar-writer's roundtrip property only.
 internal to artifact, callers use the higher-level wrappers.
 
 ## Public surface
-
-### [`BuildSpecMetaArgs`](./coverage.ts#L24)
-
-```ts
-export interface BuildSpecMetaArgs {
-  readonly generatedAtSha: string;
-  readonly thresholds: Thresholds;
-  readonly execution?: ExecutionSidecar | null;
-}
-```
 
 ### [`ExportKind`](./emit.ts#L26)
 
@@ -84,7 +74,7 @@ export const buildSpecMeta = (
 
 **Residual contract:** "branchCoverageFromSpecTests stays null until a v8 coverage hook is wired up (follow-up slice)" — _lifecycle contract._
 
-### [`ExportEntry`](./emit.ts#L46)
+### [`ExportEntry`](./emit.ts#L47)
 
 ```ts
 export interface ExportEntry {
@@ -114,7 +104,7 @@ export interface ThresholdShortfall {
 }
 ```
 
-### [`PropertyRow`](./emit.ts#L61)
+### [`PropertyRow`](./emit.ts#L62)
 
 ```ts
 export interface PropertyRow {
@@ -125,12 +115,6 @@ export interface PropertyRow {
   readonly sourceRef: { readonly path: string; readonly line: number };
   readonly stubbed: boolean;
 }
-```
-
-### [`ExecutionSidecar`](./reporter.ts#L71)
-
-```ts
-export type ExecutionSidecar = Schema.Schema.Type<typeof ExecutionSidecarSchema>;
 ```
 
 ### [`regenerateSidecar`](./sidecar-writer.ts#L76)
@@ -145,7 +129,7 @@ export const regenerateSidecar = (
 **Guarantees:**
 - "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; a \`SidecarSchemaError\` here is a defect (the artifact came from our own emitter)" — _validate's sidecar-drift cross-check needs the byte-for-byte regenerated form; the schema must succeed on artifacts we emit._
 
-### [`FolderAnalysis`](./emit.ts#L79)
+### [`FolderAnalysis`](./emit.ts#L80)
 
 ```ts
 export interface FolderAnalysis {
@@ -176,13 +160,7 @@ export const findThresholdShortfall = (
 
 **Residual contract:** "metrics whose threshold is 0 are not gated regardless of observed value" — _zero-threshold is the explicit no-gate marker used by the permissive default config._
 
-### [`SpecArtifact`](./sidecar.ts#L95)
-
-```ts
-export type SpecArtifact = Schema.Schema.Type<typeof SpecArtifactSchemaInner>;
-```
-
-### [`SpecMeta`](./emit.ts#L186)
+### [`SpecMeta`](./emit.ts#L187)
 
 ```ts
 export interface SpecMeta {
@@ -235,7 +213,7 @@ export const loadExecutionSidecar = (
 **Guarantees:**
 - "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through \`ExecutionSidecarSchema\`; returns null when absent or malformed" — _validate's \`--implemented\` gate consumes the coverage values; absence is surfaced separately as a typed gap error._
 
-### [`emitMarkdown`](./emit.ts#L248)
+### [`emitMarkdown`](./emit.ts#L249)
 
 ```ts
 export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* ... */ }
@@ -246,7 +224,7 @@ export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* 
 
 **Residual contract:** "internal section ordering is fixed: Purpose → Public Surface → Files → Properties" — _behavioral contract beyond the FolderAnalysis shape._
 
-### [`buildSpecArtifact`](./emit.ts#L313)
+### [`buildSpecArtifact`](./emit.ts#L315)
 
 ```ts
 export const buildSpecArtifact = (

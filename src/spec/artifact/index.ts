@@ -31,18 +31,15 @@ export type {
   SpecMeta,
 } from "@safer/spec/artifact/emit.js";
 
-export type { SpecArtifact } from "@safer/spec/artifact/sidecar.js";
-
 export { regenerateSidecar, sidecarSlug } from "@safer/spec/artifact/sidecar-writer.js";
 
 export {
   computeTestTreeHash,
   loadExecutionSidecar,
 } from "@safer/spec/artifact/reporter.js";
-export type { ExecutionSidecar } from "@safer/spec/artifact/reporter.js";
 
 export {
   buildSpecMeta,
   findThresholdShortfall,
 } from "@safer/spec/artifact/coverage.js";
-export type { BuildSpecMetaArgs, ThresholdShortfall } from "@safer/spec/artifact/coverage.js";
+export type { ThresholdShortfall } from "@safer/spec/artifact/coverage.js";

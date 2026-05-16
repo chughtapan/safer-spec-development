@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/grammar",
-  "generatedAtSha": "d0e6357820960428cd2201eae84a477e2c06862e",
+  "generatedAtSha": "ef221bd06633c16c0b894dcff2bb375773a4be5b",
   "exports": [
     {
       "name": "DIRECTIVE_BODY_MAX_CHARS",
@@ -30,7 +30,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 17,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -68,7 +68,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 27,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -98,7 +98,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 28,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -128,23 +128,13 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 38,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
       "name": "PropertyType",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -153,7 +143,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 39,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -183,23 +173,13 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 47,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
       "name": "Directive",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -208,23 +188,13 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 69,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
       "name": "LocatedDirective",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -233,7 +203,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 89,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -269,7 +239,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 284,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     }
   ],

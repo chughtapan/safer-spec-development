@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src",
-  "generatedAtSha": "d0e6357820960428cd2201eae84a477e2c06862e",
+  "generatedAtSha": "ef221bd06633c16c0b894dcff2bb375773a4be5b",
   "exports": [
     {
       "name": "PROPERTY_TYPES",
@@ -40,23 +40,13 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 27,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
       "name": "PropertyType",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -65,23 +55,13 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 39,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
       "name": "ItSpec",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": {
@@ -112,7 +92,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
         "line": 54,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -142,7 +122,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
         "line": 121,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     }
   ],

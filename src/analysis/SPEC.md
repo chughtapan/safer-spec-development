@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: d0e6357820960428cd2201eae84a477e2c06862e
+generatedAtSha: ef221bd06633c16c0b894dcff2bb375773a4be5b
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -67,17 +67,6 @@ export type GenerateFolderAnyError =
   | GenerateFolderError
   | GenerateFolderIOError
   | DirectiveParseError;
-```
-
-### [`GenerateFolderArtifacts`](./orchestrate.ts#L89)
-
-```ts
-export interface GenerateFolderArtifacts {
-  readonly analysis: FolderAnalysis;
-  readonly markdown: string;
-  readonly sidecarJson: string;
-  readonly sidecarRelPath: string;
-}
 ```
 
 ### [`buildKnownExports`](./orchestrate.ts#L183)

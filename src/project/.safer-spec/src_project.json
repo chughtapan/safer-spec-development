@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/project",
-  "generatedAtSha": "d0e6357820960428cd2201eae84a477e2c06862e",
+  "generatedAtSha": "ef221bd06633c16c0b894dcff2bb375773a4be5b",
   "exports": [
     {
       "name": "SPEC_FORMAT_VERSION",
@@ -39,7 +39,7 @@
       "sourceRef": {
         "path": "src/project/version.ts",
         "line": 16,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -68,23 +68,13 @@
       "sourceRef": {
         "path": "src/project/config.ts",
         "line": 18,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
       "name": "SourceFile",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -93,7 +83,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 38,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -122,7 +112,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 43,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -151,23 +141,13 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 48,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
       "name": "Thresholds",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -176,23 +156,13 @@
       "sourceRef": {
         "path": "src/project/config.ts",
         "line": 51,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
       "name": "ProjectContext",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -201,7 +171,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 52,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     },
     {
@@ -243,7 +213,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 321,
-        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
+        "sha": "ef221bd06633c16c0b894dcff2bb375773a4be5b"
       }
     }
   ],

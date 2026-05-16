@@ -24,10 +24,7 @@ export {
   GenerateFolderError,
   GenerateFolderIOError,
 } from "@safer/analysis/orchestrate.js";
-export type {
-  GenerateFolderAnyError,
-  GenerateFolderArtifacts,
-} from "@safer/analysis/orchestrate.js";
+export type { GenerateFolderAnyError } from "@safer/analysis/orchestrate.js";
 
 export { diagnosticLines } from "@safer/analysis/checks.js";
 export type { ValidateGapError } from "@safer/analysis/checks.js";
