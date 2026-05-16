@@ -17,5 +17,5 @@
  *   the declarations in their source modules.
  */
 
-export { PROPERTY_TYPES, type PropertyType } from "./property-types/index.js";
+export { PROPERTY_TYPES, type PropertyType } from "./spec/grammar/property-types.js";
 export { itSpec, type ItSpec } from "./spec/index.js";

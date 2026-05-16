@@ -26,35 +26,35 @@
 
 import { FileSystem, Path } from "@effect/platform";
 import { Effect, Option } from "effect";
-import { hashTestTree } from "@safer/spec/reporter.js";
-import { normalizeFolder } from "@safer/commands/project-context.js";
+import { hashTestTree } from "@safer/spec/artifact/index.js";
+import {
+  discoverFolders,
+  loadValidateProjectContext,
+  normalizeFolder,
+  type ProjectContext,
+} from "@safer/project/index.js";
 import {
   buildSpecMeta,
-  collectFolderInputs,
-  discoverFolders,
-  inspectFolder,
-  loadExecutionSidecar,
-  loadValidateProjectContext,
-  regenerateMarkdown,
-  regenerateSidecar,
-  sidecarSlug,
-  type FolderInputs,
-  type ProjectContext,
-} from "@safer/commands/validate-pipeline.js";
-import {
   catchDirectiveErrors,
   checkDrift,
   checkExecutionSidecarPresent,
   checkImplBodies,
   checkSidecarDrift,
   checkThresholds,
+  collectFolderInputs,
   diagnosticLines,
   failOnIssues,
+  inspectFolder,
+  loadExecutionSidecar,
+  regenerateMarkdown,
+  regenerateSidecar,
+  sidecarSlug,
   unresolvedFolderError,
+  type FolderInputs,
   type ValidateGapError,
-} from "@safer/commands/validate-checks.js";
+} from "@safer/analysis/index.js";
 
-export type { ValidateGapError } from "@safer/commands/validate-checks.js";
+export type { ValidateGapError } from "@safer/analysis/index.js";
 
 /**
  * Tag-to-POSIX exit code mapping for the gap-class errors. The

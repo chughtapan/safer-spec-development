@@ -1,0 +1,461 @@
+{
+  "formatVersion": "0.1.0",
+  "folder": "src/spec/artifact",
+  "generatedAtSha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b",
+  "exports": [
+    {
+      "name": "ExportKind",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 26,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "ExportEntry",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 35,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "sidecarSlug",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Constant Equality"
+      ],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "none",
+        "reason": "pure transformation captured by signature."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "folder `.` maps to `\\\"root\\\"`; folders with `/` or `\\\\` are coalesced into a single-segment slug with `_` separators; otherwise the folder string is returned unchanged after stripping leading `./`",
+          "reason": "single source of truth for the sidecar slug across generate, validate, and reporter. Three call sites previously inlined this logic; agreement is the contract."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/sidecar-writer.ts",
+        "line": 42,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "PropertyRow",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 50,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "serializeSidecar",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Roundtrip"
+      ],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "trailing newline is appended for POSIX-friendly files; JSON itself decodes regardless",
+        "reason": "byte-level format contract beyond the Schema shape."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "serialized JSON validates against the sidecar Schema; downstream `decodeSpecArtifact(parse(output))` round-trips",
+          "reason": "contract relied on by the sidecar's roundtrip property test."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/sidecar-writer.ts",
+        "line": 59,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "FolderAnalysis",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 68,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "ExecutionSidecar",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/reporter.ts",
+        "line": 71,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "decodeExecutionSidecar",
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "decoded sidecar field invariants are enforced at decode time; classifierCoverage / preconditionPassRate may be `null` when the test run produced no measurable samples",
+        "reason": "lifecycle; populated only when an itSpec.prop body actually ran during the test execution."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "rejects malformed input on the Effect error channel with a typed ParseError, never throws",
+          "reason": "trust-boundary contract; validate's --implemented gate reads the on-disk artifact and routes parse failures to its typed gap error."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/reporter.ts",
+        "line": 82,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "SpecArtifact",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/sidecar.ts",
+        "line": 95,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "SpecMeta",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 175,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "hashTestTree",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/reporter.ts",
+        "line": 201,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "emitMarkdown",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Inclusion",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Roundtrip"
+      ],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "internal section ordering is fixed: Purpose → Public Surface → Files → Properties",
+        "reason": "behavioral contract beyond the FolderAnalysis shape."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "two calls with the same `analysis` + `meta` produce byte-identical markdown; frontmatter decodes through `decodeSpecFrontmatter`",
+          "reason": "roundtrip contract on the emit step."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 237,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "buildSpecArtifact",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "fields the codemod cannot yet compute (e.g. per-export sourceRef.sha) reuse `meta.generatedAtSha` as the closest stable identifier",
+        "reason": "per-line blame would require a separate git pass; the run-level SHA is a sound default for now."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "returned `SpecArtifact` decodes through `decodeSpecArtifact` without error",
+          "reason": "sidecar contract; downstream agents consume this shape."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 302,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "computeTypeCoverage",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "classifier coverage and precondition pass rate are null in `--planned` mode (no test execution sidecars)",
+        "reason": "lifecycle contract; populated only by `validate --implemented`."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "type coverage = (observed ∪ skipped) / |PROPERTY_TYPES| averaged across exports; returns 1.0 when there are no exports",
+          "reason": "design-doc gate definition; validate compares against thresholds.typeCoverage."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 345,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "findMissingPropertyTypes",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "property types explicitly skipped on every export that would otherwise require them are not listed; skipped == covered for gating purposes",
+        "reason": "skipped is a deliberate opt-out and counts toward coverage."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "returns the property types that are required by at least one export but observed by no test row across the folder; sorted in PROPERTY_TYPES tuple order",
+          "reason": "validate's typeCoverage diagnostic needs the missing-type list to route remediation; PROPERTY_TYPES order is the stable contract."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 365,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    }
+  ],
+  "coverage": {
+    "typeCoverage": 0.04444444444444444
+  },
+  "thresholds": {
+    "typeCoverage": 0,
+    "classifierCoverage": 0,
+    "preconditionPassRate": 0
+  }
+}

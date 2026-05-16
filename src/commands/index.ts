@@ -37,7 +37,7 @@ import {
   VALIDATE_GAP_EXIT_CODES,
   type ValidateGapError,
 } from "@safer/commands/validate.js";
-import { SPEC_FORMAT_VERSION } from "@safer/commands/version.js";
+import { SPEC_FORMAT_VERSION } from "@safer/project/index.js";
 
 export class CliExitCode extends Data.TaggedError("CliExitCode")<{
   readonly code: number;

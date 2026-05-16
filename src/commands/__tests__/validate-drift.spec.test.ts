@@ -11,15 +11,15 @@ import { FileSystem, Path } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
 import { Data, Effect } from "effect";
 import * as fc from "fast-check";
-import { itSpec } from "@safer/spec/it-spec.js";
-import { parseFileDirectives } from "@safer/spec/directives/index.js";
+import { itSpec } from "@safer/spec/grammar/it-spec.js";
+import { parseFileDirectives } from "@safer/spec/grammar/index.js";
 import {
   buildExportEntries,
   collectExports,
   type BuildExportEntriesResult,
-} from "@safer/spec/source-exports.js";
+} from "@safer/analysis/index.js";
 import { validate } from "@safer/commands/validate.js";
-import { loadProjectContext } from "@safer/commands/project-context.js";
+import { loadProjectContext } from "@safer/project/index.js";
 
 class DriftAssertionError extends Data.TaggedError("DriftAssertionError")<{
   readonly detail: string;

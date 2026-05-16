@@ -12,7 +12,7 @@
 import { Cause, Data, Effect, Exit, Option } from "effect";
 import { NodeContext } from "@effect/platform-node";
 import * as fc from "fast-check";
-import { itSpec } from "@safer/spec/it-spec.js";
+import { itSpec } from "@safer/spec/grammar/it-spec.js";
 import {
   formatDiagnostic,
   validate,

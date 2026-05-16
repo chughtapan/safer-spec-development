@@ -16,8 +16,8 @@
       "default": "./dist/index.js"
     },
     "./reporter": {
-      "types": "./dist/spec/reporter.d.ts",
-      "default": "./dist/spec/reporter.js"
+      "types": "./dist/spec/artifact/reporter.d.ts",
+      "default": "./dist/spec/artifact/reporter.js"
     }
   },
   "files": [

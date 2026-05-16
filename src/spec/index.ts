@@ -12,4 +12,4 @@
  *   caller.
  */
 
-export { itSpec, type ItSpec } from "@safer/spec/it-spec.js";
+export { itSpec, type ItSpec } from "@safer/spec/grammar/it-spec.js";
