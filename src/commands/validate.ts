@@ -104,6 +104,12 @@ export const validate = (
       });
       if (result !== null) validated.push(result);
     }
+    if (validated.length === 0) {
+      const requested = Option.isSome(input.folder)
+        ? input.folder.value
+        : "<no index.ts folders discovered>";
+      return yield* Effect.fail(new FolderNotFoundError({ requested }));
+    }
     return { _tag: "pass" as const, foldersValidated: validated };
   }).pipe(Effect.withSpan("commands/validate"));
 

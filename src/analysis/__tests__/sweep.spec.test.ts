@@ -154,13 +154,13 @@ itSpec.prop(
 /* ---------- diagnosticLines additional types ---------- */
 
 /**
- * @spec.property diagnostic-lines-bounded-line-count
+ * @spec.property diagnostic-lines-bounded-payload-length
  * @spec.type Constant Bounds Checking
  * @spec.exports diagnosticLines
  * @spec.claim emitted line count is exactly 5 regardless of payload content size — stable for stderr framing
  */
 itSpec.prop(
-  "diagnostic-lines-bounded-line-count",
+  "diagnostic-lines-bounded-payload-length",
   { type: "Constant Bounds Checking", exports: [diagnosticLines] },
   fc.record({
     problem: fc.string({ minLength: 1, maxLength: 200 }),

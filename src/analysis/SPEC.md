@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: 01f9260c189c6e440f1f808aac7c684b35b97a7f
+generatedAtSha: dedb26f6e95dbaddb839ce083d19f74de68e185a
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -159,7 +159,7 @@ export const diagnosticLines = (
 | `validate-folder-includes-name-substring` | `Inclusion` | `validateFolder` | \`validateFolder.name\` contains the substring "validate" — the codemod's \`@spec.exports\` cross-check resolves the function by name | implemented |
 | `build-known-exports-roundtrip-on-empty-context` | `Roundtrip` | `buildKnownExports` | two calls on equivalent empty contexts produce equal empty sets — the function is pure on its declared inputs | implemented |
 | `build-known-exports-distinct-arity` | `Constant Equality` | `buildKnownExports` | \`buildKnownExports.length === 1\` — the function takes a single \`ProjectContext\` argument | implemented |
-| `diagnostic-lines-bounded-line-count` | `Constant Bounds Checking` | `diagnosticLines` | emitted line count is exactly 5 regardless of payload content size — stable for stderr framing | implemented |
+| `diagnostic-lines-bounded-payload-length` | `Constant Bounds Checking` | `diagnosticLines` | emitted line count is exactly 5 regardless of payload content size — stable for stderr framing | implemented |
 | `diagnostic-lines-roundtrip-on-same-payload` | `Roundtrip` | `diagnosticLines` | two calls with the same tag + payload produce equal arrays — the function is pure | implemented |
 | `generate-folder-error-bounded-payload` | `Constant Bounds Checking` | `GenerateFolderError` | every constructed instance carries a string \`folder\` and \`reason\` — the runtime shape the cli's exit-formatter reads | implemented |
 | `generate-folder-error-inclusion-tag` | `Inclusion` | `GenerateFolderError` | every \`GenerateFolderError\` instance carries \`\_tag === "GenerateFolderError"\` — the discriminant the cli catches by tag | implemented |
