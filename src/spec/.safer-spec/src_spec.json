@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec",
-  "generatedAtSha": "4aeed499b6c658b9e1614f1d1d591632dcbb2fd4",
+  "generatedAtSha": "50f55f44630c460a2b4a0289960cc15f96b582e0",
   "exports": [
     {
       "name": "ItSpec",
@@ -40,14 +40,14 @@
           "reason": "side-effect contract; the call mutates Vitest's collector, observable only at runtime."
         },
         {
-          "claim": "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`",
-          "reason": "side-effect contract; runtime registration with Vitest."
+          "claim": "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`; on completion attaches `{numRuns, numSkips, classifiers}` to the Vitest task's `meta.fastCheck` slot",
+          "reason": "side-effect contract; reporter reads `meta.fastCheck` to build per-folder execution sidecars."
         }
       ],
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
-        "line": 25,
-        "sha": "4aeed499b6c658b9e1614f1d1d591632dcbb2fd4"
+        "line": 54,
+        "sha": "50f55f44630c460a2b4a0289960cc15f96b582e0"
       }
     },
     {
@@ -71,8 +71,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/it-spec.ts",
-        "line": 56,
-        "sha": "4aeed499b6c658b9e1614f1d1d591632dcbb2fd4"
+        "line": 121,
+        "sha": "50f55f44630c460a2b4a0289960cc15f96b582e0"
       }
     }
   ],

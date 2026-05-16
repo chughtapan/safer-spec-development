@@ -14,6 +14,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./reporter": {
+      "types": "./dist/spec/reporter.d.ts",
+      "default": "./dist/spec/reporter.js"
     }
   },
   "files": [

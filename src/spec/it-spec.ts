@@ -11,8 +11,15 @@
  *   directives, and emits the colocated SPEC.md `## Properties` table from
  *   the tests. The runtime `meta` argument carries the same metadata for
  *   `validate --implemented` to cross-check JSDoc against runtime opts.
+ *
+ *   `prop` additionally attaches the fast-check `RunDetails` (numRuns,
+ *   numSkips) to the Vitest task's `meta.fastCheck` slot so the execution
+ *   reporter at `spec/reporter.ts` can aggregate per-folder coverage
+ *   stats into the per-folder `.safer-spec/&lt;slug&gt;.execution.json`
+ *   artifact validate decodes through its co-located Schema.
  */
 
+import { Data, Effect } from "effect";
 import * as fc from "fast-check";
 import { it } from "vitest";
 import type { PropertyType } from "@safer/property-types/index.js";
@@ -21,6 +28,28 @@ interface PropertyMeta {
   readonly type: PropertyType;
   readonly exports: ReadonlyArray<unknown>;
 }
+
+// Per-test fast-check execution stats. Attached to `task.meta.fastCheck`
+// by `itSpec.prop`; the reporter reads this slot, aggregates per folder,
+// and writes the execution sidecar. The reporter declares its own local
+// copy of this shape so vitest.config.ts can load reporter.ts without
+// pulling in `@safer/*` aliases (which aren't resolvable until vite's
+// tsconfigPaths plugin is wired).
+interface FastCheckTaskStats {
+  readonly propertyId: string;
+  readonly numRuns: number;
+  readonly numSkips: number;
+  readonly classifiers: ReadonlyArray<string>;
+}
+
+interface TaskMetaSlot {
+  fastCheck?: FastCheckTaskStats;
+}
+
+class PropertyFailureError extends Data.TaggedError("PropertyFailureError")<{
+  readonly id: string;
+  readonly message: string;
+}> {}
 
 export interface ItSpec {
   /**
@@ -38,8 +67,9 @@ export interface ItSpec {
   /**
    * @spec.assume "JSDoc directives above this call match `id`, `meta.type`, and `meta.exports` member names"
    *   reason: cross-check enforced by `validate --implemented`.
-   * @spec.guarantee "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`"
-   *   reason: side-effect contract; runtime registration with Vitest.
+   * @spec.guarantee "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`; on completion attaches `{numRuns, numSkips, classifiers}` to the Vitest task's `meta.fastCheck` slot"
+   *   reason: side-effect contract; reporter reads `meta.fastCheck` to
+   *           build per-folder execution sidecars.
    * @spec.residual-contract "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override"
    *   reason: behavioral residue beyond the call signature; downstream
    *           authors need to know the property runner is not configured
@@ -53,6 +83,41 @@ export interface ItSpec {
   ): void;
 }
 
+const recordStats = <Ts>(
+  taskMeta: TaskMetaSlot,
+  details: fc.RunDetails<Ts>,
+  propertyId: string,
+): void => {
+  taskMeta.fastCheck = {
+    propertyId,
+    numRuns: details.numRuns,
+    numSkips: details.numSkips,
+    classifiers: [],
+  };
+};
+
+const failureMessage = <Ts>(details: fc.RunDetails<Ts>): string =>
+  details.error ?? `fast-check property failed after ${String(details.numRuns)} runs`;
+
+const runProperty = <T>(
+  id: string,
+  property: fc.IAsyncProperty<[sample: T]>,
+  taskMeta: TaskMetaSlot,
+): Effect.Effect<void, PropertyFailureError> =>
+  Effect.tryPromise({
+    try: () => fc.check(property),
+    catch: (cause) =>
+      new PropertyFailureError({ id, message: `fast-check check threw: ${String(cause)}` }),
+  }).pipe(
+    Effect.flatMap((details) => {
+      recordStats(taskMeta, details, id);
+      if (!details.failed) return Effect.void;
+      return Effect.fail(
+        new PropertyFailureError({ id, message: failureMessage(details) }),
+      );
+    }),
+  );
+
 export const itSpec: ItSpec = {
   todo(id: string, _meta: PropertyMeta): void {
     it.todo(id);
@@ -64,7 +129,9 @@ export const itSpec: ItSpec = {
     body: (sample: T) => void | Promise<void>,
   ): void {
     const property = fc.asyncProperty(arb, (sample) => Promise.resolve(body(sample)));
-    // eslint-disable-next-line sonarjs/assertions-in-tests -- fc.assert IS the assertion; sonarjs only recognizes expect/chai/jest patterns
-    it(id, () => fc.assert(property));
+    // eslint-disable-next-line sonarjs/assertions-in-tests -- fc.check + Effect.fail IS the assertion; sonarjs only recognizes expect/chai/jest patterns
+    it(id, (ctx) =>
+      Effect.runPromise(runProperty(id, property, ctx.task.meta as TaskMetaSlot)),
+    );
   },
 };

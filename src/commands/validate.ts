@@ -26,12 +26,14 @@
 
 import { FileSystem, Path } from "@effect/platform";
 import { Effect, Option } from "effect";
+import { hashTestTree } from "@safer/spec/reporter.js";
 import { normalizeFolder } from "@safer/commands/project-context.js";
 import {
   buildSpecMeta,
   collectFolderInputs,
   discoverFolders,
   inspectFolder,
+  loadExecutionSidecar,
   loadValidateProjectContext,
   regenerateMarkdown,
   regenerateSidecar,
@@ -42,6 +44,7 @@ import {
 import {
   catchDirectiveErrors,
   checkDrift,
+  checkExecutionSidecarPresent,
   checkImplBodies,
   checkSidecarDrift,
   checkThresholds,
@@ -82,6 +85,30 @@ interface ValidateCtx {
   readonly projectCtx: ProjectContext;
 }
 
+const toPosix = (p: string): string => p.split("\\").join("/");
+
+const computeFolderTestTreeHash = (
+  fs: FileSystem.FileSystem,
+  testPaths: ReadonlyArray<string>,
+): Effect.Effect<string, never> =>
+  Effect.gen(function* () {
+    // Reporter stores POSIX-style projectRoot-relative paths in the
+    // sidecar. The validate-side `inputs.tests` may contain `\` on
+    // Windows (collectFolderInputs builds via the platform Path service);
+    // normalize to POSIX so the hash input strings match exactly.
+    const reads = yield* Effect.forEach(
+      testPaths,
+      (p) => fs.readFileString(p).pipe(
+        Effect.map((content) => [toPosix(p), content] as const),
+        Effect.catchAll(() => Effect.succeed([toPosix(p), ""] as const)),
+      ),
+      { concurrency: 1 },
+    );
+    const byPath = new Map(reads);
+    const posixPaths = testPaths.map(toPosix);
+    return hashTestTree(posixPaths, (p) => byPath.get(p) ?? "");
+  });
+
 const validateOneFolder = (
   ctx: ValidateCtx,
   folder: string,
@@ -92,18 +119,30 @@ const validateOneFolder = (
       inspectFolder({ fs: ctx.fs, path: ctx.path, folder, inputs, ctx: ctx.projectCtx }),
     );
     yield* failOnIssues(inspection.issues, ctx.mode);
-    const meta = buildSpecMeta(inspection.analysis, ctx.projectCtx);
-    const regenerated = regenerateMarkdown(inspection.analysis, meta);
+    // `driftMeta` always uses execution=null so regenerated drift artifacts
+    // match what `generate` writes to disk (committed artifacts never carry
+    // execution metrics). `gateMeta` is enriched with execution metrics
+    // only for the implemented threshold check and never feeds drift regen.
+    const driftMeta = buildSpecMeta(inspection.analysis, ctx.projectCtx, null);
+    const regenerated = regenerateMarkdown(inspection.analysis, driftMeta);
     yield* checkDrift(ctx.fs, ctx.path.join(folder, "SPEC.md"), regenerated);
-    const sidecarJson = yield* regenerateSidecar(inspection.analysis, meta);
+    const sidecarJson = yield* regenerateSidecar(inspection.analysis, driftMeta);
     const sidecarPath = ctx.path.join(
       folder,
       ".safer-spec",
       `${sidecarSlug(folder)}.json`,
     );
     yield* checkSidecarDrift(ctx.fs, sidecarPath, sidecarJson);
-    yield* checkThresholds(folder, inspection.analysis, meta);
-    if (ctx.mode === "implemented") yield* checkImplBodies(inspection.analysis);
+    if (ctx.mode !== "implemented") {
+      yield* checkThresholds(folder, inspection.analysis, driftMeta);
+      return folder;
+    }
+    const execution = yield* loadExecutionSidecar(ctx.fs, ctx.path, folder);
+    const currentHash = yield* computeFolderTestTreeHash(ctx.fs, [...inputs.sources, ...inputs.tests]);
+    yield* checkExecutionSidecarPresent(inspection.analysis, folder, execution, currentHash);
+    yield* checkImplBodies(inspection.analysis);
+    const gateMeta = buildSpecMeta(inspection.analysis, ctx.projectCtx, execution);
+    yield* checkThresholds(folder, inspection.analysis, gateMeta);
     return folder;
   });
 

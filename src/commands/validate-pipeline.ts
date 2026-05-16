@@ -24,7 +24,11 @@ import {
   type PropertyRow,
   type SpecMeta,
 } from "@safer/spec/emit.js";
-import { serializeSidecar } from "@safer/spec/sidecar-writer.js";
+import {
+  decodeExecutionSidecar,
+  type ExecutionSidecar,
+} from "@safer/spec/reporter.js";
+import { serializeSidecar, sidecarSlug } from "@safer/spec/sidecar-writer.js";
 import {
   buildExportEntries,
   collectExports,
@@ -40,7 +44,6 @@ import {
 } from "@safer/commands/folder-discovery.js";
 
 export { discoverFolders, discoverImmediateSubfolders, buildChildren };
-
 export {
   loadProjectContext,
   loadValidateProjectContext,
@@ -69,15 +72,6 @@ const readDirSafe = (
   fs.readDirectory(dir).pipe(
     Effect.map((entries) => [...entries].sort()),
     Effect.catchAll(() => Effect.succeed([] as ReadonlyArray<string>)),
-  );
-
-const isDirectory = (
-  fs: FileSystem.FileSystem,
-  full: string,
-): Effect.Effect<boolean, never> =>
-  fs.stat(full).pipe(
-    Effect.map((s) => s.type === "Directory"),
-    Effect.catchAll(() => Effect.succeed(false)),
   );
 
 /**
@@ -137,14 +131,17 @@ interface TestParseResult {
   readonly directives: ReadonlyArray<LocatedDirective>;
 }
 
-// Project-wide symbol existence set (same rationale as
-// `commands/generate.ts` `collectKnownExports`): union of `export …` names
-// across every source file in `ctx.sources`. Loosens the new typo gate to
-// reject opts.exports names that don't exist anywhere while still allowing
-// cross-folder references the dogfood depends on.
-const collectKnownExports = (ctx: ProjectContext): ReadonlySet<string> => {
+// `collectKnownExports` returns the project-wide union of export names; the
+// folder-scoped variant restricts to `sources`. Both feed validate's typo
+// gates: the project set lets cross-folder references pass, the folder set
+// flags truly-stale per-export directives.
+const exportNamesFrom = (
+  ctx: ProjectContext,
+  paths: ReadonlySet<string> | null,
+): ReadonlySet<string> => {
   const out = new Set<string>();
   for (const sf of ctx.sources) {
+    if (paths !== null && !paths.has(sf.path)) continue;
     for (const d of collectExports(sf.path, sf.source, {
       siblings: ctx.sources, paths: ctx.paths, baseUrl: ctx.baseUrl,
     })) {
@@ -155,26 +152,13 @@ const collectKnownExports = (ctx: ProjectContext): ReadonlySet<string> => {
   return out;
 };
 
-// Folder-scoped variant: only the names exported by source files IN this
-// folder. Used by `buildExportEntries` to flag truly-stale directives
-// (exportName not exported anywhere in the folder, barrel or otherwise).
+const collectKnownExports = (ctx: ProjectContext): ReadonlySet<string> =>
+  exportNamesFrom(ctx, null);
+
 const folderExportNames = (
   sources: ReadonlyArray<string>,
   ctx: ProjectContext,
-): ReadonlySet<string> => {
-  const out = new Set<string>();
-  for (const sourcePath of sources) {
-    const sf = ctx.sources.find((s) => s.path === sourcePath);
-    if (sf === undefined) continue;
-    for (const d of collectExports(sf.path, sf.source, {
-      siblings: ctx.sources, paths: ctx.paths, baseUrl: ctx.baseUrl,
-    })) {
-      out.add(d.name);
-      out.add(d.declaredName);
-    }
-  }
-  return out;
-};
+): ReadonlySet<string> => exportNamesFrom(ctx, new Set(sources));
 
 const parseTests = (
   fs: FileSystem.FileSystem,
@@ -201,10 +185,6 @@ export interface FolderInspection {
   readonly issues: ReadonlyArray<ItSpecIssue>;
 }
 
-/**
- * @spec.guarantee "produces the same FolderAnalysis shape `generate` emits + the per-test issues list; regenerate-and-compare on `analysis` is byte-deterministic"
- *   reason: roundtrip contract; validate's drift check relies on it.
- */
 export interface InspectArgs {
   readonly fs: FileSystem.FileSystem;
   readonly path: Path.Path;
@@ -213,6 +193,10 @@ export interface InspectArgs {
   readonly ctx: ProjectContext;
 }
 
+/**
+ * @spec.guarantee "produces the same FolderAnalysis shape `generate` emits plus a per-test issues list; regenerate-and-compare on `analysis` is byte-deterministic"
+ *   reason: roundtrip contract; validate's drift check relies on it.
+ */
 export const inspectFolder = ({ fs, path, folder, inputs, ctx }: InspectArgs): Effect.Effect<FolderInspection, DirectiveParseError> =>
   Effect.gen(function* () {
     const indexFile = ctx.sources.find((s) => s.path === inputs.indexFilePath);
@@ -266,25 +250,50 @@ const DEFAULT_GENERATED_FROM = {
 } as const;
 
 /**
- * @spec.guarantee "builds a `SpecMeta` from run-level context + analysis-derived coverage"
- *   reason: emit's frontmatter + sidecar both require meta.
- * @spec.residual-contract "classifier coverage and precondition pass rate are null in this slice; populated only when `validate --implemented` consumes Vitest reporter sidecars"
+ * @spec.guarantee "builds a `SpecMeta` from run-level context + analysis-derived type coverage; populates classifierCoverage / preconditionPassRate from `execution` sidecar when present"
+ *   reason: emit's frontmatter + sidecar both require meta; `--implemented`
+ *           mode merges Vitest reporter stats into the gate inputs.
+ * @spec.residual-contract "branchCoverageFromSpecTests stays null until a v8 coverage hook is wired up (follow-up slice)"
  *   reason: lifecycle contract.
  */
 export const buildSpecMeta = (
   analysis: FolderAnalysis,
   ctx: ProjectContext,
+  execution?: ExecutionSidecar | null,
 ): SpecMeta => ({
   generatedAtSha: ctx.generatedAtSha,
   coverage: {
     typeCoverage: computeTypeCoverage(analysis),
-    classifierCoverage: null,
-    preconditionPassRate: null,
-    branchCoverageFromSpecTests: null,
+    classifierCoverage: execution?.classifierCoverage ?? null,
+    preconditionPassRate: execution?.preconditionPassRate ?? null,
+    branchCoverageFromSpecTests: execution?.branchCoverageFromSpecTests ?? null,
   },
   thresholds: ctx.thresholds,
   generatedFrom: DEFAULT_GENERATED_FROM,
 });
+
+/**
+ * @spec.guarantee "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through `ExecutionSidecarSchema`; returns null when absent or malformed"
+ *   reason: validate's `--implemented` gate consumes the coverage values;
+ *           absence is surfaced separately as a typed gap error.
+ */
+export const loadExecutionSidecar = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  folder: string,
+): Effect.Effect<ExecutionSidecar | null, never> =>
+  fs
+    .readFileString(
+      path.join(folder, ".safer-spec", `${sidecarSlug(folder)}.execution.json`),
+    )
+    .pipe(
+      Effect.flatMap((text) =>
+        Effect.try({ try: () => JSON.parse(text) as unknown, catch: () => null }),
+      ),
+      Effect.flatMap(decodeExecutionSidecar),
+      Effect.map((v): ExecutionSidecar | null => v),
+      Effect.catchAll(() => Effect.succeed(null)),
+    );
 
 /** Alias for `emitMarkdown(analysis, meta)`; keeps validate.ts's import block compact. */
 export const regenerateMarkdown = (
@@ -346,14 +355,7 @@ const SHA_LINE_JSON = /"(generatedAtSha|sha)":\s*"[^"]*"/g;
 export const stripVolatileJson = (text: string): string =>
   text.replace(SHA_LINE_JSON, '"$1": "<NORMALIZED>"');
 
-// Slug for the per-folder sidecar JSON path. The project-root sentinel
-// `.` maps to `root` (see `generate.ts` `folderSlug` for rationale).
-// Both `/` and `\` are coalesced so the slug stays a single filename
-// when Windows-style path separators reach this helper.
-export const sidecarSlug = (folder: string): string => {
-  if (folder === ".") return "root";
-  return folder.replace(/^\.[/\\]/, "").replace(/[/\\]+/g, "_");
-};
+export { sidecarSlug };
 
 /**
  * @spec.guarantee "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; SidecarSchemaError is a defect (artifact our own emitter produced)"

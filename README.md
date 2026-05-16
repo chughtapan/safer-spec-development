@@ -11,8 +11,36 @@ are defined; mode implementations may still be incomplete.
 pnpm add -D @chughtapan/safer-spec-development
 # Onboard the first folder via the safer-spec-init coding-agent skill (see below).
 pnpm safer-spec generate                       # regenerate SPEC.md per folder
-pnpm safer-spec validate --implemented         # CI gate
+pnpm test                                      # property tests; reporter writes execution sidecars
+pnpm safer-spec validate --implemented         # CI gate (consumes execution sidecars)
 ```
+
+### Vitest reporter
+
+`validate --implemented` reads per-folder `.safer-spec/<slug>.execution.json`
+files written by the package's Vitest reporter. Register it in your
+`vitest.config.ts`:
+
+```ts
+import { defineConfig } from "vitest/config";
+import { SaferSpecExecutionReporter } from "@chughtapan/safer-spec-development/reporter";
+
+export default defineConfig({
+  test: {
+    reporters: ["default", new SaferSpecExecutionReporter()],
+  },
+});
+```
+
+Import the reporter from the dedicated `/reporter` subpath, not the
+package root. The root barrel pulls in `itSpec`, which transitively
+imports `vitest`'s test API — Vitest forbids that from a config file
+and will throw `Vitest failed to access its internal state`.
+
+The reporter writes one sidecar per folder whose tests ran. Validate
+compares the sidecar's property-id set against the folder's current
+implemented properties so a stale sidecar (test set changed since the
+last run) fails as `MissingImplError`.
 
 ## CLI surface
 

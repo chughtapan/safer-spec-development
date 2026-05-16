@@ -9,4 +9,5 @@ node_modules/
 !.env.example
 coverage/
 .safer-spec-cache/
+**/.safer-spec/*.execution.json
 .claude/worktrees/
