@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "dedb26f6e95dbaddb839ce083d19f74de68e185a",
+  "generatedAtSha": "d0e6357820960428cd2201eae84a477e2c06862e",
   "exports": [
     {
       "name": "BuildSpecMetaArgs",
@@ -25,7 +25,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 24,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -50,7 +50,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -86,7 +86,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 43,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -127,7 +127,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 45,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -152,7 +152,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 46,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -177,7 +177,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 60,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -202,7 +202,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 61,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -227,7 +227,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 71,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -262,7 +262,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 76,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -287,7 +287,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 79,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -327,7 +327,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 85,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -352,7 +352,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar.ts",
         "line": 95,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -377,7 +377,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 186,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -415,7 +415,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 222,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -449,7 +449,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 245,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -488,7 +488,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 248,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     },
     {
@@ -528,7 +528,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 313,
-        "sha": "dedb26f6e95dbaddb839ce083d19f74de68e185a"
+        "sha": "d0e6357820960428cd2201eae84a477e2c06862e"
       }
     }
   ],

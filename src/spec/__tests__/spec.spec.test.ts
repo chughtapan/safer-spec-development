@@ -8,7 +8,7 @@
 
 import { Data, Effect } from "effect";
 import * as fc from "fast-check";
-import { itSpec } from "@safer/spec/grammar/it-spec.js";
+import { itSpec } from "../index.js";
 
 class SpecAssertionError extends Data.TaggedError("SpecAssertionError")<{
   readonly detail: string;

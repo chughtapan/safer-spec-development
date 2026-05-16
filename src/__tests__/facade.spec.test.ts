@@ -9,8 +9,7 @@
 
 import { Data, Effect } from "effect";
 import * as fc from "fast-check";
-import { itSpec } from "@safer/spec/grammar/it-spec.js";
-import { PROPERTY_TYPES, type PropertyType } from "@safer/spec/grammar/property-types.js";
+import { itSpec, PROPERTY_TYPES, type PropertyType } from "../index.js";
 
 class FacadeAssertionError extends Data.TaggedError("FacadeAssertionError")<{
   readonly detail: string;

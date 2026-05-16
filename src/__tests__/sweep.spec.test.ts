@@ -6,8 +6,7 @@
 
 import { Data, Effect } from "effect";
 import * as fc from "fast-check";
-import { itSpec } from "@safer/spec/grammar/it-spec.js";
-import { PROPERTY_TYPES } from "@safer/spec/grammar/property-types.js";
+import { itSpec, PROPERTY_TYPES } from "../index.js";
 
 class FacadeSweepAssertionError extends Data.TaggedError(
   "FacadeSweepAssertionError",
