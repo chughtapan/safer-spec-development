@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/project",
-  "generatedAtSha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b",
+  "generatedAtSha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f",
   "exports": [
     {
       "name": "SPEC_FORMAT_VERSION",
@@ -34,7 +34,7 @@
       "sourceRef": {
         "path": "src/project/version.ts",
         "line": 16,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -59,7 +59,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 30,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -84,7 +84,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 40,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -118,7 +118,7 @@
       "sourceRef": {
         "path": "src/project/folders.ts",
         "line": 59,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -143,7 +143,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 64,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -173,7 +173,7 @@
       "sourceRef": {
         "path": "src/project/folders.ts",
         "line": 75,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -210,7 +210,7 @@
       "sourceRef": {
         "path": "src/project/config.ts",
         "line": 80,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -244,7 +244,7 @@
       "sourceRef": {
         "path": "src/project/folders.ts",
         "line": 112,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -278,7 +278,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 272,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -303,12 +303,12 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 292,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.02222222222222222
+    "typeCoverage": 0.027777777777777776
   },
   "thresholds": {
     "typeCoverage": 0,

@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b",
+  "generatedAtSha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f",
   "exports": [
     {
       "name": "ExportKind",
@@ -25,32 +25,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
-      }
-    },
-    {
-      "name": "ExportEntry",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/emit.ts",
-        "line": 35,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -85,11 +60,11 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 42,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
-      "name": "PropertyRow",
+      "name": "ExportEntry",
       "shape": "type",
       "requiredPropertyTypes": [
         "Roundtrip",
@@ -109,8 +84,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 50,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 46,
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -146,11 +121,11 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 59,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
-      "name": "FolderAnalysis",
+      "name": "PropertyRow",
       "shape": "type",
       "requiredPropertyTypes": [
         "Roundtrip",
@@ -170,8 +145,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 68,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 61,
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -196,7 +171,32 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 71,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
+      }
+    },
+    {
+      "name": "FolderAnalysis",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 79,
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -230,7 +230,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 82,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -255,7 +255,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar.ts",
         "line": 95,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -279,8 +279,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 175,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 186,
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -305,7 +305,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 201,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -343,8 +343,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 237,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 248,
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -377,8 +377,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 302,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 313,
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -399,20 +399,20 @@
       "skipped": [],
       "residualContract": {
         "_tag": "some",
-        "body": "classifier coverage and precondition pass rate are null in `--planned` mode (no test execution sidecars)",
-        "reason": "lifecycle contract; populated only by `validate --implemented`."
+        "body": "type-only exports (`kind === 'type'` or `'interface'`) are excluded — they erase at compile time and cannot host runtime property tests, so requiring 9 directives on every type alias is ceremony for a contract that never bears weight",
+        "reason": "barrels that re-export types alongside values would otherwise be dragged to 0 by the type-only entries."
       },
       "residualAssumes": [],
       "residualGuarantees": [
         {
-          "claim": "type coverage = (observed ∪ skipped) / |PROPERTY_TYPES| averaged across exports; returns 1.0 when there are no exports",
+          "claim": "type coverage = (observed ∪ skipped) / |PROPERTY_TYPES| averaged across VALUE-bearing exports; returns 1.0 when there are no value exports",
           "reason": "design-doc gate definition; validate compares against thresholds.typeCoverage."
         }
       ],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 345,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 356,
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -433,25 +433,25 @@
       "skipped": [],
       "residualContract": {
         "_tag": "some",
-        "body": "property types explicitly skipped on every export that would otherwise require them are not listed; skipped == covered for gating purposes",
-        "reason": "skipped is a deliberate opt-out and counts toward coverage."
+        "body": "type-only exports are excluded from the requirement scan (same rationale as `computeTypeCoverage`); explicitly skipped property types on every value export that would otherwise require them are also dropped — skipped == covered for gating purposes",
+        "reason": "barrels re-exporting types should not contribute imaginary requirements; `@spec.skip` is a deliberate opt-out."
       },
       "residualAssumes": [],
       "residualGuarantees": [
         {
-          "claim": "returns the property types that are required by at least one export but observed by no test row across the folder; sorted in PROPERTY_TYPES tuple order",
+          "claim": "returns the property types that are required by at least one VALUE-bearing export but observed by no test row across the folder; sorted in PROPERTY_TYPES tuple order",
           "reason": "validate's typeCoverage diagnostic needs the missing-type list to route remediation; PROPERTY_TYPES order is the stable contract."
         }
       ],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 365,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 377,
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.04444444444444444
+    "typeCoverage": 0.08333333333333333
   },
   "thresholds": {
     "typeCoverage": 0,

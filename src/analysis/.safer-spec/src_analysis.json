@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/analysis",
-  "generatedAtSha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b",
+  "generatedAtSha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f",
   "exports": [
     {
       "name": "DeclaredExport",
@@ -25,7 +25,7 @@
       "sourceRef": {
         "path": "src/analysis/exports.ts",
         "line": 19,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -58,7 +58,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 42,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -83,7 +83,7 @@
       "sourceRef": {
         "path": "src/analysis/pipeline.ts",
         "line": 51,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -113,7 +113,7 @@
       "sourceRef": {
         "path": "src/analysis/pipeline.ts",
         "line": 74,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -138,7 +138,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 83,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -163,7 +163,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 117,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -188,7 +188,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 147,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -213,7 +213,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 177,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -243,7 +243,7 @@
       "sourceRef": {
         "path": "src/analysis/pipeline.ts",
         "line": 193,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -277,7 +277,7 @@
       "sourceRef": {
         "path": "src/analysis/exports.ts",
         "line": 196,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -302,7 +302,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 220,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -327,7 +327,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 235,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -352,7 +352,7 @@
       "sourceRef": {
         "path": "src/analysis/exports.ts",
         "line": 250,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -386,7 +386,7 @@
       "sourceRef": {
         "path": "src/analysis/pipeline.ts",
         "line": 252,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -416,7 +416,7 @@
       "sourceRef": {
         "path": "src/analysis/pipeline.ts",
         "line": 273,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -441,7 +441,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 274,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -466,7 +466,7 @@
       "sourceRef": {
         "path": "src/analysis/pipeline.ts",
         "line": 292,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -491,7 +491,7 @@
       "sourceRef": {
         "path": "src/analysis/exports.ts",
         "line": 320,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -516,7 +516,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 333,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -541,7 +541,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 344,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -575,7 +575,7 @@
       "sourceRef": {
         "path": "src/analysis/properties.ts",
         "line": 347,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -600,7 +600,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 357,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -630,7 +630,7 @@
       "sourceRef": {
         "path": "src/analysis/pipeline.ts",
         "line": 358,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -664,7 +664,7 @@
       "sourceRef": {
         "path": "src/analysis/exports.ts",
         "line": 402,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     },
     {
@@ -689,7 +689,7 @@
       "sourceRef": {
         "path": "src/analysis/exports.ts",
         "line": 429,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
       }
     }
   ],

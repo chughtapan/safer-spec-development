@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 7ed6a36cac8eb995251a294e9b5f009d5fcd700b
+generatedAtSha: e399de5a66bb02dc52ba5c1019e3bb6f1982626f
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.04444444444444444
+  typeCoverage: 0.08333333333333333
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -51,7 +51,18 @@ export type ExportKind =
   | "other";
 ```
 
-### [`ExportEntry`](./emit.ts#L35)
+### [`sidecarSlug`](./sidecar-writer.ts#L42)
+
+```ts
+export const sidecarSlug = (folder: string): string => { /* ... */ }
+```
+
+**Guarantees:**
+- "folder \`.\` maps to \`\\"root\\"\`; folders with \`/\` or \`\\\\\` are coalesced into a single-segment slug with \`\_\` separators; otherwise the folder string is returned unchanged after stripping leading \`./\`" — _single source of truth for the sidecar slug across generate, validate, and reporter. Three call sites previously inlined this logic; agreement is the contract._
+
+**Residual contract:** none — _pure transformation captured by signature._
+
+### [`ExportEntry`](./emit.ts#L46)
 
 ```ts
 export interface ExportEntry {
@@ -70,30 +81,6 @@ export interface ExportEntry {
 }
 ```
 
-### [`sidecarSlug`](./sidecar-writer.ts#L42)
-
-```ts
-export const sidecarSlug = (folder: string): string => { /* ... */ }
-```
-
-**Guarantees:**
-- "folder \`.\` maps to \`\\"root\\"\`; folders with \`/\` or \`\\\\\` are coalesced into a single-segment slug with \`\_\` separators; otherwise the folder string is returned unchanged after stripping leading \`./\`" — _single source of truth for the sidecar slug across generate, validate, and reporter. Three call sites previously inlined this logic; agreement is the contract._
-
-**Residual contract:** none — _pure transformation captured by signature._
-
-### [`PropertyRow`](./emit.ts#L50)
-
-```ts
-export interface PropertyRow {
-  readonly id: string;
-  readonly propertyType: PropertyType;
-  readonly exports: ReadonlyArray<string>;
-  readonly claim: string;
-  readonly sourceRef: { readonly path: string; readonly line: number };
-  readonly stubbed: boolean;
-}
-```
-
 ### [`serializeSidecar`](./sidecar-writer.ts#L59)
 
 ```ts
@@ -107,7 +94,26 @@ export const serializeSidecar = (
 
 **Residual contract:** "trailing newline is appended for POSIX-friendly files; JSON itself decodes regardless" — _byte-level format contract beyond the Schema shape._
 
-### [`FolderAnalysis`](./emit.ts#L68)
+### [`PropertyRow`](./emit.ts#L61)
+
+```ts
+export interface PropertyRow {
+  readonly id: string;
+  readonly propertyType: PropertyType;
+  readonly exports: ReadonlyArray<string>;
+  readonly claim: string;
+  readonly sourceRef: { readonly path: string; readonly line: number };
+  readonly stubbed: boolean;
+}
+```
+
+### [`ExecutionSidecar`](./reporter.ts#L71)
+
+```ts
+export type ExecutionSidecar = Schema.Schema.Type<typeof ExecutionSidecarSchema>;
+```
+
+### [`FolderAnalysis`](./emit.ts#L79)
 
 ```ts
 export interface FolderAnalysis {
@@ -122,12 +128,6 @@ export interface FolderAnalysis {
    */
   readonly children: ReadonlyArray<ChildEntry>;
 }
-```
-
-### [`ExecutionSidecar`](./reporter.ts#L71)
-
-```ts
-export type ExecutionSidecar = Schema.Schema.Type<typeof ExecutionSidecarSchema>;
 ```
 
 ### [`decodeExecutionSidecar`](./reporter.ts#L82)
@@ -147,7 +147,7 @@ export const decodeExecutionSidecar = Schema.decodeUnknown(ExecutionSidecarSchem
 export type SpecArtifact = Schema.Schema.Type<typeof SpecArtifactSchemaInner>;
 ```
 
-### [`SpecMeta`](./emit.ts#L175)
+### [`SpecMeta`](./emit.ts#L186)
 
 ```ts
 export interface SpecMeta {
@@ -179,7 +179,7 @@ export interface SpecMeta {
 export const hashTestTree = (paths: ReadonlyArray<string>, read: (p: string) => string): string => { /* ... */ }
 ```
 
-### [`emitMarkdown`](./emit.ts#L237)
+### [`emitMarkdown`](./emit.ts#L248)
 
 ```ts
 export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* ... */ }
@@ -190,7 +190,7 @@ export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* 
 
 **Residual contract:** "internal section ordering is fixed: Purpose → Public Surface → Files → Properties" — _behavioral contract beyond the FolderAnalysis shape._
 
-### [`buildSpecArtifact`](./emit.ts#L302)
+### [`buildSpecArtifact`](./emit.ts#L313)
 
 ```ts
 export const buildSpecArtifact = (
@@ -204,18 +204,18 @@ export const buildSpecArtifact = (
 
 **Residual contract:** "fields the codemod cannot yet compute (e.g. per-export sourceRef.sha) reuse \`meta.generatedAtSha\` as the closest stable identifier" — _per-line blame would require a separate git pass; the run-level SHA is a sound default for now._
 
-### [`computeTypeCoverage`](./emit.ts#L345)
+### [`computeTypeCoverage`](./emit.ts#L356)
 
 ```ts
 export const computeTypeCoverage = (a: FolderAnalysis): number => { /* ... */ }
 ```
 
 **Guarantees:**
-- "type coverage = (observed ∪ skipped) / |PROPERTY\_TYPES| averaged across exports; returns 1.0 when there are no exports" — _design-doc gate definition; validate compares against thresholds.typeCoverage._
+- "type coverage = (observed ∪ skipped) / |PROPERTY\_TYPES| averaged across VALUE-bearing exports; returns 1.0 when there are no value exports" — _design-doc gate definition; validate compares against thresholds.typeCoverage._
 
-**Residual contract:** "classifier coverage and precondition pass rate are null in \`--planned\` mode (no test execution sidecars)" — _lifecycle contract; populated only by \`validate --implemented\`._
+**Residual contract:** "type-only exports (\`kind === 'type'\` or \`'interface'\`) are excluded — they erase at compile time and cannot host runtime property tests, so requiring 9 directives on every type alias is ceremony for a contract that never bears weight" — _barrels that re-export types alongside values would otherwise be dragged to 0 by the type-only entries._
 
-### [`findMissingPropertyTypes`](./emit.ts#L365)
+### [`findMissingPropertyTypes`](./emit.ts#L377)
 
 ```ts
 export const findMissingPropertyTypes = (
@@ -224,9 +224,9 @@ export const findMissingPropertyTypes = (
 ```
 
 **Guarantees:**
-- "returns the property types that are required by at least one export but observed by no test row across the folder; sorted in PROPERTY\_TYPES tuple order" — _validate's typeCoverage diagnostic needs the missing-type list to route remediation; PROPERTY\_TYPES order is the stable contract._
+- "returns the property types that are required by at least one VALUE-bearing export but observed by no test row across the folder; sorted in PROPERTY\_TYPES tuple order" — _validate's typeCoverage diagnostic needs the missing-type list to route remediation; PROPERTY\_TYPES order is the stable contract._
 
-**Residual contract:** "property types explicitly skipped on every export that would otherwise require them are not listed; skipped == covered for gating purposes" — _skipped is a deliberate opt-out and counts toward coverage._
+**Residual contract:** "type-only exports are excluded from the requirement scan (same rationale as \`computeTypeCoverage\`); explicitly skipped property types on every value export that would otherwise require them are also dropped — skipped == covered for gating purposes" — _barrels re-exporting types should not contribute imaginary requirements; \`@spec.skip\` is a deliberate opt-out._
 
 ## Children
 

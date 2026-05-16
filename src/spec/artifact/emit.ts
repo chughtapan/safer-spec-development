@@ -32,6 +32,17 @@ export type ExportKind =
   | "enum"
   | "other";
 
+// Type aliases and interfaces erase at compile time — they have no
+// runtime values to subject to property tests, so typeCoverage's
+// denominator and `findMissingPropertyTypes`'s required-set exclude
+// them. Counting them would force authors to declare 9 @spec.skip
+// directives on every type alias / interface (ceremony for a contract
+// that can never bear weight).
+const TYPE_ONLY_KINDS: ReadonlySet<ExportKind> = new Set(["type", "interface"]);
+
+const isValueBearing = (e: { readonly kind: ExportKind }): boolean =>
+  !TYPE_ONLY_KINDS.has(e.kind);
+
 export interface ExportEntry {
   readonly name: string;
   readonly kind: ExportKind;
@@ -337,37 +348,38 @@ export const buildSpecArtifact = (
 });
 
 /**
- * @spec.guarantee "type coverage = (observed ∪ skipped) / |PROPERTY_TYPES| averaged across exports; returns 1.0 when there are no exports"
+ * @spec.guarantee "type coverage = (observed ∪ skipped) / |PROPERTY_TYPES| averaged across VALUE-bearing exports; returns 1.0 when there are no value exports"
  *   reason: design-doc gate definition; validate compares against thresholds.typeCoverage.
- * @spec.residual-contract "classifier coverage and precondition pass rate are null in `--planned` mode (no test execution sidecars)"
- *   reason: lifecycle contract; populated only by `validate --implemented`.
+ * @spec.residual-contract "type-only exports (`kind === 'type'` or `'interface'`) are excluded — they erase at compile time and cannot host runtime property tests, so requiring 9 directives on every type alias is ceremony for a contract that never bears weight"
+ *   reason: barrels that re-export types alongside values would otherwise be dragged to 0 by the type-only entries.
  */
 export const computeTypeCoverage = (a: FolderAnalysis): number => {
-  if (a.exports.length === 0) return 1;
+  const valueExports = a.exports.filter(isValueBearing);
+  if (valueExports.length === 0) return 1;
   const total = PROPERTY_TYPES.length;
   let sum = 0;
-  for (const e of a.exports) {
+  for (const e of valueExports) {
     const skipped = skippedPropertyTypes(e);
     const observed = new Set(observedPropertyTypesFor(e.name, a.properties));
     const covered = new Set<PropertyType>([...skipped, ...observed]);
     sum += covered.size / total;
   }
-  return sum / a.exports.length;
+  return sum / valueExports.length;
 };
 
 /**
- * @spec.guarantee "returns the property types that are required by at least one export but observed by no test row across the folder; sorted in PROPERTY_TYPES tuple order"
+ * @spec.guarantee "returns the property types that are required by at least one VALUE-bearing export but observed by no test row across the folder; sorted in PROPERTY_TYPES tuple order"
  *   reason: validate's typeCoverage diagnostic needs the missing-type list to
  *           route remediation; PROPERTY_TYPES order is the stable contract.
- * @spec.residual-contract "property types explicitly skipped on every export that would otherwise require them are not listed; skipped == covered for gating purposes"
- *   reason: skipped is a deliberate opt-out and counts toward coverage.
+ * @spec.residual-contract "type-only exports are excluded from the requirement scan (same rationale as `computeTypeCoverage`); explicitly skipped property types on every value export that would otherwise require them are also dropped — skipped == covered for gating purposes"
+ *   reason: barrels re-exporting types should not contribute imaginary requirements; `@spec.skip` is a deliberate opt-out.
  */
 export const findMissingPropertyTypes = (
   a: FolderAnalysis,
 ): ReadonlyArray<PropertyType> => {
   const required = new Set<PropertyType>();
   const observed = new Set<PropertyType>();
-  for (const e of a.exports) {
+  for (const e of a.exports.filter(isValueBearing)) {
     for (const rt of requiredPropertyTypesFor(e)) required.add(rt);
     for (const ot of observedPropertyTypesFor(e.name, a.properties)) observed.add(ot);
   }

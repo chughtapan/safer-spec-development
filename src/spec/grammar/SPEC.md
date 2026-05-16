@@ -1,7 +1,7 @@
 ---
 folder: src/spec/grammar
 format-version: 0.1.0
-generatedAtSha: 7ed6a36cac8eb995251a294e9b5f009d5fcd700b
+generatedAtSha: e399de5a66bb02dc52ba5c1019e3bb6f1982626f
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.0617283950617284
+  typeCoverage: 0.0925925925925926
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
