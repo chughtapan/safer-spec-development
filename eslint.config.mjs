@@ -226,6 +226,7 @@ export default [
       // contract the codemod's design depends on.
       "sonarjs/todo-tag": "off",
       "jsdoc/check-tag-names": ["error", { definedTags: SPEC_DIRECTIVE_TAGS }],
+      "max-lines": ["error", { max: 500, skipBlankLines: true, skipComments: true }],
     },
   },
 

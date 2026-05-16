@@ -142,12 +142,15 @@ const declarationFacts = (node: Node): DeclarationFacts =>
   factsFromClass(node) ??
   factsFromOther(node);
 
-// Declaration-merging tie-breaker: when a name has both type and value
-// declarations (e.g. `interface Foo` + `class Foo`), prefer the value
-// node so the symbol counts toward typeCoverage.
-const isValueNode = (n: Node): boolean =>
-  Node.isVariableDeclaration(n) || Node.isFunctionDeclaration(n)
-  || Node.isClassDeclaration(n) || Node.isEnumDeclaration(n);
+// Declaration-merging tie-breaker: prefer the value node when a name
+// has both type and value declarations (e.g. `interface Foo` + `class Foo`,
+// or `interface Foo` + `namespace Foo`) so the symbol counts toward
+// typeCoverage. `ModuleDeclaration` covers `namespace`/`module`.
+const VALUE_NODE_CHECKS: ReadonlyArray<(n: Node) => boolean> = [
+  Node.isVariableDeclaration, Node.isFunctionDeclaration,
+  Node.isClassDeclaration, Node.isEnumDeclaration, Node.isModuleDeclaration,
+];
+const isValueNode = (n: Node): boolean => VALUE_NODE_CHECKS.some((f) => f(n));
 
 /**
  * JSDoc description prose is the text before any block tag. Per-export

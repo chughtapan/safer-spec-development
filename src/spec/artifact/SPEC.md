@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: ef221bd06633c16c0b894dcff2bb375773a4be5b
+generatedAtSha: 789f694871fa286ba6f549271ea24d7917698e6b
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
