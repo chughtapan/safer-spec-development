@@ -142,6 +142,16 @@ const declarationFacts = (node: Node): DeclarationFacts =>
   factsFromClass(node) ??
   factsFromOther(node);
 
+// Declaration-merging tie-breaker: prefer the value node when a name
+// has both type and value declarations (e.g. `interface Foo` + `class Foo`,
+// or `interface Foo` + `namespace Foo`) so the symbol counts toward
+// typeCoverage. `ModuleDeclaration` covers `namespace`/`module`.
+const VALUE_NODE_CHECKS: ReadonlyArray<(n: Node) => boolean> = [
+  Node.isVariableDeclaration, Node.isFunctionDeclaration,
+  Node.isClassDeclaration, Node.isEnumDeclaration, Node.isModuleDeclaration,
+];
+const isValueNode = (n: Node): boolean => VALUE_NODE_CHECKS.some((f) => f(n));
+
 /**
  * JSDoc description prose is the text before any block tag. Per-export
  * `@specXxx` directives are not part of the description; this returns
@@ -209,8 +219,9 @@ export const collectExports = (
   const sf = project.createSourceFile(filePath, source, { overwrite: true });
   const entries: DeclaredExport[] = [];
   for (const [name, nodes] of sf.getExportedDeclarations()) {
-    const node = nodes[0];
-    if (node === undefined) continue;
+    if (nodes.length === 0) continue;
+    // See `isValueNode` — picks the value half on declaration merging.
+    const node = nodes.find(isValueNode) ?? nodes[0]!;
     const facts = declarationFacts(node);
     const anchorFile = stripLeadingSlash(facts.anchor.getSourceFile().getFilePath());
     entries.push({

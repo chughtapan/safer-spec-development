@@ -1,22 +1,12 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec",
-  "generatedAtSha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b",
+  "generatedAtSha": "789f694871fa286ba6f549271ea24d7917698e6b",
   "exports": [
     {
       "name": "ItSpec",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": {
@@ -47,7 +37,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
         "line": 54,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     },
     {
@@ -64,7 +54,14 @@
         "Inclusion",
         "Exception Raising"
       ],
-      "observedPropertyTypes": [],
+      "observedPropertyTypes": [
+        "Inclusion",
+        "Typechecking",
+        "Constant Equality",
+        "Constant Non-Equality",
+        "Constant Bounds Checking",
+        "Roundtrip"
+      ],
       "skipped": [],
       "residualContract": null,
       "residualAssumes": [],
@@ -72,15 +69,15 @@
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
         "line": 121,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0
+    "typeCoverage": 0.6666666666666666
   },
   "thresholds": {
-    "typeCoverage": 0,
+    "typeCoverage": 0.4,
     "classifierCoverage": 0,
     "preconditionPassRate": 0
   }

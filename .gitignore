@@ -11,3 +11,4 @@ coverage/
 .safer-spec-cache/
 **/.safer-spec/*.execution.json
 .claude/worktrees/
+/.codex-reviews/

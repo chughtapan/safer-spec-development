@@ -18,12 +18,13 @@ import {
   JsDocDirectiveParseError,
   JsDocUnknownDirectiveError,
 } from "@safer/spec/grammar/index.js";
+import { stripVolatileJson } from "@safer/analysis/pipeline.js";
 import {
   findThresholdShortfall,
-  stripVolatileJson,
+  type FolderAnalysis,
+  type SpecMeta,
   type ThresholdShortfall,
-} from "@safer/analysis/pipeline.js";
-import type { FolderAnalysis, SpecMeta } from "@safer/spec/artifact/index.js";
+} from "@safer/spec/artifact/index.js";
 import type { ItSpecIssue } from "@safer/analysis/properties.js";
 
 const ValidateDiagnosticSchema = Schema.Struct({
@@ -70,21 +71,10 @@ export class MissingImplError extends Data.TaggedError(
   "MissingImplError",
 )<GapErrorPayload> {}
 
-/**
- * @spec.guarantee "emitted when --folder is specified and resolves to zero folders containing index.ts; cli translates this tag to exit code 1"
- *   reason: silent zero-folder validates would let typos pass the gate.
- * @spec.residual-contract "diagnostic.cause names the requested folder argument"
- *   reason: trust contract for routing the next remediation step.
- */
-export class NoFoldersResolvedError extends Data.TaggedError(
-  "NoFoldersResolvedError",
-)<GapErrorPayload> {}
-
 export type ValidateGapError =
   | MissingSpecPropertyError
   | MissingStubError
-  | MissingImplError
-  | NoFoldersResolvedError;
+  | MissingImplError;
 
 const DOCS_BASE =
   "https://github.com/chughtapan/safer-spec-development/blob/main/docs";
@@ -340,19 +330,6 @@ export const failOnIssues = (
   if (filtered.length === 0) return Effect.succeed(void 0);
   return Effect.fail(issueToError(filtered[0]!));
 };
-
-export const unresolvedFolderError = (
-  requested: string,
-): NoFoldersResolvedError =>
-  new NoFoldersResolvedError({
-    location: requested,
-    diagnostic: mkDiagnostic(
-      `requested folder '${requested}' did not resolve to any folder containing index.ts`,
-      "no folder matched --folder, or the matched folder lacks an index.ts barrel",
-      "check the path for typos, or scaffold the folder's index.ts via the `safer-spec-init` coding-agent skill",
-      "no-folders-resolved",
-    ),
-  });
 
 export const diagnosticLines = (
   tag: ValidateGapError["_tag"],

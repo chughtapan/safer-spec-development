@@ -32,12 +32,16 @@ import { doctor } from "@safer/commands/doctor.js";
 import { explain } from "@safer/commands/explain.js";
 import { generate } from "@safer/commands/generate.js";
 import {
+  FOLDER_NOT_FOUND_EXIT_CODE,
   formatDiagnostic,
   validate,
   VALIDATE_GAP_EXIT_CODES,
   type ValidateGapError,
 } from "@safer/commands/validate.js";
-import { SPEC_FORMAT_VERSION } from "@safer/project/index.js";
+import {
+  FolderNotFoundError,
+  SPEC_FORMAT_VERSION,
+} from "@safer/project/index.js";
 
 export class CliExitCode extends Data.TaggedError("CliExitCode")<{
   readonly code: number;
@@ -56,8 +60,12 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
  */
 const CLI_EXIT_CODES = {
   ...VALIDATE_GAP_EXIT_CODES,
+  FolderNotFoundError: FOLDER_NOT_FOUND_EXIT_CODE,
   CliUsageError: 2,
-} as const satisfies Record<ValidateGapError["_tag"] | CliUsageError["_tag"], number>;
+} as const satisfies Record<
+  ValidateGapError["_tag"] | FolderNotFoundError["_tag"] | CliUsageError["_tag"],
+  number
+>;
 
 // --- generate ---
 const generateFolderOpt = Options.text("folder").pipe(Options.optional);
@@ -94,11 +102,13 @@ const writeStderr = (message: string): Effect.Effect<void> =>
   });
 
 const handleValidateError = (
-  e: ValidateGapError | CliUsageError,
+  e: ValidateGapError | FolderNotFoundError | CliUsageError,
 ): Effect.Effect<never, CliExitCode> =>
   Effect.gen(function* () {
     if (e._tag === "CliUsageError") {
       yield* writeStderr(`usage error in ${e.subcommand}: ${e.reason}`);
+    } else if (e._tag === "FolderNotFoundError") {
+      yield* writeStderr(`folder not found: ${e.requested}`);
     } else {
       const formatted = yield* formatDiagnostic(e);
       yield* writeStderr(formatted);

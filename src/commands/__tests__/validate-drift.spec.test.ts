@@ -17,7 +17,7 @@ import {
   buildExportEntries,
   collectExports,
   type BuildExportEntriesResult,
-} from "@safer/analysis/index.js";
+} from "@safer/analysis/exports.js";
 import { validate } from "@safer/commands/validate.js";
 import { loadProjectContext } from "@safer/project/index.js";
 

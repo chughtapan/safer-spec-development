@@ -1,22 +1,12 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b",
+  "generatedAtSha": "789f694871fa286ba6f549271ea24d7917698e6b",
   "exports": [
     {
       "name": "ExportKind",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -25,32 +15,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
-      }
-    },
-    {
-      "name": "ExportEntry",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/emit.ts",
-        "line": 35,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     },
     {
@@ -68,7 +33,8 @@
         "Exception Raising"
       ],
       "observedPropertyTypes": [
-        "Constant Equality"
+        "Constant Equality",
+        "Roundtrip"
       ],
       "skipped": [],
       "residualContract": {
@@ -84,37 +50,12 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
-        "line": 42,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 43,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     },
     {
-      "name": "PropertyRow",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/emit.ts",
-        "line": 50,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
-      }
-    },
-    {
-      "name": "serializeSidecar",
+      "name": "buildSpecMeta",
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
@@ -128,41 +69,36 @@
         "Exception Raising"
       ],
       "observedPropertyTypes": [
-        "Roundtrip"
+        "Typechecking",
+        "Constant Equality",
+        "Inclusion",
+        "Roundtrip",
+        "Constant Bounds Checking",
+        "Constant Non-Equality"
       ],
       "skipped": [],
       "residualContract": {
         "_tag": "some",
-        "body": "trailing newline is appended for POSIX-friendly files; JSON itself decodes regardless",
-        "reason": "byte-level format contract beyond the Schema shape."
+        "body": "branchCoverageFromSpecTests stays null until a v8 coverage hook is wired up (follow-up slice)",
+        "reason": "lifecycle contract."
       },
       "residualAssumes": [],
       "residualGuarantees": [
         {
-          "claim": "serialized JSON validates against the sidecar Schema; downstream `decodeSpecArtifact(parse(output))` round-trips",
-          "reason": "contract relied on by the sidecar's roundtrip property test."
+          "claim": "builds a `SpecMeta` from analysis-derived type coverage + run-level args (generatedAtSha, thresholds); populates classifierCoverage/preconditionPassRate/branchCoverageFromSpecTests from `execution` when present",
+          "reason": "emit's frontmatter + sidecar both require meta; `--implemented` mode merges Vitest reporter stats into the gate inputs."
         }
       ],
       "sourceRef": {
-        "path": "src/spec/artifact/sidecar-writer.ts",
-        "line": 59,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "path": "src/spec/artifact/coverage.ts",
+        "line": 45,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     },
     {
-      "name": "FolderAnalysis",
+      "name": "ExportEntry",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -170,108 +106,29 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 68,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 47,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     },
     {
-      "name": "ExecutionSidecar",
+      "name": "ThresholdShortfall",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
-        "path": "src/spec/artifact/reporter.ts",
-        "line": 71,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "path": "src/spec/artifact/coverage.ts",
+        "line": 60,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     },
     {
-      "name": "decodeExecutionSidecar",
-      "shape": "unknown",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "decoded sidecar field invariants are enforced at decode time; classifierCoverage / preconditionPassRate may be `null` when the test run produced no measurable samples",
-        "reason": "lifecycle; populated only when an itSpec.prop body actually ran during the test execution."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "rejects malformed input on the Effect error channel with a typed ParseError, never throws",
-          "reason": "trust-boundary contract; validate's --implemented gate reads the on-disk artifact and routes parse failures to its typed gap error."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/artifact/reporter.ts",
-        "line": 82,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
-      }
-    },
-    {
-      "name": "SpecArtifact",
+      "name": "PropertyRow",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/sidecar.ts",
-        "line": 95,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
-      }
-    },
-    {
-      "name": "SpecMeta",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
@@ -279,12 +136,12 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 175,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 62,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     },
     {
-      "name": "hashTestTree",
+      "name": "regenerateSidecar",
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
@@ -297,15 +154,167 @@
         "Inclusion",
         "Exception Raising"
       ],
+      "observedPropertyTypes": [
+        "Typechecking",
+        "Roundtrip",
+        "Constant Bounds Checking",
+        "Inclusion"
+      ],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; a `SidecarSchemaError` here is a defect (the artifact came from our own emitter)",
+          "reason": "validate's sidecar-drift cross-check needs the byte-for-byte regenerated form; the schema must succeed on artifacts we emit."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/sidecar-writer.ts",
+        "line": 76,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+      }
+    },
+    {
+      "name": "FolderAnalysis",
+      "shape": "type",
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 80,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+      }
+    },
+    {
+      "name": "findThresholdShortfall",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Constant Equality",
+        "Inclusion",
+        "Typechecking",
+        "Constant Bounds Checking",
+        "Roundtrip"
+      ],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "metrics whose threshold is 0 are not gated regardless of observed value",
+        "reason": "zero-threshold is the explicit no-gate marker used by the permissive default config."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "returns the first observed-below-threshold metric (typeCoverage to classifier to precondition order) or null when all gates pass",
+          "reason": "validate emits one MissingImplError per folder; first failing gate is the surfaced one."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/coverage.ts",
+        "line": 85,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+      }
+    },
+    {
+      "name": "SpecMeta",
+      "shape": "type",
+      "requiredPropertyTypes": [],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 187,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+      }
+    },
+    {
+      "name": "computeTestTreeHash",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Typechecking",
+        "Constant Equality",
+        "Roundtrip"
+      ],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "unreadable test files contribute the empty string to the hash; the reporter applies the same convention so a transient read failure doesn't poison the hash",
+        "reason": "byte-equality contract; missing-file -> empty-bytes."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "reads the given test paths from disk, normalizes them to POSIX slashes, sorts by path, and returns the sha256 hex digest — the freshness-gate input validate compares against the on-disk execution sidecar's `testTreeHash`",
+          "reason": "Windows-host runs would otherwise hash with `\\` separators while the reporter writes POSIX. Normalizing here keeps the comparison stable across hosts."
+        }
+      ],
+      "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
-        "line": 201,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 222,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+      }
+    },
+    {
+      "name": "loadExecutionSidecar",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Typechecking",
+        "Constant Equality",
+        "Exception Raising"
+      ],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through `ExecutionSidecarSchema`; returns null when absent or malformed",
+          "reason": "validate's `--implemented` gate consumes the coverage values; absence is surfaced separately as a typed gap error."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/reporter.ts",
+        "line": 245,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     },
     {
@@ -343,8 +352,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 237,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 249,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     },
     {
@@ -361,7 +370,13 @@
         "Inclusion",
         "Exception Raising"
       ],
-      "observedPropertyTypes": [],
+      "observedPropertyTypes": [
+        "Typechecking",
+        "Roundtrip",
+        "Inclusion",
+        "Constant Equality",
+        "Constant Non-Equality"
+      ],
       "skipped": [],
       "residualContract": {
         "_tag": "some",
@@ -377,84 +392,16 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 302,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
-      }
-    },
-    {
-      "name": "computeTypeCoverage",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "classifier coverage and precondition pass rate are null in `--planned` mode (no test execution sidecars)",
-        "reason": "lifecycle contract; populated only by `validate --implemented`."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "type coverage = (observed ∪ skipped) / |PROPERTY_TYPES| averaged across exports; returns 1.0 when there are no exports",
-          "reason": "design-doc gate definition; validate compares against thresholds.typeCoverage."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/artifact/emit.ts",
-        "line": 345,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
-      }
-    },
-    {
-      "name": "findMissingPropertyTypes",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "property types explicitly skipped on every export that would otherwise require them are not listed; skipped == covered for gating purposes",
-        "reason": "skipped is a deliberate opt-out and counts toward coverage."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "returns the property types that are required by at least one export but observed by no test row across the folder; sorted in PROPERTY_TYPES tuple order",
-          "reason": "validate's typeCoverage diagnostic needs the missing-type list to route remediation; PROPERTY_TYPES order is the stable contract."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/artifact/emit.ts",
-        "line": 365,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 315,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.04444444444444444
+    "typeCoverage": 0.4444444444444444
   },
   "thresholds": {
-    "typeCoverage": 0,
+    "typeCoverage": 0.4,
     "classifierCoverage": 0,
     "preconditionPassRate": 0
   }

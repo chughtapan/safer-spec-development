@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/commands",
-  "generatedAtSha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b",
+  "generatedAtSha": "789f694871fa286ba6f549271ea24d7917698e6b",
   "exports": [
     {
       "name": "CliExitCode",
@@ -17,15 +17,21 @@
         "Inclusion",
         "Exception Raising"
       ],
-      "observedPropertyTypes": [],
+      "observedPropertyTypes": [
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Constant Equality",
+        "Exception Raising"
+      ],
       "skipped": [],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/commands/index.ts",
-        "line": 42,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 46,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     },
     {
@@ -42,23 +48,29 @@
         "Inclusion",
         "Exception Raising"
       ],
-      "observedPropertyTypes": [],
+      "observedPropertyTypes": [
+        "Typechecking",
+        "Constant Non-Equality",
+        "Constant Bounds Checking",
+        "Exception Raising",
+        "Constant Equality"
+      ],
       "skipped": [],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/commands/index.ts",
-        "line": 46,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 50,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0
+    "typeCoverage": 0.5555555555555556
   },
   "thresholds": {
-    "typeCoverage": 0,
+    "typeCoverage": 0.4,
     "classifierCoverage": 0,
     "preconditionPassRate": 0
   }

@@ -22,6 +22,7 @@ import {
   decodeSpecArtifact,
   type SpecArtifact,
 } from "@safer/spec/artifact/sidecar.js";
+import { buildSpecArtifact, type FolderAnalysis, type SpecMeta } from "@safer/spec/artifact/emit.js";
 
 export class SidecarWriteError extends Data.TaggedError("SidecarWriteError")<{
   readonly folder: string;
@@ -65,6 +66,21 @@ export const serializeSidecar = (
       Effect.fail(schemaErrorFor(artifact.folder, err)),
     ),
     Effect.withSpan("spec/sidecar-writer/serializeSidecar"),
+  );
+
+/**
+ * @spec.guarantee "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; a `SidecarSchemaError` here is a defect (the artifact came from our own emitter)"
+ *   reason: validate's sidecar-drift cross-check needs the byte-for-byte
+ *           regenerated form; the schema must succeed on artifacts we emit.
+ */
+export const regenerateSidecar = (
+  analysis: FolderAnalysis,
+  meta: SpecMeta,
+): Effect.Effect<string, never> =>
+  serializeSidecar(buildSpecArtifact(analysis, meta)).pipe(
+    Effect.catchTag("SidecarSchemaError", (e) =>
+      Effect.die(new Error(`internal sidecar schema mismatch: ${e.issues.join("; ")}`)),
+    ),
   );
 
 const writeError = (folder: string, cause: unknown): SidecarWriteError =>

@@ -209,6 +209,57 @@ export const hashTestTree = (paths: ReadonlyArray<string>, read: (p: string) => 
   return h.digest("hex");
 };
 
+const toPosix = (p: string): string => p.split("\\").join("/");
+
+/**
+ * @spec.guarantee "reads the given test paths from disk, normalizes them to POSIX slashes, sorts by path, and returns the sha256 hex digest — the freshness-gate input validate compares against the on-disk execution sidecar's `testTreeHash`"
+ *   reason: Windows-host runs would otherwise hash with `\` separators
+ *           while the reporter writes POSIX. Normalizing here keeps the
+ *           comparison stable across hosts.
+ * @spec.residual-contract "unreadable test files contribute the empty string to the hash; the reporter applies the same convention so a transient read failure doesn't poison the hash"
+ *   reason: byte-equality contract; missing-file -> empty-bytes.
+ */
+export const computeTestTreeHash = (
+  fs: FileSystem.FileSystem,
+  testPaths: ReadonlyArray<string>,
+): Effect.Effect<string, never> =>
+  Effect.gen(function* () {
+    const reads = yield* Effect.forEach(
+      testPaths,
+      (p) => fs.readFileString(p).pipe(
+        Effect.map((content) => [toPosix(p), content] as const),
+        Effect.catchAll(() => Effect.succeed([toPosix(p), ""] as const)),
+      ),
+      { concurrency: 1 },
+    );
+    const byPath = new Map(reads);
+    const posixPaths = testPaths.map(toPosix);
+    return hashTestTree(posixPaths, (p) => byPath.get(p) ?? "");
+  }).pipe(Effect.withSpan("spec/artifact/reporter/computeTestTreeHash"));
+
+/**
+ * @spec.guarantee "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through `ExecutionSidecarSchema`; returns null when absent or malformed"
+ *   reason: validate's `--implemented` gate consumes the coverage values;
+ *           absence is surfaced separately as a typed gap error.
+ */
+export const loadExecutionSidecar = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  folder: string,
+): Effect.Effect<ExecutionSidecar | null, never> =>
+  fs
+    .readFileString(
+      path.join(folder, ".safer-spec", `${sidecarSlug(folder)}.execution.json`),
+    )
+    .pipe(
+      Effect.flatMap((text) =>
+        Effect.try({ try: () => JSON.parse(text) as unknown, catch: () => null }),
+      ),
+      Effect.flatMap(decodeExecutionSidecar),
+      Effect.map((v): ExecutionSidecar | null => v),
+      Effect.catchAll(() => Effect.succeed(null)),
+    );
+
 // Enumerate the folder's source files (`.ts`, excluding `.d.ts` and
 // `.spec.test.ts`) — mirror of `collectFolderInputs` in
 // validate-pipeline.ts. Both must produce the same set so the

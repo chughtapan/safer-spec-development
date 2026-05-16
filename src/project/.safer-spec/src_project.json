@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/project",
-  "generatedAtSha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b",
+  "generatedAtSha": "789f694871fa286ba6f549271ea24d7917698e6b",
   "exports": [
     {
       "name": "SPEC_FORMAT_VERSION",
@@ -17,7 +17,12 @@
         "Inclusion",
         "Exception Raising"
       ],
-      "observedPropertyTypes": [],
+      "observedPropertyTypes": [
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Typechecking",
+        "Inclusion"
+      ],
       "skipped": [],
       "residualContract": {
         "_tag": "some",
@@ -34,151 +39,12 @@
       "sourceRef": {
         "path": "src/project/version.ts",
         "line": 16,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     },
     {
-      "name": "SourceFile",
+      "name": "ConfigError",
       "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/project/context.ts",
-        "line": 30,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
-      }
-    },
-    {
-      "name": "ProjectContext",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/project/context.ts",
-        "line": 40,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
-      }
-    },
-    {
-      "name": "discoverFolders",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "dot-prefixed directories, `__tests__`, `node_modules`, `dist`, `build`, `coverage`, and `.safer-spec` are skipped; symlinks are not followed",
-        "reason": "avoid vendored dependencies, build output, and sidecar dirs."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "returns every directory under `root` containing an `index.ts` barrel; insertion order is root-first depth-first",
-          "reason": "contract; both `generate` and `validate` iterate this list when no `--folder` is given. Walking from `.` finds barrels under any top-level layout (`src/`, `packages/&lt;name>/`, app workspaces)."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/project/folders.ts",
-        "line": 59,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
-      }
-    },
-    {
-      "name": "normalizeFolder",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/project/context.ts",
-        "line": 64,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
-      }
-    },
-    {
-      "name": "discoverImmediateSubfolders",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "returns immediate child directories of `folder` that contain an `index.ts` barrel; not recursive",
-          "reason": "parent SPEC.md's `## Children` section lists immediate nested SPEC'd domains; deeper nesting belongs to each subfolder's own SPEC."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/project/folders.ts",
-        "line": 75,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
-      }
-    },
-    {
-      "name": "resolveThresholdsFor",
-      "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
         "Partial Roundtrip",
@@ -191,31 +57,38 @@
         "Exception Raising"
       ],
       "observedPropertyTypes": [
-        "Constant Equality",
-        "Exception Raising"
+        "Roundtrip",
+        "Exception Raising",
+        "Typechecking"
       ],
       "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "folder match is exact-string against the normalized folder path; glob patterns are NOT supported in this slice",
-        "reason": "scope limit; glob lookup is a future enhancement that needs a defined longest-match resolution rule."
-      },
+      "residualContract": null,
       "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "returns a Thresholds value with each metric resolved in three-layer priority: folder override > defaultThresholds > 0",
-          "reason": "validate's gate reads this per-folder; the layered fallback lets projects raise a baseline + tighten specific folders without restating the baseline everywhere."
-        }
-      ],
+      "residualGuarantees": [],
       "sourceRef": {
         "path": "src/project/config.ts",
-        "line": 80,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 18,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     },
     {
-      "name": "buildChildren",
-      "shape": "function",
+      "name": "SourceFile",
+      "shape": "type",
+      "requiredPropertyTypes": [],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/project/context.ts",
+        "line": 38,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+      }
+    },
+    {
+      "name": "ProjectContextError",
+      "shape": "type",
       "requiredPropertyTypes": [
         "Roundtrip",
         "Partial Roundtrip",
@@ -227,24 +100,78 @@
         "Inclusion",
         "Exception Raising"
       ],
+      "observedPropertyTypes": [
+        "Roundtrip",
+        "Exception Raising",
+        "Typechecking"
+      ],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/project/context.ts",
+        "line": 43,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+      }
+    },
+    {
+      "name": "FolderNotFoundError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Roundtrip",
+        "Exception Raising",
+        "Typechecking"
+      ],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/project/context.ts",
+        "line": 48,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+      }
+    },
+    {
+      "name": "Thresholds",
+      "shape": "type",
+      "requiredPropertyTypes": [],
       "observedPropertyTypes": [],
       "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "files are displayed by their path relative to the folder; subfolders are displayed with a trailing slash",
-        "reason": "visual cue for readers; subfolder links target `&lt;sub>/SPEC.md`, file links target `./&lt;rel>`."
-      },
+      "residualContract": null,
       "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "result emits in three concatenated groups: immediate SPEC'd subfolders (alphabetic), source files (alphabetic), then test files (alphabetic)",
-          "reason": "implementation surface (subfolders + sources) leads `## Children`; tests are secondary documentation grouped at the end so the section reads as primary-then-secondary."
-        }
-      ],
+      "residualGuarantees": [],
       "sourceRef": {
-        "path": "src/project/folders.ts",
-        "line": 112,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "path": "src/project/config.ts",
+        "line": 51,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+      }
+    },
+    {
+      "name": "ProjectContext",
+      "shape": "type",
+      "requiredPropertyTypes": [],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/project/context.ts",
+        "line": 52,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     },
     {
@@ -261,57 +188,40 @@
         "Inclusion",
         "Exception Raising"
       ],
-      "observedPropertyTypes": [],
+      "observedPropertyTypes": [
+        "Typechecking",
+        "Constant Equality",
+        "Inclusion",
+        "Constant Non-Equality",
+        "Exception Raising",
+        "Constant Bounds Checking",
+        "Roundtrip"
+      ],
       "skipped": [],
       "residualContract": {
         "_tag": "some",
-        "body": "missing tsconfig.json yields empty `paths`; missing `.git/HEAD` yields `generatedAtSha = 'uncommitted'`; missing safer-spec.config.json yields permissive all-zero thresholds",
+        "body": "missing tsconfig.json yields empty `paths`; missing `.git/HEAD` yields `generatedAtSha = 'uncommitted'`; missing safer-spec.config.json yields permissive all-zero thresholds; root defaults to the cwd-relative \\\".\\\"",
         "reason": "projects without aliases, git history, or per-folder gate configuration still load with no false failures."
       },
       "residualAssumes": [],
       "residualGuarantees": [
         {
-          "claim": "loads project-wide context (every non-test `.ts` under `root`, tsconfig `paths`, git HEAD SHA, `safer-spec.config.json`); collectExports consumes sources+paths so barrel re-exports resolve",
-          "reason": "ts-morph cannot follow `export ... from` without target files registered; validate's threshold gate reads the loaded config."
+          "claim": "loads project-wide context (every non-test `.ts` under `root`, tsconfig `paths`, git HEAD SHA, `safer-spec.config.json`); the returned ProjectContext precomputes folder discovery and per-folder thresholds so downstream layers READ from the snapshot instead of re-walking the project tree per folder",
+          "reason": "ts-morph cannot follow `export ... from` without target files registered; precomputing folder structure removes O(N²) re-discovery in the per-folder loops."
         }
       ],
       "sourceRef": {
         "path": "src/project/context.ts",
-        "line": 272,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
-      }
-    },
-    {
-      "name": "loadValidateProjectContext",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/project/context.ts",
-        "line": 292,
-        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+        "line": 321,
+        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.02222222222222222
+    "typeCoverage": 0.44444444444444436
   },
   "thresholds": {
-    "typeCoverage": 0,
+    "typeCoverage": 0.4,
     "classifierCoverage": 0,
     "preconditionPassRate": 0
   }

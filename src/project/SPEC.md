@@ -1,7 +1,7 @@
 ---
 folder: src/project
 format-version: 0.1.0
-generatedAtSha: 7ed6a36cac8eb995251a294e9b5f009d5fcd700b
+generatedAtSha: 789f694871fa286ba6f549271ea24d7917698e6b
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,12 +10,12 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.02222222222222222
+  typeCoverage: 0.44444444444444436
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
-  typeCoverage: 0
+  typeCoverage: 0.4
   classifierCoverage: 0
   preconditionPassRate: 0
 ---
@@ -24,7 +24,7 @@ thresholds:
 
 ## Purpose
 
-Barrel for the `project/` layer. Re-exports `ProjectContext` and the loaders the analysis layer and commands depend on. Each file in this folder owns one slice of project setup (context, config, version, folders); this barrel is the single entry point downstream consumers import.
+Barrel for the `project/` layer. Exposes the fully-resolved `ProjectContext` snapshot (with precomputed folder list, per-folder subfolder map, and threshold resolver), the one loader that builds it, the stable format version, and the three tagged errors the cli routes. Folder-discovery primitives, the threshold resolver, and the path normalizer are implementation details behind `ProjectContext` methods.
 
 ## Public surface
 
@@ -39,7 +39,16 @@ export const SPEC_FORMAT_VERSION = "0.1.0" as const;
 
 **Residual contract:** "callers must treat as opaque; cross-version comparisons go through the safer-spec-migrate skill" — _comparison logic is migrate's responsibility; the skill walks SPEC.md + sidecar artifacts during format-version transitions._
 
-### [`SourceFile`](./context.ts#L30)
+### [`ConfigError`](./config.ts#L18)
+
+```ts
+export class ConfigError extends Data.TaggedError("ConfigError")<{
+  readonly path: string;
+  readonly cause: string;
+}> { /* ... */ }
+```
+
+### [`SourceFile`](./context.ts#L38)
 
 ```ts
 export interface SourceFile {
@@ -53,7 +62,34 @@ project registers so cross-file `export ... from` resolves. Produced
 by `loadProjectContext` and consumed by `analysis/exports.ts`'s
 `collectExports`.
 
-### [`ProjectContext`](./context.ts#L40)
+### [`ProjectContextError`](./context.ts#L43)
+
+```ts
+export class ProjectContextError extends Data.TaggedError("ProjectContextError")<{
+  readonly path: string;
+  readonly cause: string;
+}> { /* ... */ }
+```
+
+### [`FolderNotFoundError`](./context.ts#L48)
+
+```ts
+export class FolderNotFoundError extends Data.TaggedError("FolderNotFoundError")<{
+  readonly requested: string;
+}> { /* ... */ }
+```
+
+### [`Thresholds`](./config.ts#L51)
+
+```ts
+export interface Thresholds {
+  readonly typeCoverage: number;
+  readonly classifierCoverage: number;
+  readonly preconditionPassRate: number;
+}
+```
+
+### [`ProjectContext`](./context.ts#L52)
 
 ```ts
 export interface ProjectContext {
@@ -67,118 +103,75 @@ export interface ProjectContext {
    */
   readonly baseUrl: string;
   readonly generatedAtSha: string;
-  // Raw `safer-spec.config.json` contents (defaults + per-folder overrides).
-  // Resolve per-folder thresholds via `resolveThresholdsFor(ctx.config, folder)`.
-  readonly config: Config;
+
+  /** Every folder under the project root with an `index.ts` barrel, root-first depth-first. */
+  readonly folders: ReadonlyArray<string>;
+
+  /** Immediate SPEC'd subfolders of the given folder (folders directly inside `folder` that have their own `index.ts`). */
+  readonly subfoldersOf: (folder: string) => ReadonlyArray<string>;
+
+  /** Resolve the per-folder coverage thresholds (folder override > defaultThresholds > 0). */
+  readonly thresholdsFor: (folder: string) => Thresholds;
+
+  /**
+   * Map a user-supplied `--folder X` to a canonical folder string,
+   * failing with `FolderNotFoundError` when `X` doesn't match any
+   * discovered folder.
+   */
+  readonly resolveFolder: (input: string) => Effect.Effect<string, FolderNotFoundError>;
 }
 ```
 
-### [`discoverFolders`](./folders.ts#L59)
-
-```ts
-export const discoverFolders = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  root: string,
-): Effect.Effect<ReadonlyArray<string>, never> => /* ... */
-```
-
-**Guarantees:**
-- "returns every directory under \`root\` containing an \`index.ts\` barrel; insertion order is root-first depth-first" — _contract; both \`generate\` and \`validate\` iterate this list when no \`--folder\` is given. Walking from \`.\` finds barrels under any top-level layout (\`src/\`, \`packages/&lt;name&gt;/\`, app workspaces)._
-
-**Residual contract:** "dot-prefixed directories, \`\_\_tests\_\_\`, \`node\_modules\`, \`dist\`, \`build\`, \`coverage\`, and \`.safer-spec\` are skipped; symlinks are not followed" — _avoid vendored dependencies, build output, and sidecar dirs._
-
-### [`normalizeFolder`](./context.ts#L64)
-
-```ts
-export const normalizeFolder = (folder: string): string => { /* ... */ }
-```
-
-Normalize the user-supplied `--folder` value into a path the codemod
-stores as artifact identity (frontmatter `folder:`, sidecar slug,
-drift-check key). Absolute inputs are rewritten to cwd-relative so they
-match the repo-relative paths `loadProjectContext` registers; `./` and
-trailing separators are stripped so authoring conveniences don't
-manifest as false drift.
-
-### [`discoverImmediateSubfolders`](./folders.ts#L75)
-
-```ts
-export const discoverImmediateSubfolders = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  folder: string,
-): Effect.Effect<ReadonlyArray<string>, never> => /* ... */
-```
-
-**Guarantees:**
-- "returns immediate child directories of \`folder\` that contain an \`index.ts\` barrel; not recursive" — _parent SPEC.md's \`## Children\` section lists immediate nested SPEC'd domains; deeper nesting belongs to each subfolder's own SPEC._
-
-### [`resolveThresholdsFor`](./config.ts#L80)
-
-```ts
-export const resolveThresholdsFor = (
-  config: Config,
-  folder: string,
-): Thresholds => { /* ... */ }
-```
-
-**Guarantees:**
-- "returns a Thresholds value with each metric resolved in three-layer priority: folder override &gt; defaultThresholds &gt; 0" — _validate's gate reads this per-folder; the layered fallback lets projects raise a baseline + tighten specific folders without restating the baseline everywhere._
-
-**Residual contract:** "folder match is exact-string against the normalized folder path; glob patterns are NOT supported in this slice" — _scope limit; glob lookup is a future enhancement that needs a defined longest-match resolution rule._
-
-### [`buildChildren`](./folders.ts#L112)
-
-```ts
-export const buildChildren = (
-  args: BuildChildrenArgs,
-): ReadonlyArray<{ display: string; link: string; purpose: string | null }> => { /* ... */ }
-```
-
-**Guarantees:**
-- "result emits in three concatenated groups: immediate SPEC'd subfolders (alphabetic), source files (alphabetic), then test files (alphabetic)" — _implementation surface (subfolders + sources) leads \`## Children\`; tests are secondary documentation grouped at the end so the section reads as primary-then-secondary._
-
-**Residual contract:** "files are displayed by their path relative to the folder; subfolders are displayed with a trailing slash" — _visual cue for readers; subfolder links target \`&lt;sub&gt;/SPEC.md\`, file links target \`./&lt;rel&gt;\`._
-
-### [`loadProjectContext`](./context.ts#L272)
+### [`loadProjectContext`](./context.ts#L321)
 
 ```ts
 export const loadProjectContext = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
-  root: string,
+  root: string = ".",
 ): Effect.Effect<ProjectContext, ProjectContextError | ConfigError> => /* ... */
 ```
 
 **Guarantees:**
-- "loads project-wide context (every non-test \`.ts\` under \`root\`, tsconfig \`paths\`, git HEAD SHA, \`safer-spec.config.json\`); collectExports consumes sources+paths so barrel re-exports resolve" — _ts-morph cannot follow \`export ... from\` without target files registered; validate's threshold gate reads the loaded config._
+- "loads project-wide context (every non-test \`.ts\` under \`root\`, tsconfig \`paths\`, git HEAD SHA, \`safer-spec.config.json\`); the returned ProjectContext precomputes folder discovery and per-folder thresholds so downstream layers READ from the snapshot instead of re-walking the project tree per folder" — _ts-morph cannot follow \`export ... from\` without target files registered; precomputing folder structure removes O(N²) re-discovery in the per-folder loops._
 
-**Residual contract:** "missing tsconfig.json yields empty \`paths\`; missing \`.git/HEAD\` yields \`generatedAtSha = 'uncommitted'\`; missing safer-spec.config.json yields permissive all-zero thresholds" — _projects without aliases, git history, or per-folder gate configuration still load with no false failures._
-
-### [`loadValidateProjectContext`](./context.ts#L292)
-
-```ts
-export const loadValidateProjectContext = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-): Effect.Effect<ProjectContext, ProjectContextError | ConfigError> => /* ... */
-```
+**Residual contract:** "missing tsconfig.json yields empty \`paths\`; missing \`.git/HEAD\` yields \`generatedAtSha = 'uncommitted'\`; missing safer-spec.config.json yields permissive all-zero thresholds; root defaults to the cwd-relative \\".\\"" — _projects without aliases, git history, or per-folder gate configuration still load with no false failures._
 
 ## Children
 
 - [`config.ts`](./config.ts) — \`safer-spec.config.json\` schema + loader + per-folder threshold resolver. Two-layer fallback for each of the three coverage metrics: \`folderOverrides\[folder\]\` &gt; \`defaultThresholds\` &gt; 0. Extracted from \`project-context.ts\` to keep that file under its line cap; the loader is consumed by \`loadProjectContext\` so every command sees the same parsed config.  Tagged error \`ConfigError\` is co-located here. Schema rejects unknown keys at both the root level and the per-thresholds object level — a misspelled \`typecoverage\` (lowercase) would otherwise silently disable the intended gate.
-- [`context.ts`](./context.ts) — Project-wide loader for the codemod. Walks the project tree for every non-test \`.ts\` source, reads the tsconfig \`paths\` map, the git HEAD SHA, and the optional \`safer-spec.config.json\` (via \`commands/config.ts\`). \`collectExports\` consumes the sources + paths so barrel re-exports across files and aliases resolve; emit needs the SHA for SpecFrontmatter and SpecArtifact metadata; validate's threshold gate reads \`config\` per-folder via \`resolveThresholdsFor\` (also from \`commands/config.ts\`).  Tagged error \`ProjectContextError\` is co-located here; \`ConfigError\` lives in \`commands/config.ts\` with the schema it guards.
-- [`folders.ts`](./folders.ts) — Folder-discovery helpers used by \`generate\` and \`validate\`: recursive walk for the no-\`--folder\` mode (\`discoverFolders\`), immediate-children walk for the parent SPEC.md's \`## Children\` section (\`discoverImmediateSubfolders\`), and the \`buildChildren\` helper that composes the merged file + subfolder list emit consumes. Extracted from \`validate-pipeline.ts\` so each file fits the strict max-lines cap.
-- [`index.ts`](./index.ts) — Barrel for the \`project/\` layer. Re-exports \`ProjectContext\` and the loaders the analysis layer and commands depend on. Each file in this folder owns one slice of project setup (context, config, version, folders); this barrel is the single entry point downstream consumers import.
+- [`context.ts`](./context.ts) — Project-wide loader for the codemod. Walks the project tree once at startup and produces a \`ProjectContext\` snapshot that downstream layers (analysis, commands) READ from instead of calling pure helpers per folder. The snapshot carries the sources ts-morph needs, the tsconfig \`paths\` map, the git HEAD SHA, the parsed config, plus precomputed:  - \`folders\`: every directory under root that has an \`index.ts\` barrel - \`subfoldersOf(folder)\`: immediate SPEC'd subfolders of \`folder\` - \`thresholdsFor(folder)\`: resolved coverage thresholds for \`folder\` - \`resolveFolder(input)\`: maps a user-supplied \`--folder X\` to a known canonical folder, failing with \`FolderNotFoundError\` if \`X\` doesn't match anything discovered  Tagged errors \`ProjectContextError\`, \`ConfigError\`, and \`FolderNotFoundError\` live here and at \`config.ts\`; the cli at \`commands/index.ts\` catches each by tag.
+- [`index.ts`](./index.ts) — Barrel for the \`project/\` layer. Exposes the fully-resolved \`ProjectContext\` snapshot (with precomputed folder list, per-folder subfolder map, and threshold resolver), the one loader that builds it, the stable format version, and the three tagged errors the cli routes. Folder-discovery primitives, the threshold resolver, and the path normalizer are implementation details behind \`ProjectContext\` methods.
 - [`version.ts`](./version.ts) — Format version constant for SPEC.md frontmatter and the \`.safer-spec/&lt;folder&gt;.json\` sidecar JSON. Co-located with the commands because \`generate.ts\` stamps it onto every emitted SPEC.md. CHANGELOG signposts bumps before they ship; the \`safer-spec-migrate\` skill walks committed artifacts across the bump.
-- [`__tests__/config.spec.test.ts`](./__tests__/config.spec.test.ts) — Property tests for \`resolveThresholdsFor\` — the per-folder threshold resolver \`buildSpecMeta\` calls. Three layers of fallback: folder override &gt; default thresholds &gt; 0. Tests assert each layer wins independently and that missing fields cascade correctly.
+- [`__tests__/context.spec.test.ts`](./__tests__/context.spec.test.ts) — Property tests for \`loadProjectContext\` and the \`ProjectContext\` snapshot it produces (\`folders\`, \`subfoldersOf\`, \`thresholdsFor\`, \`resolveFolder\`). The fixture is the codemod's own source tree — module-load runs the heavy ts-morph + FS work once, then fc-property bodies assert on the cached snapshot.
+- [`__tests__/errors.spec.test.ts`](./__tests__/errors.spec.test.ts) — Property tests for \`project/\`'s three tagged error classes — \`ProjectContextError\` (tsconfig/git/source-walk failures), \`ConfigError\` (\`safer-spec.config.json\` decode failures), and \`FolderNotFoundError\` (\`--folder X\` doesn't match a discovered folder). Plus \`SPEC\_FORMAT\_VERSION\` property types.
 
 ## Properties
 
 | Property | Type | Exports | Claim | Status |
 |---|---|---|---|---|
-| `resolve-config-empty-yields-zero-thresholds` | `Constant Equality` | `resolveThresholdsFor` | an empty Config (no defaultThresholds, no folderOverrides) resolves every metric to 0 for every folder name | implemented |
-| `resolve-config-default-applies-to-all-folders` | `Constant Equality` | `resolveThresholdsFor` | with \`defaultThresholds\` set and no folder overrides, every folder resolves to those exact values (each metric independently) | implemented |
-| `resolve-config-folder-override-trumps-default` | `Constant Equality` | `resolveThresholdsFor` | a folder-specific override beats the default for the same metric while leaving unspecified metrics to inherit from the default layer | implemented |
-| `resolve-config-rejects-unknown-threshold-keys` | `Exception Raising` | `resolveThresholdsFor` | a misspelled threshold key (e.g. \`typecoverage\` lowercase) in either \`defaultThresholds\` or a \`folderOverrides\` value MUST cause \`safer-spec.config.json\` decoding to fail with a ConfigError — silently stripping unknown keys would disable the intended gate | implemented |
+| `load-project-context-typecheck` | `Typechecking` | `loadProjectContext` | \`loadProjectContext\` returns a \`ProjectContext\` whose precomputed fields are populated — sources array, paths record, baseUrl string, generatedAtSha string, folders array, subfoldersOf/thresholdsFor/resolveFolder functions | implemented |
+| `load-project-context-arity` | `Constant Equality` | `loadProjectContext` | \`loadProjectContext\` accepts 2-3 positional args (fs, path, root=".")\` — fs and path are required, root defaults | implemented |
+| `project-context-folders-non-empty-for-self-host` | `Inclusion` | `loadProjectContext` | the codemod's own project tree resolves to a non-empty \`folders\` list and includes the codemod's well-known folders (\`src/spec/grammar\`, \`src/analysis\`) — the precomputed list both commands consume | implemented |
+| `project-context-folders-no-duplicates` | `Constant Non-Equality` | `loadProjectContext` | \`ctx.folders\` contains no duplicate entries — every discovered folder appears exactly once | implemented |
+| `resolve-folder-canonicalizes-trailing-slash` | `Inclusion` | `loadProjectContext` | a known folder with a trailing slash resolves to the canonical (slash-stripped) form — authoring conveniences don't manifest as \`FolderNotFoundError\` | implemented |
+| `resolve-folder-fails-on-typo` | `Exception Raising` | `loadProjectContext` | a folder that doesn't exist resolves to \`FolderNotFoundError\` carrying the original user input — the cli's exit-1 path | implemented |
+| `subfolders-of-spec-includes-grammar-and-artifact` | `Inclusion` | `loadProjectContext` | \`ctx.subfoldersOf("src/spec")\` returns \`\["src/spec/artifact", "src/spec/grammar"\]\` — the precomputed immediate-children map that \`buildChildren\` consumes | implemented |
+| `subfolders-of-leaf-folder-empty` | `Constant Equality` | `loadProjectContext` | a leaf folder (no SPEC'd subfolders) yields an empty array — degenerate case stays degenerate | implemented |
+| `subfolders-of-unknown-folder-empty` | `Constant Equality` | `loadProjectContext` | \`ctx.subfoldersOf(folder)\` returns an empty array (not undefined/null) for any folder NOT in the discovered list — total function, no exceptions | implemented |
+| `thresholds-for-default-folder-non-negative` | `Constant Bounds Checking` | `loadProjectContext` | every metric in \`ctx.thresholdsFor(folder)\` is a non-negative number — the gate semantics requires "below threshold" to be meaningful; negative thresholds would invert the comparison | implemented |
+| `thresholds-for-typechecks-as-thresholds` | `Typechecking` | `loadProjectContext` | the output of \`ctx.thresholdsFor(folder)\` exposes three \`number\` fields — the shape \`checkThresholds\` reads in the validate pipeline | implemented |
+| `thresholds-for-deterministic` | `Roundtrip` | `loadProjectContext` | \`ctx.thresholdsFor(folder)\` is deterministic — two calls with the same folder return equal Thresholds (the function is pure on the precomputed config) | implemented |
+| `project-context-error-roundtrips-payload` | `Roundtrip` | `ProjectContextError` | a \`ProjectContextError\` exposes the \`{path, cause}\` payload it was constructed with — the surface the runtime exit-formatter reads when tsconfig load fails | implemented |
+| `project-context-error-is-throwable` | `Exception Raising` | `ProjectContextError` | \`ProjectContextError\` round-trips through \`Effect.fail\` / \`Effect.catchTag\` without payload loss — the surface load-time loaders route their failures through | implemented |
+| `project-context-error-typecheck` | `Typechecking` | `ProjectContextError` | instances of \`ProjectContextError\` extend \`Error\` and carry \`\_tag\`, \`path\`, \`cause\` strings — the runtime shape Effect's exit-cause renderer expects | implemented |
+| `config-error-roundtrips-payload` | `Roundtrip` | `ConfigError` | a \`ConfigError\` exposes the \`{path, cause}\` payload it was constructed with — the surface load-time decoders raise on malformed config | implemented |
+| `config-error-is-throwable` | `Exception Raising` | `ConfigError` | \`ConfigError\` round-trips through \`Effect.fail\` / \`Effect.catchTag\` — the surface \`loadConfig\` raises on a malformed \`safer-spec.config.json\` | implemented |
+| `config-error-typecheck` | `Typechecking` | `ConfigError` | \`ConfigError\` instances expose \`\_tag\` (string), \`path\` (string), and \`cause\` (string) — the shape consumed by the CLI stderr renderer | implemented |
+| `folder-not-found-error-roundtrips-payload` | `Roundtrip` | `FolderNotFoundError` | \`FolderNotFoundError\` exposes the \`{requested}\` payload it was constructed with — the cli's stderr message echoes the user's input back so they can spot typos | implemented |
+| `folder-not-found-error-is-throwable` | `Exception Raising` | `FolderNotFoundError` | \`FolderNotFoundError\` round-trips through \`Effect.fail\` / \`Effect.catchTag\` — the cli's exit-1 path for unresolved \`--folder\` arguments | implemented |
+| `folder-not-found-error-typecheck` | `Typechecking` | `FolderNotFoundError` | \`FolderNotFoundError\` instances extend \`Error\` and expose \`\_tag === "FolderNotFoundError"\` plus a \`requested\` string | implemented |
+| `spec-format-version-non-empty-constant` | `Constant Equality` | `SPEC\_FORMAT\_VERSION` | \`SPEC\_FORMAT\_VERSION === "0.1.0"\` — the literal version stamp every SPEC.md frontmatter and sidecar JSON carries; the migrate skill keys committed artifacts on bumps of this string | implemented |
+| `spec-format-version-bounded-length` | `Constant Bounds Checking` | `SPEC\_FORMAT\_VERSION` | \`SPEC\_FORMAT\_VERSION\` length stays under 32 chars — keeps the frontmatter YAML compact and the sidecar JSON readable in narrow editor panes | implemented |
+| `spec-format-version-typechecks-as-string` | `Typechecking` | `SPEC\_FORMAT\_VERSION` | \`SPEC\_FORMAT\_VERSION\` is a non-empty string — the stable label every emitted SPEC.md frontmatter and sidecar JSON stamps | implemented |
+| `spec-format-version-includes-dot-separator` | `Inclusion` | `SPEC\_FORMAT\_VERSION` | the format version string contains a \`.\` separator — the stable signal \`migrate\` keys off of for parsing the major/minor version | implemented |

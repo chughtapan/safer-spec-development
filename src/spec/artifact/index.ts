@@ -1,30 +1,27 @@
 /**
- * @spec.purpose Public barrel for `spec/artifact/`. Re-exports the external
- *   surface — what other layers (analysis, commands) reach for, not what
- *   the folder uses internally.
+ * @spec.purpose Public barrel for `spec/artifact/`. Exposes the abstraction
+ *   level downstream layers consume — `buildSpecArtifact`/`emitMarkdown`
+ *   to construct the artifact, `buildSpecMeta`/`findThresholdShortfall`
+ *   for coverage analysis, `regenerateSidecar`/`loadExecutionSidecar`/
+ *   `computeTestTreeHash` for sidecar I/O, and `sidecarSlug` for path
+ *   construction. The lower codecs (`serializeSidecar`,
+ *   `decodeExecutionSidecar`, `hashTestTree`, `computeTypeCoverage`,
+ *   `findMissingPropertyTypes`) are implementation details consumed only
+ *   by the wrappers above.
  *
  *   Intentional non-exports:
- *   - `decodeSpecFrontmatter` and `decodeSpecArtifact`: internal helpers
- *     for their own roundtrip tests + `sidecar-writer.ts`'s same-folder
- *     roundtrip assertion. Reached via direct file path.
  *   - `SaferSpecExecutionReporter`: the Vitest reporter class. Exposed
  *     via the `./reporter` package subpath so the barrel isn't pulled
  *     in by CLI consumers.
- *   - `escapeFor*` / `relativeToFolder` / `SidecarWriteError` / `writeSidecar`
- *     / `SidecarSchemaError` (as a class): used inside the artifact
- *     folder only. Catch via tag string (`Effect.catchTag("SidecarSchemaError", ...)`),
- *     no class import needed.
- *
- *   `decodeExecutionSidecar` and `hashTestTree` are vitest-free and
- *   exposed because `analysis/` reads execution sidecars during the
- *   `--implemented` freshness check.
+ *   - `decodeSpecFrontmatter`/`decodeSpecArtifact`: internal helpers used
+ *     by sidecar-writer's roundtrip property only.
+ *   - `escapeFor*` / `relativeToFolder` / `SidecarWriteError` / `writeSidecar`:
+ *     internal to artifact, callers use the higher-level wrappers.
  */
 
 export {
   buildSpecArtifact,
-  computeTypeCoverage,
   emitMarkdown,
-  findMissingPropertyTypes,
 } from "@safer/spec/artifact/emit.js";
 export type {
   ExportEntry,
@@ -34,12 +31,15 @@ export type {
   SpecMeta,
 } from "@safer/spec/artifact/emit.js";
 
-export type { SpecArtifact } from "@safer/spec/artifact/sidecar.js";
-
-export { serializeSidecar, sidecarSlug } from "@safer/spec/artifact/sidecar-writer.js";
+export { regenerateSidecar, sidecarSlug } from "@safer/spec/artifact/sidecar-writer.js";
 
 export {
-  decodeExecutionSidecar,
-  hashTestTree,
+  computeTestTreeHash,
+  loadExecutionSidecar,
 } from "@safer/spec/artifact/reporter.js";
-export type { ExecutionSidecar } from "@safer/spec/artifact/reporter.js";
+
+export {
+  buildSpecMeta,
+  findThresholdShortfall,
+} from "@safer/spec/artifact/coverage.js";
+export type { ThresholdShortfall } from "@safer/spec/artifact/coverage.js";
