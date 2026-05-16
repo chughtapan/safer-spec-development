@@ -307,6 +307,9 @@ export const generate = (
       Effect.catchTag("ProjectContextError", (e) =>
         Effect.die(new Error(`failed to load project context: ${e.cause}`)),
       ),
+      Effect.catchTag("ConfigError", (e) =>
+        Effect.die(new Error(`safer-spec.config.json at ${e.path} is invalid: ${e.cause}`)),
+      ),
     );
     const bx: BuildCtx = { fs, path, ctx, knownExports: collectKnownExports(ctx) };
     const written: string[] = [];

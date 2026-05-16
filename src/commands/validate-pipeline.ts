@@ -36,7 +36,10 @@ import {
   uniqueExternalSources,
 } from "@safer/spec/source-exports.js";
 import { extractProperties, type ItSpecIssue } from "@safer/spec/todos.js";
-import type { ProjectContext } from "@safer/commands/project-context.js";
+import {
+  resolveThresholdsFor,
+  type ProjectContext,
+} from "@safer/commands/project-context.js";
 import {
   buildChildren,
   discoverFolders,
@@ -268,7 +271,7 @@ export const buildSpecMeta = (
     preconditionPassRate: execution?.preconditionPassRate ?? null,
     branchCoverageFromSpecTests: execution?.branchCoverageFromSpecTests ?? null,
   },
-  thresholds: ctx.thresholds,
+  thresholds: resolveThresholdsFor(ctx.config, analysis.folder),
   generatedFrom: DEFAULT_GENERATED_FROM,
 });
 
