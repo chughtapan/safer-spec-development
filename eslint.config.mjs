@@ -113,17 +113,16 @@ const ARCHITECTURE_OPTIONS = {
   ],
   packageRuntime: "node",
   // commands/ holds four @effect/cli Command entrypoints plus their shared
-  // orchestration helpers. 10 prod children is the cohesive shape after
-  // init + migrate moved out to skill docs; further splitting fragments
-  // the command layer.
+  // orchestration helpers. 11 prod children is the cohesive shape; further
+  // splitting fragments the command layer.
   folderChildCountOverrides: [
     {
       folder: "commands",
-      maxChildren: 10,
-      maxChildrenIncludingTests: 16,
-      maxUnpairedTestChildren: 16,
+      maxChildren: 11,
+      maxChildrenIncludingTests: 18,
+      maxUnpairedTestChildren: 18,
       reason:
-        "commands/ holds four @effect/cli Command entrypoints (generate, validate, doctor, explain) plus index.ts (CLI composition root), version.ts (format-version constant), project-context.ts (project-wide loader), validate-pipeline.ts (shared analysis pipeline), validate-checks.ts (cross-check effects), and folder-discovery.ts (recursive + immediate folder walks). Each is a distinct cohesive concern; further splitting fragments the command layer. init/migrate ship as skills under skills/",
+        "commands/ holds four @effect/cli Command entrypoints (generate, validate, doctor, explain) plus index.ts (CLI composition root), version.ts (format-version constant), project-context.ts (project-wide loader), config.ts (safer-spec.config.json schema + loader + per-folder threshold resolver), validate-pipeline.ts (shared analysis pipeline), validate-checks.ts (cross-check effects), and folder-discovery.ts (recursive + immediate folder walks). Each is a distinct cohesive concern; further splitting fragments the command layer. init/migrate ship as skills under skills/",
     },
     {
       folder: "spec",

@@ -1,17 +1,26 @@
 /**
  * @spec.purpose Project-wide loader for the codemod. Walks the project tree
- *   for every non-test `.ts` source, reads the tsconfig `paths` map, and
- *   reads the current git HEAD SHA. `collectExports` consumes the sources
- *   + paths so barrel re-exports across files and aliases resolve; emit
- *   needs the SHA for SpecFrontmatter and SpecArtifact metadata.
+ *   for every non-test `.ts` source, reads the tsconfig `paths` map, the
+ *   git HEAD SHA, and the optional `safer-spec.config.json` (via
+ *   `commands/config.ts`). `collectExports` consumes the sources + paths
+ *   so barrel re-exports across files and aliases resolve; emit needs the
+ *   SHA for SpecFrontmatter and SpecArtifact metadata; validate's
+ *   threshold gate reads `config` per-folder via `resolveThresholdsFor`
+ *   (also from `commands/config.ts`).
  *
- *   Tagged error `ProjectContextError` is co-located here.
+ *   Tagged error `ProjectContextError` is co-located here; `ConfigError`
+ *   lives in `commands/config.ts` with the schema it guards.
  */
 
 import * as nodePath from "node:path";
 import { FileSystem, Path } from "@effect/platform";
 import { Data, Effect } from "effect";
 import type { SourceFile } from "@safer/spec/source-exports.js";
+import {
+  loadConfig,
+  type Config,
+  type ConfigError,
+} from "@safer/commands/config.js";
 
 export class ProjectContextError extends Data.TaggedError("ProjectContextError")<{
   readonly path: string;
@@ -29,22 +38,10 @@ export interface ProjectContext {
    */
   readonly baseUrl: string;
   readonly generatedAtSha: string;
-  readonly thresholds: {
-    readonly typeCoverage: number;
-    readonly classifierCoverage: number;
-    readonly preconditionPassRate: number;
-  };
+  // Raw `safer-spec.config.json` contents (defaults + per-folder overrides).
+  // Resolve per-folder thresholds via `resolveThresholdsFor(ctx.config, folder)`.
+  readonly config: Config;
 }
-
-// Permissive defaults: validate gates only when a threshold is non-zero. The
-// codemod ships with 0s so the dogfood (which has no property bodies yet)
-// passes by default; downstream projects raise these via per-project config
-// (future slice) once their property tests are populated.
-const DEFAULT_THRESHOLDS = {
-  typeCoverage: 0,
-  classifierCoverage: 0,
-  preconditionPassRate: 0,
-} as const;
 
 /**
  * Normalize the user-supplied `--folder` value into a path the codemod
@@ -253,33 +250,37 @@ const readGitSha = (
     Effect.catchAll(() => Effect.succeed("uncommitted")),
   );
 
+
 /**
- * @spec.guarantee "loads project-wide context (every non-test `.ts` under `root`, tsconfig `paths`, git HEAD SHA, default thresholds); collectExports consumes sources+paths so barrel re-exports resolve"
+ * @spec.guarantee "loads project-wide context (every non-test `.ts` under `root`, tsconfig `paths`, git HEAD SHA, `safer-spec.config.json`); collectExports consumes sources+paths so barrel re-exports resolve"
  *   reason: ts-morph cannot follow `export ... from` without target files
- *           registered and aliases configured.
- * @spec.residual-contract "missing tsconfig.json yields empty `paths`; missing `.git/HEAD` yields `generatedAtSha = 'uncommitted'`"
- *   reason: projects without aliases or git history still load.
+ *           registered; validate's threshold gate reads the loaded config.
+ * @spec.residual-contract "missing tsconfig.json yields empty `paths`; missing `.git/HEAD` yields `generatedAtSha = 'uncommitted'`; missing safer-spec.config.json yields permissive all-zero thresholds"
+ *   reason: projects without aliases, git history, or per-folder gate
+ *           configuration still load with no false failures.
  */
 export const loadProjectContext = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
   root: string,
-): Effect.Effect<ProjectContext, ProjectContextError> =>
+): Effect.Effect<ProjectContext, ProjectContextError | ConfigError> =>
   Effect.gen(function* () {
     const sources: SourceFile[] = [];
     yield* walkSources(fs, path, root, sources);
     const tsconfig = yield* readTsConfigBits(fs, path.join(root, "tsconfig.json"));
     const generatedAtSha = yield* readGitSha(fs, path, root);
+    const config = yield* loadConfig(fs, path, root);
     return {
       sources,
       paths: tsconfig.paths,
       baseUrl: tsconfig.baseUrl,
       generatedAtSha,
-      thresholds: DEFAULT_THRESHOLDS,
+      config,
     };
   }).pipe(Effect.withSpan("commands/project-context/loadProjectContext"));
 
 export const loadValidateProjectContext = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
-): Effect.Effect<ProjectContext, ProjectContextError> => loadProjectContext(fs, path, ".");
+): Effect.Effect<ProjectContext, ProjectContextError | ConfigError> =>
+  loadProjectContext(fs, path, ".");
