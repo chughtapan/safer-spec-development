@@ -171,6 +171,19 @@ itSpec.prop(
     ),
 );
 
+// Capture the outside-fc-check behavior at module load — by the time any
+// itSpec.prop body runs, classifierContext.getStore() is defined, so an
+// inline call inside a property would not exercise the no-op path. We
+// invoke classify here at top level and stash whether it threw.
+const OUTSIDE_CALL_RESULT: { readonly threw: boolean; readonly error: string | null } = (() => {
+  try {
+    itSpec.classify("module-load-call");
+    return { threw: false, error: null };
+  } catch (e) {
+    return { threw: true, error: e instanceof Error ? e.message : String(e) };
+  }
+})();
+
 /**
  * @spec.property itspec-classify-no-throw-outside-prop-body
  * @spec.type Exception Raising
@@ -180,12 +193,12 @@ itSpec.prop(
 itSpec.prop(
   "itspec-classify-no-throw-outside-prop-body",
   { type: "Exception Raising", exports: [itSpec] },
-  fc.string({ minLength: 1, maxLength: 10 }),
-  (label) =>
+  fc.constant(undefined),
+  () =>
     Effect.runPromise(
-      Effect.gen(function* () {
-        itSpec.classify(label);
-        yield* failIf(false, `unreachable`);
-      }),
+      failIf(
+        OUTSIDE_CALL_RESULT.threw,
+        `classify threw outside prop body: ${OUTSIDE_CALL_RESULT.error ?? "unknown"}`,
+      ),
     ),
 );
