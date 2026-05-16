@@ -138,19 +138,23 @@ const aggregate = (stats: ReadonlyArray<FastCheckTaskStats>): AggregatedCoverage
   if (stats.length === 0) return NO_COVERAGE;
   let runs = 0;
   let skips = 0;
+  let classifiedTests = 0;
   for (const s of stats) {
     runs += s.numRuns;
     skips += s.numSkips;
+    if (s.classifiers.length > 0) classifiedTests += 1;
   }
   const total = runs + skips;
-  // `null` means "tests didn't run / no metric collected"; `0` means
-  // "tests ran and observed 0% of the gate." Since the existence of an
-  // execution sidecar already says tests ran, emit 0 for classifier
-  // coverage (real per-bucket coverage is a follow-up slice) so a
-  // non-zero `classifierCoverage` threshold actually fails until the
-  // project adds fast-check classifiers.
+  // Once tests have run, both metrics return their natural rate:
+  //   classifierCoverage = tests-that-classified / total-tests
+  //     (0 when none classified — a `classifierCoverage > 0` threshold
+  //      forces project-wide adoption rather than silently bypassing
+  //      folders that haven't opted in)
+  //   preconditionPassRate = samples-that-passed / total-samples
+  //     (1.0 when no fc.pre was used — 100% of samples ran because
+  //      there were no preconditions to fail)
   return {
-    classifierCoverage: 0,
+    classifierCoverage: classifiedTests / stats.length,
     preconditionPassRate: total === 0 ? null : runs / total,
     branchCoverageFromSpecTests: null,
   };

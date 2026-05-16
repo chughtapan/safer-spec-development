@@ -38,7 +38,7 @@ itSpec.prop(
  * @spec.property itspec-bounded-method-count
  * @spec.type Constant Bounds Checking
  * @spec.exports itSpec
- * @spec.claim `itSpec` exposes exactly two methods (`todo` and `prop`) — the closed API surface the codemod's directive parser keys on
+ * @spec.claim `itSpec` exposes exactly three methods (`todo`, `prop`, `classify`) — the closed API surface the codemod's directive parser keys on
  */
 itSpec.prop(
   "itspec-bounded-method-count",
@@ -48,7 +48,7 @@ itSpec.prop(
     Effect.runPromise(
       Effect.gen(function* () {
         const keys = Object.keys(itSpec);
-        yield* failIf(keys.length !== 2, `expected 2 methods, got ${keys.length}: ${keys.join(",")}`);
+        yield* failIf(keys.length !== 3, `expected 3 methods, got ${keys.length}: ${keys.join(",")}`);
       }),
     ),
 );

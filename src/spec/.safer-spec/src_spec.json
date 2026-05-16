@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec",
-  "generatedAtSha": "789f694871fa286ba6f549271ea24d7917698e6b",
+  "generatedAtSha": "9860ef0625416af1e4c3b228ae8390d8c59c2df8",
   "exports": [
     {
       "name": "ItSpec",
@@ -30,14 +30,18 @@
           "reason": "side-effect contract; the call mutates Vitest's collector, observable only at runtime."
         },
         {
+          "claim": "tags the currently-running fast-check sample with a classifier label; labels are aggregated per-property by the reporter and surfaced as `classifierCoverage` in the execution sidecar",
+          "reason": "gives authors a way to declare input-distribution buckets (`\"empty\"`, `\"large\"`, `\"happy-path\"`, ...) so the validate gate can require tests to actually exercise multiple regions of the input space, not just pass at one fixed value."
+        },
+        {
           "claim": "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`; on completion attaches `{numRuns, numSkips, classifiers}` to the Vitest task's `meta.fastCheck` slot",
           "reason": "side-effect contract; reporter reads `meta.fastCheck` to build per-folder execution sidecars."
         }
       ],
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
-        "line": 54,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "line": 55,
+        "sha": "9860ef0625416af1e4c3b228ae8390d8c59c2df8"
       }
     },
     {
@@ -68,8 +72,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
-        "line": 121,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "line": 145,
+        "sha": "9860ef0625416af1e4c3b228ae8390d8c59c2df8"
       }
     }
   ],
