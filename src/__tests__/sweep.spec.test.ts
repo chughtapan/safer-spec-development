@@ -150,3 +150,42 @@ itSpec.prop(
       }),
     ),
 );
+
+/**
+ * @spec.property itspec-classify-tags-input-buckets
+ * @spec.type Inclusion
+ * @spec.exports itSpec
+ * @spec.claim `itSpec.classify(label)` inside a property body declares that the current sample falls in the named input-distribution bucket — the reporter aggregates distinct labels per-property into the execution sidecar's `classifierCoverage` metric
+ */
+itSpec.prop(
+  "itspec-classify-tags-input-buckets",
+  { type: "Inclusion", exports: [itSpec] },
+  fc.integer({ min: 0, max: 100 }),
+  (n) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        itSpec.classify(n < 50 ? "low-half" : "high-half");
+        itSpec.classify(n === 0 || n === 100 ? "boundary" : "interior");
+        yield* failIf(typeof itSpec.classify !== "function", `classify must be callable`);
+      }),
+    ),
+);
+
+/**
+ * @spec.property itspec-classify-no-throw-outside-prop-body
+ * @spec.type Exception Raising
+ * @spec.exports itSpec
+ * @spec.claim calling `itSpec.classify(label)` outside an active fast-check run is a no-op (no throw) — the API is safe to import at module scope or call from helpers that may run outside a property body
+ */
+itSpec.prop(
+  "itspec-classify-no-throw-outside-prop-body",
+  { type: "Exception Raising", exports: [itSpec] },
+  fc.string({ minLength: 1, maxLength: 10 }),
+  (label) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        itSpec.classify(label);
+        yield* failIf(false, `unreachable`);
+      }),
+    ),
+);

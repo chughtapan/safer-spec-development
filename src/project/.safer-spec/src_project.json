@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/project",
-  "generatedAtSha": "789f694871fa286ba6f549271ea24d7917698e6b",
+  "generatedAtSha": "53f494c5ff897ef33f74091c81f9da87b6db790a",
   "exports": [
     {
       "name": "SPEC_FORMAT_VERSION",
@@ -39,7 +39,7 @@
       "sourceRef": {
         "path": "src/project/version.ts",
         "line": 16,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "sha": "53f494c5ff897ef33f74091c81f9da87b6db790a"
       }
     },
     {
@@ -68,7 +68,7 @@
       "sourceRef": {
         "path": "src/project/config.ts",
         "line": 18,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "sha": "53f494c5ff897ef33f74091c81f9da87b6db790a"
       }
     },
     {
@@ -83,7 +83,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 38,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "sha": "53f494c5ff897ef33f74091c81f9da87b6db790a"
       }
     },
     {
@@ -112,7 +112,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 43,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "sha": "53f494c5ff897ef33f74091c81f9da87b6db790a"
       }
     },
     {
@@ -141,7 +141,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 48,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "sha": "53f494c5ff897ef33f74091c81f9da87b6db790a"
       }
     },
     {
@@ -156,7 +156,7 @@
       "sourceRef": {
         "path": "src/project/config.ts",
         "line": 51,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "sha": "53f494c5ff897ef33f74091c81f9da87b6db790a"
       }
     },
     {
@@ -171,7 +171,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 52,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "sha": "53f494c5ff897ef33f74091c81f9da87b6db790a"
       }
     },
     {
@@ -213,7 +213,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 321,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "sha": "53f494c5ff897ef33f74091c81f9da87b6db790a"
       }
     }
   ],

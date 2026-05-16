@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 789f694871fa286ba6f549271ea24d7917698e6b
+generatedAtSha: 53f494c5ff897ef33f74091c81f9da87b6db790a
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -186,7 +186,7 @@ export interface SpecMeta {
 }
 ```
 
-### [`computeTestTreeHash`](./reporter.ts#L222)
+### [`computeTestTreeHash`](./reporter.ts#L224)
 
 ```ts
 export const computeTestTreeHash = (
@@ -200,7 +200,7 @@ export const computeTestTreeHash = (
 
 **Residual contract:** "unreadable test files contribute the empty string to the hash; the reporter applies the same convention so a transient read failure doesn't poison the hash" — _byte-equality contract; missing-file -&gt; empty-bytes._
 
-### [`loadExecutionSidecar`](./reporter.ts#L245)
+### [`loadExecutionSidecar`](./reporter.ts#L247)
 
 ```ts
 export const loadExecutionSidecar = (

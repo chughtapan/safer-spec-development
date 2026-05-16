@@ -65,6 +65,18 @@ export interface ItSpec {
   todo(id: string, meta: PropertyMeta): void;
 
   /**
+   * @spec.guarantee "tags the currently-running fast-check sample with a classifier label; labels are aggregated per-property by the reporter and surfaced as `classifierCoverage` in the execution sidecar"
+   *   reason: gives authors a way to declare input-distribution buckets
+   *           (`"empty"`, `"large"`, `"happy-path"`, ...) so the validate
+   *           gate can require tests to actually exercise multiple regions
+   *           of the input space, not just pass at one fixed value.
+   * @spec.residual-contract "calls outside of an `itSpec.prop` body are silently ignored; classifier capture only takes effect within an active fast-check run"
+   *   reason: lifecycle; a no-op outside the property body keeps the API
+   *           safe to import at module scope without runtime errors.
+   */
+  classify(label: string): void;
+
+  /**
    * @spec.assume "JSDoc directives above this call match `id`, `meta.type`, and `meta.exports` member names"
    *   reason: cross-check enforced by `validate --implemented`.
    * @spec.guarantee "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`; on completion attaches `{numRuns, numSkips, classifiers}` to the Vitest task's `meta.fastCheck` slot"
@@ -83,16 +95,24 @@ export interface ItSpec {
   ): void;
 }
 
+// Per-property classifier capture. `itSpec.classify(label)` writes to the
+// active set; reset at the start of each `itSpec.prop` body and read by the
+// reporter after `fc.check` returns. Module-level state is safe because
+// Vitest runs tests within a worker serially, and fast-check runs samples
+// of a single property synchronously inside `fc.check`.
+let activeClassifierSet: Set<string> | null = null;
+
 const recordStats = <Ts>(
   taskMeta: TaskMetaSlot,
   details: fc.RunDetails<Ts>,
   propertyId: string,
+  classifiers: ReadonlyArray<string>,
 ): void => {
   taskMeta.fastCheck = {
     propertyId,
     numRuns: details.numRuns,
     numSkips: details.numSkips,
-    classifiers: [],
+    classifiers,
   };
 };
 
@@ -104,19 +124,26 @@ const runProperty = <T>(
   property: fc.IAsyncProperty<[sample: T]>,
   taskMeta: TaskMetaSlot,
 ): Effect.Effect<void, PropertyFailureError> =>
-  Effect.tryPromise({
-    try: () => fc.check(property),
-    catch: (cause) =>
-      new PropertyFailureError({ id, message: `fast-check check threw: ${String(cause)}` }),
-  }).pipe(
-    Effect.flatMap((details) => {
-      recordStats(taskMeta, details, id);
-      if (!details.failed) return Effect.void;
-      return Effect.fail(
+  Effect.gen(function* () {
+    const labels = new Set<string>();
+    activeClassifierSet = labels;
+    const details = yield* Effect.tryPromise({
+      try: () => fc.check(property),
+      catch: (cause) =>
+        new PropertyFailureError({
+          id,
+          message: `fast-check check threw: ${String(cause)}`,
+        }),
+    }).pipe(
+      Effect.ensuring(Effect.sync(() => { activeClassifierSet = null; })),
+    );
+    recordStats(taskMeta, details, id, [...labels].sort());
+    if (details.failed) {
+      return yield* Effect.fail(
         new PropertyFailureError({ id, message: failureMessage(details) }),
       );
-    }),
-  );
+    }
+  });
 
 export const itSpec: ItSpec = {
   todo(id: string, _meta: PropertyMeta): void {
@@ -133,5 +160,8 @@ export const itSpec: ItSpec = {
     it(id, (ctx) =>
       Effect.runPromise(runProperty(id, property, ctx.task.meta as TaskMetaSlot)),
     );
+  },
+  classify(label: string): void {
+    if (activeClassifierSet !== null) activeClassifierSet.add(label);
   },
 };

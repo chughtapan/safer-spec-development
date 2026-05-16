@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src",
-  "generatedAtSha": "789f694871fa286ba6f549271ea24d7917698e6b",
+  "generatedAtSha": "53f494c5ff897ef33f74091c81f9da87b6db790a",
   "exports": [
     {
       "name": "PROPERTY_TYPES",
@@ -40,7 +40,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 27,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "sha": "53f494c5ff897ef33f74091c81f9da87b6db790a"
       }
     },
     {
@@ -55,7 +55,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 39,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "sha": "53f494c5ff897ef33f74091c81f9da87b6db790a"
       }
     },
     {
@@ -85,6 +85,10 @@
           "reason": "side-effect contract; the call mutates Vitest's collector, observable only at runtime."
         },
         {
+          "claim": "tags the currently-running fast-check sample with a classifier label; labels are aggregated per-property by the reporter and surfaced as `classifierCoverage` in the execution sidecar",
+          "reason": "gives authors a way to declare input-distribution buckets (`\"empty\"`, `\"large\"`, `\"happy-path\"`, ...) so the validate gate can require tests to actually exercise multiple regions of the input space, not just pass at one fixed value."
+        },
+        {
           "claim": "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`; on completion attaches `{numRuns, numSkips, classifiers}` to the Vitest task's `meta.fastCheck` slot",
           "reason": "side-effect contract; reporter reads `meta.fastCheck` to build per-folder execution sidecars."
         }
@@ -92,7 +96,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
         "line": 54,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "sha": "53f494c5ff897ef33f74091c81f9da87b6db790a"
       }
     },
     {
@@ -113,7 +117,9 @@
         "Typechecking",
         "Constant Non-Equality",
         "Constant Equality",
-        "Constant Bounds Checking"
+        "Constant Bounds Checking",
+        "Inclusion",
+        "Exception Raising"
       ],
       "skipped": [],
       "residualContract": null,
@@ -121,13 +127,13 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
-        "line": 121,
-        "sha": "789f694871fa286ba6f549271ea24d7917698e6b"
+        "line": 148,
+        "sha": "53f494c5ff897ef33f74091c81f9da87b6db790a"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.5555555555555556
+    "typeCoverage": 0.6666666666666666
   },
   "thresholds": {
     "typeCoverage": 0.4,

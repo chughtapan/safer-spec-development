@@ -1,7 +1,7 @@
 ---
 folder: src/spec
 format-version: 0.1.0
-generatedAtSha: 789f694871fa286ba6f549271ea24d7917698e6b
+generatedAtSha: 53f494c5ff897ef33f74091c81f9da87b6db790a
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -45,6 +45,18 @@ export interface ItSpec {
   todo(id: string, meta: PropertyMeta): void;
 
   /**
+   * @spec.guarantee "tags the currently-running fast-check sample with a classifier label; labels are aggregated per-property by the reporter and surfaced as `classifierCoverage` in the execution sidecar"
+   *   reason: gives authors a way to declare input-distribution buckets
+   *           (`"empty"`, `"large"`, `"happy-path"`, ...) so the validate
+   *           gate can require tests to actually exercise multiple regions
+   *           of the input space, not just pass at one fixed value.
+   * @spec.residual-contract "calls outside of an `itSpec.prop` body are silently ignored; classifier capture only takes effect within an active fast-check run"
+   *   reason: lifecycle; a no-op outside the property body keeps the API
+   *           safe to import at module scope without runtime errors.
+   */
+  classify(label: string): void;
+
+  /**
    * @spec.assume "JSDoc directives above this call match `id`, `meta.type`, and `meta.exports` member names"
    *   reason: cross-check enforced by `validate --implemented`.
    * @spec.guarantee "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`; on completion attaches `{numRuns, numSkips, classifiers}` to the Vitest task's `meta.fastCheck` slot"
@@ -70,11 +82,12 @@ export interface ItSpec {
 
 **Guarantees:**
 - "registers the property as a Vitest todo placeholder under \`id\`" — _side-effect contract; the call mutates Vitest's collector, observable only at runtime._
+- "tags the currently-running fast-check sample with a classifier label; labels are aggregated per-property by the reporter and surfaced as \`classifierCoverage\` in the execution sidecar" — _gives authors a way to declare input-distribution buckets (\`"empty"\`, \`"large"\`, \`"happy-path"\`, ...) so the validate gate can require tests to actually exercise multiple regions of the input space, not just pass at one fixed value._
 - "registers a fast-check property under \`id\` that runs \`body\` against samples drawn from \`arb\`; on completion attaches \`{numRuns, numSkips, classifiers}\` to the Vitest task's \`meta.fastCheck\` slot" — _side-effect contract; reporter reads \`meta.fastCheck\` to build per-folder execution sidecars._
 
 **Residual contract:** "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override" — _behavioral residue beyond the call signature; downstream authors need to know the property runner is not configured through Vitest._
 
-### [`itSpec`](./grammar/it-spec.ts#L121)
+### [`itSpec`](./grammar/it-spec.ts#L148)
 
 ```ts
 export const itSpec: ItSpec = {
@@ -92,6 +105,9 @@ export const itSpec: ItSpec = {
     it(id, (ctx) =>
       Effect.runPromise(runProperty(id, property, ctx.task.meta as TaskMetaSlot)),
     );
+  },
+  classify(label: string): void {
+    if (activeClassifierSet !== null) activeClassifierSet.add(label);
   },
 };
 ```
@@ -113,6 +129,6 @@ export const itSpec: ItSpec = {
 | `itspec-todo-arity` | `Constant Equality` | `itSpec` | \`itSpec.todo\` has arity 2 (id, meta) — matching the documented \`ItSpec\["todo"\]\` signature | implemented |
 | `itspec-prop-arity` | `Constant Equality` | `itSpec` | \`itSpec.prop\` has arity 4 (id, meta, arb, body) — matching the documented \`ItSpec\["prop"\]\` signature | implemented |
 | `itspec-todo-prop-distinct-references` | `Constant Non-Equality` | `itSpec` | \`itSpec.todo\` and \`itSpec.prop\` are different function references — \`extractProperties\` distinguishes stubs from implemented bodies by checking which method was called at each test site | implemented |
-| `itspec-bounded-method-count` | `Constant Bounds Checking` | `itSpec` | \`itSpec\` exposes exactly two methods (\`todo\` and \`prop\`) — the closed API surface the codemod's directive parser keys on | implemented |
+| `itspec-bounded-method-count` | `Constant Bounds Checking` | `itSpec` | \`itSpec\` exposes exactly three methods (\`todo\`, \`prop\`, \`classify\`) — the closed API surface the codemod's directive parser keys on | implemented |
 | `itspec-roundtrip-method-call-shape` | `Roundtrip` | `itSpec` | \`itSpec.todo\` and \`itSpec.prop\` are both function-typed — calling either with an \`id\` and \`meta\` doesn't throw at the type level (regardless of runtime side effects) | implemented |
 | `itspec-includes-todo-key` | `Inclusion` | `itSpec` | \`itSpec\` exposes \`todo\` as an own property key — the surface every test file imports via \`itSpec.todo(...)\` | implemented |

@@ -138,20 +138,22 @@ const aggregate = (stats: ReadonlyArray<FastCheckTaskStats>): AggregatedCoverage
   if (stats.length === 0) return NO_COVERAGE;
   let runs = 0;
   let skips = 0;
+  let classifiedTests = 0;
   for (const s of stats) {
     runs += s.numRuns;
     skips += s.numSkips;
+    if (s.classifiers.length > 0) classifiedTests += 1;
   }
   const total = runs + skips;
-  // `null` means "tests didn't run / no metric collected"; `0` means
-  // "tests ran and observed 0% of the gate." Since the existence of an
-  // execution sidecar already says tests ran, emit 0 for classifier
-  // coverage (real per-bucket coverage is a follow-up slice) so a
-  // non-zero `classifierCoverage` threshold actually fails until the
-  // project adds fast-check classifiers.
+  // `null` means "the test author didn't use this feature anywhere in
+  // this folder, so the metric isn't meaningful." `findThresholdShortfall`
+  // treats null as "no gate trip" — gates only enforce against metrics the
+  // tests actually exercise. classifierCoverage = ratio of tests that
+  // called `itSpec.classify(...)` at least once; preconditionPassRate =
+  // ratio of samples that passed `fc.pre(...)`.
   return {
-    classifierCoverage: 0,
-    preconditionPassRate: total === 0 ? null : runs / total,
+    classifierCoverage: classifiedTests === 0 ? null : classifiedTests / stats.length,
+    preconditionPassRate: total === 0 || skips === 0 ? null : runs / total,
     branchCoverageFromSpecTests: null,
   };
 };
