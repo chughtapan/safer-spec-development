@@ -55,17 +55,18 @@ size-capped and escaped before they are emitted.
 
 ## Source Domains
 
-The package is organized by knowledge ownership rather than by generic
-technical layers.
+The package is organized by knowledge ownership. Four layers, each
+single-job; lower layers don't depend on higher.
 
-| Domain | Folder | Owns |
+| Layer | Folder | Owns |
 |---|---|---|
-| Commands | `commands/` | `safer-spec` binary entrypoint, the four @effect/cli Commands (`generate`, `validate`, `doctor`, `explain`), and the format-version constant. |
-| Spec artifact | `spec/` | JSDoc directive grammar + parser, markdown emitter, frontmatter schema, sidecar JSON schema + writer, escape helpers, link resolver, and the `itSpec` authoring helper. |
-| Terminals | `property-types/` | Closed `PropertyType` enum (9 OOPSLA-significant property types). |
+| Commands | `commands/` | `safer-spec` binary entrypoint + the four @effect/cli Commands (`generate`, `validate`, `doctor`, `explain`). Folder onboarding (`init`) and format-version migration (`migrate`) ship as coding-agent skills, not CLI code. |
+| Project | `project/` | Project-wide setup. `context.ts` (sources/paths/SHA/config loader), `config.ts` (`safer-spec.config.json` schema + per-folder threshold resolver), `version.ts` (`SPEC_FORMAT_VERSION`), `folders.ts` (folder walks). What the codemod knows about the target project before doing work. |
+| Analysis | `analysis/` | How commands ingest the project + cross-check. `pipeline.ts` (the shared analysis driving generate + validate), `checks.ts` (validate's gap-class cross-checks + tagged errors), `exports.ts` (ts-morph export collector), `properties.ts` (itSpec call extractor). |
+| Domain | `spec/` | The spec format itself. `spec/artifact/` owns the on-disk artifacts (SPEC.md emission + frontmatter + sidecar parse/emit + atomic writer + Vitest reporter + helpers). `spec/grammar/` owns the `@spec.*` directive language + closed `PropertyType` vocabulary + the `itSpec` runtime encoding. |
 
-Commands orchestrate the spec domain. The spec domain consumes the
-property-type taxonomy.
+Dependency direction: `commands → project, analysis → spec`. Each layer
+imports from the one below; never the reverse.
 
 ## Directive Grammar
 

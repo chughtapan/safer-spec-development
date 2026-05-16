@@ -1,0 +1,331 @@
+{
+  "formatVersion": "0.1.0",
+  "folder": "src/spec/grammar",
+  "generatedAtSha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd",
+  "exports": [
+    {
+      "name": "PROPERTY_TYPES",
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "none",
+        "reason": "shape captured by `as const` tuple."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "membership order is stable across versions; the index of each property type is part of the contract",
+          "reason": "per-repo `propertyTypesExtension` appends only; never reorders."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/grammar/property-types.ts",
+        "line": 27,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "JsDocDirectiveOverflowError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/grammar/shared.ts",
+        "line": 28,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "JsDocDirectiveParseError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/grammar/shared.ts",
+        "line": 38,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "PropertyType",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/grammar/property-types.ts",
+        "line": 39,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "JsDocUnknownDirectiveError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/grammar/shared.ts",
+        "line": 47,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "ItSpec",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override",
+        "reason": "behavioral residue beyond the call signature; downstream authors need to know the property runner is not configured through Vitest."
+      },
+      "residualAssumes": [
+        {
+          "claim": "first positional `id` arg matches the `@spec.property` JSDoc directive value above the call site",
+          "reason": "cross-check enforced by `validate --implemented`; mismatch is exit code 11 (MISSING_SPEC_PROPERTY)."
+        },
+        {
+          "claim": "JSDoc directives above this call match `id`, `meta.type`, and `meta.exports` member names",
+          "reason": "cross-check enforced by `validate --implemented`."
+        }
+      ],
+      "residualGuarantees": [
+        {
+          "claim": "registers the property as a Vitest todo placeholder under `id`",
+          "reason": "side-effect contract; the call mutates Vitest's collector, observable only at runtime."
+        },
+        {
+          "claim": "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`; on completion attaches `{numRuns, numSkips, classifiers}` to the Vitest task's `meta.fastCheck` slot",
+          "reason": "side-effect contract; reporter reads `meta.fastCheck` to build per-folder execution sidecars."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/grammar/it-spec.ts",
+        "line": 54,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "ParseError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/grammar/shared.ts",
+        "line": 55,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "Directive",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/grammar/directives.ts",
+        "line": 69,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "LocatedDirective",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/grammar/directives.ts",
+        "line": 89,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "itSpec",
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/grammar/it-spec.ts",
+        "line": 121,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "parseFileDirectives",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Exception Raising",
+        "Typechecking",
+        "Constant Bounds Checking",
+        "Constant Equality",
+        "Inclusion"
+      ],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "every emitted directive validates against the closed grammar before downstream consumption",
+          "reason": "trust-boundary; agents consume parsed directive bodies as context."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/grammar/directives.ts",
+        "line": 284,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    }
+  ],
+  "coverage": {
+    "typeCoverage": 0.050505050505050504
+  },
+  "thresholds": {
+    "typeCoverage": 0,
+    "classifierCoverage": 0,
+    "preconditionPassRate": 0
+  }
+}

@@ -96,41 +96,80 @@ const ARCHITECTURE_OPTIONS = {
       name: "commands",
       folders: ["commands"],
       reason:
-        "the four @effect/cli Command entries (generate, validate, doctor, explain) plus the binary composition root (index.ts) and format-version constant; init and migrate ship as coding-agent skills, not CLI code",
+        "the four @effect/cli Command entries (generate, validate, doctor, explain) plus the binary composition root (index.ts); init/migrate ship as coding-agent skills, not CLI code",
+    },
+    {
+      name: "project",
+      folders: ["project"],
+      reason:
+        "project-wide setup — context loader, config schema/loader, format-version constant, folder-walking helpers. Commands and analysis read this to know WHICH project they're working on and WHICH thresholds gate it",
+    },
+    {
+      name: "analysis",
+      folders: ["analysis"],
+      reason:
+        "how commands actually ingest the project: ts-morph export collection, JSDoc + itSpec extraction, the shared analysis pipeline driving generate + validate, and the gap-class cross-checks. Reads spec/ types; consumed by commands/",
     },
     {
       name: "domain",
       folders: ["spec"],
       reason:
-        "the spec format itself — directive grammar + parser, markdown emitter, sidecar JSON, escape helpers, link resolver, and the itSpec authoring helper. Commands orchestrate this domain",
-    },
-    {
-      name: "terminals",
-      folders: ["property-types"],
-      reason:
-        "no upward deps; property-types is the closed PropertyType taxonomy every other folder consumes",
+        "the spec format itself. spec/artifact/ owns the on-disk artifacts (SPEC.md emitter, frontmatter and sidecar parse+emit, atomic writer, helpers, Vitest reporter). spec/grammar/ owns the @spec.* directive language plus the closed PropertyType vocabulary plus the itSpec runtime (the directive grammar's runtime encoding). Commands and analysis orchestrate this domain",
     },
   ],
   packageRuntime: "node",
-  // commands/ holds four @effect/cli Command entrypoints plus their shared
-  // orchestration helpers. 11 prod children is the cohesive shape; further
-  // splitting fragments the command layer.
+  // Per-folder caps. The refactor pulled `commands/` from 11 mixed
+  // files down to 5 commands-and-binary; `project/` and `analysis/`
+  // are the new layers; `spec/` is now a thin barrel + two semantic
+  // subfolders (artifact/ + grammar/).
   folderChildCountOverrides: [
     {
       folder: "commands",
-      maxChildren: 11,
-      maxChildrenIncludingTests: 18,
-      maxUnpairedTestChildren: 18,
+      maxChildren: 6,
+      maxChildrenIncludingTests: 10,
+      maxUnpairedTestChildren: 10,
       reason:
-        "commands/ holds four @effect/cli Command entrypoints (generate, validate, doctor, explain) plus index.ts (CLI composition root), version.ts (format-version constant), project-context.ts (project-wide loader), config.ts (safer-spec.config.json schema + loader + per-folder threshold resolver), validate-pipeline.ts (shared analysis pipeline), validate-checks.ts (cross-check effects), and folder-discovery.ts (recursive + immediate folder walks). Each is a distinct cohesive concern; further splitting fragments the command layer. init/migrate ship as skills under skills/",
+        "commands/ holds the four @effect/cli Command entrypoints (generate, validate, doctor, explain) plus index.ts (CLI composition root). Each operation file fronts a single command; shared setup lives in project/, shared analysis in analysis/, and the spec format in spec/",
+    },
+    {
+      folder: "project",
+      maxChildren: 6,
+      maxChildrenIncludingTests: 10,
+      maxUnpairedTestChildren: 10,
+      reason:
+        "project/ holds the project-wide setup: context.ts (sources/paths/SHA/config loader), config.ts (safer-spec.config.json schema + loader + per-folder threshold resolver), version.ts (format-version constant), folders.ts (recursive + immediate folder walks). Each is a distinct project-setup concern",
+    },
+    {
+      folder: "analysis",
+      maxChildren: 6,
+      maxChildrenIncludingTests: 10,
+      maxUnpairedTestChildren: 10,
+      reason:
+        "analysis/ holds the project-reading + cross-check stack: pipeline.ts (the shared analysis driving generate + validate), checks.ts (validate's gap-class cross-checks + tagged errors), exports.ts (ts-morph export collector), properties.ts (itSpec call extractor). Each step in the read-then-check chain",
     },
     {
       folder: "spec",
-      maxChildren: 12,
-      maxChildrenIncludingTests: 24,
-      maxUnpairedTestChildren: 24,
+      maxChildren: 4,
+      maxChildrenIncludingTests: 8,
+      maxUnpairedTestChildren: 8,
       reason:
-        "spec/ owns the spec-format domain (directive parser, emit, escape, frontmatter, link-resolver, sidecar schema + writer, source-exports, todos, index barrel, the itSpec authoring helper, and reporter.ts — the Vitest reporter that writes per-folder execution sidecars validate --implemented consumes). The reporter co-locates its execution-sidecar Schema with the spec domain because the artifact IS a spec-domain shape; splitting it into a separate folder would break the rule that 'a Schema lives next to the type it owns'.",
+        "spec/ collapses to a small barrel + two semantic subfolders. spec/index.ts re-exports the author surface for the package facade; spec/artifact/ owns SPEC.md + sidecar JSON + execution sidecar (parse+emit per-artifact, helpers, writer, reporter); spec/grammar/ owns the @spec.* directive language + PropertyType vocabulary + itSpec runtime",
+    },
+    {
+      folder: "artifact",
+      maxChildren: 8,
+      maxChildrenIncludingTests: 16,
+      maxUnpairedTestChildren: 16,
+      reason:
+        "spec/artifact/ holds the seven files that read and write the codemod's on-disk artifacts: emit.ts (SPEC.md producer), escape.ts (markdown/YAML/JSON escape helpers), frontmatter.ts (YAML frontmatter schema + parse + emit), link-resolver.ts (internal-link helper), sidecar.ts (canonical sidecar JSON schema + parse + emit), sidecar-writer.ts (atomic write), reporter.ts (Vitest reporter that writes the execution sidecar — the second artifact validate --implemented consumes)",
+    },
+    {
+      folder: "grammar",
+      maxChildren: 8,
+      maxChildrenIncludingTests: 16,
+      maxUnpairedTestChildren: 16,
+      reason:
+        "spec/grammar/ holds the @spec.* directive language plus its peers: directives.ts (parser barrel), shared.ts + file-level.ts + per-export.ts (directive impl), tsdoc-bridge.ts (TSDoc bridge), property-types.ts (the closed PropertyType taxonomy — vocabulary for @spec.type), it-spec.ts (the runtime form of per-export directive metadata that test authors call)",
     },
   ],
 };

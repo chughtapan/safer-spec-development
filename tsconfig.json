@@ -19,9 +19,10 @@
     "rootDir": "./src",
     "baseUrl": ".",
     "paths": {
-      "@safer/property-types/*": ["./src/property-types/*"],
       "@safer/spec/*": ["./src/spec/*"],
-      "@safer/commands/*": ["./src/commands/*"]
+      "@safer/commands/*": ["./src/commands/*"],
+      "@safer/project/*": ["./src/project/*"],
+      "@safer/analysis/*": ["./src/analysis/*"]
     }
   },
   "include": ["src/**/*"],

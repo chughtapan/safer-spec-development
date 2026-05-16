@@ -13,7 +13,7 @@
 import { defineConfig } from "vitest/config";
 import tsconfigPaths from "vite-tsconfig-paths";
 // eslint-disable-next-line import/no-relative-parent-imports -- vitest evaluates this config before its own tsconfigPaths plugin is wired, so the alias cannot resolve here; this is the only file in the repo that must reach into `src/` by relative path
-import { SaferSpecExecutionReporter } from "./src/spec/reporter.ts";
+import { SaferSpecExecutionReporter } from "./src/spec/artifact/reporter.ts";
 
 export default defineConfig({
   plugins: [tsconfigPaths()],

@@ -1,0 +1,949 @@
+{
+  "formatVersion": "0.1.0",
+  "folder": "src/analysis",
+  "generatedAtSha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd",
+  "exports": [
+    {
+      "name": "DeclaredExport",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/exports.ts",
+        "line": 18,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "ItSpecIssue",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/properties.ts",
+        "line": 22,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "ValidateDiagnostic",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 36,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "sidecarSlug",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "none",
+        "reason": "pure transformation captured by signature."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "folder `.` maps to `\\\"root\\\"`; folders with `/` or `\\\\` are coalesced into a single-segment slug with `_` separators; otherwise the folder string is returned unchanged after stripping leading `./`",
+          "reason": "single source of truth for the sidecar slug across generate, validate, and reporter. Three call sites previously inlined this logic; agreement is the contract."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/sidecar-writer.ts",
+        "line": 42,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "MissingSpecPropertyError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "diagnostic.problem is human-readable; agents read .diagnostic.fix to route remediation",
+        "reason": "trust contract for diagnostic body content."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "emitted when committed SPEC.md drifts from the regenerated output, when the sidecar JSON drifts, or when a Properties row fails its test-side directive cross-check",
+          "reason": "spec-tier ratchet; cli translates this tag to exit code 11."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 49,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "FolderInputs",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/pipeline.ts",
+        "line": 59,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "MissingStubError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "diagnostic.location names the call site (file:line)",
+        "reason": "trust contract for routing the next remediation step."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "emitted when an itSpec call site lacks the four required JSDoc directives, or when a JSDoc directive fails to parse",
+          "reason": "stub-tier ratchet; cli translates this tag to exit code 12."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 59,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "MissingImplError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "diagnostic.cause names the reason the body is empty or the metric is below threshold",
+        "reason": "trust contract for routing the next remediation step."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "emitted when an itSpec.prop body is empty/stubbed in --implemented mode, or when a coverage metric is below its configured non-zero threshold",
+          "reason": "implementation-tier block; cli translates this tag to exit code 13."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 69,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "NoFoldersResolvedError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "diagnostic.cause names the requested folder argument",
+        "reason": "trust contract for routing the next remediation step."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "emitted when --folder is specified and resolves to zero folders containing index.ts; cli translates this tag to exit code 1",
+          "reason": "silent zero-folder validates would let typos pass the gate."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 79,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "collectFolderInputs",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "returns folder inputs (sources, tests, index path) or null if no index.ts barrel exists",
+          "reason": "contract for validate's per-folder iteration."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/pipeline.ts",
+        "line": 82,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "ValidateGapError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 83,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "catchDirectiveErrors",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 117,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "checkDrift",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 147,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "checkSidecarDrift",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 177,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "collectExports",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "unresolvable re-exports are silently dropped",
+        "reason": "ts-morph cannot follow `export ... from` without the target file registered on the same Project."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "result is source-ordered; barrel re-exports resolve to their target declarations when targets are supplied via siblings + paths",
+          "reason": "emit.ts's canonical sort; re-export resolution needs target files registered and tsconfig aliases configured."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/exports.ts",
+        "line": 200,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "inspectFolder",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "produces the same FolderAnalysis shape `generate` emits plus a per-test issues list; regenerate-and-compare on `analysis` is byte-deterministic",
+          "reason": "roundtrip contract; validate's drift check relies on it."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/pipeline.ts",
+        "line": 201,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "checkThresholds",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 220,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "checkImplBodies",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 235,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "uniqueExternalSources",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/exports.ts",
+        "line": 254,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "buildSpecMeta",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "branchCoverageFromSpecTests stays null until a v8 coverage hook is wired up (follow-up slice)",
+        "reason": "lifecycle contract."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "builds a `SpecMeta` from run-level context + analysis-derived type coverage; populates classifierCoverage / preconditionPassRate from `execution` sidecar when present",
+          "reason": "emit's frontmatter + sidecar both require meta; `--implemented` mode merges Vitest reporter stats into the gate inputs."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/pipeline.ts",
+        "line": 260,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "checkExecutionSidecarPresent",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 274,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "loadExecutionSidecar",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through `ExecutionSidecarSchema`; returns null when absent or malformed",
+          "reason": "validate's `--implemented` gate consumes the coverage values; absence is surfaced separately as a typed gap error."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/pipeline.ts",
+        "line": 281,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "regenerateMarkdown",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/pipeline.ts",
+        "line": 300,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "ThresholdShortfall",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/pipeline.ts",
+        "line": 305,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "findThresholdShortfall",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "metrics whose threshold is 0 are not gated regardless of observed value",
+        "reason": "zero-threshold is the explicit no-gate marker used by the permissive default config."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "returns the first observed-below-threshold metric (typeCoverage → classifier → precondition order) or null when all gates pass",
+          "reason": "validate emits one MissingImplError per folder; first failing gate is the surfaced one."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/pipeline.ts",
+        "line": 330,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "failOnIssues",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 333,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "unresolvedFolderError",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 344,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "extractProperties",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "calls under nested ExpressionStatements are not bound; JSDoc lookup returns null and the call falls into missing-directive",
+        "reason": "ts-morph's getJsDocs is a property of the immediate parent statement; nested forms are not in scope for this slice."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "rows carry all four required directives bound to the JSDoc immediately preceding the itSpec call; issues cover missing directives, JSDoc↔runtime mismatch, opts.exports outside `declaredExports`, and empty prop bodies",
+          "reason": "validate's gap-class errors derive from issues; `declaredExports` empty skips the barrel-membership gate (back-compat)."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/properties.ts",
+        "line": 347,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "stripVolatileJson",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/pipeline.ts",
+        "line": 356,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "diagnosticLines",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 357,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "regenerateSidecar",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; SidecarSchemaError is a defect (artifact our own emitter produced)",
+          "reason": "validate's sidecar-drift cross-check needs the byte-for-byte regenerated form."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/pipeline.ts",
+        "line": 366,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "buildExportEntries",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "callers that pass `folderKnownExports = undefined` skip the drift gate entirely; the returned `unmatched` is then always empty",
+        "reason": "generate is a producer (no gate); validate is the gate. The parameter is the discriminator."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "every declared export not named by an `@spec.ignore-export` directive appears in entries exactly once; directives matching a declaration are merged; unmatched per-export directives are returned via `unmatched` when `folderKnownExports` is supplied",
+          "reason": "contract for emit.ts's Public surface section + validate's drift gate (MissingSpecPropertyError routing)."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/exports.ts",
+        "line": 406,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    },
+    {
+      "name": "indexFilePurposes",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/exports.ts",
+        "line": 433,
+        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+      }
+    }
+  ],
+  "coverage": {
+    "typeCoverage": 0
+  },
+  "thresholds": {
+    "typeCoverage": 0,
+    "classifierCoverage": 0,
+    "preconditionPassRate": 0
+  }
+}
