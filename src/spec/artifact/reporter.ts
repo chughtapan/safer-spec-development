@@ -145,15 +145,17 @@ const aggregate = (stats: ReadonlyArray<FastCheckTaskStats>): AggregatedCoverage
     if (s.classifiers.length > 0) classifiedTests += 1;
   }
   const total = runs + skips;
-  // `null` means "the test author didn't use this feature anywhere in
-  // this folder, so the metric isn't meaningful." `findThresholdShortfall`
-  // treats null as "no gate trip" — gates only enforce against metrics the
-  // tests actually exercise. classifierCoverage = ratio of tests that
-  // called `itSpec.classify(...)` at least once; preconditionPassRate =
-  // ratio of samples that passed `fc.pre(...)`.
+  // Once tests have run, both metrics return their natural rate:
+  //   classifierCoverage = tests-that-classified / total-tests
+  //     (0 when none classified — a `classifierCoverage > 0` threshold
+  //      forces project-wide adoption rather than silently bypassing
+  //      folders that haven't opted in)
+  //   preconditionPassRate = samples-that-passed / total-samples
+  //     (1.0 when no fc.pre was used — 100% of samples ran because
+  //      there were no preconditions to fail)
   return {
-    classifierCoverage: classifiedTests === 0 ? null : classifiedTests / stats.length,
-    preconditionPassRate: total === 0 || skips === 0 ? null : runs / total,
+    classifierCoverage: classifiedTests / stats.length,
+    preconditionPassRate: total === 0 ? null : runs / total,
     branchCoverageFromSpecTests: null,
   };
 };

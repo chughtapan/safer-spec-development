@@ -19,6 +19,7 @@
  *   artifact validate decodes through its co-located Schema.
  */
 
+import { AsyncLocalStorage } from "node:async_hooks";
 import { Data, Effect } from "effect";
 import * as fc from "fast-check";
 import { it } from "vitest";
@@ -95,12 +96,11 @@ export interface ItSpec {
   ): void;
 }
 
-// Per-property classifier capture. `itSpec.classify(label)` writes to the
-// active set; reset at the start of each `itSpec.prop` body and read by the
-// reporter after `fc.check` returns. Module-level state is safe because
-// Vitest runs tests within a worker serially, and fast-check runs samples
-// of a single property synchronously inside `fc.check`.
-let activeClassifierSet: Set<string> | null = null;
+// Per-property classifier capture. AsyncLocalStorage scopes the active
+// label set to one `fc.check` invocation, so concurrent properties (Vitest
+// `sequence.concurrent: true`, etc.) don't race or overwrite each other —
+// each property's async chain gets its own Set propagated through awaits.
+const classifierContext = new AsyncLocalStorage<Set<string>>();
 
 const recordStats = <Ts>(
   taskMeta: TaskMetaSlot,
@@ -126,17 +126,14 @@ const runProperty = <T>(
 ): Effect.Effect<void, PropertyFailureError> =>
   Effect.gen(function* () {
     const labels = new Set<string>();
-    activeClassifierSet = labels;
     const details = yield* Effect.tryPromise({
-      try: () => fc.check(property),
+      try: () => classifierContext.run(labels, () => fc.check(property)),
       catch: (cause) =>
         new PropertyFailureError({
           id,
           message: `fast-check check threw: ${String(cause)}`,
         }),
-    }).pipe(
-      Effect.ensuring(Effect.sync(() => { activeClassifierSet = null; })),
-    );
+    });
     recordStats(taskMeta, details, id, [...labels].sort());
     if (details.failed) {
       return yield* Effect.fail(
@@ -162,6 +159,7 @@ export const itSpec: ItSpec = {
     );
   },
   classify(label: string): void {
-    if (activeClassifierSet !== null) activeClassifierSet.add(label);
+    const set = classifierContext.getStore();
+    if (set !== undefined) set.add(label);
   },
 };

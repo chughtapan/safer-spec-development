@@ -1,7 +1,7 @@
 ---
 folder: src
 format-version: 0.1.0
-generatedAtSha: 53f494c5ff897ef33f74091c81f9da87b6db790a
+generatedAtSha: a40dbc77aff41300877dba5635fd6de5c9cfbe45
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -57,7 +57,7 @@ export const PROPERTY_TYPES = [
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 ```
 
-### [`ItSpec`](./spec/grammar/it-spec.ts#L54)
+### [`ItSpec`](./spec/grammar/it-spec.ts#L55)
 
 ```ts
 export interface ItSpec {
@@ -116,7 +116,7 @@ export interface ItSpec {
 
 **Residual contract:** "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override" — _behavioral residue beyond the call signature; downstream authors need to know the property runner is not configured through Vitest._
 
-### [`itSpec`](./spec/grammar/it-spec.ts#L148)
+### [`itSpec`](./spec/grammar/it-spec.ts#L145)
 
 ```ts
 export const itSpec: ItSpec = {
@@ -136,7 +136,8 @@ export const itSpec: ItSpec = {
     );
   },
   classify(label: string): void {
-    if (activeClassifierSet !== null) activeClassifierSet.add(label);
+    const set = classifierContext.getStore();
+    if (set !== undefined) set.add(label);
   },
 };
 ```

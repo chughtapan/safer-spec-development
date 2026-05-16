@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 53f494c5ff897ef33f74091c81f9da87b6db790a
+generatedAtSha: a40dbc77aff41300877dba5635fd6de5c9cfbe45
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.4444444444444444
+  typeCoverage: 0.44444444444444453
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -186,7 +186,7 @@ export interface SpecMeta {
 }
 ```
 
-### [`computeTestTreeHash`](./reporter.ts#L224)
+### [`computeTestTreeHash`](./reporter.ts#L226)
 
 ```ts
 export const computeTestTreeHash = (
@@ -200,7 +200,18 @@ export const computeTestTreeHash = (
 
 **Residual contract:** "unreadable test files contribute the empty string to the hash; the reporter applies the same convention so a transient read failure doesn't poison the hash" — _byte-equality contract; missing-file -&gt; empty-bytes._
 
-### [`loadExecutionSidecar`](./reporter.ts#L247)
+### [`emitMarkdown`](./emit.ts#L249)
+
+```ts
+export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* ... */ }
+```
+
+**Guarantees:**
+- "two calls with the same \`analysis\` + \`meta\` produce byte-identical markdown; frontmatter decodes through \`decodeSpecFrontmatter\`" — _roundtrip contract on the emit step._
+
+**Residual contract:** "internal section ordering is fixed: Purpose → Public Surface → Files → Properties" — _behavioral contract beyond the FolderAnalysis shape._
+
+### [`loadExecutionSidecar`](./reporter.ts#L249)
 
 ```ts
 export const loadExecutionSidecar = (
@@ -212,17 +223,6 @@ export const loadExecutionSidecar = (
 
 **Guarantees:**
 - "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through \`ExecutionSidecarSchema\`; returns null when absent or malformed" — _validate's \`--implemented\` gate consumes the coverage values; absence is surfaced separately as a typed gap error._
-
-### [`emitMarkdown`](./emit.ts#L249)
-
-```ts
-export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* ... */ }
-```
-
-**Guarantees:**
-- "two calls with the same \`analysis\` + \`meta\` produce byte-identical markdown; frontmatter decodes through \`decodeSpecFrontmatter\`" — _roundtrip contract on the emit step._
-
-**Residual contract:** "internal section ordering is fixed: Purpose → Public Surface → Files → Properties" — _behavioral contract beyond the FolderAnalysis shape._
 
 ### [`buildSpecArtifact`](./emit.ts#L315)
 
