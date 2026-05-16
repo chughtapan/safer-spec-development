@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec",
-  "generatedAtSha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f",
+  "generatedAtSha": "01f9260c189c6e440f1f808aac7c684b35b97a7f",
   "exports": [
     {
       "name": "ItSpec",
@@ -47,7 +47,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
         "line": 54,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
+        "sha": "01f9260c189c6e440f1f808aac7c684b35b97a7f"
       }
     },
     {
@@ -64,7 +64,14 @@
         "Inclusion",
         "Exception Raising"
       ],
-      "observedPropertyTypes": [],
+      "observedPropertyTypes": [
+        "Inclusion",
+        "Typechecking",
+        "Constant Equality",
+        "Constant Non-Equality",
+        "Constant Bounds Checking",
+        "Roundtrip"
+      ],
       "skipped": [],
       "residualContract": null,
       "residualAssumes": [],
@@ -72,15 +79,15 @@
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
         "line": 121,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
+        "sha": "01f9260c189c6e440f1f808aac7c684b35b97a7f"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0
+    "typeCoverage": 0.6666666666666666
   },
   "thresholds": {
-    "typeCoverage": 0,
+    "typeCoverage": 0.4,
     "classifierCoverage": 0,
     "preconditionPassRate": 0
   }

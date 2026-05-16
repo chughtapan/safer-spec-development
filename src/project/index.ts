@@ -1,24 +1,21 @@
 /**
- * @spec.purpose Barrel for the `project/` layer. Re-exports `ProjectContext`
- *   and the loaders the analysis layer and commands depend on. Each file in
- *   this folder owns one slice of project setup (context, config, version,
- *   folders); this barrel is the single entry point downstream consumers
- *   import.
+ * @spec.purpose Barrel for the `project/` layer. Exposes the fully-resolved
+ *   `ProjectContext` snapshot (with precomputed folder list, per-folder
+ *   subfolder map, and threshold resolver), the one loader that builds it,
+ *   the stable format version, and the three tagged errors the cli routes.
+ *   Folder-discovery primitives, the threshold resolver, and the
+ *   path normalizer are implementation details behind `ProjectContext`
+ *   methods.
  */
 
 export {
+  FolderNotFoundError,
+  ProjectContextError,
   loadProjectContext,
-  loadValidateProjectContext,
-  normalizeFolder,
 } from "@safer/project/context.js";
 export type { ProjectContext, SourceFile } from "@safer/project/context.js";
 
-export { resolveThresholdsFor } from "@safer/project/config.js";
+export { ConfigError } from "@safer/project/config.js";
+export type { Thresholds } from "@safer/project/config.js";
 
 export { SPEC_FORMAT_VERSION } from "@safer/project/version.js";
-
-export {
-  buildChildren,
-  discoverFolders,
-  discoverImmediateSubfolders,
-} from "@safer/project/folders.js";

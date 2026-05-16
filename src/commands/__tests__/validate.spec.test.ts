@@ -88,52 +88,45 @@ itSpec.prop(
 );
 
 /**
- * @spec.property validate-emits-gap-cls
+ * @spec.property validate-rejects-unresolved-folder
  * @spec.type Exception Raising
  * @spec.exports validate
- * @spec.claim every gate failure emits a typed ValidateError with gapClass in {11, 12, 13}
+ * @spec.claim `validate --folder X` for a folder X not in the discovered list fails with `FolderNotFoundError` carrying the user's requested string — the cli's exit-1 path
  */
 itSpec.prop(
-  "validate-emits-gap-cls",
+  "validate-rejects-unresolved-folder",
   { type: "Exception Raising", exports: [validate] },
   fc.constant(undefined),
   () =>
     Effect.runPromise(
-      Effect.gen(function* () {
-        const tag = tagOfFirstFailure(NONEXISTENT_PLANNED_EXIT);
-        yield* failIf(tag === null, `expected a tagged failure; got success`);
-        if (tag === null) return;
-        const code = (VALIDATE_GAP_EXIT_CODES as Record<string, number | undefined>)[tag];
-        yield* failIf(
-          code === undefined || ![1, 11, 12, 13].includes(code),
-          `tag ${tag} mapped to unexpected exit code ${String(code)}`,
-        );
-      }),
+      failIf(
+        tagOfFirstFailure(NONEXISTENT_PLANNED_EXIT) !== "FolderNotFoundError",
+        `expected FolderNotFoundError; got ${tagOfFirstFailure(NONEXISTENT_PLANNED_EXIT) ?? "<null>"}`,
+      ),
     ),
 );
 
 /**
- * @spec.property validate-diagnostic-shape
+ * @spec.property validate-gap-exit-codes-cover-three-tags
  * @spec.type Typechecking
  * @spec.exports validate, formatDiagnostic
- * @spec.claim every emitted diagnostic conforms to {problem, cause, fix, docsLink}
+ * @spec.claim `VALIDATE_GAP_EXIT_CODES` maps each of the three gap-class tags to an exit code in {11, 12, 13} — the cli's exit-code contract
  */
 itSpec.prop(
-  "validate-diagnostic-shape",
+  "validate-gap-exit-codes-cover-three-tags",
   { type: "Typechecking", exports: [validate, formatDiagnostic] },
-  fc.constant(undefined),
-  () => {
-    const first = firstFailure(NONEXISTENT_PLANNED_EXIT) as
-      | { readonly diagnostic?: unknown }
-      | undefined;
-    const diag = first?.diagnostic as Record<string, unknown> | undefined;
-    return Effect.runPromise(
+  fc.constantFrom(
+    "MissingSpecPropertyError" as const,
+    "MissingStubError" as const,
+    "MissingImplError" as const,
+  ),
+  (tag) =>
+    Effect.runPromise(
       failIf(
-        !hasValidShape(diag),
-        `diagnostic shape malformed: ${JSON.stringify(diag)}`,
+        ![11, 12, 13].includes(VALIDATE_GAP_EXIT_CODES[tag]),
+        `tag ${tag} mapped to unexpected code ${VALIDATE_GAP_EXIT_CODES[tag]}`,
       ),
-    );
-  },
+    ),
 );
 
 /**

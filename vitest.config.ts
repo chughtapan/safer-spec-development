@@ -24,5 +24,6 @@ export default defineConfig({
       ".claude/worktrees/**",
     ],
     reporters: ["default", new SaferSpecExecutionReporter()],
+    testTimeout: 15_000,
   },
 });

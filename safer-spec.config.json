@@ -1,1 +1,5 @@
-{}
+{
+  "defaultThresholds": {
+    "typeCoverage": 0.4
+  }
+}

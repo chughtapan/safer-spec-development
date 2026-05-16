@@ -1,7 +1,7 @@
 ---
 folder: src/spec
 format-version: 0.1.0
-generatedAtSha: e399de5a66bb02dc52ba5c1019e3bb6f1982626f
+generatedAtSha: 01f9260c189c6e440f1f808aac7c684b35b97a7f
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,12 +10,12 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0
+  typeCoverage: 0.6666666666666666
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
-  typeCoverage: 0
+  typeCoverage: 0.4
   classifierCoverage: 0
   preconditionPassRate: 0
 ---
@@ -98,10 +98,21 @@ export const itSpec: ItSpec = {
 
 ## Children
 
-- [`artifact/`](./artifact/SPEC.md) — Public barrel for \`spec/artifact/\`. Re-exports the external surface — what other layers (analysis, commands) reach for, not what the folder uses internally.  Intentional non-exports: - \`decodeSpecFrontmatter\` and \`decodeSpecArtifact\`: internal helpers for their own roundtrip tests + \`sidecar-writer.ts\`'s same-folder roundtrip assertion. Reached via direct file path. - \`SaferSpecExecutionReporter\`: the Vitest reporter class. Exposed via the \`./reporter\` package subpath so the barrel isn't pulled in by CLI consumers. - \`escapeFor\*\` / \`relativeToFolder\` / \`SidecarWriteError\` / \`writeSidecar\` / \`SidecarSchemaError\` (as a class): used inside the artifact folder only. Catch via tag string (\`Effect.catchTag("SidecarSchemaError", ...)\`), no class import needed.  \`decodeExecutionSidecar\` and \`hashTestTree\` are vitest-free and exposed because \`analysis/\` reads execution sidecars during the \`--implemented\` freshness check.
+- [`artifact/`](./artifact/SPEC.md) — Public barrel for \`spec/artifact/\`. Exposes the abstraction level downstream layers consume — \`buildSpecArtifact\`/\`emitMarkdown\` to construct the artifact, \`buildSpecMeta\`/\`findThresholdShortfall\` for coverage analysis, \`regenerateSidecar\`/\`loadExecutionSidecar\`/ \`computeTestTreeHash\` for sidecar I/O, and \`sidecarSlug\` for path construction. The lower codecs (\`serializeSidecar\`, \`decodeExecutionSidecar\`, \`hashTestTree\`, \`computeTypeCoverage\`, \`findMissingPropertyTypes\`) are implementation details consumed only by the wrappers above.  Intentional non-exports: - \`SaferSpecExecutionReporter\`: the Vitest reporter class. Exposed via the \`./reporter\` package subpath so the barrel isn't pulled in by CLI consumers. - \`decodeSpecFrontmatter\`/\`decodeSpecArtifact\`: internal helpers used by sidecar-writer's roundtrip property only. - \`escapeFor\*\` / \`relativeToFolder\` / \`SidecarWriteError\` / \`writeSidecar\`: internal to artifact, callers use the higher-level wrappers.
 - [`grammar/`](./grammar/SPEC.md) — Barrel for \`spec/grammar/\`. Re-exports the \`@spec.\*\` directive parsers and the closed \`PropertyType\` vocabulary.  \`it-spec.ts\` is INTENTIONALLY NOT re-exported here. The runtime encoding of per-export directive metadata (\`itSpec.todo\` / \`itSpec.prop\`) imports Vitest's \`it\`; Vitest's module throws when loaded outside a test runner (e.g. when the \`safer-spec\` CLI binary is invoked). Re-exporting \`itSpec\` through this barrel would transitively pull Vitest into every cross-folder consumer of any grammar export (directive parsers, types, PROPERTY\_TYPES), crashing the CLI. Tests reach \`itSpec\` directly via \`@safer/spec/grammar/it-spec.js\`; the package's main facade (\`src/index.ts\`) re-exports it for downstream authors.  \`SaferSpecExecutionReporter\` in \`spec/artifact/index.ts\` has the same exclusion for the same reason.
 - [`index.ts`](./index.ts) — Spec domain barrel. Anchors \`src/spec/SPEC.md\` (codemod requires every folder with a SPEC to expose an \`index.ts\` barrel) and re-exports the test-author surface (\`itSpec\`, \`ItSpec\`) consumed by the package facade. The Vitest reporter class is exposed via the dedicated \`@chughtapan/safer-spec-development/reporter\` subpath (not this barrel) so config-time consumers don't transitively load \`it-spec.ts\`'s \`vitest\` import, which throws when evaluated from a config file. The richer spec-format machinery (directive parser, emitter, sidecar writer, link resolver) is consumed directly by \`commands/\` via path aliases; routing it through this barrel would be ceremony without a caller.
+- [`__tests__/spec.spec.test.ts`](./__tests__/spec.spec.test.ts) — Property tests for \`spec/\`'s author-facing surface. The folder barrel re-exports \`itSpec\` (the test-author runtime) from \`spec/grammar/it-spec.ts\`. Tests assert the shape of \`itSpec\` — its methods, their signatures, and the consistency between the runtime value and the \`ItSpec\` interface it implements.
+- [`__tests__/sweep.spec.test.ts`](./__tests__/sweep.spec.test.ts) — Coverage-sweep tests for the \`spec/\` facade — adds property types beyond \`spec.spec.test.ts\` for the single export \`itSpec\` so it crosses the gate threshold.
 
 ## Properties
 
-_No `itSpec` calls in test files._
+| Property | Type | Exports | Claim | Status |
+|---|---|---|---|---|
+| `itspec-exposes-todo-and-prop-methods` | `Inclusion` | `itSpec` | \`itSpec\` exposes exactly the methods \`todo\` and \`prop\` — the two-shape author API the codemod's cross-check expects to find at every itSpec call site | implemented |
+| `itspec-todo-and-prop-are-functions` | `Typechecking` | `itSpec` | \`itSpec.todo\` and \`itSpec.prop\` are both functions — the runtime shape downstream test authors call | implemented |
+| `itspec-todo-arity` | `Constant Equality` | `itSpec` | \`itSpec.todo\` has arity 2 (id, meta) — matching the documented \`ItSpec\["todo"\]\` signature | implemented |
+| `itspec-prop-arity` | `Constant Equality` | `itSpec` | \`itSpec.prop\` has arity 4 (id, meta, arb, body) — matching the documented \`ItSpec\["prop"\]\` signature | implemented |
+| `itspec-todo-prop-distinct-references` | `Constant Non-Equality` | `itSpec` | \`itSpec.todo\` and \`itSpec.prop\` are different function references — \`extractProperties\` distinguishes stubs from implemented bodies by checking which method was called at each test site | implemented |
+| `itspec-bounded-method-count` | `Constant Bounds Checking` | `itSpec` | \`itSpec\` exposes exactly two methods (\`todo\` and \`prop\`) — the closed API surface the codemod's directive parser keys on | implemented |
+| `itspec-roundtrip-method-call-shape` | `Roundtrip` | `itSpec` | \`itSpec.todo\` and \`itSpec.prop\` are both function-typed — calling either with an \`id\` and \`meta\` doesn't throw at the type level (regardless of runtime side effects) | implemented |
+| `itspec-includes-todo-key` | `Inclusion` | `itSpec` | \`itSpec\` exposes \`todo\` as an own property key — the surface every test file imports via \`itSpec.todo(...)\` | implemented |

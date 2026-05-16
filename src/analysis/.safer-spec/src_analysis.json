@@ -1,10 +1,10 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/analysis",
-  "generatedAtSha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f",
+  "generatedAtSha": "01f9260c189c6e440f1f808aac7c684b35b97a7f",
   "exports": [
     {
-      "name": "DeclaredExport",
+      "name": "GenerateFolderError",
       "shape": "type",
       "requiredPropertyTypes": [
         "Roundtrip",
@@ -17,52 +17,25 @@
         "Inclusion",
         "Exception Raising"
       ],
-      "observedPropertyTypes": [],
+      "observedPropertyTypes": [
+        "Roundtrip",
+        "Exception Raising",
+        "Typechecking",
+        "Constant Bounds Checking",
+        "Inclusion"
+      ],
       "skipped": [],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
-        "path": "src/analysis/exports.ts",
-        "line": 19,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
+        "path": "src/analysis/orchestrate.ts",
+        "line": 68,
+        "sha": "01f9260c189c6e440f1f808aac7c684b35b97a7f"
       }
     },
     {
-      "name": "sidecarSlug",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "none",
-        "reason": "pure transformation captured by signature."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "folder `.` maps to `\\\"root\\\"`; folders with `/` or `\\\\` are coalesced into a single-segment slug with `_` separators; otherwise the folder string is returned unchanged after stripping leading `./`",
-          "reason": "single source of truth for the sidecar slug across generate, validate, and reporter. Three call sites previously inlined this logic; agreement is the contract."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/artifact/sidecar-writer.ts",
-        "line": 42,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "FolderInputs",
+      "name": "GenerateFolderIOError",
       "shape": "type",
       "requiredPropertyTypes": [
         "Roundtrip",
@@ -75,45 +48,21 @@
         "Inclusion",
         "Exception Raising"
       ],
-      "observedPropertyTypes": [],
+      "observedPropertyTypes": [
+        "Roundtrip",
+        "Exception Raising",
+        "Typechecking",
+        "Constant Bounds Checking",
+        "Inclusion"
+      ],
       "skipped": [],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
-        "path": "src/analysis/pipeline.ts",
-        "line": 51,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "collectFolderInputs",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "returns folder inputs (sources, tests, index path) or null if no index.ts barrel exists",
-          "reason": "contract for validate's per-folder iteration."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/analysis/pipeline.ts",
-        "line": 74,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
+        "path": "src/analysis/orchestrate.ts",
+        "line": 73,
+        "sha": "01f9260c189c6e440f1f808aac7c684b35b97a7f"
       }
     },
     {
@@ -137,340 +86,12 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/checks.ts",
-        "line": 83,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
+        "line": 74,
+        "sha": "01f9260c189c6e440f1f808aac7c684b35b97a7f"
       }
     },
     {
-      "name": "catchDirectiveErrors",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 117,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "checkDrift",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 147,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "checkSidecarDrift",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 177,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "inspectFolder",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "produces the same FolderAnalysis shape `generate` emits plus a per-test issues list; regenerate-and-compare on `analysis` is byte-deterministic",
-          "reason": "roundtrip contract; validate's drift check relies on it."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/analysis/pipeline.ts",
-        "line": 193,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "collectExports",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "unresolvable re-exports are silently dropped",
-        "reason": "ts-morph cannot follow `export ... from` without the target file registered on the same Project."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "result is source-ordered; barrel re-exports resolve to their target declarations when targets are supplied via siblings + paths",
-          "reason": "emit.ts's canonical sort; re-export resolution needs target files registered and tsconfig aliases configured."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/analysis/exports.ts",
-        "line": 196,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "checkThresholds",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 220,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "checkImplBodies",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 235,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "uniqueExternalSources",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/exports.ts",
-        "line": 250,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "buildSpecMeta",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "branchCoverageFromSpecTests stays null until a v8 coverage hook is wired up (follow-up slice)",
-        "reason": "lifecycle contract."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "builds a `SpecMeta` from run-level context + analysis-derived type coverage; populates classifierCoverage / preconditionPassRate from `execution` sidecar when present",
-          "reason": "emit's frontmatter + sidecar both require meta; `--implemented` mode merges Vitest reporter stats into the gate inputs."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/analysis/pipeline.ts",
-        "line": 252,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "loadExecutionSidecar",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through `ExecutionSidecarSchema`; returns null when absent or malformed",
-          "reason": "validate's `--implemented` gate consumes the coverage values; absence is surfaced separately as a typed gap error."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/analysis/pipeline.ts",
-        "line": 273,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "checkExecutionSidecarPresent",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 274,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "regenerateMarkdown",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/pipeline.ts",
-        "line": 292,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "BuildExportEntriesResult",
+      "name": "GenerateFolderAnyError",
       "shape": "type",
       "requiredPropertyTypes": [
         "Roundtrip",
@@ -489,14 +110,14 @@
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
-        "path": "src/analysis/exports.ts",
-        "line": 320,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
+        "path": "src/analysis/orchestrate.ts",
+        "line": 84,
+        "sha": "01f9260c189c6e440f1f808aac7c684b35b97a7f"
       }
     },
     {
-      "name": "failOnIssues",
-      "shape": "function",
+      "name": "GenerateFolderArtifacts",
+      "shape": "type",
       "requiredPropertyTypes": [
         "Roundtrip",
         "Partial Roundtrip",
@@ -514,13 +135,13 @@
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 333,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
+        "path": "src/analysis/orchestrate.ts",
+        "line": 89,
+        "sha": "01f9260c189c6e440f1f808aac7c684b35b97a7f"
       }
     },
     {
-      "name": "unresolvedFolderError",
+      "name": "buildKnownExports",
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
@@ -533,19 +154,24 @@
         "Inclusion",
         "Exception Raising"
       ],
-      "observedPropertyTypes": [],
+      "observedPropertyTypes": [
+        "Inclusion",
+        "Typechecking",
+        "Roundtrip",
+        "Constant Equality"
+      ],
       "skipped": [],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 344,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
+        "path": "src/analysis/orchestrate.ts",
+        "line": 183,
+        "sha": "01f9260c189c6e440f1f808aac7c684b35b97a7f"
       }
     },
     {
-      "name": "extractProperties",
+      "name": "generateFolder",
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
@@ -558,24 +184,58 @@
         "Inclusion",
         "Exception Raising"
       ],
-      "observedPropertyTypes": [],
+      "observedPropertyTypes": [
+        "Typechecking",
+        "Constant Equality",
+        "Constant Non-Equality",
+        "Constant Bounds Checking"
+      ],
       "skipped": [],
       "residualContract": {
         "_tag": "some",
-        "body": "calls under nested ExpressionStatements are not bound; JSDoc lookup returns null and the call falls into missing-directive",
-        "reason": "ts-morph's getJsDocs is a property of the immediate parent statement; nested forms are not in scope for this slice."
+        "body": "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally",
+        "reason": "drift-check byte-equality contract."
       },
       "residualAssumes": [],
       "residualGuarantees": [
         {
-          "claim": "rows carry all four required directives bound to the JSDoc immediately preceding the itSpec call; issues cover missing directives, JSDoc↔runtime mismatch, opts.exports outside `declaredExports`, and empty prop bodies",
-          "reason": "validate's gap-class errors derive from issues; `declaredExports` empty skips the barrel-membership gate (back-compat)."
+          "claim": "returns the artifacts (markdown + sidecar JSON) for one folder; folder writes are the caller's responsibility so --dry-run / --write decisions stay at the CLI boundary",
+          "reason": "separation of pipeline (here) from I/O policy (commands/)."
         }
       ],
       "sourceRef": {
-        "path": "src/analysis/properties.ts",
-        "line": 347,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
+        "path": "src/analysis/orchestrate.ts",
+        "line": 267,
+        "sha": "01f9260c189c6e440f1f808aac7c684b35b97a7f"
+      }
+    },
+    {
+      "name": "validateFolder",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Typechecking",
+        "Constant Equality",
+        "Inclusion"
+      ],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/orchestrate.ts",
+        "line": 299,
+        "sha": "01f9260c189c6e440f1f808aac7c684b35b97a7f"
       }
     },
     {
@@ -592,112 +252,29 @@
         "Inclusion",
         "Exception Raising"
       ],
-      "observedPropertyTypes": [],
+      "observedPropertyTypes": [
+        "Constant Equality",
+        "Inclusion",
+        "Typechecking",
+        "Constant Bounds Checking",
+        "Roundtrip"
+      ],
       "skipped": [],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/checks.ts",
-        "line": 357,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "regenerateSidecar",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; SidecarSchemaError is a defect (artifact our own emitter produced)",
-          "reason": "validate's sidecar-drift cross-check needs the byte-for-byte regenerated form."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/analysis/pipeline.ts",
-        "line": 358,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "buildExportEntries",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "callers that pass `folderKnownExports = undefined` skip the drift gate entirely; the returned `unmatched` is then always empty",
-        "reason": "generate is a producer (no gate); validate is the gate. The parameter is the discriminator."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "every declared export not named by an `@spec.ignore-export` directive appears in entries exactly once; directives matching a declaration are merged; unmatched per-export directives are returned via `unmatched` when `folderKnownExports` is supplied",
-          "reason": "contract for emit.ts's Public surface section + validate's drift gate (MissingSpecPropertyError routing)."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/analysis/exports.ts",
-        "line": 402,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
-      }
-    },
-    {
-      "name": "indexFilePurposes",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/exports.ts",
-        "line": 429,
-        "sha": "e399de5a66bb02dc52ba5c1019e3bb6f1982626f"
+        "line": 334,
+        "sha": "01f9260c189c6e440f1f808aac7c684b35b97a7f"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0
+    "typeCoverage": 0.48148148148148157
   },
   "thresholds": {
-    "typeCoverage": 0,
+    "typeCoverage": 0.4,
     "classifierCoverage": 0,
     "preconditionPassRate": 0
   }

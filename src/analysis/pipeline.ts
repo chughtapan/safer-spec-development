@@ -16,19 +16,9 @@ import {
   type LocatedDirective,
 } from "@safer/spec/grammar/index.js";
 import {
-  buildSpecArtifact,
-  computeTypeCoverage,
-  emitMarkdown,
-  findMissingPropertyTypes,
   type FolderAnalysis,
   type PropertyRow,
-  type SpecMeta,
 } from "@safer/spec/artifact/index.js";
-import {
-  decodeExecutionSidecar,
-  type ExecutionSidecar,
-} from "@safer/spec/artifact/index.js";
-import { serializeSidecar, sidecarSlug } from "@safer/spec/artifact/index.js";
 import {
   buildExportEntries,
   collectExports,
@@ -36,11 +26,7 @@ import {
   uniqueExternalSources,
 } from "@safer/analysis/exports.js";
 import { extractProperties, type ItSpecIssue } from "@safer/analysis/properties.js";
-import {
-  buildChildren,
-  discoverImmediateSubfolders,
-  resolveThresholdsFor,
-} from "@safer/project/index.js";
+import { buildChildren } from "@safer/analysis/folders.js";
 import type { ProjectContext } from "@safer/project/index.js";
 
 type DirectiveParseError =
@@ -202,7 +188,7 @@ export const inspectFolder = ({ fs, path, folder, inputs, ctx }: InspectArgs): E
     const externalDirectives = yield* parseSources(fs, externalSources);
     const directives = [...localDirectives, ...externalDirectives];
     const tests = yield* parseTests(fs, inputs.tests, collectKnownExports(ctx));
-    const subfolders = yield* discoverImmediateSubfolders(fs, path, folder);
+    const subfolders = ctx.subfoldersOf(folder);
     const subDirectives = yield* parseSources(fs, subfolders.map((s) => path.join(s, "index.ts")));
     const purposeByPath = indexFilePurposes([
       ...directives, ...tests.directives, ...subDirectives,
@@ -234,134 +220,10 @@ export const inspectFolder = ({ fs, path, folder, inputs, ctx }: InspectArgs): E
 
 
 
-const DEFAULT_GENERATED_FROM = {
-  jsdoc: "ts-morph + @microsoft/tsdoc",
-  exports: "ts-morph getExportedDeclarations",
-  schemas: [],
-  properties: ["fast-check"],
-  eslint: "eslint-plugin-agent-code-guard",
-} as const;
-
-/**
- * @spec.guarantee "builds a `SpecMeta` from run-level context + analysis-derived type coverage; populates classifierCoverage / preconditionPassRate from `execution` sidecar when present"
- *   reason: emit's frontmatter + sidecar both require meta; `--implemented`
- *           mode merges Vitest reporter stats into the gate inputs.
- * @spec.residual-contract "branchCoverageFromSpecTests stays null until a v8 coverage hook is wired up (follow-up slice)"
- *   reason: lifecycle contract.
- */
-export const buildSpecMeta = (
-  analysis: FolderAnalysis,
-  ctx: ProjectContext,
-  execution?: ExecutionSidecar | null,
-): SpecMeta => ({
-  generatedAtSha: ctx.generatedAtSha,
-  coverage: {
-    typeCoverage: computeTypeCoverage(analysis),
-    classifierCoverage: execution?.classifierCoverage ?? null,
-    preconditionPassRate: execution?.preconditionPassRate ?? null,
-    branchCoverageFromSpecTests: execution?.branchCoverageFromSpecTests ?? null,
-  },
-  thresholds: resolveThresholdsFor(ctx.config, analysis.folder),
-  generatedFrom: DEFAULT_GENERATED_FROM,
-});
-
-/**
- * @spec.guarantee "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through `ExecutionSidecarSchema`; returns null when absent or malformed"
- *   reason: validate's `--implemented` gate consumes the coverage values;
- *           absence is surfaced separately as a typed gap error.
- */
-export const loadExecutionSidecar = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  folder: string,
-): Effect.Effect<ExecutionSidecar | null, never> =>
-  fs
-    .readFileString(
-      path.join(folder, ".safer-spec", `${sidecarSlug(folder)}.execution.json`),
-    )
-    .pipe(
-      Effect.flatMap((text) =>
-        Effect.try({ try: () => JSON.parse(text) as unknown, catch: () => null }),
-      ),
-      Effect.flatMap(decodeExecutionSidecar),
-      Effect.map((v): ExecutionSidecar | null => v),
-      Effect.catchAll(() => Effect.succeed(null)),
-    );
-
-/** Alias for `emitMarkdown(analysis, meta)`; keeps validate.ts's import block compact. */
-export const regenerateMarkdown = (
-  analysis: FolderAnalysis,
-  meta: SpecMeta,
-): string => emitMarkdown(analysis, meta);
-
-export interface ThresholdShortfall {
-  readonly metric: "typeCoverage" | "classifierCoverage" | "preconditionPassRate";
-  readonly observed: number;
-  readonly threshold: number;
-  readonly missingPropertyTypes: ReadonlyArray<string>;
-}
-
-const checkOne = (
-  metric: ThresholdShortfall["metric"],
-  observed: number | null,
-  threshold: number,
-  missingPropertyTypes: ReadonlyArray<string>,
-): ThresholdShortfall | null => {
-  if (threshold <= 0 || observed === null || observed >= threshold) return null;
-  return { metric, observed, threshold, missingPropertyTypes };
-};
-
-/**
- * @spec.guarantee "returns the first observed-below-threshold metric (typeCoverage → classifier → precondition order) or null when all gates pass"
- *   reason: validate emits one MissingImplError per folder; first failing
- *           gate is the surfaced one.
- * @spec.residual-contract "metrics whose threshold is 0 are not gated regardless of observed value"
- *   reason: zero-threshold is the explicit no-gate marker used by the
- *           permissive default config.
- */
-export const findThresholdShortfall = (
-  analysis: FolderAnalysis,
-  meta: SpecMeta,
-): ThresholdShortfall | null =>
-  checkOne(
-    "typeCoverage",
-    meta.coverage.typeCoverage,
-    meta.thresholds.typeCoverage,
-    findMissingPropertyTypes(analysis),
-  ) ??
-  checkOne(
-    "classifierCoverage",
-    meta.coverage.classifierCoverage,
-    meta.thresholds.classifierCoverage,
-    [],
-  ) ??
-  checkOne(
-    "preconditionPassRate",
-    meta.coverage.preconditionPassRate,
-    meta.thresholds.preconditionPassRate,
-    [],
-  );
-
 const SHA_LINE_JSON = /"(generatedAtSha|sha)":\s*"[^"]*"/g;
 
 /** Normalize SHA fields for byte-equality comparison between on-disk and regenerated sidecars. */
 export const stripVolatileJson = (text: string): string =>
   text.replace(SHA_LINE_JSON, '"$1": "<NORMALIZED>"');
 
-export { sidecarSlug };
-
-/**
- * @spec.guarantee "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; SidecarSchemaError is a defect (artifact our own emitter produced)"
- *   reason: validate's sidecar-drift cross-check needs the byte-for-byte
- *           regenerated form.
- */
-export const regenerateSidecar = (
-  analysis: FolderAnalysis,
-  meta: SpecMeta,
-): Effect.Effect<string, never> =>
-  serializeSidecar(buildSpecArtifact(analysis, meta)).pipe(
-    Effect.catchTag("SidecarSchemaError", (e) =>
-      Effect.die(new Error(`internal sidecar schema mismatch: ${e.issues.join("; ")}`)),
-    ),
-  );
 
