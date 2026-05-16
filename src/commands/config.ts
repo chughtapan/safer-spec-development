@@ -187,10 +187,10 @@ const decodeConfigSource = (
  *   reason: missing config is the common case (permissive defaults); a
  *           present-but-broken config is a user error that should fail
  *           loudly, not be silently treated as missing.
- * @spec.residual-contract "discriminates 'file truly absent' (use empty Config) from 'file present but unreadable' (ConfigError) via `fs.exists`; a race window between exists() and readFileString is acceptable for config files"
- *   reason: permission failures, EISDIR, and other read errors on an
- *           existing config are NOT 'absent' — they are wrong-state and
- *           must surface, not silently disable gates.
+ * @spec.residual-contract "only `exists() === false` falls back to empty Config; any thrown failure from `exists` itself or `readFileString` becomes ConfigError so a permissions/IO error cannot silently disable gates"
+ *   reason: 'file absent' and 'file present but unreadable' are different
+ *           states; only the former is permissive. exists()-failure is
+ *           neither and must surface, not get coerced to 'absent'.
  */
 export const loadConfig = (
   fs: FileSystem.FileSystem,
@@ -198,24 +198,35 @@ export const loadConfig = (
   root: string,
 ): Effect.Effect<Config, ConfigError> => {
   const configPath = path.join(root, "safer-spec.config.json");
+  // `fs.exists` returning `false` is the "truly absent" case — fall back to
+  // EMPTY_CONFIG. Failure of `exists` itself (EACCES on the parent dir,
+  // EIO, etc.) is NOT the same as absent; surface it as ConfigError so a
+  // permissions misconfiguration cannot silently disable the gate.
   return fs.exists(configPath).pipe(
-    Effect.catchAll(() => Effect.succeed(false)),
-    Effect.flatMap((present) =>
-      present
-        ? fs.readFileString(configPath).pipe(
-            Effect.matchEffect({
-              onFailure: (e) =>
-                Effect.fail(
-                  new ConfigError({
-                    path: configPath,
-                    cause: `read failed: ${String(e)}`,
-                  }),
-                ),
-              onSuccess: (text) => decodeConfigSource(text, configPath),
-            }),
-          )
-        : Effect.succeed(EMPTY_CONFIG),
-    ),
+    Effect.matchEffect({
+      onFailure: (e) =>
+        Effect.fail(
+          new ConfigError({
+            path: configPath,
+            cause: `exists check failed: ${String(e)}`,
+          }),
+        ),
+      onSuccess: (present) =>
+        present
+          ? fs.readFileString(configPath).pipe(
+              Effect.matchEffect({
+                onFailure: (e) =>
+                  Effect.fail(
+                    new ConfigError({
+                      path: configPath,
+                      cause: `read failed: ${String(e)}`,
+                    }),
+                  ),
+                onSuccess: (text) => decodeConfigSource(text, configPath),
+              }),
+            )
+          : Effect.succeed(EMPTY_CONFIG),
+    }),
     Effect.withSpan("commands/config/loadConfig"),
   );
 };
