@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/analysis",
-  "generatedAtSha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd",
+  "generatedAtSha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b",
   "exports": [
     {
       "name": "DeclaredExport",
@@ -24,58 +24,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/exports.ts",
-        "line": 18,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "ItSpecIssue",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/properties.ts",
-        "line": 22,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "ValidateDiagnostic",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 36,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 19,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -108,41 +58,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 42,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "MissingSpecPropertyError",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "diagnostic.problem is human-readable; agents read .diagnostic.fix to route remediation",
-        "reason": "trust contract for diagnostic body content."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "emitted when committed SPEC.md drifts from the regenerated output, when the sidecar JSON drifts, or when a Properties row fails its test-side directive cross-check",
-          "reason": "spec-tier ratchet; cli translates this tag to exit code 11."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 49,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -166,110 +82,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/pipeline.ts",
-        "line": 59,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "MissingStubError",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "diagnostic.location names the call site (file:line)",
-        "reason": "trust contract for routing the next remediation step."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "emitted when an itSpec call site lacks the four required JSDoc directives, or when a JSDoc directive fails to parse",
-          "reason": "stub-tier ratchet; cli translates this tag to exit code 12."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 59,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "MissingImplError",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "diagnostic.cause names the reason the body is empty or the metric is below threshold",
-        "reason": "trust contract for routing the next remediation step."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "emitted when an itSpec.prop body is empty/stubbed in --implemented mode, or when a coverage metric is below its configured non-zero threshold",
-          "reason": "implementation-tier block; cli translates this tag to exit code 13."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 69,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "NoFoldersResolvedError",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "diagnostic.cause names the requested folder argument",
-        "reason": "trust contract for routing the next remediation step."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "emitted when --folder is specified and resolves to zero folders containing index.ts; cli translates this tag to exit code 1",
-          "reason": "silent zero-folder validates would let typos pass the gate."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 79,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 51,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -298,8 +112,8 @@
       ],
       "sourceRef": {
         "path": "src/analysis/pipeline.ts",
-        "line": 82,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 74,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -324,7 +138,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 83,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -349,7 +163,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 117,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -374,7 +188,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 147,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -399,7 +213,37 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 177,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "inspectFolder",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "produces the same FolderAnalysis shape `generate` emits plus a per-test issues list; regenerate-and-compare on `analysis` is byte-deterministic",
+          "reason": "roundtrip contract; validate's drift check relies on it."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/pipeline.ts",
+        "line": 193,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -432,38 +276,8 @@
       ],
       "sourceRef": {
         "path": "src/analysis/exports.ts",
-        "line": 200,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "inspectFolder",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "produces the same FolderAnalysis shape `generate` emits plus a per-test issues list; regenerate-and-compare on `analysis` is byte-deterministic",
-          "reason": "roundtrip contract; validate's drift check relies on it."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/analysis/pipeline.ts",
-        "line": 201,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 196,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -488,7 +302,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 220,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -513,7 +327,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 235,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -537,8 +351,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/exports.ts",
-        "line": 254,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 250,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -571,33 +385,8 @@
       ],
       "sourceRef": {
         "path": "src/analysis/pipeline.ts",
-        "line": 260,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "checkExecutionSidecarPresent",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 274,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 252,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -626,8 +415,33 @@
       ],
       "sourceRef": {
         "path": "src/analysis/pipeline.ts",
-        "line": 281,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 273,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "checkExecutionSidecarPresent",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 274,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -651,12 +465,12 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/pipeline.ts",
-        "line": 300,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 292,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
-      "name": "ThresholdShortfall",
+      "name": "BuildExportEntriesResult",
       "shape": "type",
       "requiredPropertyTypes": [
         "Roundtrip",
@@ -675,43 +489,9 @@
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
-        "path": "src/analysis/pipeline.ts",
-        "line": 305,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "findThresholdShortfall",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "metrics whose threshold is 0 are not gated regardless of observed value",
-        "reason": "zero-threshold is the explicit no-gate marker used by the permissive default config."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "returns the first observed-below-threshold metric (typeCoverage → classifier → precondition order) or null when all gates pass",
-          "reason": "validate emits one MissingImplError per folder; first failing gate is the surfaced one."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/analysis/pipeline.ts",
-        "line": 330,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "path": "src/analysis/exports.ts",
+        "line": 320,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -736,7 +516,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 333,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -761,7 +541,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 344,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -795,32 +575,7 @@
       "sourceRef": {
         "path": "src/analysis/properties.ts",
         "line": 347,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "stripVolatileJson",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/pipeline.ts",
-        "line": 356,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -845,7 +600,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 357,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -874,8 +629,8 @@
       ],
       "sourceRef": {
         "path": "src/analysis/pipeline.ts",
-        "line": 366,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 358,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -908,8 +663,8 @@
       ],
       "sourceRef": {
         "path": "src/analysis/exports.ts",
-        "line": 406,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 402,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -933,8 +688,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/exports.ts",
-        "line": 433,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 429,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     }
   ],

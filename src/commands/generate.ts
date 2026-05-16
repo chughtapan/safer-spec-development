@@ -9,38 +9,39 @@
 
 import { FileSystem, Path } from "@effect/platform";
 import { Brand, Data, Effect, Option } from "effect";
-import { normalizeFolder } from "@safer/project/context.js";
+import {
+  buildChildren,
+  discoverFolders,
+  discoverImmediateSubfolders,
+  loadProjectContext,
+  normalizeFolder,
+  type ProjectContext,
+} from "@safer/project/index.js";
 import {
   parseFileDirectives,
   type LocatedDirective,
   type JsDocDirectiveOverflowError,
   type JsDocDirectiveParseError,
   type JsDocUnknownDirectiveError,
-} from "@safer/spec/grammar/directives.js";
+} from "@safer/spec/grammar/index.js";
 import {
   buildSpecArtifact,
   emitMarkdown,
+  serializeSidecar,
+  sidecarSlug,
   type FolderAnalysis,
   type PropertyRow,
-} from "@safer/spec/artifact/emit.js";
-import type { SpecArtifact } from "@safer/spec/artifact/sidecar.js";
-import { serializeSidecar, sidecarSlug } from "@safer/spec/artifact/sidecar-writer.js";
+  type SpecArtifact,
+} from "@safer/spec/artifact/index.js";
 import {
   buildExportEntries,
+  buildSpecMeta,
   collectExports,
+  extractProperties,
   indexFilePurposes,
   uniqueExternalSources,
   type DeclaredExport,
-} from "@safer/analysis/exports.js";
-import { extractProperties } from "@safer/analysis/properties.js";
-import {
-  buildChildren,
-  buildSpecMeta,
-  discoverFolders,
-  discoverImmediateSubfolders,
-  loadProjectContext,
-  type ProjectContext,
-} from "@safer/analysis/pipeline.js";
+} from "@safer/analysis/index.js";
 
 type FolderPath = string & Brand.Brand<"FolderPath">;
 const FolderPath = Brand.nominal<FolderPath>();

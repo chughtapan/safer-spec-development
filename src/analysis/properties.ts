@@ -16,8 +16,8 @@
  */
 
 import { Node, Project, SyntaxKind, type CallExpression, type JSDoc, type Expression } from "ts-morph";
-import type { Directive, LocatedDirective } from "@safer/spec/grammar/directives.js";
-import type { PropertyRow } from "@safer/spec/artifact/emit.js";
+import type { Directive, LocatedDirective } from "@safer/spec/grammar/index.js";
+import type { PropertyRow } from "@safer/spec/artifact/index.js";
 
 export interface ItSpecIssue {
   readonly kind: "missing-directive" | "directive-mismatch" | "empty-body";

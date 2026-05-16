@@ -13,7 +13,7 @@
  */
 
 import { Data, Effect, ParseResult, Schema } from "effect";
-import { PROPERTY_TYPES } from "@safer/spec/grammar/property-types.js";
+import { PROPERTY_TYPES } from "@safer/spec/grammar/index.js";
 
 const KindSchema = Schema.Literal(...PROPERTY_TYPES);
 

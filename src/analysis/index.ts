@@ -9,15 +9,13 @@
 export {
   buildSpecMeta,
   collectFolderInputs,
-  findThresholdShortfall,
   inspectFolder,
   loadExecutionSidecar,
   regenerateMarkdown,
   regenerateSidecar,
   sidecarSlug,
-  stripVolatileJson,
 } from "@safer/analysis/pipeline.js";
-export type { FolderInputs, ThresholdShortfall } from "@safer/analysis/pipeline.js";
+export type { FolderInputs } from "@safer/analysis/pipeline.js";
 
 export {
   catchDirectiveErrors,
@@ -28,16 +26,9 @@ export {
   checkThresholds,
   diagnosticLines,
   failOnIssues,
-  MissingImplError,
-  MissingSpecPropertyError,
-  MissingStubError,
-  NoFoldersResolvedError,
   unresolvedFolderError,
 } from "@safer/analysis/checks.js";
-export type {
-  ValidateDiagnostic,
-  ValidateGapError,
-} from "@safer/analysis/checks.js";
+export type { ValidateGapError } from "@safer/analysis/checks.js";
 
 export {
   buildExportEntries,
@@ -45,7 +36,9 @@ export {
   indexFilePurposes,
   uniqueExternalSources,
 } from "@safer/analysis/exports.js";
-export type { DeclaredExport } from "@safer/analysis/exports.js";
+export type {
+  BuildExportEntriesResult,
+  DeclaredExport,
+} from "@safer/analysis/exports.js";
 
 export { extractProperties } from "@safer/analysis/properties.js";
-export type { ItSpecIssue } from "@safer/analysis/properties.js";

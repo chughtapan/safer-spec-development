@@ -9,8 +9,8 @@ import { NodeContext } from "@effect/platform-node";
 import { Data, Effect, Exit } from "effect";
 import * as fc from "fast-check";
 import { itSpec } from "@safer/spec/grammar/it-spec.js";
-import { SPEC_FORMAT_VERSION } from "@safer/project/version.js";
-import { PROPERTY_TYPES } from "@safer/spec/grammar/property-types.js";
+import { SPEC_FORMAT_VERSION } from "@safer/project/index.js";
+import { PROPERTY_TYPES } from "@safer/spec/grammar/index.js";
 import { decodeSpecArtifact, type SpecArtifact } from "@safer/spec/artifact/sidecar.js";
 import { serializeSidecar, sidecarSlug, writeSidecar } from "@safer/spec/artifact/sidecar-writer.js";
 

@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/project",
-  "generatedAtSha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd",
+  "generatedAtSha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b",
   "exports": [
     {
       "name": "SPEC_FORMAT_VERSION",
@@ -34,36 +34,11 @@
       "sourceRef": {
         "path": "src/project/version.ts",
         "line": 16,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
-      "name": "ConfigError",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/project/config.ts",
-        "line": 18,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "ProjectContextError",
+      "name": "SourceFile",
       "shape": "type",
       "requiredPropertyTypes": [
         "Roundtrip",
@@ -83,8 +58,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/project/context.ts",
-        "line": 25,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 30,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -108,83 +83,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/project/context.ts",
-        "line": 30,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "Config",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/project/config.ts",
-        "line": 49,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "Thresholds",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/project/config.ts",
-        "line": 51,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "normalizeFolder",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/project/context.ts",
-        "line": 54,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 40,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -218,7 +118,32 @@
       "sourceRef": {
         "path": "src/project/folders.ts",
         "line": 59,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
+    {
+      "name": "normalizeFolder",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/project/context.ts",
+        "line": 64,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -248,7 +173,7 @@
       "sourceRef": {
         "path": "src/project/folders.ts",
         "line": 75,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -285,7 +210,7 @@
       "sourceRef": {
         "path": "src/project/config.ts",
         "line": 80,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -319,41 +244,7 @@
       "sourceRef": {
         "path": "src/project/folders.ts",
         "line": 112,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "loadConfig",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "only `exists() === false` falls back to empty Config; any thrown failure from `exists` itself or `readFileString` becomes ConfigError so a permissions/IO error cannot silently disable gates",
-        "reason": "'file absent' and 'file present but unreadable' are different states; only the former is permissive. exists()-failure is neither and must surface, not get coerced to 'absent'."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "reads safer-spec.config.json at the project root; missing file yields empty Config; present-but-malformed file yields ConfigError",
-          "reason": "missing config is the common case (permissive defaults); a present-but-broken config is a user error that should fail loudly, not be silently treated as missing."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/project/config.ts",
-        "line": 195,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -386,8 +277,8 @@
       ],
       "sourceRef": {
         "path": "src/project/context.ts",
-        "line": 262,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 272,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -411,13 +302,13 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/project/context.ts",
-        "line": 282,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "line": 292,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.015873015873015872
+    "typeCoverage": 0.02222222222222222
   },
   "thresholds": {
     "typeCoverage": 0,

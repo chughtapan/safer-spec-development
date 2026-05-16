@@ -9,7 +9,7 @@
 import { Data, Effect } from "effect";
 import * as fc from "fast-check";
 import { itSpec } from "@safer/spec/grammar/it-spec.js";
-import { SPEC_FORMAT_VERSION } from "@safer/project/version.js";
+import { SPEC_FORMAT_VERSION } from "@safer/project/index.js";
 import { decodeSpecFrontmatter } from "@safer/spec/artifact/frontmatter.js";
 import {
   emitMarkdown,

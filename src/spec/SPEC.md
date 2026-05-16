@@ -1,7 +1,7 @@
 ---
 folder: src/spec
 format-version: 0.1.0
-generatedAtSha: 4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd
+generatedAtSha: 7ed6a36cac8eb995251a294e9b5f009d5fcd700b
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -98,8 +98,8 @@ export const itSpec: ItSpec = {
 
 ## Children
 
-- [`artifact/`](./artifact/SPEC.md) — Public barrel for \`spec/artifact/\`. Re-exports the external surface — what other layers (analysis, commands) reach for, not what the folder uses internally. The parsers \`decodeSpecFrontmatter\` and \`decodeSpecArtifact\` are deliberately NOT re-exported: they exist for their own roundtrip tests + \`sidecar-writer.ts\`'s same-folder roundtrip assertion. \`decodeExecutionSidecar\` IS exposed because \`analysis/pipeline.ts\` parses execution sidecars during the \`--implemented\` freshness check.
-- [`grammar/`](./grammar/SPEC.md) — Barrel for \`spec/grammar/\`. Re-exports the \`@spec.\*\` directive parsers, the closed \`PropertyType\` vocabulary, and the \`itSpec\` runtime encoding. The directive grammar has two sides — JSDoc (authored, parsed) and runtime (\`itSpec.todo\`/\`itSpec.prop\`) — both expressed here. \`validate --implemented\` cross-checks the two encodings.
+- [`artifact/`](./artifact/SPEC.md) — Public barrel for \`spec/artifact/\`. Re-exports the external surface — what other layers (analysis, commands) reach for, not what the folder uses internally.  Intentional non-exports: - \`decodeSpecFrontmatter\` and \`decodeSpecArtifact\`: internal helpers for their own roundtrip tests + \`sidecar-writer.ts\`'s same-folder roundtrip assertion. Reached via direct file path. - \`SaferSpecExecutionReporter\`: the Vitest reporter class. Exposed via the \`./reporter\` package subpath so the barrel isn't pulled in by CLI consumers. - \`escapeFor\*\` / \`relativeToFolder\` / \`SidecarWriteError\` / \`writeSidecar\` / \`SidecarSchemaError\` (as a class): used inside the artifact folder only. Catch via tag string (\`Effect.catchTag("SidecarSchemaError", ...)\`), no class import needed.  \`decodeExecutionSidecar\` and \`hashTestTree\` are vitest-free and exposed because \`analysis/\` reads execution sidecars during the \`--implemented\` freshness check.
+- [`grammar/`](./grammar/SPEC.md) — Barrel for \`spec/grammar/\`. Re-exports the \`@spec.\*\` directive parsers and the closed \`PropertyType\` vocabulary.  \`it-spec.ts\` is INTENTIONALLY NOT re-exported here. The runtime encoding of per-export directive metadata (\`itSpec.todo\` / \`itSpec.prop\`) imports Vitest's \`it\`; Vitest's module throws when loaded outside a test runner (e.g. when the \`safer-spec\` CLI binary is invoked). Re-exporting \`itSpec\` through this barrel would transitively pull Vitest into every cross-folder consumer of any grammar export (directive parsers, types, PROPERTY\_TYPES), crashing the CLI. Tests reach \`itSpec\` directly via \`@safer/spec/grammar/it-spec.js\`; the package's main facade (\`src/index.ts\`) re-exports it for downstream authors.  \`SaferSpecExecutionReporter\` in \`spec/artifact/index.ts\` has the same exclusion for the same reason.
 - [`index.ts`](./index.ts) — Spec domain barrel. Anchors \`src/spec/SPEC.md\` (codemod requires every folder with a SPEC to expose an \`index.ts\` barrel) and re-exports the test-author surface (\`itSpec\`, \`ItSpec\`) consumed by the package facade. The Vitest reporter class is exposed via the dedicated \`@chughtapan/safer-spec-development/reporter\` subpath (not this barrel) so config-time consumers don't transitively load \`it-spec.ts\`'s \`vitest\` import, which throws when evaluated from a config file. The richer spec-format machinery (directive parser, emitter, sidecar writer, link resolver) is consumed directly by \`commands/\` via path aliases; routing it through this barrel would be ceremony without a caller.
 
 ## Properties

@@ -1,8 +1,33 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/grammar",
-  "generatedAtSha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd",
+  "generatedAtSha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b",
   "exports": [
+    {
+      "name": "DIRECTIVE_BODY_MAX_CHARS",
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/grammar/shared.ts",
+        "line": 17,
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
+      }
+    },
     {
       "name": "PROPERTY_TYPES",
       "shape": "unknown",
@@ -33,7 +58,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 27,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -58,7 +83,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 28,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -83,7 +108,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 38,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -108,7 +133,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 39,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -133,79 +158,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 47,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "ItSpec",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override",
-        "reason": "behavioral residue beyond the call signature; downstream authors need to know the property runner is not configured through Vitest."
-      },
-      "residualAssumes": [
-        {
-          "claim": "first positional `id` arg matches the `@spec.property` JSDoc directive value above the call site",
-          "reason": "cross-check enforced by `validate --implemented`; mismatch is exit code 11 (MISSING_SPEC_PROPERTY)."
-        },
-        {
-          "claim": "JSDoc directives above this call match `id`, `meta.type`, and `meta.exports` member names",
-          "reason": "cross-check enforced by `validate --implemented`."
-        }
-      ],
-      "residualGuarantees": [
-        {
-          "claim": "registers the property as a Vitest todo placeholder under `id`",
-          "reason": "side-effect contract; the call mutates Vitest's collector, observable only at runtime."
-        },
-        {
-          "claim": "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`; on completion attaches `{numRuns, numSkips, classifiers}` to the Vitest task's `meta.fastCheck` slot",
-          "reason": "side-effect contract; reporter reads `meta.fastCheck` to build per-folder execution sidecars."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/grammar/it-spec.ts",
-        "line": 54,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "ParseError",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/grammar/shared.ts",
-        "line": 55,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -230,7 +183,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 69,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -255,32 +208,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 89,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "itSpec",
-      "shape": "unknown",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/grammar/it-spec.ts",
-        "line": 121,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -316,12 +244,12 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 284,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.050505050505050504
+    "typeCoverage": 0.0617283950617284
   },
   "thresholds": {
     "typeCoverage": 0,

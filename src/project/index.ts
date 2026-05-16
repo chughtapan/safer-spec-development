@@ -10,16 +10,10 @@ export {
   loadProjectContext,
   loadValidateProjectContext,
   normalizeFolder,
-  ProjectContextError,
 } from "@safer/project/context.js";
-export type { ProjectContext } from "@safer/project/context.js";
+export type { ProjectContext, SourceFile } from "@safer/project/context.js";
 
-export {
-  ConfigError,
-  loadConfig,
-  resolveThresholdsFor,
-} from "@safer/project/config.js";
-export type { Config, Thresholds } from "@safer/project/config.js";
+export { resolveThresholdsFor } from "@safer/project/config.js";
 
 export { SPEC_FORMAT_VERSION } from "@safer/project/version.js";
 

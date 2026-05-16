@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd
+generatedAtSha: 7ed6a36cac8eb995251a294e9b5f009d5fcd700b
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.04888888888888889
+  typeCoverage: 0.04444444444444444
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -24,7 +24,17 @@ thresholds:
 
 ## Purpose
 
-Public barrel for `spec/artifact/`. Re-exports the external surface — what other layers (analysis, commands) reach for, not what the folder uses internally. The parsers `decodeSpecFrontmatter` and `decodeSpecArtifact` are deliberately NOT re-exported: they exist for their own roundtrip tests + `sidecar-writer.ts`'s same-folder roundtrip assertion. `decodeExecutionSidecar` IS exposed because `analysis/pipeline.ts` parses execution sidecars during the `--implemented` freshness check.
+Public barrel for `spec/artifact/`. Re-exports the external surface — what other layers (analysis, commands) reach for, not what the folder uses internally.
+
+Intentional non-exports:
+- `decodeSpecFrontmatter` and `decodeSpecArtifact`: internal helpers
+for their own roundtrip tests + `sidecar-writer.ts`'s same-folder roundtrip assertion. Reached via direct file path.
+- `SaferSpecExecutionReporter`: the Vitest reporter class. Exposed
+via the `./reporter` package subpath so the barrel isn't pulled in by CLI consumers.
+- `escapeFor*` / `relativeToFolder` / `SidecarWriteError` / `writeSidecar`
+/ `SidecarSchemaError` (as a class): used inside the artifact folder only. Catch via tag string (`Effect.catchTag("SidecarSchemaError", ...)`), no class import needed.
+
+`decodeExecutionSidecar` and `hashTestTree` are vitest-free and exposed because `analysis/` reads execution sidecars during the `--implemented` freshness check.
 
 ## Public surface
 
@@ -39,15 +49,6 @@ export type ExportKind =
   | "class"
   | "enum"
   | "other";
-```
-
-### [`SidecarWriteError`](./sidecar-writer.ts#L26)
-
-```ts
-export class SidecarWriteError extends Data.TaggedError("SidecarWriteError")<{
-  readonly folder: string;
-  readonly cause: unknown;
-}> { /* ... */ }
 ```
 
 ### [`ExportEntry`](./emit.ts#L35)
@@ -69,20 +70,6 @@ export interface ExportEntry {
 }
 ```
 
-### [`escapeForMarkdown`](./escape.ts#L36)
-
-```ts
-export const escapeForMarkdown = (
-  input: string,
-  _context: EscapeContext,
-): Effect.Effect<string, never> => /* ... */
-```
-
-**Guarantees:**
-- "output is markdown-safe; backticks, code-fences, link syntax characters, HTML angle brackets are escaped" — _trust contract; emitted into SPEC.md prose where attacker-controlled directive bodies could otherwise inject markup._
-
-**Residual contract:** "the escaping is one-way; round-trip through \`decode\` does not return the original string" — _behavioral residue; downstream readers see escaped form._
-
 ### [`sidecarSlug`](./sidecar-writer.ts#L42)
 
 ```ts
@@ -93,12 +80,6 @@ export const sidecarSlug = (folder: string): string => { /* ... */ }
 - "folder \`.\` maps to \`\\"root\\"\`; folders with \`/\` or \`\\\\\` are coalesced into a single-segment slug with \`\_\` separators; otherwise the folder string is returned unchanged after stripping leading \`./\`" — _single source of truth for the sidecar slug across generate, validate, and reporter. Three call sites previously inlined this logic; agreement is the contract._
 
 **Residual contract:** none — _pure transformation captured by signature._
-
-### [`SpecFrontmatter`](./frontmatter.ts#L48)
-
-```ts
-export type SpecFrontmatter = Schema.Schema.Type<typeof SpecFrontmatterSchemaInner>;
-```
 
 ### [`PropertyRow`](./emit.ts#L50)
 
@@ -112,20 +93,6 @@ export interface PropertyRow {
   readonly stubbed: boolean;
 }
 ```
-
-### [`escapeForYaml`](./escape.ts#L59)
-
-```ts
-export const escapeForYaml = (
-  input: string,
-  _context: EscapeContext,
-): Effect.Effect<string, never> => /* ... */
-```
-
-**Guarantees:**
-- "output is YAML-safe; quotes, colons, dashes at line start are escaped" — _trust contract; emitted into SPEC.md frontmatter._
-
-**Residual contract:** "the escaping is one-way" — _same as escapeForMarkdown._
 
 ### [`serializeSidecar`](./sidecar-writer.ts#L59)
 
@@ -163,33 +130,6 @@ export interface FolderAnalysis {
 export type ExecutionSidecar = Schema.Schema.Type<typeof ExecutionSidecarSchema>;
 ```
 
-### [`escapeForJson`](./escape.ts#L77)
-
-```ts
-export const escapeForJson = (
-  input: string,
-  _context: EscapeContext,
-): Effect.Effect<string, never> => /* ... */
-```
-
-**Guarantees:**
-- "output is JSON-string-safe; quotes, backslashes, control characters are escaped" — _trust contract; emitted into \`.safer-spec/&lt;folder&gt;.json\`._
-
-**Residual contract:** "the escaping is one-way" — _same as escapeForMarkdown._
-
-### [`writeSidecar`](./sidecar-writer.ts#L81)
-
-```ts
-export const writeSidecar = (
-  payload: SidecarWritePayload,
-): Effect.Effect<void, SidecarSchemaError | SidecarWriteError, FileSystem.FileSystem> => /* ... */
-```
-
-**Guarantees:**
-- "atomic per-file write via @effect/platform FileSystem; no partial sidecars on failure" — _trust contract; downstream validate gate must not see half-written sidecars._
-
-**Residual contract:** ".safer-spec/&lt;folder&gt;.json directory is created if missing; pre-existing sidecar is overwritten" — _side-effect contract; users see the directory created on first run._
-
 ### [`decodeExecutionSidecar`](./reporter.ts#L82)
 
 ```ts
@@ -206,36 +146,6 @@ export const decodeExecutionSidecar = Schema.decodeUnknown(ExecutionSidecarSchem
 ```ts
 export type SpecArtifact = Schema.Schema.Type<typeof SpecArtifactSchemaInner>;
 ```
-
-### [`SidecarSchemaError`](./sidecar.ts#L97)
-
-```ts
-export class SidecarSchemaError extends Data.TaggedError("SidecarSchemaError")<{
-  readonly path: string;
-  readonly issues: ReadonlyArray<string>;
-}> { /* ... */ }
-```
-
-### [`escapeForMarkdownProse`](./escape.ts#L110)
-
-```ts
-export const escapeForMarkdownProse = (input: string): string => /* ... */
-```
-
-**Guarantees:**
-- "output is safe to interpolate into markdown PROSE; backticks, code-fences, link syntax characters, asterisks, underscores, and HTML angle brackets are escaped; control characters are stripped" — _trust contract for sync emit paths (the Effect-flavored \`escapeForMarkdown\` is for Effect contexts; this is the same defense applied synchronously)._
-
-**Residual contract:** "one-way; round-trip through a markdown decoder does not return the original string" — _same as escapeForMarkdown._
-
-### [`relativeToFolder`](./link-resolver.ts#L125)
-
-```ts
-export const relativeToFolder = (folder: string, target: string): string => { /* ... */ }
-```
-
-Path-relative-to-folder for source links inside `&lt;folder>/SPEC.md`.
-Same-folder: `./name.ts`. Cross-folder: `../...`. Absolute/external:
-passthrough.
 
 ### [`SpecMeta`](./emit.ts#L175)
 
@@ -294,17 +204,6 @@ export const buildSpecArtifact = (
 
 **Residual contract:** "fields the codemod cannot yet compute (e.g. per-export sourceRef.sha) reuse \`meta.generatedAtSha\` as the closest stable identifier" — _per-line blame would require a separate git pass; the run-level SHA is a sound default for now._
 
-### [`SaferSpecExecutionReporter`](./reporter.ts#L321)
-
-```ts
-export class SaferSpecExecutionReporter { /* ... */ }
-```
-
-**Guarantees:**
-- "on \`onFinished\`, walks the File tree, aggregates fast-check stats per enclosing folder, and writes one \`folder/.safer-spec/slug.execution.json\` per folder with measurable stats" — _validate --implemented consumes these sidecars to populate SpecMeta.coverage; the reporter is the typed write boundary._
-
-**Residual contract:** "filesystem failures are swallowed; the reporter must not crash the test run on a partial sidecar (validate will surface the missing sidecar via its own gap error)" — _separation of concerns; reporting is best-effort, validation is the strict gate._
-
 ### [`computeTypeCoverage`](./emit.ts#L345)
 
 ```ts
@@ -334,7 +233,7 @@ export const findMissingPropertyTypes = (
 - [`emit.ts`](./emit.ts) — Canonical SPEC.md serializer + \`SpecArtifact\` builder. Emits the \`SpecFrontmatter\`-shaped block and the typed sidecar value from a \`FolderAnalysis\` + \`SpecMeta\`. Canonical form: LF endings, lex-sort for file lists, source-order for exports; re-emission is byte-identical.
 - [`escape.ts`](./escape.ts) — Escape directive body content for safe emission into Markdown, YAML frontmatter, and JSON sidecars. Defuses prompt-injection vectors via residual-contract strings that downstream agents will read as context.  Co-located with the directive grammar (\`directives.ts\`) since \`enforceLengthCap\` shares the cap constant and emits the same overflow error class. The four escape functions are exported as the spec domain's emit-time sanitization boundary. Each function's own \`@spec.guarantee\` documents its surface-specific safety claim.
 - [`frontmatter.ts`](./frontmatter.ts) — SPEC.md frontmatter contract — Effect Schema for the YAML block emitted at the top of each generated SPEC.md. Coverage fields are nullable for \`--planned\` state where classifier and precondition numbers are not yet observable.  Schema constructor is private to this module; the public boundary is \`decodeSpecFrontmatter\` (decode unknown YAML output into the typed shape). Shape and refinements are captured by Effect Schema — no residual contract beyond the schema is in scope here.
-- [`index.ts`](./index.ts) — Public barrel for \`spec/artifact/\`. Re-exports the external surface — what other layers (analysis, commands) reach for, not what the folder uses internally. The parsers \`decodeSpecFrontmatter\` and \`decodeSpecArtifact\` are deliberately NOT re-exported: they exist for their own roundtrip tests + \`sidecar-writer.ts\`'s same-folder roundtrip assertion. \`decodeExecutionSidecar\` IS exposed because \`analysis/pipeline.ts\` parses execution sidecars during the \`--implemented\` freshness check.
+- [`index.ts`](./index.ts) — Public barrel for \`spec/artifact/\`. Re-exports the external surface — what other layers (analysis, commands) reach for, not what the folder uses internally.  Intentional non-exports: - \`decodeSpecFrontmatter\` and \`decodeSpecArtifact\`: internal helpers for their own roundtrip tests + \`sidecar-writer.ts\`'s same-folder roundtrip assertion. Reached via direct file path. - \`SaferSpecExecutionReporter\`: the Vitest reporter class. Exposed via the \`./reporter\` package subpath so the barrel isn't pulled in by CLI consumers. - \`escapeFor\*\` / \`relativeToFolder\` / \`SidecarWriteError\` / \`writeSidecar\` / \`SidecarSchemaError\` (as a class): used inside the artifact folder only. Catch via tag string (\`Effect.catchTag("SidecarSchemaError", ...)\`), no class import needed.  \`decodeExecutionSidecar\` and \`hashTestTree\` are vitest-free and exposed because \`analysis/\` reads execution sidecars during the \`--implemented\` freshness check.
 - [`link-resolver.ts`](./link-resolver.ts) — Resolves backticked symbol references in SPEC.md body prose. Local source references use declaration locations; workspace references can resolve to sibling SPEC.md anchors. Cross-file source resolution is a separate resolver capability.  Tagged error \`LinkResolutionError\` is co-located here.  Resolution strategy is heuristic over the symbol shape: - Identifier starting with \`@safer/\` → \`cross-spec\` (sibling spec folder anchor). - Identifier matching the npm-package shape (\`@scope/name\` / lowercase package) → \`external-package\` (returns \`UnresolvedExternal\`, no failure). - Identifier matching \`agent-code-guard/\*\` → \`agent-code-guard-rule\`. - Everything else → \`intra-file\` (local declaration).  The resolver classifies by shape only; it does NOT walk the AST. The build-time \`validate\` gate is responsible for fail-closed checking that intra-file symbols actually exist; this resolver returns the \`LinkResolution\` so the emit step can stamp an anchor.  Unresolved internal references resolve to \`intra-file\` placeholders that the validate gate inspects; unresolved external references return \`UnresolvedExternal\` (no failure). Per-export guarantees are on the individual exports below.
 - [`reporter.ts`](./reporter.ts) — Vitest reporter that emits per-folder execution sidecars. Walks the file/task tree at \`onFinished\`, extracts the fast-check stats attached to each \`itSpec.prop\` call's \`task.meta.fastCheck\` slot, aggregates by enclosing folder (\`folder/\_\_tests\_\_/x.spec.test.ts\` is credited to \`folder\`), and writes \`folder/.safer-spec/slug.execution.json\`.  Boundary: Vitest's File/Task shape carries arbitrary user metadata; each task's \`meta.fastCheck\` goes through \`FastCheckTaskStatsSchema\` and the final sidecar through \`ExecutionSidecarSchema\` so validate can decode the on-disk artifact without trust assumptions.  \`SaferSpecExecutionReporter\` is the Vitest-facing class. validate's \`--implemented\` mode reads the emitted sidecar via \`decodeExecutionSidecar\`. The reporter composes its own \`NodeContext.layer\` because Vitest invokes it outside the codemod CLI's composition root, so this file owns its runtime boundary.
 - [`sidecar-writer.ts`](./sidecar-writer.ts) — Writes \`.safer-spec/&lt;folder&gt;.json\` sidecar files. Sanitizes every string field on emit (size cap + escape) at the sidecar trust boundary.  Tagged error \`SidecarWriteError\` is co-located here (this is the file that emits it via Effect.fail on filesystem failures).  \`serializeSidecar\` encodes a \`SpecArtifact\` through the canonical Schema constructor (private to \`sidecar.ts\`), producing a JSON string with a trailing newline. \`writeSidecar\` writes that JSON to \`.safer-spec/&lt;folder-slug&gt;.json\`, creating the directory on first run. Output JSON roundtrips through \`decodeSpecArtifact\`; the roundtrip property is enforced in the sidecar domain's \`\_\_tests\_\_/\`. Per- export guarantees are on the individual exports below.

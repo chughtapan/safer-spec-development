@@ -15,12 +15,22 @@
 import * as nodePath from "node:path";
 import { FileSystem, Path } from "@effect/platform";
 import { Data, Effect } from "effect";
-import type { SourceFile } from "@safer/analysis/exports.js";
 import {
   loadConfig,
   type Config,
   type ConfigError,
 } from "@safer/project/config.js";
+
+/**
+ * In-memory source file shape — `{path, source}` pairs the ts-morph
+ * project registers so cross-file `export ... from` resolves. Produced
+ * by `loadProjectContext` and consumed by `analysis/exports.ts`'s
+ * `collectExports`.
+ */
+export interface SourceFile {
+  readonly path: string;
+  readonly source: string;
+}
 
 export class ProjectContextError extends Data.TaggedError("ProjectContextError")<{
   readonly path: string;

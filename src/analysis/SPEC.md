@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: 4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd
+generatedAtSha: 7ed6a36cac8eb995251a294e9b5f009d5fcd700b
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -28,7 +28,7 @@ Barrel for the `analysis/` layer. Re-exports the analysis pipeline + cross-check
 
 ## Public surface
 
-### [`DeclaredExport`](./exports.ts#L18)
+### [`DeclaredExport`](./exports.ts#L19)
 
 ```ts
 export interface DeclaredExport {
@@ -50,23 +50,6 @@ export interface DeclaredExport {
 }
 ```
 
-### [`ItSpecIssue`](./properties.ts#L22)
-
-```ts
-export interface ItSpecIssue {
-  readonly kind: "missing-directive" | "directive-mismatch" | "empty-body";
-  readonly path: string;
-  readonly line: number;
-  readonly detail: string;
-}
-```
-
-### [`ValidateDiagnostic`](./checks.ts#L36)
-
-```ts
-export type ValidateDiagnostic = Schema.Schema.Type<typeof ValidateDiagnosticSchema>;
-```
-
 ### [`sidecarSlug`](../spec/artifact/sidecar-writer.ts#L42)
 
 ```ts
@@ -78,20 +61,7 @@ export const sidecarSlug = (folder: string): string => { /* ... */ }
 
 **Residual contract:** none — _pure transformation captured by signature._
 
-### [`MissingSpecPropertyError`](./checks.ts#L49)
-
-```ts
-export class MissingSpecPropertyError extends Data.TaggedError(
-  "MissingSpecPropertyError",
-)<GapErrorPayload> { /* ... */ }
-```
-
-**Guarantees:**
-- "emitted when committed SPEC.md drifts from the regenerated output, when the sidecar JSON drifts, or when a Properties row fails its test-side directive cross-check" — _spec-tier ratchet; cli translates this tag to exit code 11._
-
-**Residual contract:** "diagnostic.problem is human-readable; agents read .diagnostic.fix to route remediation" — _trust contract for diagnostic body content._
-
-### [`FolderInputs`](./pipeline.ts#L59)
+### [`FolderInputs`](./pipeline.ts#L51)
 
 ```ts
 export interface FolderInputs {
@@ -101,46 +71,7 @@ export interface FolderInputs {
 }
 ```
 
-### [`MissingStubError`](./checks.ts#L59)
-
-```ts
-export class MissingStubError extends Data.TaggedError(
-  "MissingStubError",
-)<GapErrorPayload> { /* ... */ }
-```
-
-**Guarantees:**
-- "emitted when an itSpec call site lacks the four required JSDoc directives, or when a JSDoc directive fails to parse" — _stub-tier ratchet; cli translates this tag to exit code 12._
-
-**Residual contract:** "diagnostic.location names the call site (file:line)" — _trust contract for routing the next remediation step._
-
-### [`MissingImplError`](./checks.ts#L69)
-
-```ts
-export class MissingImplError extends Data.TaggedError(
-  "MissingImplError",
-)<GapErrorPayload> { /* ... */ }
-```
-
-**Guarantees:**
-- "emitted when an itSpec.prop body is empty/stubbed in --implemented mode, or when a coverage metric is below its configured non-zero threshold" — _implementation-tier block; cli translates this tag to exit code 13._
-
-**Residual contract:** "diagnostic.cause names the reason the body is empty or the metric is below threshold" — _trust contract for routing the next remediation step._
-
-### [`NoFoldersResolvedError`](./checks.ts#L79)
-
-```ts
-export class NoFoldersResolvedError extends Data.TaggedError(
-  "NoFoldersResolvedError",
-)<GapErrorPayload> { /* ... */ }
-```
-
-**Guarantees:**
-- "emitted when --folder is specified and resolves to zero folders containing index.ts; cli translates this tag to exit code 1" — _silent zero-folder validates would let typos pass the gate._
-
-**Residual contract:** "diagnostic.cause names the requested folder argument" — _trust contract for routing the next remediation step._
-
-### [`collectFolderInputs`](./pipeline.ts#L82)
+### [`collectFolderInputs`](./pipeline.ts#L74)
 
 ```ts
 export const collectFolderInputs = (
@@ -195,7 +126,16 @@ export const checkSidecarDrift = (
 ): Effect.Effect<void, MissingSpecPropertyError> => /* ... */
 ```
 
-### [`collectExports`](./exports.ts#L200)
+### [`inspectFolder`](./pipeline.ts#L193)
+
+```ts
+export const inspectFolder = ({ fs, path, folder, inputs, ctx }: InspectArgs): Effect.Effect<FolderInspection, DirectiveParseError> => /* ... */
+```
+
+**Guarantees:**
+- "produces the same FolderAnalysis shape \`generate\` emits plus a per-test issues list; regenerate-and-compare on \`analysis\` is byte-deterministic" — _roundtrip contract; validate's drift check relies on it._
+
+### [`collectExports`](./exports.ts#L196)
 
 ```ts
 export const collectExports = (
@@ -209,15 +149,6 @@ export const collectExports = (
 - "result is source-ordered; barrel re-exports resolve to their target declarations when targets are supplied via siblings + paths" — _emit.ts's canonical sort; re-export resolution needs target files registered and tsconfig aliases configured._
 
 **Residual contract:** "unresolvable re-exports are silently dropped" — _ts-morph cannot follow \`export ... from\` without the target file registered on the same Project._
-
-### [`inspectFolder`](./pipeline.ts#L201)
-
-```ts
-export const inspectFolder = ({ fs, path, folder, inputs, ctx }: InspectArgs): Effect.Effect<FolderInspection, DirectiveParseError> => /* ... */
-```
-
-**Guarantees:**
-- "produces the same FolderAnalysis shape \`generate\` emits plus a per-test issues list; regenerate-and-compare on \`analysis\` is byte-deterministic" — _roundtrip contract; validate's drift check relies on it._
 
 ### [`checkThresholds`](./checks.ts#L220)
 
@@ -237,7 +168,7 @@ export const checkImplBodies = (
 ): Effect.Effect<void, MissingImplError> => { /* ... */ }
 ```
 
-### [`uniqueExternalSources`](./exports.ts#L254)
+### [`uniqueExternalSources`](./exports.ts#L250)
 
 ```ts
 export const uniqueExternalSources = (
@@ -251,7 +182,7 @@ folder's source set. The directive parser walks these too so
 `@spec.guarantee` etc. on cross-folder re-export targets survive into
 the generated artifact.
 
-### [`buildSpecMeta`](./pipeline.ts#L260)
+### [`buildSpecMeta`](./pipeline.ts#L252)
 
 ```ts
 export const buildSpecMeta = (
@@ -266,18 +197,7 @@ export const buildSpecMeta = (
 
 **Residual contract:** "branchCoverageFromSpecTests stays null until a v8 coverage hook is wired up (follow-up slice)" — _lifecycle contract._
 
-### [`checkExecutionSidecarPresent`](./checks.ts#L274)
-
-```ts
-export const checkExecutionSidecarPresent = (
-  analysis: FolderAnalysis,
-  folder: string,
-  execution: ExecutionSidecarCheck | null,
-  currentTestTreeHash: string,
-): Effect.Effect<void, MissingImplError> => { /* ... */ }
-```
-
-### [`loadExecutionSidecar`](./pipeline.ts#L281)
+### [`loadExecutionSidecar`](./pipeline.ts#L273)
 
 ```ts
 export const loadExecutionSidecar = (
@@ -290,7 +210,18 @@ export const loadExecutionSidecar = (
 **Guarantees:**
 - "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through \`ExecutionSidecarSchema\`; returns null when absent or malformed" — _validate's \`--implemented\` gate consumes the coverage values; absence is surfaced separately as a typed gap error._
 
-### [`regenerateMarkdown`](./pipeline.ts#L300)
+### [`checkExecutionSidecarPresent`](./checks.ts#L274)
+
+```ts
+export const checkExecutionSidecarPresent = (
+  analysis: FolderAnalysis,
+  folder: string,
+  execution: ExecutionSidecarCheck | null,
+  currentTestTreeHash: string,
+): Effect.Effect<void, MissingImplError> => { /* ... */ }
+```
+
+### [`regenerateMarkdown`](./pipeline.ts#L292)
 
 ```ts
 export const regenerateMarkdown = (
@@ -301,30 +232,24 @@ export const regenerateMarkdown = (
 
 Alias for `emitMarkdown(analysis, meta)`; keeps validate.ts's import block compact.
 
-### [`ThresholdShortfall`](./pipeline.ts#L305)
+### [`BuildExportEntriesResult`](./exports.ts#L320)
 
 ```ts
-export interface ThresholdShortfall {
-  readonly metric: "typeCoverage" | "classifierCoverage" | "preconditionPassRate";
-  readonly observed: number;
-  readonly threshold: number;
-  readonly missingPropertyTypes: ReadonlyArray<string>;
+export interface BuildExportEntriesResult {
+  readonly entries: ReadonlyArray<ExportEntry>;
+
+  /**
+   * Per-export directives flagged as drift: located in a local source
+   * file but with an `exportName` that isn't part of the folder's
+   * known-exports set (renamed/deleted symbol, misplaced directive).
+   * External (cross-folder re-export target) directives are merged into
+   * entries when they match an alias, but never flagged as drift for
+   * this folder; that responsibility belongs to the owning folder's
+   * validate run.
+   */
+  readonly unmatched: ReadonlyArray<LocatedDirective>;
 }
 ```
-
-### [`findThresholdShortfall`](./pipeline.ts#L330)
-
-```ts
-export const findThresholdShortfall = (
-  analysis: FolderAnalysis,
-  meta: SpecMeta,
-): ThresholdShortfall | null => /* ... */
-```
-
-**Guarantees:**
-- "returns the first observed-below-threshold metric (typeCoverage → classifier → precondition order) or null when all gates pass" — _validate emits one MissingImplError per folder; first failing gate is the surfaced one._
-
-**Residual contract:** "metrics whose threshold is 0 are not gated regardless of observed value" — _zero-threshold is the explicit no-gate marker used by the permissive default config._
 
 ### [`failOnIssues`](./checks.ts#L333)
 
@@ -359,14 +284,6 @@ export const extractProperties = (
 
 **Residual contract:** "calls under nested ExpressionStatements are not bound; JSDoc lookup returns null and the call falls into missing-directive" — _ts-morph's getJsDocs is a property of the immediate parent statement; nested forms are not in scope for this slice._
 
-### [`stripVolatileJson`](./pipeline.ts#L356)
-
-```ts
-export const stripVolatileJson = (text: string): string => /* ... */
-```
-
-Normalize SHA fields for byte-equality comparison between on-disk and regenerated sidecars.
-
 ### [`diagnosticLines`](./checks.ts#L357)
 
 ```ts
@@ -376,7 +293,7 @@ export const diagnosticLines = (
 ): ReadonlyArray<string> => /* ... */
 ```
 
-### [`regenerateSidecar`](./pipeline.ts#L366)
+### [`regenerateSidecar`](./pipeline.ts#L358)
 
 ```ts
 export const regenerateSidecar = (
@@ -388,7 +305,7 @@ export const regenerateSidecar = (
 **Guarantees:**
 - "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; SidecarSchemaError is a defect (artifact our own emitter produced)" — _validate's sidecar-drift cross-check needs the byte-for-byte regenerated form._
 
-### [`buildExportEntries`](./exports.ts#L406)
+### [`buildExportEntries`](./exports.ts#L402)
 
 ```ts
 export const buildExportEntries = (
@@ -403,7 +320,7 @@ export const buildExportEntries = (
 
 **Residual contract:** "callers that pass \`folderKnownExports = undefined\` skip the drift gate entirely; the returned \`unmatched\` is then always empty" — _generate is a producer (no gate); validate is the gate. The parameter is the discriminator._
 
-### [`indexFilePurposes`](./exports.ts#L433)
+### [`indexFilePurposes`](./exports.ts#L429)
 
 ```ts
 export const indexFilePurposes = (

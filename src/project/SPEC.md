@@ -1,7 +1,7 @@
 ---
 folder: src/project
 format-version: 0.1.0
-generatedAtSha: 4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd
+generatedAtSha: 7ed6a36cac8eb995251a294e9b5f009d5fcd700b
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.015873015873015872
+  typeCoverage: 0.02222222222222222
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -39,25 +39,21 @@ export const SPEC_FORMAT_VERSION = "0.1.0" as const;
 
 **Residual contract:** "callers must treat as opaque; cross-version comparisons go through the safer-spec-migrate skill" — _comparison logic is migrate's responsibility; the skill walks SPEC.md + sidecar artifacts during format-version transitions._
 
-### [`ConfigError`](./config.ts#L18)
+### [`SourceFile`](./context.ts#L30)
 
 ```ts
-export class ConfigError extends Data.TaggedError("ConfigError")<{
+export interface SourceFile {
   readonly path: string;
-  readonly cause: string;
-}> { /* ... */ }
+  readonly source: string;
+}
 ```
 
-### [`ProjectContextError`](./context.ts#L25)
+In-memory source file shape — `{path, source}` pairs the ts-morph
+project registers so cross-file `export ... from` resolves. Produced
+by `loadProjectContext` and consumed by `analysis/exports.ts`'s
+`collectExports`.
 
-```ts
-export class ProjectContextError extends Data.TaggedError("ProjectContextError")<{
-  readonly path: string;
-  readonly cause: string;
-}> { /* ... */ }
-```
-
-### [`ProjectContext`](./context.ts#L30)
+### [`ProjectContext`](./context.ts#L40)
 
 ```ts
 export interface ProjectContext {
@@ -77,35 +73,6 @@ export interface ProjectContext {
 }
 ```
 
-### [`Config`](./config.ts#L49)
-
-```ts
-export type Config = Schema.Schema.Type<typeof ConfigSchema>;
-```
-
-### [`Thresholds`](./config.ts#L51)
-
-```ts
-export interface Thresholds {
-  readonly typeCoverage: number;
-  readonly classifierCoverage: number;
-  readonly preconditionPassRate: number;
-}
-```
-
-### [`normalizeFolder`](./context.ts#L54)
-
-```ts
-export const normalizeFolder = (folder: string): string => { /* ... */ }
-```
-
-Normalize the user-supplied `--folder` value into a path the codemod
-stores as artifact identity (frontmatter `folder:`, sidecar slug,
-drift-check key). Absolute inputs are rewritten to cwd-relative so they
-match the repo-relative paths `loadProjectContext` registers; `./` and
-trailing separators are stripped so authoring conveniences don't
-manifest as false drift.
-
 ### [`discoverFolders`](./folders.ts#L59)
 
 ```ts
@@ -120,6 +87,19 @@ export const discoverFolders = (
 - "returns every directory under \`root\` containing an \`index.ts\` barrel; insertion order is root-first depth-first" — _contract; both \`generate\` and \`validate\` iterate this list when no \`--folder\` is given. Walking from \`.\` finds barrels under any top-level layout (\`src/\`, \`packages/&lt;name&gt;/\`, app workspaces)._
 
 **Residual contract:** "dot-prefixed directories, \`\_\_tests\_\_\`, \`node\_modules\`, \`dist\`, \`build\`, \`coverage\`, and \`.safer-spec\` are skipped; symlinks are not followed" — _avoid vendored dependencies, build output, and sidecar dirs._
+
+### [`normalizeFolder`](./context.ts#L64)
+
+```ts
+export const normalizeFolder = (folder: string): string => { /* ... */ }
+```
+
+Normalize the user-supplied `--folder` value into a path the codemod
+stores as artifact identity (frontmatter `folder:`, sidecar slug,
+drift-check key). Absolute inputs are rewritten to cwd-relative so they
+match the repo-relative paths `loadProjectContext` registers; `./` and
+trailing separators are stripped so authoring conveniences don't
+manifest as false drift.
 
 ### [`discoverImmediateSubfolders`](./folders.ts#L75)
 
@@ -161,22 +141,7 @@ export const buildChildren = (
 
 **Residual contract:** "files are displayed by their path relative to the folder; subfolders are displayed with a trailing slash" — _visual cue for readers; subfolder links target \`&lt;sub&gt;/SPEC.md\`, file links target \`./&lt;rel&gt;\`._
 
-### [`loadConfig`](./config.ts#L195)
-
-```ts
-export const loadConfig = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  root: string,
-): Effect.Effect<Config, ConfigError> => { /* ... */ }
-```
-
-**Guarantees:**
-- "reads safer-spec.config.json at the project root; missing file yields empty Config; present-but-malformed file yields ConfigError" — _missing config is the common case (permissive defaults); a present-but-broken config is a user error that should fail loudly, not be silently treated as missing._
-
-**Residual contract:** "only \`exists() === false\` falls back to empty Config; any thrown failure from \`exists\` itself or \`readFileString\` becomes ConfigError so a permissions/IO error cannot silently disable gates" — _'file absent' and 'file present but unreadable' are different states; only the former is permissive. exists()-failure is neither and must surface, not get coerced to 'absent'._
-
-### [`loadProjectContext`](./context.ts#L262)
+### [`loadProjectContext`](./context.ts#L272)
 
 ```ts
 export const loadProjectContext = (
@@ -191,7 +156,7 @@ export const loadProjectContext = (
 
 **Residual contract:** "missing tsconfig.json yields empty \`paths\`; missing \`.git/HEAD\` yields \`generatedAtSha = 'uncommitted'\`; missing safer-spec.config.json yields permissive all-zero thresholds" — _projects without aliases, git history, or per-folder gate configuration still load with no false failures._
 
-### [`loadValidateProjectContext`](./context.ts#L282)
+### [`loadValidateProjectContext`](./context.ts#L292)
 
 ```ts
 export const loadValidateProjectContext = (

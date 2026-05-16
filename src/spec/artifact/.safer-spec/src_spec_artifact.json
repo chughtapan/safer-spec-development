@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd",
+  "generatedAtSha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b",
   "exports": [
     {
       "name": "ExportKind",
@@ -25,32 +25,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "SidecarWriteError",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/sidecar-writer.ts",
-        "line": 26,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -75,43 +50,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 35,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "escapeForMarkdown",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Constant Bounds Checking"
-      ],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "the escaping is one-way; round-trip through `decode` does not return the original string",
-        "reason": "behavioral residue; downstream readers see escaped form."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "output is markdown-safe; backticks, code-fences, link syntax characters, HTML angle brackets are escaped",
-          "reason": "trust contract; emitted into SPEC.md prose where attacker-controlled directive bodies could otherwise inject markup."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/artifact/escape.ts",
-        "line": 36,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -146,32 +85,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 42,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "SpecFrontmatter",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/frontmatter.ts",
-        "line": 48,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -196,43 +110,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 50,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "escapeForYaml",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Constant Bounds Checking"
-      ],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "the escaping is one-way",
-        "reason": "same as escapeForMarkdown."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "output is YAML-safe; quotes, colons, dashes at line start are escaped",
-          "reason": "trust contract; emitted into SPEC.md frontmatter."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/artifact/escape.ts",
-        "line": 59,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -268,7 +146,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 59,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -293,7 +171,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 68,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -318,80 +196,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 71,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "escapeForJson",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Constant Bounds Checking"
-      ],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "the escaping is one-way",
-        "reason": "same as escapeForMarkdown."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "output is JSON-string-safe; quotes, backslashes, control characters are escaped",
-          "reason": "trust contract; emitted into `.safer-spec/&lt;folder>.json`."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/artifact/escape.ts",
-        "line": 77,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "writeSidecar",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Exception Raising",
-        "Constant Equality"
-      ],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": ".safer-spec/<folder>.json directory is created if missing; pre-existing sidecar is overwritten",
-        "reason": "side-effect contract; users see the directory created on first run."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "atomic per-file write via @effect/platform FileSystem; no partial sidecars on failure",
-          "reason": "trust contract; downstream validate gate must not see half-written sidecars."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/artifact/sidecar-writer.ts",
-        "line": 81,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -425,7 +230,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 82,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -450,91 +255,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar.ts",
         "line": 95,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "SidecarSchemaError",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/sidecar.ts",
-        "line": 97,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "escapeForMarkdownProse",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "one-way; round-trip through a markdown decoder does not return the original string",
-        "reason": "same as escapeForMarkdown."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "output is safe to interpolate into markdown PROSE; backticks, code-fences, link syntax characters, asterisks, underscores, and HTML angle brackets are escaped; control characters are stripped",
-          "reason": "trust contract for sync emit paths (the Effect-flavored `escapeForMarkdown` is for Effect contexts; this is the same defense applied synchronously)."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/artifact/escape.ts",
-        "line": 110,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "relativeToFolder",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/link-resolver.ts",
-        "line": 125,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -559,7 +280,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 175,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -584,7 +305,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 201,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -623,7 +344,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 237,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -657,41 +378,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 302,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
-      }
-    },
-    {
-      "name": "SaferSpecExecutionReporter",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "filesystem failures are swallowed; the reporter must not crash the test run on a partial sidecar (validate will surface the missing sidecar via its own gap error)",
-        "reason": "separation of concerns; reporting is best-effort, validation is the strict gate."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "on `onFinished`, walks the File tree, aggregates fast-check stats per enclosing folder, and writes one `folder/.safer-spec/slug.execution.json` per folder with measurable stats",
-          "reason": "validate --implemented consumes these sidecars to populate SpecMeta.coverage; the reporter is the typed write boundary."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/artifact/reporter.ts",
-        "line": 321,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -725,7 +412,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 345,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     },
     {
@@ -759,12 +446,12 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 365,
-        "sha": "4a84c8a158ef9e717ac64d92d72ea82c1daa7ccd"
+        "sha": "7ed6a36cac8eb995251a294e9b5f009d5fcd700b"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.04888888888888889
+    "typeCoverage": 0.04444444444444444
   },
   "thresholds": {
     "typeCoverage": 0,

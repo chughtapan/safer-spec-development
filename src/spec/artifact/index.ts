@@ -1,11 +1,22 @@
 /**
  * @spec.purpose Public barrel for `spec/artifact/`. Re-exports the external
  *   surface — what other layers (analysis, commands) reach for, not what
- *   the folder uses internally. The parsers `decodeSpecFrontmatter` and
- *   `decodeSpecArtifact` are deliberately NOT re-exported: they exist for
- *   their own roundtrip tests + `sidecar-writer.ts`'s same-folder
- *   roundtrip assertion. `decodeExecutionSidecar` IS exposed because
- *   `analysis/pipeline.ts` parses execution sidecars during the
+ *   the folder uses internally.
+ *
+ *   Intentional non-exports:
+ *   - `decodeSpecFrontmatter` and `decodeSpecArtifact`: internal helpers
+ *     for their own roundtrip tests + `sidecar-writer.ts`'s same-folder
+ *     roundtrip assertion. Reached via direct file path.
+ *   - `SaferSpecExecutionReporter`: the Vitest reporter class. Exposed
+ *     via the `./reporter` package subpath so the barrel isn't pulled
+ *     in by CLI consumers.
+ *   - `escapeFor*` / `relativeToFolder` / `SidecarWriteError` / `writeSidecar`
+ *     / `SidecarSchemaError` (as a class): used inside the artifact
+ *     folder only. Catch via tag string (`Effect.catchTag("SidecarSchemaError", ...)`),
+ *     no class import needed.
+ *
+ *   `decodeExecutionSidecar` and `hashTestTree` are vitest-free and
+ *   exposed because `analysis/` reads execution sidecars during the
  *   `--implemented` freshness check.
  */
 
@@ -23,30 +34,12 @@ export type {
   SpecMeta,
 } from "@safer/spec/artifact/emit.js";
 
-export {
-  escapeForJson,
-  escapeForMarkdown,
-  escapeForMarkdownProse,
-  escapeForYaml,
-} from "@safer/spec/artifact/escape.js";
-
-export type { SpecFrontmatter } from "@safer/spec/artifact/frontmatter.js";
-
-export { relativeToFolder } from "@safer/spec/artifact/link-resolver.js";
-
-export { SidecarSchemaError } from "@safer/spec/artifact/sidecar.js";
 export type { SpecArtifact } from "@safer/spec/artifact/sidecar.js";
 
-export {
-  serializeSidecar,
-  SidecarWriteError,
-  sidecarSlug,
-  writeSidecar,
-} from "@safer/spec/artifact/sidecar-writer.js";
+export { serializeSidecar, sidecarSlug } from "@safer/spec/artifact/sidecar-writer.js";
 
 export {
   decodeExecutionSidecar,
   hashTestTree,
-  SaferSpecExecutionReporter,
 } from "@safer/spec/artifact/reporter.js";
 export type { ExecutionSidecar } from "@safer/spec/artifact/reporter.js";

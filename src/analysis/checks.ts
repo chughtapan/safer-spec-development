@@ -17,13 +17,13 @@ import {
   JsDocDirectiveOverflowError,
   JsDocDirectiveParseError,
   JsDocUnknownDirectiveError,
-} from "@safer/spec/grammar/directives.js";
+} from "@safer/spec/grammar/index.js";
 import {
   findThresholdShortfall,
   stripVolatileJson,
   type ThresholdShortfall,
 } from "@safer/analysis/pipeline.js";
-import type { FolderAnalysis, SpecMeta } from "@safer/spec/artifact/emit.js";
+import type { FolderAnalysis, SpecMeta } from "@safer/spec/artifact/index.js";
 import type { ItSpecIssue } from "@safer/analysis/properties.js";
 
 const ValidateDiagnosticSchema = Schema.Struct({

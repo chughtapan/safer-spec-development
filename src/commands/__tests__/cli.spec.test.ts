@@ -13,10 +13,10 @@ import { NodeContext } from "@effect/platform-node";
 import { Cause, Data, Effect, Exit, Option } from "effect";
 import * as fc from "fast-check";
 import { itSpec } from "@safer/spec/grammar/it-spec.js";
-import { sidecarSlug } from "@safer/spec/artifact/sidecar-writer.js";
+import { sidecarSlug } from "@safer/spec/artifact/index.js";
 import { generate } from "@safer/commands/generate.js";
-import { normalizeFolder } from "@safer/project/context.js";
-import { discoverFolders } from "@safer/project/folders.js";
+import { normalizeFolder } from "@safer/project/index.js";
+import { discoverFolders } from "@safer/project/index.js";
 import {
   formatDiagnostic,
   validate,

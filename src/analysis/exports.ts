@@ -12,8 +12,9 @@
  */
 
 import { Node, Project, SyntaxKind, type JSDoc } from "ts-morph";
-import type { Directive, LocatedDirective } from "@safer/spec/grammar/directives.js";
-import type { ExportEntry, ExportKind } from "@safer/spec/artifact/emit.js";
+import type { Directive, LocatedDirective } from "@safer/spec/grammar/index.js";
+import type { ExportEntry, ExportKind } from "@safer/spec/artifact/index.js";
+import type { SourceFile } from "@safer/project/index.js";
 
 export interface DeclaredExport {
   readonly name: string;
@@ -155,11 +156,6 @@ const descriptionFromJsDocs = (anchor: Node): string => {
   }
   return "";
 };
-
-export interface SourceFile {
-  readonly path: string;
-  readonly source: string;
-}
 
 export interface CollectExportsOptions {
   /** Sibling source files registered on the in-memory ts-morph Project so re-exports resolve. */

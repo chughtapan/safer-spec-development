@@ -14,7 +14,7 @@ import {
   type JsDocDirectiveParseError,
   type JsDocUnknownDirectiveError,
   type LocatedDirective,
-} from "@safer/spec/grammar/directives.js";
+} from "@safer/spec/grammar/index.js";
 import {
   buildSpecArtifact,
   computeTypeCoverage,
@@ -23,12 +23,12 @@ import {
   type FolderAnalysis,
   type PropertyRow,
   type SpecMeta,
-} from "@safer/spec/artifact/emit.js";
+} from "@safer/spec/artifact/index.js";
 import {
   decodeExecutionSidecar,
   type ExecutionSidecar,
-} from "@safer/spec/artifact/reporter.js";
-import { serializeSidecar, sidecarSlug } from "@safer/spec/artifact/sidecar-writer.js";
+} from "@safer/spec/artifact/index.js";
+import { serializeSidecar, sidecarSlug } from "@safer/spec/artifact/index.js";
 import {
   buildExportEntries,
   collectExports,
@@ -36,20 +36,12 @@ import {
   uniqueExternalSources,
 } from "@safer/analysis/exports.js";
 import { extractProperties, type ItSpecIssue } from "@safer/analysis/properties.js";
-import { resolveThresholdsFor } from "@safer/project/config.js";
-import type { ProjectContext } from "@safer/project/context.js";
 import {
   buildChildren,
-  discoverFolders,
   discoverImmediateSubfolders,
-} from "@safer/project/folders.js";
-
-export { discoverFolders, discoverImmediateSubfolders, buildChildren };
-export {
-  loadProjectContext,
-  loadValidateProjectContext,
-  type ProjectContext,
-} from "@safer/project/context.js";
+  resolveThresholdsFor,
+} from "@safer/project/index.js";
+import type { ProjectContext } from "@safer/project/index.js";
 
 type DirectiveParseError =
   | JsDocDirectiveOverflowError

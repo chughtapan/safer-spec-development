@@ -12,14 +12,14 @@ import { NodeContext } from "@effect/platform-node";
 import { Data, Effect } from "effect";
 import * as fc from "fast-check";
 import { itSpec } from "@safer/spec/grammar/it-spec.js";
-import { parseFileDirectives } from "@safer/spec/grammar/directives.js";
+import { parseFileDirectives } from "@safer/spec/grammar/index.js";
 import {
   buildExportEntries,
   collectExports,
   type BuildExportEntriesResult,
-} from "@safer/analysis/exports.js";
+} from "@safer/analysis/index.js";
 import { validate } from "@safer/commands/validate.js";
-import { loadProjectContext } from "@safer/project/context.js";
+import { loadProjectContext } from "@safer/project/index.js";
 
 class DriftAssertionError extends Data.TaggedError("DriftAssertionError")<{
   readonly detail: string;

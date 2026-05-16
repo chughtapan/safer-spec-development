@@ -5,8 +5,8 @@
  *   file lists, source-order for exports; re-emission is byte-identical.
  */
 
-import { PROPERTY_TYPES, type PropertyType } from "@safer/spec/grammar/property-types.js";
-import { SPEC_FORMAT_VERSION } from "@safer/project/version.js";
+import { PROPERTY_TYPES, type PropertyType } from "@safer/spec/grammar/index.js";
+import { SPEC_FORMAT_VERSION } from "@safer/project/index.js";
 import {
   escapeForMarkdownProse,
   escapeForMarkdownTableCellProse,
