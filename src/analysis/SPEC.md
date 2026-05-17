@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: edac6d1d86284cac833624e34c90f46fb56969db
+generatedAtSha: 3aefbe3031adeefd8230ca348f3d9b70e241eabb
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -100,9 +100,9 @@ export const computeProjectNewestMtime = (
 ```
 
 **Guarantees:**
-- "returns the max mtime across every source file in projectCtx + every spec.test.ts discovered under each folder; 0 when nothing exists" — _validate's branchCoverage freshness check needs a project-wide reference, since coverage-summary.json is a single aggregate over the whole spec-test run._
+- "returns the max mtime across every project source file, every spec.test.ts discovered under each folder, and the runner/codemod config files (vitest.config.ts, safer-spec.config.json); 0 when nothing exists" — _validate's branchCoverage freshness check needs a project-wide reference; config files can shift coverage attribution without touching sources or tests._
 
-### [`generateFolder`](./orchestrate.ts#L376)
+### [`generateFolder`](./orchestrate.ts#L385)
 
 ```ts
 export const generateFolder = (
@@ -115,7 +115,7 @@ export const generateFolder = (
 
 **Residual contract:** "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally" — _drift-check byte-equality contract._
 
-### [`validateFolder`](./orchestrate.ts#L414)
+### [`validateFolder`](./orchestrate.ts#L423)
 
 ```ts
 export const validateFolder = (

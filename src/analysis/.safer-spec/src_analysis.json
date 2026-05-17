@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/analysis",
-  "generatedAtSha": "edac6d1d86284cac833624e34c90f46fb56969db",
+  "generatedAtSha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb",
   "exports": [
     {
       "name": "GenerateFolderError",
@@ -31,7 +31,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 70,
-        "sha": "edac6d1d86284cac833624e34c90f46fb56969db"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -46,7 +46,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 74,
-        "sha": "edac6d1d86284cac833624e34c90f46fb56969db"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -77,7 +77,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 75,
-        "sha": "edac6d1d86284cac833624e34c90f46fb56969db"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -92,7 +92,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 86,
-        "sha": "edac6d1d86284cac833624e34c90f46fb56969db"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -122,7 +122,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 185,
-        "sha": "edac6d1d86284cac833624e34c90f46fb56969db"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -153,7 +153,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 343,
-        "sha": "edac6d1d86284cac833624e34c90f46fb56969db"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -176,14 +176,14 @@
       "residualAssumes": [],
       "residualGuarantees": [
         {
-          "claim": "returns the max mtime across every source file in projectCtx + every spec.test.ts discovered under each folder; 0 when nothing exists",
-          "reason": "validate's branchCoverage freshness check needs a project-wide reference, since coverage-summary.json is a single aggregate over the whole spec-test run."
+          "claim": "returns the max mtime across every project source file, every spec.test.ts discovered under each folder, and the runner/codemod config files (vitest.config.ts, safer-spec.config.json); 0 when nothing exists",
+          "reason": "validate's branchCoverage freshness check needs a project-wide reference; config files can shift coverage attribution without touching sources or tests."
         }
       ],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 345,
-        "sha": "edac6d1d86284cac833624e34c90f46fb56969db"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -221,8 +221,8 @@
       ],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 376,
-        "sha": "edac6d1d86284cac833624e34c90f46fb56969db"
+        "line": 385,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -250,8 +250,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 414,
-        "sha": "edac6d1d86284cac833624e34c90f46fb56969db"
+        "line": 423,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     }
   ],

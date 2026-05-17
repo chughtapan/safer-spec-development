@@ -337,10 +337,10 @@ const newestFileMtime = (
   ).pipe(Effect.map((mtimes) => Math.max(0, ...mtimes)));
 
 /**
- * @spec.guarantee "returns the max mtime across every source file in projectCtx + every spec.test.ts discovered under each folder; 0 when nothing exists"
+ * @spec.guarantee "returns the max mtime across every project source file, every spec.test.ts discovered under each folder, and the runner/codemod config files (vitest.config.ts, safer-spec.config.json); 0 when nothing exists"
  *   reason: validate's branchCoverage freshness check needs a
- *           project-wide reference, since coverage-summary.json is a
- *           single aggregate over the whole spec-test run.
+ *           project-wide reference; config files can shift coverage
+ *           attribution without touching sources or tests.
  */
 export const computeProjectNewestMtime = (
   fs: FileSystem.FileSystem,
@@ -355,7 +355,16 @@ export const computeProjectNewestMtime = (
       { concurrency: 4 },
     );
     const testPaths = folderInputs.flatMap((i) => (i === null ? [] : [...i.tests]));
-    return yield* newestFileMtime(fs, [...sourcePaths, ...testPaths]);
+    // Edits to vitest.config.ts (e.g., narrowing test.include or
+    // coverage.exclude) change what gets credited toward
+    // branchCoverageFromSpecTests even when no source/test file moved.
+    // safer-spec.config.json changes thresholds. Either invalidates
+    // a cached coverage-summary.json for gate purposes.
+    const configPaths: ReadonlyArray<string> = [
+      "vitest.config.ts",
+      "safer-spec.config.json",
+    ];
+    return yield* newestFileMtime(fs, [...sourcePaths, ...testPaths, ...configPaths]);
   }).pipe(Effect.withSpan("analysis/computeProjectNewestMtime"));
 
 const driftMetaFor = (
