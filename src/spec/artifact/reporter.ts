@@ -286,17 +286,22 @@ const aggregateBranchCoverageForFolder = (
       branches: value.branches,
     }))
     .filter((e) => isImmediateChild(e.rel, folderPosix));
-  // No matching source files in the coverage summary at all — the folder
-  // wasn't instrumented (added after last --coverage run, or v8 skipped
-  // it). Distinct from "folder has matching files but they have zero
-  // branches"; return null so the gate can loud-fail.
+  // No matching source files in the coverage summary at all — folder
+  // wasn't instrumented. Return null so the gate can loud-fail.
   if (matches.length === 0) return null;
-  const branches = matches
-    .filter((e) => e.branches !== undefined)
-    .map((e) => e.branches as { readonly total: number; readonly covered: number });
+  // Any matching entry MISSING its branches block means the summary is
+  // malformed for this folder (unsupported reporter output, partial
+  // run). Return null — not "vacuously 1.0" — so the gate loud-fails
+  // instead of bypassing on bad data.
+  const missingBranches = matches.some((e) => e.branches === undefined);
+  if (missingBranches) return null;
+  const branches = matches.map(
+    (e) => e.branches as { readonly total: number; readonly covered: number },
+  );
   const total = branches.reduce((sum, b) => sum + b.total, 0);
-  // Folder has matching entries but no branchable code (pure re-exports,
-  // etc.) — vacuously covered. Parallels typeCoverage's no-value-exports.
+  // All matching entries had branches blocks with total=0 (pure
+  // re-exports etc.). Vacuously covered; parallels typeCoverage's
+  // no-value-exports degenerate case.
   if (total === 0) return 1;
   const covered = branches.reduce((sum, b) => sum + b.covered, 0);
   return covered / total;
