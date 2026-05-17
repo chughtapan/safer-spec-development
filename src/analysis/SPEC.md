@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: 42007e2afcd65af5da5fa8b4af7cb9b0e9e7c8b9
+generatedAtSha: 6c8215163443084cc8dca9ca89f7d828b533b591
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.48148148148148157
+  typeCoverage: 0.48148148148148145
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -80,7 +80,7 @@ Project-wide symbol existence set. Pass through to `generateFolder` so
 while still rejecting non-existent names. Compute once per `generate`
 run; reusable across folders.
 
-### [`generateFolder`](./orchestrate.ts#L288)
+### [`generateFolder`](./orchestrate.ts#L327)
 
 ```ts
 export const generateFolder = (
@@ -93,14 +93,6 @@ export const generateFolder = (
 
 **Residual contract:** "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally" — _drift-check byte-equality contract._
 
-### [`validateFolder`](./orchestrate.ts#L320)
-
-```ts
-export const validateFolder = (
-  args: ValidateFolderArgs,
-): Effect.Effect<string | null, ValidateGapError> => /* ... */
-```
-
 ### [`diagnosticLines`](./checks.ts#L334)
 
 ```ts
@@ -108,6 +100,14 @@ export const diagnosticLines = (
   tag: ValidateGapError["_tag"],
   payload: GapErrorPayload,
 ): ReadonlyArray<string> => /* ... */
+```
+
+### [`validateFolder`](./orchestrate.ts#L359)
+
+```ts
+export const validateFolder = (
+  args: ValidateFolderArgs,
+): Effect.Effect<string | null, ValidateGapError> => /* ... */
 ```
 
 ## Children

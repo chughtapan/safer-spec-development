@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 42007e2afcd65af5da5fa8b4af7cb9b0e9e7c8b9
+generatedAtSha: 6c8215163443084cc8dca9ca89f7d828b533b591
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.44444444444444453
+  typeCoverage: 0.4444444444444444
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -228,16 +228,6 @@ export const loadBranchCoverage = (
 
 **Residual contract:** "absolute paths from v8 are rebased to project-relative via \`path.relative\` before the per-folder prefix match" — _vitest emits absolute paths; we aggregate by repo-relative folder._
 
-### [`loadExecutionSidecar`](./reporter.ts#L307)
-
-```ts
-export const loadExecutionSidecar = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  folder: string,
-): Effect.Effect<ExecutionSidecar | null, never> => /* ... */
-```
-
 ### [`buildSpecArtifact`](./emit.ts#L315)
 
 ```ts
@@ -251,6 +241,16 @@ export const buildSpecArtifact = (
 - "returned \`SpecArtifact\` decodes through \`decodeSpecArtifact\` without error" — _sidecar contract; downstream agents consume this shape._
 
 **Residual contract:** "fields the codemod cannot yet compute (e.g. per-export sourceRef.sha) reuse \`meta.generatedAtSha\` as the closest stable identifier" — _per-line blame would require a separate git pass; the run-level SHA is a sound default for now._
+
+### [`loadExecutionSidecar`](./reporter.ts#L315)
+
+```ts
+export const loadExecutionSidecar = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  folder: string,
+): Effect.Effect<ExecutionSidecar | null, never> => /* ... */
+```
 
 ## Children
 

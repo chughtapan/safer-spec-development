@@ -274,21 +274,29 @@ const aggregateBranchCoverageForFolder = (
   parsed: unknown,
   folder: string,
   projectRoot: string,
-): number => {
-  if (typeof parsed !== "object" || parsed === null) return 1;
+): number | null => {
+  if (typeof parsed !== "object" || parsed === null) return null;
   const summary = parsed as Record<string, BranchSummary>;
   const rootAbs = nodePath.resolve(projectRoot);
-  const branches = Object.entries(summary)
+  const folderPosix = folder.split(/[\\/]/).filter((s) => s.length > 0).join("/");
+  const matches = Object.entries(summary)
     .filter(([key]) => key !== "total")
     .map(([key, value]) => ({
       rel: nodePath.relative(rootAbs, key).split(nodePath.sep).join("/"),
       branches: value.branches,
     }))
-    .filter((e) => e.branches !== undefined && isImmediateChild(e.rel, folder))
+    .filter((e) => isImmediateChild(e.rel, folderPosix));
+  // No matching source files in the coverage summary at all — the folder
+  // wasn't instrumented (added after last --coverage run, or v8 skipped
+  // it). Distinct from "folder has matching files but they have zero
+  // branches"; return null so the gate can loud-fail.
+  if (matches.length === 0) return null;
+  const branches = matches
+    .filter((e) => e.branches !== undefined)
     .map((e) => e.branches as { readonly total: number; readonly covered: number });
   const total = branches.reduce((sum, b) => sum + b.total, 0);
-  // Folder has no branchable code (pure re-exports etc.) — vacuously
-  // covered. Parallels typeCoverage's no-value-exports degenerate case.
+  // Folder has matching entries but no branchable code (pure re-exports,
+  // etc.) — vacuously covered. Parallels typeCoverage's no-value-exports.
   if (total === 0) return 1;
   const covered = branches.reduce((sum, b) => sum + b.covered, 0);
   return covered / total;

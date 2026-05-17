@@ -261,13 +261,52 @@ const requireCoverageWhenGated = (
     new MissingImplError({
       location: folder,
       diagnostic: {
-        problem: `branchCoverageFromSpecTests threshold ${threshold} set, but coverage-summary.json not found`,
-        cause: "vitest's v8 coverage report is missing — tests likely ran without --coverage",
+        problem: `branchCoverageFromSpecTests threshold ${threshold} set, but coverage-summary.json is absent or missing data for this folder`,
+        cause: "vitest's v8 coverage report is missing — tests likely ran without --coverage, or this folder was added after the last coverage run",
         fix: "run `pnpm test --coverage` before `pnpm safer-spec validate --implemented`, or drop the branchCoverageFromSpecTests threshold to 0",
         docsLink: "https://github.com/chughtapan/safer-spec-development/blob/main/docs/errors.md#missing-impl",
       },
     }),
   );
+};
+
+interface RequireFreshCoverageArgs {
+  readonly fs: FileSystem.FileSystem;
+  readonly path: Path.Path;
+  readonly folder: string;
+  readonly threshold: number;
+  readonly branchCoverage: number | null;
+}
+
+const requireFreshCoverage = (
+  args: RequireFreshCoverageArgs,
+): Effect.Effect<void, MissingImplError> => {
+  const { fs, path, folder, threshold, branchCoverage } = args;
+  if (threshold <= 0 || branchCoverage === null) return Effect.void;
+  return Effect.gen(function* () {
+    const executionSidecarPath = path.join(
+      folder, ".safer-spec", `${sidecarSlug(folder)}.execution.json`,
+    );
+    const coverageStat = yield* fs.stat(path.join("coverage", "coverage-summary.json"))
+      .pipe(Effect.catchAll(() => Effect.succeed(null)));
+    const sidecarStat = yield* fs.stat(executionSidecarPath)
+      .pipe(Effect.catchAll(() => Effect.succeed(null)));
+    if (coverageStat === null || sidecarStat === null) return;
+    const coverageMtime = coverageStat.mtime._tag === "Some" ? coverageStat.mtime.value.getTime() : 0;
+    const sidecarMtime = sidecarStat.mtime._tag === "Some" ? sidecarStat.mtime.value.getTime() : 0;
+    if (coverageMtime >= sidecarMtime) return;
+    yield* Effect.fail(
+      new MissingImplError({
+        location: folder,
+        diagnostic: {
+          problem: "coverage-summary.json is older than the execution sidecar — tests refreshed without --coverage since the last coverage run",
+          cause: `coverage mtime ${new Date(coverageMtime).toISOString()} < sidecar mtime ${new Date(sidecarMtime).toISOString()}`,
+          fix: "rerun `pnpm test --coverage` so coverage and the execution sidecar reflect the same tree",
+          docsLink: "https://github.com/chughtapan/safer-spec-development/blob/main/docs/errors.md#missing-impl",
+        },
+      }),
+    );
+  });
 };
 
 const driftMetaFor = (
@@ -345,6 +384,11 @@ export const validateFolder = (
       const thresholds = projectCtx.thresholdsFor(inspection.analysis.folder);
       const branchCoverage = yield* loadBranchCoverage(fs, path, folder);
       yield* requireCoverageWhenGated(folder, thresholds.branchCoverageFromSpecTests, branchCoverage);
+      yield* requireFreshCoverage({
+        fs, path, folder,
+        threshold: thresholds.branchCoverageFromSpecTests,
+        branchCoverage,
+      });
       const executionWithBranch = execution === null
         ? null
         : { ...execution, branchCoverageFromSpecTests: branchCoverage };
