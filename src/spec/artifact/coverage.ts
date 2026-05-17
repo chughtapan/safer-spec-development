@@ -44,8 +44,9 @@ const DEFAULT_GENERATED_FROM = {
  * @spec.guarantee "builds a `SpecMeta` from analysis-derived type coverage + run-level args (generatedAtSha, thresholds); populates classifierCoverage/preconditionPassRate/branchCoverageFromSpecTests from `execution` when present"
  *   reason: emit's frontmatter + sidecar both require meta; `--implemented`
  *           mode merges Vitest reporter stats into the gate inputs.
- * @spec.residual-contract "branchCoverageFromSpecTests stays null until a v8 coverage hook is wired up (follow-up slice)"
- *   reason: lifecycle contract.
+ * @spec.residual-contract "branchCoverageFromSpecTests is null when coverage-summary.json is absent or inconsistent with the folder's source files (loud-fail signal for the gate); never null after a clean pnpm test --coverage run"
+ *   reason: lifecycle contract; null is the gate's only stale-data
+ *           channel because v8 reports per-file totals, not per-test.
  */
 export const buildSpecMeta = (
   analysis: FolderAnalysis,

@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 3aefbe3031adeefd8230ca348f3d9b70e241eabb
+generatedAtSha: a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -79,7 +79,7 @@ export interface ExportEntry {
 }
 ```
 
-### [`buildSpecMeta`](./coverage.ts#L50)
+### [`buildSpecMeta`](./coverage.ts#L51)
 
 ```ts
 export const buildSpecMeta = (
@@ -91,7 +91,7 @@ export const buildSpecMeta = (
 **Guarantees:**
 - "builds a \`SpecMeta\` from analysis-derived type coverage + run-level args (generatedAtSha, thresholds); populates classifierCoverage/preconditionPassRate/branchCoverageFromSpecTests from \`execution\` when present" — _emit's frontmatter + sidecar both require meta; \`--implemented\` mode merges Vitest reporter stats into the gate inputs._
 
-**Residual contract:** "branchCoverageFromSpecTests stays null until a v8 coverage hook is wired up (follow-up slice)" — _lifecycle contract._
+**Residual contract:** "branchCoverageFromSpecTests is null when coverage-summary.json is absent or inconsistent with the folder's source files (loud-fail signal for the gate); never null after a clean pnpm test --coverage run" — _lifecycle contract; null is the gate's only stale-data channel because v8 reports per-file totals, not per-test._
 
 ### [`PropertyRow`](./emit.ts#L62)
 
@@ -106,7 +106,7 @@ export interface PropertyRow {
 }
 ```
 
-### [`ThresholdShortfall`](./coverage.ts#L68)
+### [`ThresholdShortfall`](./coverage.ts#L69)
 
 ```ts
 export interface ThresholdShortfall {
@@ -146,7 +146,7 @@ export interface FolderAnalysis {
 }
 ```
 
-### [`findThresholdShortfall`](./coverage.ts#L93)
+### [`findThresholdShortfall`](./coverage.ts#L94)
 
 ```ts
 export const findThresholdShortfall = (

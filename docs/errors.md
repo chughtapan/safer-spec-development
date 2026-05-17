@@ -78,7 +78,8 @@ A property is still a placeholder. Either:
 
 - An `itSpec.todo(...)` call exists (and the run is `--implemented`, not `--planned`).
 - An `itSpec.prop(...)` call has a trivially-empty body (e.g., `() => {}`, `() => undefined`, `Effect.die(...)`).
-- Per-folder coverage thresholds (`typeCoverage`, `classifierCoverage`, `preconditionPassRate`) are below the configured floor.
+- Per-folder coverage thresholds (`typeCoverage`, `preconditionPassRate`, `branchCoverageFromSpecTests`) are below the configured floor.
+- `branchCoverageFromSpecTests` is gated and `coverage/coverage-summary.json` is missing, stale, or has incomplete entries for the folder's source files.
 
 ### Fix
 
@@ -99,4 +100,15 @@ For coverage-threshold failures, the diagnostic names which property types lack 
 
 ## Coverage-threshold tuning
 
-Default thresholds ship as `0/0/0` (permissive). Projects raise them via per-project config once their property tests are populated. The validate gate compares the per-folder computed coverage against the threshold; non-zero thresholds gate on shortfall.
+Default thresholds: `typeCoverage: 0.4`, `preconditionPassRate: 0`, `branchCoverageFromSpecTests: 0.75`. Projects raise or lower them via `safer-spec.config.json`:
+
+```json
+{
+  "defaultThresholds": { "typeCoverage": 0.5, "branchCoverageFromSpecTests": 0.8 },
+  "folderOverrides": {
+    "src/commands": { "branchCoverageFromSpecTests": 0 }
+  }
+}
+```
+
+The validate gate compares the per-folder computed coverage against the resolved threshold (folder override > defaultThresholds > 0). Non-zero thresholds gate on shortfall; setting a threshold to `0` disables that gate for the folder. Use folder overrides for legitimate exceptions — e.g., cli entry-point files that nothing tests directly.
