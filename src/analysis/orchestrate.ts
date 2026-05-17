@@ -277,6 +277,7 @@ interface RequireFreshCoverageArgs {
   readonly threshold: number;
   readonly branchCoverage: number | null;
   readonly folderFiles: ReadonlyArray<string>;
+  readonly projectNewestMtime?: number;
 }
 
 const mtimeMs = (stat: { readonly mtime: { _tag: string; value?: Date } } | null): number => {
@@ -289,22 +290,24 @@ const mtimeMs = (stat: { readonly mtime: { _tag: string; value?: Date } } | null
 const requireFreshCoverage = (
   args: RequireFreshCoverageArgs,
 ): Effect.Effect<void, MissingImplError> => {
-  const { fs, path, folder, threshold, branchCoverage, folderFiles } = args;
+  const { fs, path, folder, threshold, branchCoverage, folderFiles, projectNewestMtime } = args;
   if (threshold <= 0 || branchCoverage === null) return Effect.void;
   return Effect.gen(function* () {
     const coverageStat = yield* fs.stat(path.join("coverage", "coverage-summary.json"))
       .pipe(Effect.catchAll(() => Effect.succeed(null)));
     if (coverageStat === null) return;
     const coverageMtime = mtimeMs(coverageStat);
-    // Compare against the newest mtime among the folder's own source +
-    // test files. Using the sidecar's mtime would falsely flag stale
-    // coverage when a developer runs `pnpm test` (no --coverage) after
-    // `pnpm test --coverage` — the reporter rewrites the sidecar on
-    // every test run, so its mtime stops tracking source freshness.
-    // The sidecar's testTreeHash already proves the sidecar matches
-    // the on-disk tree; the freshness check is solely about coverage
-    // relative to source/test edits.
-    const referenceMtime = yield* newestFileMtime(fs, folderFiles);
+    // Compare against the newest mtime in the project — coverage is
+    // a project-wide aggregate, so an edit to ANY spec test (even one
+    // outside this folder) can shift this folder's branch numbers and
+    // invalidate the cached summary. The caller (validate command)
+    // precomputes the project-wide mtime once; the per-folder fallback
+    // (single-folder validate calls in tests) is the local source+test
+    // set, which subsumes the no-coverage-edit case.
+    const folderNewest = yield* newestFileMtime(fs, folderFiles);
+    const referenceMtime = projectNewestMtime !== undefined
+      ? Math.max(projectNewestMtime, folderNewest)
+      : folderNewest;
     if (coverageMtime >= referenceMtime) return;
     yield* Effect.fail(
       new MissingImplError({
@@ -332,6 +335,28 @@ const newestFileMtime = (
     ),
     { concurrency: 4 },
   ).pipe(Effect.map((mtimes) => Math.max(0, ...mtimes)));
+
+/**
+ * @spec.guarantee "returns the max mtime across every source file in projectCtx + every spec.test.ts discovered under each folder; 0 when nothing exists"
+ *   reason: validate's branchCoverage freshness check needs a
+ *           project-wide reference, since coverage-summary.json is a
+ *           single aggregate over the whole spec-test run.
+ */
+export const computeProjectNewestMtime = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  projectCtx: ProjectContext,
+): Effect.Effect<number, never> =>
+  Effect.gen(function* () {
+    const sourcePaths = projectCtx.sources.map((s) => s.path);
+    const folderInputs = yield* Effect.forEach(
+      projectCtx.folders,
+      (folder) => collectFolderInputs(fs, path, folder),
+      { concurrency: 4 },
+    );
+    const testPaths = folderInputs.flatMap((i) => (i === null ? [] : [...i.tests]));
+    return yield* newestFileMtime(fs, [...sourcePaths, ...testPaths]);
+  }).pipe(Effect.withSpan("analysis/computeProjectNewestMtime"));
 
 const driftMetaFor = (
   analysis: FolderAnalysis,
@@ -378,13 +403,19 @@ export interface ValidateFolderArgs {
   readonly folder: string;
   readonly projectCtx: ProjectContext;
   readonly mode: "planned" | "implemented";
+  // Newest mtime among every project source + spec-test file. Used as
+  // the freshness reference for branchCoverage staleness, since
+  // coverage-summary.json is a project-wide aggregate — an edit to a
+  // spec-test in folder B can invalidate coverage for folder A.
+  // Optional so single-folder validate calls (tests) need not compute it.
+  readonly projectNewestMtime?: number;
 }
 
 export const validateFolder = (
   args: ValidateFolderArgs,
 ): Effect.Effect<string | null, ValidateGapError> =>
   Effect.gen(function* () {
-    const { fs, path, folder, projectCtx, mode } = args;
+    const { fs, path, folder, projectCtx, mode, projectNewestMtime } = args;
     const inputs = yield* collectFolderInputs(fs, path, folder);
     if (inputs === null) return null;
     const inspection = yield* catchDirectiveErrors(
@@ -415,6 +446,7 @@ export const validateFolder = (
         threshold: thresholds.branchCoverageFromSpecTests,
         branchCoverage,
         folderFiles: [...inputs.sources, ...inputs.tests],
+        ...(projectNewestMtime !== undefined ? { projectNewestMtime } : {}),
       });
       const gateMeta = buildSpecMeta(inspection.analysis, {
         generatedAtSha: projectCtx.generatedAtSha,

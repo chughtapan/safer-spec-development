@@ -23,6 +23,7 @@ import {
   type ProjectContext,
 } from "@safer/project/index.js";
 import {
+  computeProjectNewestMtime,
   diagnosticLines,
   validateFolder,
   type ValidateGapError,
@@ -97,11 +98,10 @@ export const validate = (
     const path = yield* Path.Path;
     const projectCtx = yield* loadProjectCtxOrDie(fs, path);
     const folders = yield* resolveFolders(input, projectCtx);
+    const folderArgsBase = yield* buildFolderArgsBase(fs, path, projectCtx, input.mode);
     const validated: string[] = [];
     for (const folder of folders) {
-      const result = yield* validateFolder({
-        fs, path, folder, projectCtx, mode: input.mode,
-      });
+      const result = yield* validateFolder({ ...folderArgsBase, folder });
       if (result !== null) validated.push(result);
     }
     if (validated.length === 0) {
@@ -112,6 +112,32 @@ export const validate = (
     }
     return { _tag: "pass" as const, foldersValidated: validated };
   }).pipe(Effect.withSpan("commands/validate"));
+
+// coverage-summary.json is a project-wide aggregate, so an edit
+// anywhere in the spec-test tree can invalidate any folder's branch
+// numbers. Compute the project-wide newest mtime once and pass it
+// to each validateFolder call as the freshness reference.
+const buildFolderArgsBase = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  projectCtx: ProjectContext,
+  mode: "planned" | "implemented",
+): Effect.Effect<
+  {
+    readonly fs: FileSystem.FileSystem;
+    readonly path: Path.Path;
+    readonly projectCtx: ProjectContext;
+    readonly mode: "planned" | "implemented";
+    readonly projectNewestMtime?: number;
+  },
+  never
+> =>
+  Effect.gen(function* () {
+    const base = { fs, path, projectCtx, mode };
+    if (mode !== "implemented") return base;
+    const projectNewestMtime = yield* computeProjectNewestMtime(fs, path, projectCtx);
+    return { ...base, projectNewestMtime };
+  });
 
 /**
  * @spec.guarantee "output string is the canonical user-facing diagnostic body for the given gap-class error"

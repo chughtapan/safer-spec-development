@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/analysis",
-  "generatedAtSha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8",
+  "generatedAtSha": "fead7fc1da9297c0949e928fdb0e19f25e279f2b",
   "exports": [
     {
       "name": "GenerateFolderError",
@@ -31,7 +31,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 70,
-        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
+        "sha": "fead7fc1da9297c0949e928fdb0e19f25e279f2b"
       }
     },
     {
@@ -46,7 +46,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 74,
-        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
+        "sha": "fead7fc1da9297c0949e928fdb0e19f25e279f2b"
       }
     },
     {
@@ -77,7 +77,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 75,
-        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
+        "sha": "fead7fc1da9297c0949e928fdb0e19f25e279f2b"
       }
     },
     {
@@ -92,7 +92,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 86,
-        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
+        "sha": "fead7fc1da9297c0949e928fdb0e19f25e279f2b"
       }
     },
     {
@@ -122,7 +122,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 185,
-        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
+        "sha": "fead7fc1da9297c0949e928fdb0e19f25e279f2b"
       }
     },
     {
@@ -153,7 +153,37 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 343,
-        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
+        "sha": "fead7fc1da9297c0949e928fdb0e19f25e279f2b"
+      }
+    },
+    {
+      "name": "computeProjectNewestMtime",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "returns the max mtime across every source file in projectCtx + every spec.test.ts discovered under each folder; 0 when nothing exists",
+          "reason": "validate's branchCoverage freshness check needs a project-wide reference, since coverage-summary.json is a single aggregate over the whole spec-test run."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/orchestrate.ts",
+        "line": 345,
+        "sha": "fead7fc1da9297c0949e928fdb0e19f25e279f2b"
       }
     },
     {
@@ -191,8 +221,8 @@
       ],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 351,
-        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
+        "line": 376,
+        "sha": "fead7fc1da9297c0949e928fdb0e19f25e279f2b"
       }
     },
     {
@@ -220,13 +250,13 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 383,
-        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
+        "line": 414,
+        "sha": "fead7fc1da9297c0949e928fdb0e19f25e279f2b"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.48148148148148145
+    "typeCoverage": 0.4126984126984127
   },
   "thresholds": {
     "typeCoverage": 0.4,

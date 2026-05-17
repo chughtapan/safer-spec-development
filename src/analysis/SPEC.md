@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: 1189c5107adf77e80aaecf06d9174ce2a9afa7a8
+generatedAtSha: fead7fc1da9297c0949e928fdb0e19f25e279f2b
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.48148148148148145
+  typeCoverage: 0.4126984126984127
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -89,7 +89,20 @@ export const diagnosticLines = (
 ): ReadonlyArray<string> => /* ... */
 ```
 
-### [`generateFolder`](./orchestrate.ts#L351)
+### [`computeProjectNewestMtime`](./orchestrate.ts#L345)
+
+```ts
+export const computeProjectNewestMtime = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  projectCtx: ProjectContext,
+): Effect.Effect<number, never> => /* ... */
+```
+
+**Guarantees:**
+- "returns the max mtime across every source file in projectCtx + every spec.test.ts discovered under each folder; 0 when nothing exists" — _validate's branchCoverage freshness check needs a project-wide reference, since coverage-summary.json is a single aggregate over the whole spec-test run._
+
+### [`generateFolder`](./orchestrate.ts#L376)
 
 ```ts
 export const generateFolder = (
@@ -102,7 +115,7 @@ export const generateFolder = (
 
 **Residual contract:** "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally" — _drift-check byte-equality contract._
 
-### [`validateFolder`](./orchestrate.ts#L383)
+### [`validateFolder`](./orchestrate.ts#L414)
 
 ```ts
 export const validateFolder = (

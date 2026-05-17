@@ -289,7 +289,10 @@ const isCoverageMetric = (v: unknown): v is CoverageMetric =>
   && typeof v.total === "number"
   && typeof v.covered === "number";
 
-const extractMetric = (entry: unknown, key: "branches" | "statements"): CoverageMetric | undefined => {
+const extractMetric = (
+  entry: unknown,
+  key: "branches" | "statements" | "functions",
+): CoverageMetric | undefined => {
   if (!isObject(entry)) return undefined;
   const candidate = entry[key];
   return isCoverageMetric(candidate) ? candidate : undefined;
@@ -313,6 +316,7 @@ const aggregateBranchCoverageForFolder = (
       rel: nodePath.relative(rootAbs, key).split(nodePath.sep).join("/"),
       branches: extractMetric(value, "branches"),
       statements: extractMetric(value, "statements"),
+      functions: extractMetric(value, "functions"),
     }))
     .filter((e) => isImmediateChild(e.rel, folderPosix));
   if (matches.length === 0) return null;
@@ -323,21 +327,27 @@ const aggregateBranchCoverageForFolder = (
   const presentRels = new Set(matches.map((m) => m.rel));
   const expectedRels = expectedSources.map((s) => toRelPosix(s, rootAbs));
   if (expectedRels.some((rel) => !presentRels.has(rel))) return null;
-  // Malformed summary entry (missing branches OR statements block) →
-  // null so the gate loud-fails instead of guessing.
-  if (matches.some((e) => e.branches === undefined || e.statements === undefined)) return null;
-  // V8 reports `branches.total: 0` for files that were never loaded by
-  // the test runner — same shape as a file with no real branches. To
-  // distinguish, use statement coverage as the witness that the file
-  // actually executed (statements.covered > 0, or statements.total === 0
-  // for a truly empty re-export). Any matching file that the runner
-  // didn't load → null so the gate refuses to claim coverage we don't
-  // have.
-  const fileRan = (e: typeof matches[number]): boolean => {
+  // Malformed summary entry (missing any of branches/statements/functions)
+  // → null so the gate loud-fails instead of guessing.
+  if (matches.some((e) => e.branches === undefined || e.statements === undefined || e.functions === undefined)) {
+    return null;
+  }
+  // V8 reports branches.total=0 in two indistinguishable shapes: (a) a
+  // genuinely branchless file that ran, and (b) a file whose body was
+  // imported (covering top-level statements) but whose functions were
+  // never called (so V8 never enumerated their branches). Use the
+  // functions block as the second witness: when branches.total=0 AND
+  // any function went uncalled, V8's branch report for this file is
+  // incomplete — refuse to claim coverage.
+  const branchReportIsTrustworthy = (e: typeof matches[number]): boolean => {
     const s = e.statements as CoverageMetric;
-    return s.total === 0 || s.covered > 0;
+    const f = e.functions as CoverageMetric;
+    const b = e.branches as CoverageMetric;
+    if (s.total > 0 && s.covered === 0) return false; // file never loaded
+    if (b.total > 0) return true; // V8 enumerated branches
+    return f.total === 0 || f.covered === f.total; // all functions ran (or none exist)
   };
-  if (matches.some((e) => !fileRan(e))) return null;
+  if (matches.some((e) => !branchReportIsTrustworthy(e))) return null;
   const branches = matches.map((e) => e.branches as CoverageMetric);
   const total = branches.reduce((sum, b) => sum + b.total, 0);
   // All files ran AND aggregate branch total is 0 → truly branchless
