@@ -181,13 +181,13 @@ itSpec.prop(
 );
 
 /**
- * @spec.property find-threshold-shortfall-trips-on-typeCoverage-first
+ * @spec.property find-threshold-shortfall-empty-analysis-no-shortfall
  * @spec.type Inclusion
  * @spec.exports findThresholdShortfall
- * @spec.claim when typeCoverage and classifierCoverage are both below their thresholds, the returned shortfall names `typeCoverage` — the documented gate ordering (typeCoverage → classifier → precondition)
+ * @spec.claim a folder with no exports has `typeCoverage = 1` (the documented degenerate case from `computeTypeCoverage`) so even a non-zero threshold doesn't trip the gate — empty folders don't fail validate
  */
 itSpec.prop(
-  "find-threshold-shortfall-trips-on-typeCoverage-first",
+  "find-threshold-shortfall-empty-analysis-no-shortfall",
   { type: "Inclusion", exports: [findThresholdShortfall] },
   fc.constant(undefined),
   () =>

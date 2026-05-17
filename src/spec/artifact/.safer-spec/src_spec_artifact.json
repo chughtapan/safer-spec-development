@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "896ff215ae0672a790b018a38189beb6c6458371",
+  "generatedAtSha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15",
   "exports": [
     {
       "name": "ExportKind",
@@ -15,7 +15,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -51,7 +51,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 43,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -92,7 +92,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 45,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -107,7 +107,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 47,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -122,7 +122,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 60,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -137,7 +137,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 62,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -172,7 +172,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 76,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -187,7 +187,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 80,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -227,7 +227,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 85,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -242,7 +242,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 187,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -280,7 +280,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 221,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -314,7 +314,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 244,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -353,7 +353,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 247,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -393,7 +393,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 313,
-        "sha": "896ff215ae0672a790b018a38189beb6c6458371"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     }
   ],

@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 896ff215ae0672a790b018a38189beb6c6458371
+generatedAtSha: 03afe5978639e89c12d5a38a7bae8ab2f97eec15
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -268,7 +268,7 @@ export const buildSpecArtifact = (
 | `build-spec-meta-execution-stats-passthrough` | `Roundtrip` | `buildSpecMeta` | when an execution sidecar is supplied, the built \`SpecMeta.coverage\` carries its \`classifierCoverage\`/\`preconditionPassRate\`/\`branchCoverageFromSpecTests\` fields verbatim — the bridge wiring reporter stats into the validate gate | implemented |
 | `build-spec-meta-coverage-in-zero-one` | `Constant Bounds Checking` | `buildSpecMeta` | \`meta.coverage.typeCoverage\` is always in \`\[0, 1\]\` — never NaN, never negative, never above 1 | implemented |
 | `find-threshold-shortfall-zero-threshold-no-gate` | `Constant Equality` | `findThresholdShortfall` | a metric with threshold 0 is never gated — \`null\` is returned when every threshold is 0 | implemented |
-| `find-threshold-shortfall-trips-on-typeCoverage-first` | `Inclusion` | `findThresholdShortfall` | when typeCoverage and classifierCoverage are both below their thresholds, the returned shortfall names \`typeCoverage\` — the documented gate ordering (typeCoverage → classifier → precondition) | implemented |
+| `find-threshold-shortfall-empty-analysis-no-shortfall` | `Inclusion` | `findThresholdShortfall` | a folder with no exports has \`typeCoverage = 1\` (the documented degenerate case from \`computeTypeCoverage\`) so even a non-zero threshold doesn't trip the gate — empty folders don't fail validate | implemented |
 | `find-threshold-shortfall-typecheck` | `Typechecking` | `findThresholdShortfall` | returns either \`null\` or a \`ThresholdShortfall\` with \`{metric, observed, threshold, missingPropertyTypes}\` — the discriminant validate's gate routes on | implemented |
 | `build-spec-artifact-typecheck` | `Typechecking` | `buildSpecArtifact` | returns an object with \`formatVersion\`, \`folder\`, \`generatedAtSha\`, \`exports\`, \`coverage\`, \`thresholds\` — the SpecArtifact contract | implemented |
 | `build-spec-artifact-deterministic` | `Roundtrip` | `buildSpecArtifact` | two consecutive calls with the same inputs produce equal artifacts (deep) — the function is pure | implemented |
