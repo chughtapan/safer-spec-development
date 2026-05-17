@@ -58,7 +58,7 @@ export const buildSpecMeta = (
 });
 
 export interface ThresholdShortfall {
-  readonly metric: "typeCoverage" | "classifierCoverage" | "preconditionPassRate";
+  readonly metric: "typeCoverage" | "preconditionPassRate";
   readonly observed: number;
   readonly threshold: number;
   readonly missingPropertyTypes: ReadonlyArray<string>;
@@ -75,7 +75,7 @@ const checkOne = (
 };
 
 /**
- * @spec.guarantee "returns the first observed-below-threshold metric (typeCoverage to classifier to precondition order) or null when all gates pass"
+ * @spec.guarantee "returns the first observed-below-threshold metric (typeCoverage to precondition order) or null when all gates pass"
  *   reason: validate emits one MissingImplError per folder; first failing
  *           gate is the surfaced one.
  * @spec.residual-contract "metrics whose threshold is 0 are not gated regardless of observed value"
@@ -91,12 +91,6 @@ export const findThresholdShortfall = (
     meta.coverage.typeCoverage,
     meta.thresholds.typeCoverage,
     findMissingPropertyTypes(analysis),
-  ) ??
-  checkOne(
-    "classifierCoverage",
-    meta.coverage.classifierCoverage,
-    meta.thresholds.classifierCoverage,
-    [],
   ) ??
   checkOne(
     "preconditionPassRate",

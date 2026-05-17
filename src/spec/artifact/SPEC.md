@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 9806601226a216ea4924c08c8f0b3a9254d86977
+generatedAtSha: 896ff215ae0672a790b018a38189beb6c6458371
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -16,7 +16,6 @@ coverage:
   branchCoverageFromSpecTests: null
 thresholds:
   typeCoverage: 0.4
-  classifierCoverage: 0
   preconditionPassRate: 0
 ---
 
@@ -97,7 +96,7 @@ export interface ExportEntry {
 
 ```ts
 export interface ThresholdShortfall {
-  readonly metric: "typeCoverage" | "classifierCoverage" | "preconditionPassRate";
+  readonly metric: "typeCoverage" | "preconditionPassRate";
   readonly observed: number;
   readonly threshold: number;
   readonly missingPropertyTypes: ReadonlyArray<string>;
@@ -156,7 +155,7 @@ export const findThresholdShortfall = (
 ```
 
 **Guarantees:**
-- "returns the first observed-below-threshold metric (typeCoverage to classifier to precondition order) or null when all gates pass" — _validate emits one MissingImplError per folder; first failing gate is the surfaced one._
+- "returns the first observed-below-threshold metric (typeCoverage to precondition order) or null when all gates pass" — _validate emits one MissingImplError per folder; first failing gate is the surfaced one._
 
 **Residual contract:** "metrics whose threshold is 0 are not gated regardless of observed value" — _zero-threshold is the explicit no-gate marker used by the permissive default config._
 
@@ -173,7 +172,6 @@ export interface SpecMeta {
   };
   readonly thresholds: {
     readonly typeCoverage: number;
-    readonly classifierCoverage: number;
     readonly preconditionPassRate: number;
   };
   readonly generatedFrom: {
@@ -213,7 +211,7 @@ export const loadExecutionSidecar = (
 **Guarantees:**
 - "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through \`ExecutionSidecarSchema\`; returns null when absent or malformed" — _validate's \`--implemented\` gate consumes the coverage values; absence is surfaced separately as a typed gap error._
 
-### [`emitMarkdown`](./emit.ts#L249)
+### [`emitMarkdown`](./emit.ts#L247)
 
 ```ts
 export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* ... */ }
@@ -224,7 +222,7 @@ export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* 
 
 **Residual contract:** "internal section ordering is fixed: Purpose → Public Surface → Files → Properties" — _behavioral contract beyond the FolderAnalysis shape._
 
-### [`buildSpecArtifact`](./emit.ts#L315)
+### [`buildSpecArtifact`](./emit.ts#L313)
 
 ```ts
 export const buildSpecArtifact = (

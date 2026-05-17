@@ -39,7 +39,7 @@ const EMPTY_ANALYSIS: FolderAnalysis = {
 
 const META_NO_GATE: SpecMeta = buildSpecMeta(EMPTY_ANALYSIS, {
   generatedAtSha: "deadbee",
-  thresholds: { typeCoverage: 0, classifierCoverage: 0, preconditionPassRate: 0 },
+  thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
 });
 
 /* ---------- buildSpecMeta ---------- */
@@ -95,7 +95,7 @@ itSpec.prop(
       failIf(
         buildSpecMeta(EMPTY_ANALYSIS, {
           generatedAtSha: sha,
-          thresholds: { typeCoverage: 0, classifierCoverage: 0, preconditionPassRate: 0 },
+          thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
         }).generatedAtSha !== sha,
         `sha not stamped`,
       ),
@@ -121,7 +121,7 @@ itSpec.prop(
       Effect.gen(function* () {
         const meta = buildSpecMeta(EMPTY_ANALYSIS, {
           generatedAtSha: "x",
-          thresholds: { typeCoverage: 0, classifierCoverage: 0, preconditionPassRate: 0 },
+          thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
           execution: {
             formatVersion: "1",
             folder: "src/x",
@@ -195,7 +195,7 @@ itSpec.prop(
       Effect.gen(function* () {
         const meta = buildSpecMeta({ ...EMPTY_ANALYSIS, exports: [] }, {
           generatedAtSha: "x",
-          thresholds: { typeCoverage: 0.5, classifierCoverage: 0.5, preconditionPassRate: 0 },
+          thresholds: { typeCoverage: 0.5, preconditionPassRate: 0 },
           execution: {
             formatVersion: "1",
             folder: "src/x",
@@ -207,13 +207,13 @@ itSpec.prop(
             branchCoverageFromSpecTests: null,
           },
         });
-        // typeCoverage is 1 (degenerate case) so no shortfall.
-        // Test against the trip-order by using a non-empty analysis path.
-        // For the empty-analysis case, the no-shortfall path is sufficient.
+        // typeCoverage is 1 (degenerate case) so no shortfall — the
+        // empty-analysis path doesn't trip the gate even with a 0.5
+        // threshold. This is the documented degenerate behavior.
         const shortfall = findThresholdShortfall(EMPTY_ANALYSIS, meta);
         yield* failIf(
-          shortfall !== null && shortfall.metric !== "classifierCoverage",
-          `expected classifierCoverage shortfall, got ${JSON.stringify(shortfall)}`,
+          shortfall !== null,
+          `expected no shortfall for empty analysis, got ${JSON.stringify(shortfall)}`,
         );
       }),
     ),

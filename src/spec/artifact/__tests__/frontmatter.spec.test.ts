@@ -49,7 +49,7 @@ const seedFrontmatter = (s: SeedSample): unknown => ({
     preconditionPassRate: null,
     branchCoverageFromSpecTests: null,
   },
-  thresholds: { typeCoverage: 0, classifierCoverage: 0, preconditionPassRate: 0 },
+  thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
 });
 
 /**

@@ -29,7 +29,6 @@ const CoverageBlockSchema = Schema.Struct({
 
 const ThresholdsBlockSchema = Schema.Struct({
   typeCoverage: Schema.Number,
-  classifierCoverage: Schema.Number,
   preconditionPassRate: Schema.Number,
 });
 

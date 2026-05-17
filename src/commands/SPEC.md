@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: 9806601226a216ea4924c08c8f0b3a9254d86977
+generatedAtSha: 896ff215ae0672a790b018a38189beb6c6458371
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -16,7 +16,6 @@ coverage:
   branchCoverageFromSpecTests: null
 thresholds:
   typeCoverage: 0.4
-  classifierCoverage: 0
   preconditionPassRate: 0
 ---
 

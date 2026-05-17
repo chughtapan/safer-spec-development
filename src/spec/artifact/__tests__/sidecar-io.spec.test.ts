@@ -40,7 +40,7 @@ const EMPTY_ANALYSIS: FolderAnalysis = {
 
 const META_NO_GATE: SpecMeta = buildSpecMeta(EMPTY_ANALYSIS, {
   generatedAtSha: "deadbee",
-  thresholds: { typeCoverage: 0, classifierCoverage: 0, preconditionPassRate: 0 },
+  thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
 });
 
 const withFs = <A, E>(
