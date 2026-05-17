@@ -2,10 +2,5 @@
   "defaultThresholds": {
     "typeCoverage": 0.4,
     "branchCoverageFromSpecTests": 0.75
-  },
-  "folderOverrides": {
-    "src/commands": {
-      "branchCoverageFromSpecTests": 0
-    }
   }
 }
