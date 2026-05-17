@@ -247,8 +247,10 @@ export const computeTestTreeHash = (
  *   reason: validate's `--implemented` gate consumes branchCoverageFromSpecTests;
  *           the null/1.0 split lets it distinguish "user forgot --coverage"
  *           from "folder is just re-exports."
- * @spec.residual-contract "absolute paths from v8 are rebased to project-relative via `path.relative` before the per-folder prefix match"
- *   reason: vitest emits absolute paths; we aggregate by repo-relative folder.
+ * @spec.residual-contract "the gate's spec-test attribution holds only if the vitest run that produced coverage-summary.json was restricted to *.spec.test.ts files; this repo enforces it via vitest.config.ts test.include — downstream users must mirror that constraint or the metric will count non-spec-test branches"
+ *   reason: v8 coverage attributes per-file, not per-test; without
+ *           the include narrowing the aggregate would credit ordinary
+ *           tests toward branchCoverageFromSpecTests.
  */
 export interface LoadBranchCoverageOptions {
   readonly expectedSources: ReadonlyArray<string>;

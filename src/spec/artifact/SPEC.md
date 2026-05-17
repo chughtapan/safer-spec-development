@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 56b69414d7ec4dbfeae19f41b312aa67a42574f3
+generatedAtSha: 7829cb2b254f3b571b16170c6852602ff2711060
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -211,7 +211,7 @@ export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* 
 
 **Residual contract:** "internal section ordering is fixed: Purpose → Public Surface → Files → Properties" — _behavioral contract beyond the FolderAnalysis shape._
 
-### [`loadBranchCoverage`](./reporter.ts#L258)
+### [`loadBranchCoverage`](./reporter.ts#L260)
 
 ```ts
 export const loadBranchCoverage = (
@@ -236,7 +236,7 @@ export const buildSpecArtifact = (
 
 **Residual contract:** "fields the codemod cannot yet compute (e.g. per-export sourceRef.sha) reuse \`meta.generatedAtSha\` as the closest stable identifier" — _per-line blame would require a separate git pass; the run-level SHA is a sound default for now._
 
-### [`loadExecutionSidecar`](./reporter.ts#L364)
+### [`loadExecutionSidecar`](./reporter.ts#L366)
 
 ```ts
 export const loadExecutionSidecar = (

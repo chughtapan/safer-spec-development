@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3",
+  "generatedAtSha": "7829cb2b254f3b571b16170c6852602ff2711060",
   "exports": [
     {
       "name": "ExportKind",
@@ -15,7 +15,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -51,7 +51,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 43,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -66,7 +66,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 47,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -107,7 +107,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 50,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -122,7 +122,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 62,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -137,7 +137,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 68,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -172,7 +172,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 76,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -187,7 +187,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 80,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -227,7 +227,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 93,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -242,7 +242,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 187,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -280,7 +280,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 221,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -319,7 +319,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 249,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -348,8 +348,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
-        "line": 258,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "line": 260,
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -389,7 +389,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 315,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     },
     {
@@ -417,8 +417,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
-        "line": 364,
-        "sha": "56b69414d7ec4dbfeae19f41b312aa67a42574f3"
+        "line": 366,
+        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
       }
     }
   ],
