@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "16d248d456918f57d0a68dad6dd07056657b8872",
+  "generatedAtSha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16",
   "exports": [
     {
       "name": "ExportKind",
@@ -15,7 +15,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -51,7 +51,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 43,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -66,7 +66,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 47,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -107,7 +107,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 50,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -122,7 +122,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 62,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -137,7 +137,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 68,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -172,7 +172,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 76,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -187,7 +187,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 80,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -227,7 +227,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 93,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -242,7 +242,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 187,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -280,7 +280,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 221,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -319,7 +319,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 249,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -362,7 +362,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 253,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -402,7 +402,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 315,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     },
     {
@@ -430,8 +430,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
-        "line": 333,
-        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+        "line": 340,
+        "sha": "7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16"
       }
     }
   ],

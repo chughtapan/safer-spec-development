@@ -266,7 +266,7 @@ export const loadBranchCoverage = (
       Effect.catchAll(() => Effect.succeed(null)),
     );
 
-interface BranchTotal {
+interface CoverageMetric {
   readonly total: number;
   readonly covered: number;
 }
@@ -274,10 +274,16 @@ interface BranchTotal {
 const isObject = (v: unknown): v is Record<string, unknown> =>
   v !== null && typeof v === "object";
 
-const isBranchTotal = (v: unknown): v is BranchTotal =>
+const isCoverageMetric = (v: unknown): v is CoverageMetric =>
   isObject(v)
   && typeof v.total === "number"
   && typeof v.covered === "number";
+
+const extractMetric = (entry: unknown, key: "branches" | "statements"): CoverageMetric | undefined => {
+  if (!isObject(entry)) return undefined;
+  const candidate = entry[key];
+  return isCoverageMetric(candidate) ? candidate : undefined;
+};
 
 const aggregateBranchCoverageForFolder = (
   parsed: unknown,
@@ -292,29 +298,30 @@ const aggregateBranchCoverageForFolder = (
     .filter(([key]) => key !== "total")
     .map(([key, value]) => ({
       rel: nodePath.relative(rootAbs, key).split(nodePath.sep).join("/"),
-      // Guard the entry shape end-to-end. Anything that isn't a
-      // `{ branches: { total: number, covered: number } }` object —
-      // including `null`, strings, missing branches, branches: null,
-      // or branches with non-number total/covered — becomes undefined
-      // here and gets treated as malformed below.
-      branches: isObject(value) && isBranchTotal((value as { branches?: unknown }).branches)
-        ? ((value as { branches: BranchTotal }).branches)
-        : undefined,
+      branches: extractMetric(value, "branches"),
+      statements: extractMetric(value, "statements"),
     }))
     .filter((e) => isImmediateChild(e.rel, folderPosix));
-  // No matching source files in the coverage summary at all — folder
-  // wasn't instrumented. Return null so the gate can loud-fail.
   if (matches.length === 0) return null;
-  // Any matching entry MISSING a well-shaped branches block means the
-  // summary is malformed for this folder. Return null so the gate
-  // loud-fails instead of bypassing on bad data.
-  const missingBranches = matches.some((e) => e.branches === undefined);
-  if (missingBranches) return null;
-  const branches = matches.map((e) => e.branches as BranchTotal);
+  // Malformed summary entry (missing branches OR statements block) →
+  // null so the gate loud-fails instead of guessing.
+  if (matches.some((e) => e.branches === undefined || e.statements === undefined)) return null;
+  // V8 reports `branches.total: 0` for files that were never loaded by
+  // the test runner — same shape as a file with no real branches. To
+  // distinguish, use statement coverage as the witness that the file
+  // actually executed (statements.covered > 0, or statements.total === 0
+  // for a truly empty re-export). Any matching file that the runner
+  // didn't load → null so the gate refuses to claim coverage we don't
+  // have.
+  const fileRan = (e: typeof matches[number]): boolean => {
+    const s = e.statements as CoverageMetric;
+    return s.total === 0 || s.covered > 0;
+  };
+  if (matches.some((e) => !fileRan(e))) return null;
+  const branches = matches.map((e) => e.branches as CoverageMetric);
   const total = branches.reduce((sum, b) => sum + b.total, 0);
-  // All matching entries had branches blocks with total=0 (pure
-  // re-exports etc.). Vacuously covered; parallels typeCoverage's
-  // no-value-exports degenerate case.
+  // All files ran AND aggregate branch total is 0 → truly branchless
+  // (re-export barrels, type-only files); vacuously covered.
   if (total === 0) return 1;
   const covered = branches.reduce((sum, b) => sum + b.covered, 0);
   return covered / total;

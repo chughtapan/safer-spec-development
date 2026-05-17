@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 16d248d456918f57d0a68dad6dd07056657b8872
+generatedAtSha: 7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -242,7 +242,7 @@ export const buildSpecArtifact = (
 
 **Residual contract:** "fields the codemod cannot yet compute (e.g. per-export sourceRef.sha) reuse \`meta.generatedAtSha\` as the closest stable identifier" — _per-line blame would require a separate git pass; the run-level SHA is a sound default for now._
 
-### [`loadExecutionSidecar`](./reporter.ts#L333)
+### [`loadExecutionSidecar`](./reporter.ts#L340)
 
 ```ts
 export const loadExecutionSidecar = (
