@@ -1,7 +1,7 @@
 ---
 folder: src/spec/grammar
 format-version: 0.1.0
-generatedAtSha: 7829cb2b254f3b571b16170c6852602ff2711060
+generatedAtSha: 1189c5107adf77e80aaecf06d9174ce2a9afa7a8
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations

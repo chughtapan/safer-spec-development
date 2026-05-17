@@ -296,20 +296,15 @@ const requireFreshCoverage = (
       .pipe(Effect.catchAll(() => Effect.succeed(null)));
     if (coverageStat === null) return;
     const coverageMtime = mtimeMs(coverageStat);
-    // Pick the freshness reference: prefer the execution sidecar (proves
-    // a test run wrote it AFTER coverage if mtime is newer). When the
-    // sidecar is absent (folder has no implemented itSpec.prop rows),
-    // fall back to the newest mtime among the folder's own source/test
-    // files — any one of them newer than coverage means coverage is
-    // stale for this folder regardless of whether tests ran here.
-    const executionSidecarPath = path.join(
-      folder, ".safer-spec", `${sidecarSlug(folder)}.execution.json`,
-    );
-    const sidecarStat = yield* fs.stat(executionSidecarPath)
-      .pipe(Effect.catchAll(() => Effect.succeed(null)));
-    const referenceMtime = sidecarStat !== null
-      ? mtimeMs(sidecarStat)
-      : yield* newestFileMtime(fs, folderFiles);
+    // Compare against the newest mtime among the folder's own source +
+    // test files. Using the sidecar's mtime would falsely flag stale
+    // coverage when a developer runs `pnpm test` (no --coverage) after
+    // `pnpm test --coverage` — the reporter rewrites the sidecar on
+    // every test run, so its mtime stops tracking source freshness.
+    // The sidecar's testTreeHash already proves the sidecar matches
+    // the on-disk tree; the freshness check is solely about coverage
+    // relative to source/test edits.
+    const referenceMtime = yield* newestFileMtime(fs, folderFiles);
     if (coverageMtime >= referenceMtime) return;
     yield* Effect.fail(
       new MissingImplError({

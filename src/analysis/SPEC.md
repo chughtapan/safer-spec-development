@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: 7829cb2b254f3b571b16170c6852602ff2711060
+generatedAtSha: 1189c5107adf77e80aaecf06d9174ce2a9afa7a8
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -89,7 +89,7 @@ export const diagnosticLines = (
 ): ReadonlyArray<string> => /* ... */
 ```
 
-### [`generateFolder`](./orchestrate.ts#L356)
+### [`generateFolder`](./orchestrate.ts#L351)
 
 ```ts
 export const generateFolder = (
@@ -102,7 +102,7 @@ export const generateFolder = (
 
 **Residual contract:** "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally" — _drift-check byte-equality contract._
 
-### [`validateFolder`](./orchestrate.ts#L388)
+### [`validateFolder`](./orchestrate.ts#L383)
 
 ```ts
 export const validateFolder = (

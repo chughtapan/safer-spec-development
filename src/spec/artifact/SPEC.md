@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 7829cb2b254f3b571b16170c6852602ff2711060
+generatedAtSha: 1189c5107adf77e80aaecf06d9174ce2a9afa7a8
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -211,7 +211,7 @@ export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* 
 
 **Residual contract:** "internal section ordering is fixed: Purpose → Public Surface → Files → Properties" — _behavioral contract beyond the FolderAnalysis shape._
 
-### [`loadBranchCoverage`](./reporter.ts#L260)
+### [`loadBranchCoverage`](./reporter.ts#L254)
 
 ```ts
 export const loadBranchCoverage = (
@@ -221,6 +221,11 @@ export const loadBranchCoverage = (
   options: LoadBranchCoverageOptions,
 ): Effect.Effect<number | null, never> => { /* ... */ }
 ```
+
+**Guarantees:**
+- "aggregates v8 branch coverage for the folder's immediate sources; null when coverage-summary.json is absent, an expected source has no entry, or a matching file did not execute; 1.0 when present-and-fully-branchless" — _validate's \`--implemented\` gate consumes branchCoverageFromSpecTests; the null/1.0 split lets it distinguish "user forgot --coverage" from "folder is just re-exports."_
+
+**Residual contract:** "spec-test attribution holds only if coverage-summary.json came from a vitest run restricted to \*.spec.test.ts files; this repo enforces it via vitest.config.ts test.include" — _v8 coverage attributes per-file, not per-test; without the include narrowing the aggregate would credit ordinary tests toward branchCoverageFromSpecTests._
 
 ### [`buildSpecArtifact`](./emit.ts#L315)
 
@@ -236,7 +241,7 @@ export const buildSpecArtifact = (
 
 **Residual contract:** "fields the codemod cannot yet compute (e.g. per-export sourceRef.sha) reuse \`meta.generatedAtSha\` as the closest stable identifier" — _per-line blame would require a separate git pass; the run-level SHA is a sound default for now._
 
-### [`loadExecutionSidecar`](./reporter.ts#L366)
+### [`loadExecutionSidecar`](./reporter.ts#L365)
 
 ```ts
 export const loadExecutionSidecar = (
@@ -245,6 +250,9 @@ export const loadExecutionSidecar = (
   folder: string,
 ): Effect.Effect<ExecutionSidecar | null, never> => /* ... */
 ```
+
+**Guarantees:**
+- "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through \`ExecutionSidecarSchema\`; returns null when absent or malformed" — _validate's \`--implemented\` gate consumes the coverage values; absence is surfaced separately as a typed gap error._
 
 ## Children
 

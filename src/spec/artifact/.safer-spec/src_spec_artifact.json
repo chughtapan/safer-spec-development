@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "7829cb2b254f3b571b16170c6852602ff2711060",
+  "generatedAtSha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8",
   "exports": [
     {
       "name": "ExportKind",
@@ -15,7 +15,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -51,7 +51,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 43,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -66,7 +66,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 47,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -107,7 +107,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 50,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -122,7 +122,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 62,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -137,7 +137,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 68,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -172,7 +172,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 76,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -187,7 +187,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 80,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -227,7 +227,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 93,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -242,7 +242,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 187,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -280,7 +280,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 221,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -319,7 +319,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 249,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -343,13 +343,22 @@
         "Constant Bounds Checking"
       ],
       "skipped": [],
-      "residualContract": null,
+      "residualContract": {
+        "_tag": "some",
+        "body": "spec-test attribution holds only if coverage-summary.json came from a vitest run restricted to *.spec.test.ts files; this repo enforces it via vitest.config.ts test.include",
+        "reason": "v8 coverage attributes per-file, not per-test; without the include narrowing the aggregate would credit ordinary tests toward branchCoverageFromSpecTests."
+      },
       "residualAssumes": [],
-      "residualGuarantees": [],
+      "residualGuarantees": [
+        {
+          "claim": "aggregates v8 branch coverage for the folder's immediate sources; null when coverage-summary.json is absent, an expected source has no entry, or a matching file did not execute; 1.0 when present-and-fully-branchless",
+          "reason": "validate's `--implemented` gate consumes branchCoverageFromSpecTests; the null/1.0 split lets it distinguish \"user forgot --coverage\" from \"folder is just re-exports.\""
+        }
+      ],
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
-        "line": 260,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "line": 254,
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -389,7 +398,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 315,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     },
     {
@@ -414,11 +423,16 @@
       "skipped": [],
       "residualContract": null,
       "residualAssumes": [],
-      "residualGuarantees": [],
+      "residualGuarantees": [
+        {
+          "claim": "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through `ExecutionSidecarSchema`; returns null when absent or malformed",
+          "reason": "validate's `--implemented` gate consumes the coverage values; absence is surfaced separately as a typed gap error."
+        }
+      ],
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
-        "line": 366,
-        "sha": "7829cb2b254f3b571b16170c6852602ff2711060"
+        "line": 365,
+        "sha": "1189c5107adf77e80aaecf06d9174ce2a9afa7a8"
       }
     }
   ],

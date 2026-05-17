@@ -236,27 +236,21 @@ export const computeTestTreeHash = (
     return hashTestTree(posixPaths, (p) => byPath.get(p) ?? "");
   }).pipe(Effect.withSpan("spec/artifact/reporter/computeTestTreeHash"));
 
-/**
- * @spec.guarantee "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through `ExecutionSidecarSchema`; returns null when absent or malformed"
- *   reason: validate's `--implemented` gate consumes the coverage values;
- *           absence is surfaced separately as a typed gap error.
- */
+export interface LoadBranchCoverageOptions {
+  readonly expectedSources: ReadonlyArray<string>;
+  readonly projectRoot?: string;
+}
 
 /**
  * @spec.guarantee "aggregates v8 branch coverage for the folder's immediate sources; null when coverage-summary.json is absent, an expected source has no entry, or a matching file did not execute; 1.0 when present-and-fully-branchless"
  *   reason: validate's `--implemented` gate consumes branchCoverageFromSpecTests;
  *           the null/1.0 split lets it distinguish "user forgot --coverage"
  *           from "folder is just re-exports."
- * @spec.residual-contract "the gate's spec-test attribution holds only if the vitest run that produced coverage-summary.json was restricted to *.spec.test.ts files; this repo enforces it via vitest.config.ts test.include — downstream users must mirror that constraint or the metric will count non-spec-test branches"
+ * @spec.residual-contract "spec-test attribution holds only if coverage-summary.json came from a vitest run restricted to *.spec.test.ts files; this repo enforces it via vitest.config.ts test.include"
  *   reason: v8 coverage attributes per-file, not per-test; without
  *           the include narrowing the aggregate would credit ordinary
  *           tests toward branchCoverageFromSpecTests.
  */
-export interface LoadBranchCoverageOptions {
-  readonly expectedSources: ReadonlyArray<string>;
-  readonly projectRoot?: string;
-}
-
 export const loadBranchCoverage = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
@@ -363,6 +357,11 @@ const isImmediateChild = (rel: string, folder: string): boolean => {
   return !rel.slice(prefix.length).includes("/");
 };
 
+/**
+ * @spec.guarantee "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through `ExecutionSidecarSchema`; returns null when absent or malformed"
+ *   reason: validate's `--implemented` gate consumes the coverage values;
+ *           absence is surfaced separately as a typed gap error.
+ */
 export const loadExecutionSidecar = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
