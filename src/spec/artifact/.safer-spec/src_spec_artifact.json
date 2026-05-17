@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb",
+  "generatedAtSha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d",
   "exports": [
     {
       "name": "ExportKind",
@@ -15,7 +15,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -51,7 +51,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 43,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -66,7 +66,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 47,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -94,8 +94,8 @@
       "skipped": [],
       "residualContract": {
         "_tag": "some",
-        "body": "branchCoverageFromSpecTests stays null until a v8 coverage hook is wired up (follow-up slice)",
-        "reason": "lifecycle contract."
+        "body": "branchCoverageFromSpecTests is null when coverage-summary.json is absent or inconsistent with the folder's source files (loud-fail signal for the gate); never null after a clean pnpm test --coverage run",
+        "reason": "lifecycle contract; null is the gate's only stale-data channel because v8 reports per-file totals, not per-test."
       },
       "residualAssumes": [],
       "residualGuarantees": [
@@ -106,8 +106,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
-        "line": 50,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "line": 51,
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -122,7 +122,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 62,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -136,8 +136,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
-        "line": 68,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "line": 69,
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -172,7 +172,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 76,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -187,7 +187,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 80,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -226,8 +226,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
-        "line": 93,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "line": 94,
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -242,7 +242,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 187,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -280,7 +280,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 221,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -319,7 +319,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 249,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -358,7 +358,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 254,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -398,7 +398,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 315,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     },
     {
@@ -432,7 +432,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 381,
-        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+        "sha": "a6e0c127c44e2438071cbc8bab6d6a42bd7fb61d"
       }
     }
   ],

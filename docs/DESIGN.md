@@ -50,7 +50,7 @@ sidecar is the tool-facing contract. It contains the format version, folder,
 source references, observed and skipped property types, residual contracts,
 coverage data, and thresholds.
 
-The JSON schema lives in `src/spec/sidecar.ts`. Directive strings are
+The JSON schema lives in `src/spec/artifact/sidecar.ts`. Directive strings are
 size-capped and escaped before they are emitted.
 
 ## Source Domains
@@ -178,8 +178,9 @@ if a repo wants them, live in the author's `@spec.skip` reasons.
 | `safer-spec explain <error-code>` | Return the docs entry for a validation or lint diagnostic. |
 
 `--planned` validates metadata that can exist before property bodies are
-implemented. `--implemented` also requires classifier and precondition data
-from test execution sidecars.
+implemented. `--implemented` also requires non-empty property bodies, a
+present execution sidecar from the last Vitest run, and a fresh
+`coverage/coverage-summary.json` for branch-coverage gating.
 
 ## Skills (agent-driven flows)
 
@@ -212,15 +213,19 @@ Each diagnostic should include a problem, cause, concrete fix, and docs link.
 
 Coverage gates:
 
-- `property-type-coverage`: every property type in `PROPERTY_TYPES` is either
-  covered by an `itSpec` call targeting the export or explicitly skipped via
-  `@spec.skip "<PropertyType>" reason: <why>`.
-- `classifier-coverage`: declared partitions from property tests are exercised
-  above the configured threshold.
+- `type-coverage`: every property type in `PROPERTY_TYPES` is either covered
+  by an `itSpec` call targeting the export or explicitly skipped via
+  `@spec.skip "<PropertyType>" reason: <why>`. Default threshold `0.4`.
 - `precondition-pass-rate`: generated samples should pass preconditions often
-  enough to make the property meaningful.
-- `branch-coverage-from-spec-tests`: diagnostic trend signal, not the primary
-  quality gate.
+  enough to make the property meaningful. Default threshold `0` (observational
+  only until projects raise it).
+- `branch-coverage-from-spec-tests`: v8 branch coverage of the folder's
+  source files, attributed to `*.spec.test.ts` runs only (the codemod's
+  `vitest.config.ts` narrows `test.include` so the coverage summary stays an
+  honest spec-test aggregate). Default threshold `0.75`. Loud-fails on
+  stale or incomplete coverage (missing files, deleted entries, imported
+  but never-called functions, edits to source/tests/vitest config after
+  the last `pnpm test --coverage`).
 
 ## Link Resolution
 

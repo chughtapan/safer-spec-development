@@ -1,6 +1,6 @@
 # @chughtapan/safer-spec-development
 
-Per-folder `SPEC.md` codemod for TypeScript codebases. Generates structured specs from source + JSDoc directives + Effect Schema + fast-check property tests. Validates type-coverage, classifier-coverage, and precondition-pass-rate as hard CI gates.
+Per-folder `SPEC.md` codemod for TypeScript codebases. Generates structured specs from source + JSDoc directives + Effect Schema + fast-check property tests. Validates type-coverage, precondition-pass-rate, and branch-coverage-from-spec-tests as hard CI gates.
 
 **Status: early package.** Public contracts, CLI surface, and property metadata
 are defined; mode implementations may still be incomplete.
