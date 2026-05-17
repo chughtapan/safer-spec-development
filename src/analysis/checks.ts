@@ -202,7 +202,7 @@ const shortfallDiagnostic = (
     `observed ${s.metric} (${formatRatio(s.observed)}) is below the configured threshold (${formatRatio(s.threshold)})`,
     s.metric === "typeCoverage"
       ? "add itSpec.prop calls covering the missing property-types, or declare @spec.skip with a documented reason"
-      : "extend property tests with fc.classify / loosen preconditions to raise the metric",
+      : "loosen the fc.pre precondition so fewer samples are skipped, or fix the property body to satisfy it more often",
     "missing-impl",
   );
 };

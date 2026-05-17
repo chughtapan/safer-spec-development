@@ -31,7 +31,7 @@ const FIXED_META: SpecMeta = {
     preconditionPassRate: null,
     branchCoverageFromSpecTests: null,
   },
-  thresholds: { typeCoverage: 0, classifierCoverage: 0, preconditionPassRate: 0 },
+  thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
   generatedFrom: {
     jsdoc: "@spec.*",
     exports: "ts-morph",

@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/commands",
-  "generatedAtSha": "9860ef0625416af1e4c3b228ae8390d8c59c2df8",
+  "generatedAtSha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15",
   "exports": [
     {
       "name": "CliExitCode",
@@ -31,7 +31,7 @@
       "sourceRef": {
         "path": "src/commands/index.ts",
         "line": 46,
-        "sha": "9860ef0625416af1e4c3b228ae8390d8c59c2df8"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     },
     {
@@ -62,7 +62,7 @@
       "sourceRef": {
         "path": "src/commands/index.ts",
         "line": 50,
-        "sha": "9860ef0625416af1e4c3b228ae8390d8c59c2df8"
+        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
       }
     }
   ],
@@ -71,7 +71,6 @@
   },
   "thresholds": {
     "typeCoverage": 0.4,
-    "classifierCoverage": 0,
     "preconditionPassRate": 0
   }
 }

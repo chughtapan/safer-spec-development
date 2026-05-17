@@ -240,7 +240,6 @@ itSpec.prop(
       Effect.gen(function* () {
         const t = CTX.thresholdsFor(folder);
         yield* failIf(t.typeCoverage < 0, `typeCoverage negative`);
-        yield* failIf(t.classifierCoverage < 0, `classifier negative`);
         yield* failIf(t.preconditionPassRate < 0, `precondition negative`);
       }),
     ),
@@ -250,7 +249,7 @@ itSpec.prop(
  * @spec.property thresholds-for-typechecks-as-thresholds
  * @spec.type Typechecking
  * @spec.exports loadProjectContext
- * @spec.claim the output of `ctx.thresholdsFor(folder)` exposes three `number` fields — the shape `checkThresholds` reads in the validate pipeline
+ * @spec.claim the output of `ctx.thresholdsFor(folder)` exposes two `number` fields (`typeCoverage`, `preconditionPassRate`) — the shape `checkThresholds` reads in the validate pipeline
  */
 itSpec.prop(
   "thresholds-for-typechecks-as-thresholds",
@@ -261,7 +260,6 @@ itSpec.prop(
       Effect.gen(function* () {
         const t = CTX.thresholdsFor("src");
         yield* failIf(typeof t.typeCoverage !== "number", `typeCoverage number`);
-        yield* failIf(typeof t.classifierCoverage !== "number", `classifier number`);
         yield* failIf(typeof t.preconditionPassRate !== "number", `precondition number`);
       }),
     ),

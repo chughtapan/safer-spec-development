@@ -117,7 +117,7 @@ itSpec.prop(
           subfoldersOf: () => [],
           thresholdsFor: () => ({
             typeCoverage: 0,
-            classifierCoverage: 0,
+            
             preconditionPassRate: 0,
           }),
           resolveFolder: (input) =>

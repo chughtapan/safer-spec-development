@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 9860ef0625416af1e4c3b228ae8390d8c59c2df8
+generatedAtSha: 03afe5978639e89c12d5a38a7bae8ab2f97eec15
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,13 +10,12 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.44444444444444453
+  typeCoverage: 0.4444444444444444
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
   typeCoverage: 0.4
-  classifierCoverage: 0
   preconditionPassRate: 0
 ---
 
@@ -97,7 +96,7 @@ export interface ExportEntry {
 
 ```ts
 export interface ThresholdShortfall {
-  readonly metric: "typeCoverage" | "classifierCoverage" | "preconditionPassRate";
+  readonly metric: "typeCoverage" | "preconditionPassRate";
   readonly observed: number;
   readonly threshold: number;
   readonly missingPropertyTypes: ReadonlyArray<string>;
@@ -156,7 +155,7 @@ export const findThresholdShortfall = (
 ```
 
 **Guarantees:**
-- "returns the first observed-below-threshold metric (typeCoverage to classifier to precondition order) or null when all gates pass" — _validate emits one MissingImplError per folder; first failing gate is the surfaced one._
+- "returns the first observed-below-threshold metric (typeCoverage to precondition order) or null when all gates pass" — _validate emits one MissingImplError per folder; first failing gate is the surfaced one._
 
 **Residual contract:** "metrics whose threshold is 0 are not gated regardless of observed value" — _zero-threshold is the explicit no-gate marker used by the permissive default config._
 
@@ -173,7 +172,6 @@ export interface SpecMeta {
   };
   readonly thresholds: {
     readonly typeCoverage: number;
-    readonly classifierCoverage: number;
     readonly preconditionPassRate: number;
   };
   readonly generatedFrom: {
@@ -186,7 +184,7 @@ export interface SpecMeta {
 }
 ```
 
-### [`computeTestTreeHash`](./reporter.ts#L226)
+### [`computeTestTreeHash`](./reporter.ts#L221)
 
 ```ts
 export const computeTestTreeHash = (
@@ -200,18 +198,7 @@ export const computeTestTreeHash = (
 
 **Residual contract:** "unreadable test files contribute the empty string to the hash; the reporter applies the same convention so a transient read failure doesn't poison the hash" — _byte-equality contract; missing-file -&gt; empty-bytes._
 
-### [`emitMarkdown`](./emit.ts#L249)
-
-```ts
-export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* ... */ }
-```
-
-**Guarantees:**
-- "two calls with the same \`analysis\` + \`meta\` produce byte-identical markdown; frontmatter decodes through \`decodeSpecFrontmatter\`" — _roundtrip contract on the emit step._
-
-**Residual contract:** "internal section ordering is fixed: Purpose → Public Surface → Files → Properties" — _behavioral contract beyond the FolderAnalysis shape._
-
-### [`loadExecutionSidecar`](./reporter.ts#L249)
+### [`loadExecutionSidecar`](./reporter.ts#L244)
 
 ```ts
 export const loadExecutionSidecar = (
@@ -224,7 +211,18 @@ export const loadExecutionSidecar = (
 **Guarantees:**
 - "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through \`ExecutionSidecarSchema\`; returns null when absent or malformed" — _validate's \`--implemented\` gate consumes the coverage values; absence is surfaced separately as a typed gap error._
 
-### [`buildSpecArtifact`](./emit.ts#L315)
+### [`emitMarkdown`](./emit.ts#L247)
+
+```ts
+export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* ... */ }
+```
+
+**Guarantees:**
+- "two calls with the same \`analysis\` + \`meta\` produce byte-identical markdown; frontmatter decodes through \`decodeSpecFrontmatter\`" — _roundtrip contract on the emit step._
+
+**Residual contract:** "internal section ordering is fixed: Purpose → Public Surface → Files → Properties" — _behavioral contract beyond the FolderAnalysis shape._
+
+### [`buildSpecArtifact`](./emit.ts#L313)
 
 ```ts
 export const buildSpecArtifact = (
@@ -270,7 +268,7 @@ export const buildSpecArtifact = (
 | `build-spec-meta-execution-stats-passthrough` | `Roundtrip` | `buildSpecMeta` | when an execution sidecar is supplied, the built \`SpecMeta.coverage\` carries its \`classifierCoverage\`/\`preconditionPassRate\`/\`branchCoverageFromSpecTests\` fields verbatim — the bridge wiring reporter stats into the validate gate | implemented |
 | `build-spec-meta-coverage-in-zero-one` | `Constant Bounds Checking` | `buildSpecMeta` | \`meta.coverage.typeCoverage\` is always in \`\[0, 1\]\` — never NaN, never negative, never above 1 | implemented |
 | `find-threshold-shortfall-zero-threshold-no-gate` | `Constant Equality` | `findThresholdShortfall` | a metric with threshold 0 is never gated — \`null\` is returned when every threshold is 0 | implemented |
-| `find-threshold-shortfall-trips-on-typeCoverage-first` | `Inclusion` | `findThresholdShortfall` | when typeCoverage and classifierCoverage are both below their thresholds, the returned shortfall names \`typeCoverage\` — the documented gate ordering (typeCoverage → classifier → precondition) | implemented |
+| `find-threshold-shortfall-empty-analysis-no-shortfall` | `Inclusion` | `findThresholdShortfall` | a folder with no exports has \`typeCoverage = 1\` (the documented degenerate case from \`computeTypeCoverage\`) so even a non-zero threshold doesn't trip the gate — empty folders don't fail validate | implemented |
 | `find-threshold-shortfall-typecheck` | `Typechecking` | `findThresholdShortfall` | returns either \`null\` or a \`ThresholdShortfall\` with \`{metric, observed, threshold, missingPropertyTypes}\` — the discriminant validate's gate routes on | implemented |
 | `build-spec-artifact-typecheck` | `Typechecking` | `buildSpecArtifact` | returns an object with \`formatVersion\`, \`folder\`, \`generatedAtSha\`, \`exports\`, \`coverage\`, \`thresholds\` — the SpecArtifact contract | implemented |
 | `build-spec-artifact-deterministic` | `Roundtrip` | `buildSpecArtifact` | two consecutive calls with the same inputs produce equal artifacts (deep) — the function is pure | implemented |

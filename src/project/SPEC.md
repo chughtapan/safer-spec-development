@@ -1,7 +1,7 @@
 ---
 folder: src/project
 format-version: 0.1.0
-generatedAtSha: 9860ef0625416af1e4c3b228ae8390d8c59c2df8
+generatedAtSha: 03afe5978639e89c12d5a38a7bae8ab2f97eec15
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -16,7 +16,6 @@ coverage:
   branchCoverageFromSpecTests: null
 thresholds:
   typeCoverage: 0.4
-  classifierCoverage: 0
   preconditionPassRate: 0
 ---
 
@@ -79,12 +78,11 @@ export class FolderNotFoundError extends Data.TaggedError("FolderNotFoundError")
 }> { /* ... */ }
 ```
 
-### [`Thresholds`](./config.ts#L51)
+### [`Thresholds`](./config.ts#L49)
 
 ```ts
 export interface Thresholds {
   readonly typeCoverage: number;
-  readonly classifierCoverage: number;
   readonly preconditionPassRate: number;
 }
 ```
@@ -160,7 +158,7 @@ export const loadProjectContext = (
 | `subfolders-of-leaf-folder-empty` | `Constant Equality` | `loadProjectContext` | a leaf folder (no SPEC'd subfolders) yields an empty array — degenerate case stays degenerate | implemented |
 | `subfolders-of-unknown-folder-empty` | `Constant Equality` | `loadProjectContext` | \`ctx.subfoldersOf(folder)\` returns an empty array (not undefined/null) for any folder NOT in the discovered list — total function, no exceptions | implemented |
 | `thresholds-for-default-folder-non-negative` | `Constant Bounds Checking` | `loadProjectContext` | every metric in \`ctx.thresholdsFor(folder)\` is a non-negative number — the gate semantics requires "below threshold" to be meaningful; negative thresholds would invert the comparison | implemented |
-| `thresholds-for-typechecks-as-thresholds` | `Typechecking` | `loadProjectContext` | the output of \`ctx.thresholdsFor(folder)\` exposes three \`number\` fields — the shape \`checkThresholds\` reads in the validate pipeline | implemented |
+| `thresholds-for-typechecks-as-thresholds` | `Typechecking` | `loadProjectContext` | the output of \`ctx.thresholdsFor(folder)\` exposes two \`number\` fields (\`typeCoverage\`, \`preconditionPassRate\`) — the shape \`checkThresholds\` reads in the validate pipeline | implemented |
 | `thresholds-for-deterministic` | `Roundtrip` | `loadProjectContext` | \`ctx.thresholdsFor(folder)\` is deterministic — two calls with the same folder return equal Thresholds (the function is pure on the precomputed config) | implemented |
 | `project-context-error-roundtrips-payload` | `Roundtrip` | `ProjectContextError` | a \`ProjectContextError\` exposes the \`{path, cause}\` payload it was constructed with — the surface the runtime exit-formatter reads when tsconfig load fails | implemented |
 | `project-context-error-is-throwable` | `Exception Raising` | `ProjectContextError` | \`ProjectContextError\` round-trips through \`Effect.fail\` / \`Effect.catchTag\` without payload loss — the surface load-time loaders route their failures through | implemented |
