@@ -25,6 +25,11 @@ export interface BuildSpecMetaArgs {
   readonly generatedAtSha: string;
   readonly thresholds: Thresholds;
   readonly execution?: ExecutionSidecar | null;
+  // Branch coverage comes from a separate source (vitest's
+  // coverage-summary.json, not the execution sidecar) — keeping it
+  // out of `execution` means a folder with no implemented itSpec.prop
+  // (execution=null) still surfaces its branch coverage to the gate.
+  readonly branchCoverageFromSpecTests?: number | null;
 }
 
 const DEFAULT_GENERATED_FROM = {
@@ -51,7 +56,10 @@ export const buildSpecMeta = (
     typeCoverage: computeTypeCoverage(analysis),
     classifierCoverage: args.execution?.classifierCoverage ?? null,
     preconditionPassRate: args.execution?.preconditionPassRate ?? null,
-    branchCoverageFromSpecTests: args.execution?.branchCoverageFromSpecTests ?? null,
+    branchCoverageFromSpecTests:
+      args.branchCoverageFromSpecTests
+        ?? args.execution?.branchCoverageFromSpecTests
+        ?? null,
   },
   thresholds: args.thresholds,
   generatedFrom: DEFAULT_GENERATED_FROM,

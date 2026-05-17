@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "7271c7e6aa558285a727275c4b59b52397db4f8a",
+  "generatedAtSha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e",
   "exports": [
     {
       "name": "ExportKind",
@@ -15,7 +15,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
       }
     },
     {
@@ -51,7 +51,22 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 43,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+      }
+    },
+    {
+      "name": "ExportEntry",
+      "shape": "type",
+      "requiredPropertyTypes": [],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 47,
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
       }
     },
     {
@@ -91,38 +106,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
-        "line": 45,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
-      }
-    },
-    {
-      "name": "ExportEntry",
-      "shape": "type",
-      "requiredPropertyTypes": [],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/emit.ts",
-        "line": 47,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
-      }
-    },
-    {
-      "name": "ThresholdShortfall",
-      "shape": "type",
-      "requiredPropertyTypes": [],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/coverage.ts",
-        "line": 60,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
+        "line": 50,
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
       }
     },
     {
@@ -137,7 +122,22 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 62,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+      }
+    },
+    {
+      "name": "ThresholdShortfall",
+      "shape": "type",
+      "requiredPropertyTypes": [],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/coverage.ts",
+        "line": 68,
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
       }
     },
     {
@@ -172,7 +172,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 76,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
       }
     },
     {
@@ -187,7 +187,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 80,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
       }
     },
     {
@@ -226,8 +226,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
-        "line": 85,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
+        "line": 93,
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
       }
     },
     {
@@ -242,7 +242,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 187,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
       }
     },
     {
@@ -280,7 +280,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 221,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
       }
     },
     {
@@ -319,7 +319,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 249,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
       }
     },
     {
@@ -362,7 +362,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 253,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
       }
     },
     {
@@ -402,7 +402,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 315,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
       }
     },
     {
@@ -430,8 +430,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
-        "line": 320,
-        "sha": "7271c7e6aa558285a727275c4b59b52397db4f8a"
+        "line": 323,
+        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
       }
     }
   ],

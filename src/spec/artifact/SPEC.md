@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 7271c7e6aa558285a727275c4b59b52397db4f8a
+generatedAtSha: 2b7892b4604c11e2eba1044831e98271a0ce8a4e
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -60,20 +60,6 @@ export const sidecarSlug = (folder: string): string => { /* ... */ }
 
 **Residual contract:** none — _pure transformation captured by signature._
 
-### [`buildSpecMeta`](./coverage.ts#L45)
-
-```ts
-export const buildSpecMeta = (
-  analysis: FolderAnalysis,
-  args: BuildSpecMetaArgs,
-): SpecMeta => /* ... */
-```
-
-**Guarantees:**
-- "builds a \`SpecMeta\` from analysis-derived type coverage + run-level args (generatedAtSha, thresholds); populates classifierCoverage/preconditionPassRate/branchCoverageFromSpecTests from \`execution\` when present" — _emit's frontmatter + sidecar both require meta; \`--implemented\` mode merges Vitest reporter stats into the gate inputs._
-
-**Residual contract:** "branchCoverageFromSpecTests stays null until a v8 coverage hook is wired up (follow-up slice)" — _lifecycle contract._
-
 ### [`ExportEntry`](./emit.ts#L47)
 
 ```ts
@@ -93,16 +79,19 @@ export interface ExportEntry {
 }
 ```
 
-### [`ThresholdShortfall`](./coverage.ts#L60)
+### [`buildSpecMeta`](./coverage.ts#L50)
 
 ```ts
-export interface ThresholdShortfall {
-  readonly metric: "typeCoverage" | "preconditionPassRate" | "branchCoverageFromSpecTests";
-  readonly observed: number;
-  readonly threshold: number;
-  readonly missingPropertyTypes: ReadonlyArray<string>;
-}
+export const buildSpecMeta = (
+  analysis: FolderAnalysis,
+  args: BuildSpecMetaArgs,
+): SpecMeta => /* ... */
 ```
+
+**Guarantees:**
+- "builds a \`SpecMeta\` from analysis-derived type coverage + run-level args (generatedAtSha, thresholds); populates classifierCoverage/preconditionPassRate/branchCoverageFromSpecTests from \`execution\` when present" — _emit's frontmatter + sidecar both require meta; \`--implemented\` mode merges Vitest reporter stats into the gate inputs._
+
+**Residual contract:** "branchCoverageFromSpecTests stays null until a v8 coverage hook is wired up (follow-up slice)" — _lifecycle contract._
 
 ### [`PropertyRow`](./emit.ts#L62)
 
@@ -114,6 +103,17 @@ export interface PropertyRow {
   readonly claim: string;
   readonly sourceRef: { readonly path: string; readonly line: number };
   readonly stubbed: boolean;
+}
+```
+
+### [`ThresholdShortfall`](./coverage.ts#L68)
+
+```ts
+export interface ThresholdShortfall {
+  readonly metric: "typeCoverage" | "preconditionPassRate" | "branchCoverageFromSpecTests";
+  readonly observed: number;
+  readonly threshold: number;
+  readonly missingPropertyTypes: ReadonlyArray<string>;
 }
 ```
 
@@ -146,7 +146,7 @@ export interface FolderAnalysis {
 }
 ```
 
-### [`findThresholdShortfall`](./coverage.ts#L85)
+### [`findThresholdShortfall`](./coverage.ts#L93)
 
 ```ts
 export const findThresholdShortfall = (
@@ -242,7 +242,7 @@ export const buildSpecArtifact = (
 
 **Residual contract:** "fields the codemod cannot yet compute (e.g. per-export sourceRef.sha) reuse \`meta.generatedAtSha\` as the closest stable identifier" — _per-line blame would require a separate git pass; the run-level SHA is a sound default for now._
 
-### [`loadExecutionSidecar`](./reporter.ts#L320)
+### [`loadExecutionSidecar`](./reporter.ts#L323)
 
 ```ts
 export const loadExecutionSidecar = (

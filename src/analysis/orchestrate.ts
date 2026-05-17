@@ -389,13 +389,11 @@ export const validateFolder = (
         threshold: thresholds.branchCoverageFromSpecTests,
         branchCoverage,
       });
-      const executionWithBranch = execution === null
-        ? null
-        : { ...execution, branchCoverageFromSpecTests: branchCoverage };
       const gateMeta = buildSpecMeta(inspection.analysis, {
         generatedAtSha: projectCtx.generatedAtSha,
         thresholds,
-        execution: executionWithBranch,
+        execution,
+        branchCoverageFromSpecTests: branchCoverage,
       });
       yield* checkThresholds(folder, inspection.analysis, gateMeta);
     } else {

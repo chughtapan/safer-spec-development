@@ -283,7 +283,10 @@ const aggregateBranchCoverageForFolder = (
     .filter(([key]) => key !== "total")
     .map(([key, value]) => ({
       rel: nodePath.relative(rootAbs, key).split(nodePath.sep).join("/"),
-      branches: value.branches,
+      // Guard against `"src/x.ts": null` / non-object entries — a thrown
+      // TypeError inside Effect.map becomes a defect, bypassing the
+      // outer catchAll's null fallback.
+      branches: value !== null && typeof value === "object" ? value.branches : undefined,
     }))
     .filter((e) => isImmediateChild(e.rel, folderPosix));
   // No matching source files in the coverage summary at all — folder
