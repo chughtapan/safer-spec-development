@@ -19,6 +19,7 @@
 
 export {
   buildKnownExports,
+  computeProjectNewestMtime,
   generateFolder,
   validateFolder,
   GenerateFolderError,

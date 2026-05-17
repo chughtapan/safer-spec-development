@@ -195,6 +195,7 @@ export interface SpecMeta {
   readonly thresholds: {
     readonly typeCoverage: number;
     readonly preconditionPassRate: number;
+    readonly branchCoverageFromSpecTests: number;
   };
   readonly generatedFrom: {
     readonly jsdoc: string;
@@ -235,6 +236,7 @@ const emitFrontmatter = (a: FolderAnalysis, meta: SpecMeta): ReadonlyArray<strin
   "thresholds:",
   `  typeCoverage: ${String(meta.thresholds.typeCoverage)}`,
   `  preconditionPassRate: ${String(meta.thresholds.preconditionPassRate)}`,
+  `  branchCoverageFromSpecTests: ${String(meta.thresholds.branchCoverageFromSpecTests)}`,
   "---",
 ];
 

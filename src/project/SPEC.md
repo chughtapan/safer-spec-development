@@ -1,7 +1,7 @@
 ---
 folder: src/project
 format-version: 0.1.0
-generatedAtSha: 03afe5978639e89c12d5a38a7bae8ab2f97eec15
+generatedAtSha: 3aefbe3031adeefd8230ca348f3d9b70e241eabb
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -17,6 +17,7 @@ coverage:
 thresholds:
   typeCoverage: 0.4
   preconditionPassRate: 0
+  branchCoverageFromSpecTests: 0.75
 ---
 
 # SPEC
@@ -78,12 +79,13 @@ export class FolderNotFoundError extends Data.TaggedError("FolderNotFoundError")
 }> { /* ... */ }
 ```
 
-### [`Thresholds`](./config.ts#L49)
+### [`Thresholds`](./config.ts#L51)
 
 ```ts
 export interface Thresholds {
   readonly typeCoverage: number;
   readonly preconditionPassRate: number;
+  readonly branchCoverageFromSpecTests: number;
 }
 ```
 

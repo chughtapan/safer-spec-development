@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src",
-  "generatedAtSha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15",
+  "generatedAtSha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb",
   "exports": [
     {
       "name": "PROPERTY_TYPES",
@@ -40,7 +40,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 27,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -55,7 +55,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 39,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -92,7 +92,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
         "line": 53,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -122,7 +122,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
         "line": 122,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     }
   ],
@@ -131,6 +131,7 @@
   },
   "thresholds": {
     "typeCoverage": 0.4,
-    "preconditionPassRate": 0
+    "preconditionPassRate": 0,
+    "branchCoverageFromSpecTests": 0.75
   }
 }

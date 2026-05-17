@@ -124,8 +124,8 @@ itSpec.prop(
           subfoldersOf: () => [],
           thresholdsFor: () => ({
             typeCoverage: 0,
-            
             preconditionPassRate: 0,
+            branchCoverageFromSpecTests: 0,
           }),
           resolveFolder: (input) =>
             Effect.fail(new FolderNotFoundError({ requested: input })),

@@ -18,6 +18,13 @@ import { SaferSpecExecutionReporter } from "./src/spec/artifact/reporter.ts";
 export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
+    // Narrow the discovery pattern to spec.test.ts only — vitest's
+    // default would also pick up `*.test.ts` and `*.spec.ts`, but
+    // those don't carry the @spec.property attribution the
+    // branchCoverageFromSpecTests gate is meant to measure. Locking
+    // the include pattern keeps the coverage summary an honest
+    // spec-test-only aggregate.
+    include: ["src/**/*.spec.test.ts"],
     exclude: [
       "**/node_modules/**",
       "**/dist/**",
@@ -25,5 +32,12 @@ export default defineConfig({
     ],
     reporters: ["default", new SaferSpecExecutionReporter()],
     testTimeout: 15_000,
+    coverage: {
+      provider: "v8",
+      reporter: ["json-summary"],
+      reportsDirectory: "coverage",
+      include: ["src/**/*.ts"],
+      exclude: ["src/**/*.spec.test.ts"],
+    },
   },
 });

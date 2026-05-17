@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/analysis",
-  "generatedAtSha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15",
+  "generatedAtSha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb",
   "exports": [
     {
       "name": "GenerateFolderError",
@@ -30,8 +30,23 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 68,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 70,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+      }
+    },
+    {
+      "name": "ValidateGapError",
+      "shape": "type",
+      "requiredPropertyTypes": [],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 74,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -61,23 +76,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 73,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
-      }
-    },
-    {
-      "name": "ValidateGapError",
-      "shape": "type",
-      "requiredPropertyTypes": [],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 74,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 75,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -91,8 +91,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 84,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 86,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -121,8 +121,69 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 183,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 185,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+      }
+    },
+    {
+      "name": "diagnosticLines",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Constant Equality",
+        "Inclusion",
+        "Typechecking",
+        "Constant Bounds Checking",
+        "Roundtrip"
+      ],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 343,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+      }
+    },
+    {
+      "name": "computeProjectNewestMtime",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "returns the max mtime across every project source file, every spec.test.ts discovered under each folder, and the runner/codemod config files (vitest.config.ts, safer-spec.config.json); 0 when nothing exists",
+          "reason": "validate's branchCoverage freshness check needs a project-wide reference; config files can shift coverage attribution without touching sources or tests."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/analysis/orchestrate.ts",
+        "line": 345,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -160,8 +221,8 @@
       ],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 267,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 385,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -189,47 +250,17 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 299,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
-      }
-    },
-    {
-      "name": "diagnosticLines",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Constant Equality",
-        "Inclusion",
-        "Typechecking",
-        "Constant Bounds Checking",
-        "Roundtrip"
-      ],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 334,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 423,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.48148148148148157
+    "typeCoverage": 0.4126984126984127
   },
   "thresholds": {
     "typeCoverage": 0.4,
-    "preconditionPassRate": 0
+    "preconditionPassRate": 0,
+    "branchCoverageFromSpecTests": 0.75
   }
 }

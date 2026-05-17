@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15",
+  "generatedAtSha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb",
   "exports": [
     {
       "name": "ExportKind",
@@ -15,7 +15,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -51,7 +51,22 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 43,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+      }
+    },
+    {
+      "name": "ExportEntry",
+      "shape": "type",
+      "requiredPropertyTypes": [],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 47,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -91,38 +106,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
-        "line": 45,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
-      }
-    },
-    {
-      "name": "ExportEntry",
-      "shape": "type",
-      "requiredPropertyTypes": [],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/emit.ts",
-        "line": 47,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
-      }
-    },
-    {
-      "name": "ThresholdShortfall",
-      "shape": "type",
-      "requiredPropertyTypes": [],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/coverage.ts",
-        "line": 60,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 50,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -137,7 +122,22 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 62,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+      }
+    },
+    {
+      "name": "ThresholdShortfall",
+      "shape": "type",
+      "requiredPropertyTypes": [],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/coverage.ts",
+        "line": 68,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -172,7 +172,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 76,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -187,7 +187,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 80,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -226,8 +226,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
-        "line": 85,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 93,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -242,7 +242,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 187,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -280,41 +280,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 221,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
-      }
-    },
-    {
-      "name": "loadExecutionSidecar",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Typechecking",
-        "Constant Equality",
-        "Exception Raising"
-      ],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through `ExecutionSidecarSchema`; returns null when absent or malformed",
-          "reason": "validate's `--implemented` gate consumes the coverage values; absence is surfaced separately as a typed gap error."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/artifact/reporter.ts",
-        "line": 244,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -352,8 +318,47 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 247,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 249,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+      }
+    },
+    {
+      "name": "loadBranchCoverage",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Typechecking",
+        "Constant Equality",
+        "Exception Raising",
+        "Constant Bounds Checking"
+      ],
+      "skipped": [],
+      "residualContract": {
+        "_tag": "some",
+        "body": "spec-test attribution holds only if coverage-summary.json came from a vitest run restricted to *.spec.test.ts files; this repo enforces it via vitest.config.ts test.include",
+        "reason": "v8 coverage attributes per-file, not per-test; without the include narrowing the aggregate would credit ordinary tests toward branchCoverageFromSpecTests."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "aggregates v8 branch coverage for the folder's immediate sources; null when coverage-summary.json is absent, an expected source has no entry, or a matching file did not execute; 1.0 when present-and-fully-branchless",
+          "reason": "validate's `--implemented` gate consumes branchCoverageFromSpecTests; the null/1.0 split lets it distinguish \"user forgot --coverage\" from \"folder is just re-exports.\""
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/reporter.ts",
+        "line": 254,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     },
     {
@@ -392,8 +397,42 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 313,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 315,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
+      }
+    },
+    {
+      "name": "loadExecutionSidecar",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Typechecking",
+        "Constant Equality",
+        "Exception Raising"
+      ],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through `ExecutionSidecarSchema`; returns null when absent or malformed",
+          "reason": "validate's `--implemented` gate consumes the coverage values; absence is surfaced separately as a typed gap error."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/reporter.ts",
+        "line": 381,
+        "sha": "3aefbe3031adeefd8230ca348f3d9b70e241eabb"
       }
     }
   ],
@@ -402,6 +441,7 @@
   },
   "thresholds": {
     "typeCoverage": 0.4,
-    "preconditionPassRate": 0
+    "preconditionPassRate": 0,
+    "branchCoverageFromSpecTests": 0.75
   }
 }

@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: 03afe5978639e89c12d5a38a7bae8ab2f97eec15
+generatedAtSha: 3aefbe3031adeefd8230ca348f3d9b70e241eabb
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,13 +10,14 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.48148148148148157
+  typeCoverage: 0.4126984126984127
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
   typeCoverage: 0.4
   preconditionPassRate: 0
+  branchCoverageFromSpecTests: 0.75
 ---
 
 # SPEC
@@ -31,22 +32,12 @@ Barrel for the `analysis/` layer. Exposes two high-level per-folder operations �
 
 ## Public surface
 
-### [`GenerateFolderError`](./orchestrate.ts#L68)
+### [`GenerateFolderError`](./orchestrate.ts#L70)
 
 ```ts
 export class GenerateFolderError extends Data.TaggedError("GenerateFolderError")<{
   readonly folder: string;
   readonly reason: string;
-}> { /* ... */ }
-```
-
-### [`GenerateFolderIOError`](./orchestrate.ts#L73)
-
-```ts
-export class GenerateFolderIOError extends Data.TaggedError("GenerateFolderIOError")<{
-  readonly folder: string;
-  readonly path: string;
-  readonly cause: string;
 }> { /* ... */ }
 ```
 
@@ -59,7 +50,17 @@ export type ValidateGapError =
   | MissingImplError;
 ```
 
-### [`GenerateFolderAnyError`](./orchestrate.ts#L84)
+### [`GenerateFolderIOError`](./orchestrate.ts#L75)
+
+```ts
+export class GenerateFolderIOError extends Data.TaggedError("GenerateFolderIOError")<{
+  readonly folder: string;
+  readonly path: string;
+  readonly cause: string;
+}> { /* ... */ }
+```
+
+### [`GenerateFolderAnyError`](./orchestrate.ts#L86)
 
 ```ts
 export type GenerateFolderAnyError =
@@ -68,7 +69,7 @@ export type GenerateFolderAnyError =
   | DirectiveParseError;
 ```
 
-### [`buildKnownExports`](./orchestrate.ts#L183)
+### [`buildKnownExports`](./orchestrate.ts#L185)
 
 ```ts
 export const buildKnownExports = (ctx: ProjectContext): ReadonlySet<string> => { /* ... */ }
@@ -79,7 +80,29 @@ Project-wide symbol existence set. Pass through to `generateFolder` so
 while still rejecting non-existent names. Compute once per `generate`
 run; reusable across folders.
 
-### [`generateFolder`](./orchestrate.ts#L267)
+### [`diagnosticLines`](./checks.ts#L343)
+
+```ts
+export const diagnosticLines = (
+  tag: ValidateGapError["_tag"],
+  payload: GapErrorPayload,
+): ReadonlyArray<string> => /* ... */
+```
+
+### [`computeProjectNewestMtime`](./orchestrate.ts#L345)
+
+```ts
+export const computeProjectNewestMtime = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  projectCtx: ProjectContext,
+): Effect.Effect<number, never> => /* ... */
+```
+
+**Guarantees:**
+- "returns the max mtime across every project source file, every spec.test.ts discovered under each folder, and the runner/codemod config files (vitest.config.ts, safer-spec.config.json); 0 when nothing exists" — _validate's branchCoverage freshness check needs a project-wide reference; config files can shift coverage attribution without touching sources or tests._
+
+### [`generateFolder`](./orchestrate.ts#L385)
 
 ```ts
 export const generateFolder = (
@@ -92,21 +115,12 @@ export const generateFolder = (
 
 **Residual contract:** "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally" — _drift-check byte-equality contract._
 
-### [`validateFolder`](./orchestrate.ts#L299)
+### [`validateFolder`](./orchestrate.ts#L423)
 
 ```ts
 export const validateFolder = (
   args: ValidateFolderArgs,
 ): Effect.Effect<string | null, ValidateGapError> => /* ... */
-```
-
-### [`diagnosticLines`](./checks.ts#L334)
-
-```ts
-export const diagnosticLines = (
-  tag: ValidateGapError["_tag"],
-  payload: GapErrorPayload,
-): ReadonlyArray<string> => /* ... */
 ```
 
 ## Children

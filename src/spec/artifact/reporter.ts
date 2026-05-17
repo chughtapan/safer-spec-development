@@ -236,6 +236,143 @@ export const computeTestTreeHash = (
     return hashTestTree(posixPaths, (p) => byPath.get(p) ?? "");
   }).pipe(Effect.withSpan("spec/artifact/reporter/computeTestTreeHash"));
 
+export interface LoadBranchCoverageOptions {
+  readonly expectedSources: ReadonlyArray<string>;
+  readonly projectRoot?: string;
+}
+
+/**
+ * @spec.guarantee "aggregates v8 branch coverage for the folder's immediate sources; null when coverage-summary.json is absent, an expected source has no entry, or a matching file did not execute; 1.0 when present-and-fully-branchless"
+ *   reason: validate's `--implemented` gate consumes branchCoverageFromSpecTests;
+ *           the null/1.0 split lets it distinguish "user forgot --coverage"
+ *           from "folder is just re-exports."
+ * @spec.residual-contract "spec-test attribution holds only if coverage-summary.json came from a vitest run restricted to *.spec.test.ts files; this repo enforces it via vitest.config.ts test.include"
+ *   reason: v8 coverage attributes per-file, not per-test; without
+ *           the include narrowing the aggregate would credit ordinary
+ *           tests toward branchCoverageFromSpecTests.
+ */
+export const loadBranchCoverage = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  folder: string,
+  options: LoadBranchCoverageOptions,
+): Effect.Effect<number | null, never> => {
+  const projectRoot = options.projectRoot ?? ".";
+  const args = { folder, projectRoot, expectedSources: options.expectedSources };
+  return fs
+    .readFileString(path.join(projectRoot, "coverage", "coverage-summary.json"))
+    .pipe(
+      Effect.flatMap((text) =>
+        Effect.try({ try: () => JSON.parse(text) as unknown, catch: () => null }),
+      ),
+      Effect.map((parsed) => aggregateBranchCoverageForFolder(parsed, args)),
+      Effect.catchAll(() => Effect.succeed(null)),
+    );
+};
+
+interface AggregateArgs {
+  readonly folder: string;
+  readonly projectRoot: string;
+  readonly expectedSources: ReadonlyArray<string>;
+}
+
+interface CoverageMetric {
+  readonly total: number;
+  readonly covered: number;
+}
+
+const isObject = (v: unknown): v is Record<string, unknown> =>
+  v !== null && typeof v === "object";
+
+const isCoverageMetric = (v: unknown): v is CoverageMetric =>
+  isObject(v)
+  && typeof v.total === "number"
+  && typeof v.covered === "number";
+
+const extractMetric = (
+  entry: unknown,
+  key: "branches" | "statements" | "functions",
+): CoverageMetric | undefined => {
+  if (!isObject(entry)) return undefined;
+  const candidate = entry[key];
+  return isCoverageMetric(candidate) ? candidate : undefined;
+};
+
+const toRelPosix = (p: string, rootAbs: string): string =>
+  nodePath.relative(rootAbs, nodePath.resolve(rootAbs, p)).split(nodePath.sep).join("/");
+
+const aggregateBranchCoverageForFolder = (
+  parsed: unknown,
+  args: AggregateArgs,
+): number | null => {
+  if (!isObject(parsed)) return null;
+  const { folder, projectRoot, expectedSources } = args;
+  const summary = parsed;
+  const rootAbs = nodePath.resolve(projectRoot);
+  const folderPosix = folder.split(/[\\/]/).filter((s) => s.length > 0).join("/");
+  const matches = Object.entries(summary)
+    .filter(([key]) => key !== "total")
+    .map(([key, value]) => ({
+      rel: nodePath.relative(rootAbs, key).split(nodePath.sep).join("/"),
+      branches: extractMetric(value, "branches"),
+      statements: extractMetric(value, "statements"),
+      functions: extractMetric(value, "functions"),
+    }))
+    .filter((e) => isImmediateChild(e.rel, folderPosix));
+  if (matches.length === 0) return null;
+  // Coverage entries and the on-disk source list must match exactly:
+  //  - Missing expected source: vitest exclude/include filter dropped a
+  //    file, so the gate would compute a passing ratio over only the
+  //    survivors and hide uncovered code.
+  //  - Extra coverage entry: file was deleted or renamed after coverage
+  //    was generated, so the aggregate would include stats for code that
+  //    no longer exists (mtime freshness can't catch deletions because
+  //    the removed file has no current mtime).
+  // Either asymmetry → null so the gate loud-fails.
+  const presentRels = new Set(matches.map((m) => m.rel));
+  const expectedRelsSet = new Set(expectedSources.map((s) => toRelPosix(s, rootAbs)));
+  if ([...expectedRelsSet].some((rel) => !presentRels.has(rel))) return null;
+  if ([...presentRels].some((rel) => !expectedRelsSet.has(rel))) return null;
+  // Malformed summary entry (missing any of branches/statements/functions)
+  // → null so the gate loud-fails instead of guessing.
+  if (matches.some((e) => e.branches === undefined || e.statements === undefined || e.functions === undefined)) {
+    return null;
+  }
+  // V8 reports branches.total=0 in two indistinguishable shapes: (a) a
+  // genuinely branchless file that ran, and (b) a file whose body was
+  // imported (covering top-level statements) but whose functions were
+  // never called (so V8 never enumerated their branches). Use the
+  // functions block as the second witness: when branches.total=0 AND
+  // any function went uncalled, V8's branch report for this file is
+  // incomplete — refuse to claim coverage.
+  const branchReportIsTrustworthy = (e: typeof matches[number]): boolean => {
+    const s = e.statements as CoverageMetric;
+    const f = e.functions as CoverageMetric;
+    const b = e.branches as CoverageMetric;
+    if (s.total > 0 && s.covered === 0) return false; // file never loaded
+    if (b.total > 0) return true; // V8 enumerated branches
+    return f.total === 0 || f.covered === f.total; // all functions ran (or none exist)
+  };
+  if (matches.some((e) => !branchReportIsTrustworthy(e))) return null;
+  const branches = matches.map((e) => e.branches as CoverageMetric);
+  const total = branches.reduce((sum, b) => sum + b.total, 0);
+  // All files ran AND aggregate branch total is 0 → truly branchless
+  // (re-export barrels, type-only files); vacuously covered.
+  if (total === 0) return 1;
+  const covered = branches.reduce((sum, b) => sum + b.covered, 0);
+  return covered / total;
+};
+
+// Immediate child of `folder` (non-recursive): the relative path must
+// start with `folder/` AND have no further `/` segments. Folder "." (the
+// project-root sentinel) matches any top-level source file.
+const isImmediateChild = (rel: string, folder: string): boolean => {
+  if (folder === ".") return !rel.includes("/");
+  const prefix = `${folder}/`;
+  if (!rel.startsWith(prefix)) return false;
+  return !rel.slice(prefix.length).includes("/");
+};
+
 /**
  * @spec.guarantee "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through `ExecutionSidecarSchema`; returns null when absent or malformed"
  *   reason: validate's `--implemented` gate consumes the coverage values;

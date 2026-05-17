@@ -25,11 +25,13 @@ const RatioSchema = Schema.Number.pipe(Schema.between(0, 1));
 const ThresholdsSchema = Schema.Struct({
   typeCoverage: Schema.optional(RatioSchema),
   preconditionPassRate: Schema.optional(RatioSchema),
+  branchCoverageFromSpecTests: Schema.optional(RatioSchema),
 });
 
 const KNOWN_THRESHOLD_KEYS: ReadonlySet<string> = new Set([
   "typeCoverage",
   "preconditionPassRate",
+  "branchCoverageFromSpecTests",
 ]);
 
 const KNOWN_CONFIG_KEYS: ReadonlySet<string> = new Set([
@@ -49,11 +51,13 @@ export type Config = Schema.Schema.Type<typeof ConfigSchema>;
 export interface Thresholds {
   readonly typeCoverage: number;
   readonly preconditionPassRate: number;
+  readonly branchCoverageFromSpecTests: number;
 }
 
 const DEFAULT_THRESHOLDS: Thresholds = {
   typeCoverage: 0,
   preconditionPassRate: 0,
+  branchCoverageFromSpecTests: 0,
 };
 
 const EMPTY_CONFIG: Config = {};
@@ -89,6 +93,11 @@ export const resolveThresholdsFor = (
       override.preconditionPassRate,
       baseline.preconditionPassRate,
       DEFAULT_THRESHOLDS.preconditionPassRate,
+    ),
+    branchCoverageFromSpecTests: pickThreshold(
+      override.branchCoverageFromSpecTests,
+      baseline.branchCoverageFromSpecTests,
+      DEFAULT_THRESHOLDS.branchCoverageFromSpecTests,
     ),
   };
 };

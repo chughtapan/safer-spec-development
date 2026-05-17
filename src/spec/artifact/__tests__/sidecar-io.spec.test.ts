@@ -14,6 +14,7 @@ import { itSpec } from "@safer/spec/grammar/it-spec.js";
 import {
   buildSpecMeta,
   computeTestTreeHash,
+  loadBranchCoverage,
   loadExecutionSidecar,
   regenerateSidecar,
   type FolderAnalysis,
@@ -40,7 +41,7 @@ const EMPTY_ANALYSIS: FolderAnalysis = {
 
 const META_NO_GATE: SpecMeta = buildSpecMeta(EMPTY_ANALYSIS, {
   generatedAtSha: "deadbee",
-  thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
+  thresholds: { typeCoverage: 0, preconditionPassRate: 0, branchCoverageFromSpecTests: 0 },
 });
 
 const withFs = <A, E>(
@@ -236,6 +237,97 @@ itSpec.prop(
             loadExecutionSidecar(fs, path, "src/__missing__"),
           );
           yield* failIf(!Exit.isSuccess(exit), `expected success, got failure`);
+        }),
+      ),
+    ),
+);
+
+/* ---------- loadBranchCoverage ---------- */
+
+/**
+ * @spec.property load-branch-coverage-typecheck
+ * @spec.type Typechecking
+ * @spec.exports loadBranchCoverage
+ * @spec.claim returns an Effect that yields a number in `[0, 1]` or `null` — the per-folder branch ratio v8 coverage attributes to spec tests, null when coverage-summary.json is absent or has no branch data for the folder
+ */
+itSpec.prop(
+  "load-branch-coverage-typecheck",
+  { type: "Typechecking", exports: [loadBranchCoverage] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      failIf(typeof loadBranchCoverage !== "function", `must be function`),
+    ),
+);
+
+/**
+ * @spec.property load-branch-coverage-missing-folder-yields-null
+ * @spec.type Constant Equality
+ * @spec.exports loadBranchCoverage
+ * @spec.claim asking for branch coverage of a folder that has no entries in coverage-summary.json resolves to `null` — folder absence is a typed signal, not an error
+ */
+itSpec.prop(
+  "load-branch-coverage-missing-folder-yields-null",
+  { type: "Constant Equality", exports: [loadBranchCoverage] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      withFs((fs, path) =>
+        Effect.gen(function* () {
+          const result = yield* loadBranchCoverage(fs, path, "src/__missing_folder__", {
+            expectedSources: [],
+          });
+          yield* failIf(result !== null, `expected null for missing folder`);
+        }),
+      ),
+    ),
+);
+
+/**
+ * @spec.property load-branch-coverage-graceful-on-bogus-input
+ * @spec.type Exception Raising
+ * @spec.exports loadBranchCoverage
+ * @spec.claim `loadBranchCoverage` never fails on the Effect error channel — coverage-summary.json absence or malformation resolves to `null`, not a typed error
+ */
+itSpec.prop(
+  "load-branch-coverage-graceful-on-bogus-input",
+  { type: "Exception Raising", exports: [loadBranchCoverage] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      withFs((fs, path) =>
+        Effect.gen(function* () {
+          const exit = yield* Effect.exit(
+            loadBranchCoverage(fs, path, "src/__missing__", {
+              expectedSources: [],
+              projectRoot: "/nonexistent/project/root",
+            }),
+          );
+          yield* failIf(!Exit.isSuccess(exit), `expected success, got failure`);
+        }),
+      ),
+    ),
+);
+
+/**
+ * @spec.property load-branch-coverage-bounded-in-zero-one
+ * @spec.type Constant Bounds Checking
+ * @spec.exports loadBranchCoverage
+ * @spec.claim when not null, the returned ratio is in `[0, 1]` — branch coverage is a ratio of covered / total
+ */
+itSpec.prop(
+  "load-branch-coverage-bounded-in-zero-one",
+  { type: "Constant Bounds Checking", exports: [loadBranchCoverage] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      withFs((fs, path) =>
+        Effect.gen(function* () {
+          const result = yield* loadBranchCoverage(fs, path, "src/spec/grammar", {
+            expectedSources: [],
+          });
+          if (result === null) return;
+          yield* failIf(result < 0 || result > 1, `out of [0,1]: ${result}`);
         }),
       ),
     ),

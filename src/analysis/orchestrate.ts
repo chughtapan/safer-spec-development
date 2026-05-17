@@ -34,6 +34,7 @@ import {
   buildSpecMeta,
   computeTestTreeHash,
   emitMarkdown,
+  loadBranchCoverage,
   loadExecutionSidecar,
   regenerateSidecar,
   sidecarSlug,
@@ -60,6 +61,7 @@ import {
   checkSidecarDrift,
   checkThresholds,
   failOnIssues,
+  MissingImplError,
   type ValidateGapError,
 } from "@safer/analysis/checks.js";
 
@@ -249,6 +251,122 @@ const buildAnalysis = (
     };
   });
 
+const requireCoverageWhenGated = (
+  folder: string,
+  threshold: number,
+  branchCoverage: number | null,
+): Effect.Effect<void, MissingImplError> => {
+  if (threshold <= 0 || branchCoverage !== null) return Effect.void;
+  return Effect.fail(
+    new MissingImplError({
+      location: folder,
+      diagnostic: {
+        problem: `branchCoverageFromSpecTests threshold ${threshold} set, but coverage-summary.json is absent or missing data for this folder`,
+        cause: "vitest's v8 coverage report is missing — tests likely ran without --coverage, or this folder was added after the last coverage run",
+        fix: "run `pnpm test --coverage` before `pnpm safer-spec validate --implemented`, or drop the branchCoverageFromSpecTests threshold to 0",
+        docsLink: "https://github.com/chughtapan/safer-spec-development/blob/main/docs/errors.md#missing-impl",
+      },
+    }),
+  );
+};
+
+interface RequireFreshCoverageArgs {
+  readonly fs: FileSystem.FileSystem;
+  readonly path: Path.Path;
+  readonly folder: string;
+  readonly threshold: number;
+  readonly branchCoverage: number | null;
+  readonly folderFiles: ReadonlyArray<string>;
+  readonly projectNewestMtime?: number;
+}
+
+const mtimeMs = (stat: { readonly mtime: { _tag: string; value?: Date } } | null): number => {
+  if (stat === null) return 0;
+  return stat.mtime._tag === "Some" && stat.mtime.value !== undefined
+    ? stat.mtime.value.getTime()
+    : 0;
+};
+
+const requireFreshCoverage = (
+  args: RequireFreshCoverageArgs,
+): Effect.Effect<void, MissingImplError> => {
+  const { fs, path, folder, threshold, branchCoverage, folderFiles, projectNewestMtime } = args;
+  if (threshold <= 0 || branchCoverage === null) return Effect.void;
+  return Effect.gen(function* () {
+    const coverageStat = yield* fs.stat(path.join("coverage", "coverage-summary.json"))
+      .pipe(Effect.catchAll(() => Effect.succeed(null)));
+    if (coverageStat === null) return;
+    const coverageMtime = mtimeMs(coverageStat);
+    // Compare against the newest mtime in the project — coverage is
+    // a project-wide aggregate, so an edit to ANY spec test (even one
+    // outside this folder) can shift this folder's branch numbers and
+    // invalidate the cached summary. The caller (validate command)
+    // precomputes the project-wide mtime once; the per-folder fallback
+    // (single-folder validate calls in tests) is the local source+test
+    // set, which subsumes the no-coverage-edit case.
+    const folderNewest = yield* newestFileMtime(fs, folderFiles);
+    const referenceMtime = projectNewestMtime !== undefined
+      ? Math.max(projectNewestMtime, folderNewest)
+      : folderNewest;
+    if (coverageMtime >= referenceMtime) return;
+    yield* Effect.fail(
+      new MissingImplError({
+        location: folder,
+        diagnostic: {
+          problem: "coverage-summary.json is older than the folder's tests/sources — coverage is stale relative to current code",
+          cause: `coverage mtime ${new Date(coverageMtime).toISOString()} < reference mtime ${new Date(referenceMtime).toISOString()}`,
+          fix: "rerun `pnpm test --coverage` so the coverage report reflects the current tree",
+          docsLink: "https://github.com/chughtapan/safer-spec-development/blob/main/docs/errors.md#missing-impl",
+        },
+      }),
+    );
+  });
+};
+
+const newestFileMtime = (
+  fs: FileSystem.FileSystem,
+  files: ReadonlyArray<string>,
+): Effect.Effect<number, never> =>
+  Effect.forEach(
+    files,
+    (f) => fs.stat(f).pipe(
+      Effect.map(mtimeMs),
+      Effect.catchAll(() => Effect.succeed(0)),
+    ),
+    { concurrency: 4 },
+  ).pipe(Effect.map((mtimes) => Math.max(0, ...mtimes)));
+
+/**
+ * @spec.guarantee "returns the max mtime across every project source file, every spec.test.ts discovered under each folder, and the runner/codemod config files (vitest.config.ts, safer-spec.config.json); 0 when nothing exists"
+ *   reason: validate's branchCoverage freshness check needs a
+ *           project-wide reference; config files can shift coverage
+ *           attribution without touching sources or tests.
+ */
+export const computeProjectNewestMtime = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  projectCtx: ProjectContext,
+): Effect.Effect<number, never> =>
+  Effect.gen(function* () {
+    const sourcePaths = projectCtx.sources.map((s) => s.path);
+    const folderInputs = yield* Effect.forEach(
+      projectCtx.folders,
+      (folder) => collectFolderInputs(fs, path, folder),
+      { concurrency: 4 },
+    );
+    const testPaths = folderInputs.flatMap((i) => (i === null ? [] : [...i.tests]));
+    // Edits to vitest.config.ts (e.g., narrowing test.include or
+    // coverage.exclude) change what gets credited toward
+    // branchCoverageFromSpecTests even when no source/test file moved.
+    // safer-spec.config.json changes thresholds. Either invalidates
+    // a cached coverage-summary.json for gate purposes.
+    const configPaths: ReadonlyArray<string> = [
+      "vitest.config.ts",
+      "safer-spec.config.json",
+    ];
+    return yield* newestFileMtime(fs, [...sourcePaths, ...testPaths, ...configPaths]);
+  }).pipe(Effect.withSpan("analysis/computeProjectNewestMtime"));
+
 const driftMetaFor = (
   analysis: FolderAnalysis,
   projectCtx: ProjectContext,
@@ -294,13 +412,19 @@ export interface ValidateFolderArgs {
   readonly folder: string;
   readonly projectCtx: ProjectContext;
   readonly mode: "planned" | "implemented";
+  // Newest mtime among every project source + spec-test file. Used as
+  // the freshness reference for branchCoverage staleness, since
+  // coverage-summary.json is a project-wide aggregate — an edit to a
+  // spec-test in folder B can invalidate coverage for folder A.
+  // Optional so single-folder validate calls (tests) need not compute it.
+  readonly projectNewestMtime?: number;
 }
 
 export const validateFolder = (
   args: ValidateFolderArgs,
 ): Effect.Effect<string | null, ValidateGapError> =>
   Effect.gen(function* () {
-    const { fs, path, folder, projectCtx, mode } = args;
+    const { fs, path, folder, projectCtx, mode, projectNewestMtime } = args;
     const inputs = yield* collectFolderInputs(fs, path, folder);
     if (inputs === null) return null;
     const inspection = yield* catchDirectiveErrors(
@@ -321,10 +445,23 @@ export const validateFolder = (
       );
       yield* checkExecutionSidecarPresent(inspection.analysis, folder, execution, currentHash);
       yield* checkImplBodies(inspection.analysis);
+      const thresholds = projectCtx.thresholdsFor(inspection.analysis.folder);
+      const branchCoverage = yield* loadBranchCoverage(fs, path, folder, {
+        expectedSources: inputs.sources,
+      });
+      yield* requireCoverageWhenGated(folder, thresholds.branchCoverageFromSpecTests, branchCoverage);
+      yield* requireFreshCoverage({
+        fs, path, folder,
+        threshold: thresholds.branchCoverageFromSpecTests,
+        branchCoverage,
+        folderFiles: [...inputs.sources, ...inputs.tests],
+        ...(projectNewestMtime !== undefined ? { projectNewestMtime } : {}),
+      });
       const gateMeta = buildSpecMeta(inspection.analysis, {
         generatedAtSha: projectCtx.generatedAtSha,
-        thresholds: projectCtx.thresholdsFor(inspection.analysis.folder),
+        thresholds,
         execution,
+        branchCoverageFromSpecTests: branchCoverage,
       });
       yield* checkThresholds(folder, inspection.analysis, gateMeta);
     } else {
