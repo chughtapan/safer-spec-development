@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: b3f4d3441855571fcb660733e258665dfeb3055c
+generatedAtSha: 16d248d456918f57d0a68dad6dd07056657b8872
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -80,7 +80,16 @@ Project-wide symbol existence set. Pass through to `generateFolder` so
 while still rejecting non-existent names. Compute once per `generate`
 run; reusable across folders.
 
-### [`generateFolder`](./orchestrate.ts#L327)
+### [`diagnosticLines`](./checks.ts#L343)
+
+```ts
+export const diagnosticLines = (
+  tag: ValidateGapError["_tag"],
+  payload: GapErrorPayload,
+): ReadonlyArray<string> => /* ... */
+```
+
+### [`generateFolder`](./orchestrate.ts#L356)
 
 ```ts
 export const generateFolder = (
@@ -93,16 +102,7 @@ export const generateFolder = (
 
 **Residual contract:** "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally" — _drift-check byte-equality contract._
 
-### [`diagnosticLines`](./checks.ts#L343)
-
-```ts
-export const diagnosticLines = (
-  tag: ValidateGapError["_tag"],
-  payload: GapErrorPayload,
-): ReadonlyArray<string> => /* ... */
-```
-
-### [`validateFolder`](./orchestrate.ts#L359)
+### [`validateFolder`](./orchestrate.ts#L388)
 
 ```ts
 export const validateFolder = (

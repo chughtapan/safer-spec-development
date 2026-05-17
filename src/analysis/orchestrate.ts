@@ -276,38 +276,67 @@ interface RequireFreshCoverageArgs {
   readonly folder: string;
   readonly threshold: number;
   readonly branchCoverage: number | null;
+  readonly folderFiles: ReadonlyArray<string>;
 }
+
+const mtimeMs = (stat: { readonly mtime: { _tag: string; value?: Date } } | null): number => {
+  if (stat === null) return 0;
+  return stat.mtime._tag === "Some" && stat.mtime.value !== undefined
+    ? stat.mtime.value.getTime()
+    : 0;
+};
 
 const requireFreshCoverage = (
   args: RequireFreshCoverageArgs,
 ): Effect.Effect<void, MissingImplError> => {
-  const { fs, path, folder, threshold, branchCoverage } = args;
+  const { fs, path, folder, threshold, branchCoverage, folderFiles } = args;
   if (threshold <= 0 || branchCoverage === null) return Effect.void;
   return Effect.gen(function* () {
+    const coverageStat = yield* fs.stat(path.join("coverage", "coverage-summary.json"))
+      .pipe(Effect.catchAll(() => Effect.succeed(null)));
+    if (coverageStat === null) return;
+    const coverageMtime = mtimeMs(coverageStat);
+    // Pick the freshness reference: prefer the execution sidecar (proves
+    // a test run wrote it AFTER coverage if mtime is newer). When the
+    // sidecar is absent (folder has no implemented itSpec.prop rows),
+    // fall back to the newest mtime among the folder's own source/test
+    // files — any one of them newer than coverage means coverage is
+    // stale for this folder regardless of whether tests ran here.
     const executionSidecarPath = path.join(
       folder, ".safer-spec", `${sidecarSlug(folder)}.execution.json`,
     );
-    const coverageStat = yield* fs.stat(path.join("coverage", "coverage-summary.json"))
-      .pipe(Effect.catchAll(() => Effect.succeed(null)));
     const sidecarStat = yield* fs.stat(executionSidecarPath)
       .pipe(Effect.catchAll(() => Effect.succeed(null)));
-    if (coverageStat === null || sidecarStat === null) return;
-    const coverageMtime = coverageStat.mtime._tag === "Some" ? coverageStat.mtime.value.getTime() : 0;
-    const sidecarMtime = sidecarStat.mtime._tag === "Some" ? sidecarStat.mtime.value.getTime() : 0;
-    if (coverageMtime >= sidecarMtime) return;
+    const referenceMtime = sidecarStat !== null
+      ? mtimeMs(sidecarStat)
+      : yield* newestFileMtime(fs, folderFiles);
+    if (coverageMtime >= referenceMtime) return;
     yield* Effect.fail(
       new MissingImplError({
         location: folder,
         diagnostic: {
-          problem: "coverage-summary.json is older than the execution sidecar — tests refreshed without --coverage since the last coverage run",
-          cause: `coverage mtime ${new Date(coverageMtime).toISOString()} < sidecar mtime ${new Date(sidecarMtime).toISOString()}`,
-          fix: "rerun `pnpm test --coverage` so coverage and the execution sidecar reflect the same tree",
+          problem: "coverage-summary.json is older than the folder's tests/sources — coverage is stale relative to current code",
+          cause: `coverage mtime ${new Date(coverageMtime).toISOString()} < reference mtime ${new Date(referenceMtime).toISOString()}`,
+          fix: "rerun `pnpm test --coverage` so the coverage report reflects the current tree",
           docsLink: "https://github.com/chughtapan/safer-spec-development/blob/main/docs/errors.md#missing-impl",
         },
       }),
     );
   });
 };
+
+const newestFileMtime = (
+  fs: FileSystem.FileSystem,
+  files: ReadonlyArray<string>,
+): Effect.Effect<number, never> =>
+  Effect.forEach(
+    files,
+    (f) => fs.stat(f).pipe(
+      Effect.map(mtimeMs),
+      Effect.catchAll(() => Effect.succeed(0)),
+    ),
+    { concurrency: 4 },
+  ).pipe(Effect.map((mtimes) => Math.max(0, ...mtimes)));
 
 const driftMetaFor = (
   analysis: FolderAnalysis,
@@ -388,6 +417,7 @@ export const validateFolder = (
         fs, path, folder,
         threshold: thresholds.branchCoverageFromSpecTests,
         branchCoverage,
+        folderFiles: [...inputs.sources, ...inputs.tests],
       });
       const gateMeta = buildSpecMeta(inspection.analysis, {
         generatedAtSha: projectCtx.generatedAtSha,

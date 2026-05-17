@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "b3f4d3441855571fcb660733e258665dfeb3055c",
+  "generatedAtSha": "16d248d456918f57d0a68dad6dd07056657b8872",
   "exports": [
     {
       "name": "ExportKind",
@@ -15,7 +15,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -51,7 +51,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 43,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -66,7 +66,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 47,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -107,7 +107,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 50,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -122,7 +122,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 62,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -137,7 +137,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 68,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -172,7 +172,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 76,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -187,7 +187,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 80,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -227,7 +227,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 93,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -242,7 +242,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 187,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -280,7 +280,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 221,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -319,7 +319,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 249,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -362,7 +362,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 253,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -402,7 +402,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 315,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -431,7 +431,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 333,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     }
   ],

@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/analysis",
-  "generatedAtSha": "b3f4d3441855571fcb660733e258665dfeb3055c",
+  "generatedAtSha": "16d248d456918f57d0a68dad6dd07056657b8872",
   "exports": [
     {
       "name": "GenerateFolderError",
@@ -31,7 +31,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 70,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -46,7 +46,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 74,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -77,7 +77,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 75,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -92,7 +92,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 86,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -122,7 +122,38 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 185,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
+      }
+    },
+    {
+      "name": "diagnosticLines",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Constant Equality",
+        "Inclusion",
+        "Typechecking",
+        "Constant Bounds Checking",
+        "Roundtrip"
+      ],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 343,
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -160,39 +191,8 @@
       ],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 327,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
-      }
-    },
-    {
-      "name": "diagnosticLines",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Constant Equality",
-        "Inclusion",
-        "Typechecking",
-        "Constant Bounds Checking",
-        "Roundtrip"
-      ],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 343,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "line": 356,
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     },
     {
@@ -220,8 +220,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 359,
-        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
+        "line": 388,
+        "sha": "16d248d456918f57d0a68dad6dd07056657b8872"
       }
     }
   ],
