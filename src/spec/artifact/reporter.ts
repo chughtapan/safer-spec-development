@@ -243,28 +243,42 @@ export const computeTestTreeHash = (
  */
 
 /**
- * @spec.guarantee "reads `coverage/coverage-summary.json` and aggregates v8 branch coverage for the folder's immediate source files; returns `null` when the file is absent (so consumers can loud-fail) and `1.0` when present-but-no-branches"
+ * @spec.guarantee "aggregates v8 branch coverage for the folder's immediate sources; null when coverage-summary.json is absent, an expected source has no entry, or a matching file did not execute; 1.0 when present-and-fully-branchless"
  *   reason: validate's `--implemented` gate consumes branchCoverageFromSpecTests;
  *           the null/1.0 split lets it distinguish "user forgot --coverage"
  *           from "folder is just re-exports."
  * @spec.residual-contract "absolute paths from v8 are rebased to project-relative via `path.relative` before the per-folder prefix match"
  *   reason: vitest emits absolute paths; we aggregate by repo-relative folder.
  */
+export interface LoadBranchCoverageOptions {
+  readonly expectedSources: ReadonlyArray<string>;
+  readonly projectRoot?: string;
+}
+
 export const loadBranchCoverage = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
   folder: string,
-  projectRoot: string = ".",
-): Effect.Effect<number | null, never> =>
-  fs
+  options: LoadBranchCoverageOptions,
+): Effect.Effect<number | null, never> => {
+  const projectRoot = options.projectRoot ?? ".";
+  const args = { folder, projectRoot, expectedSources: options.expectedSources };
+  return fs
     .readFileString(path.join(projectRoot, "coverage", "coverage-summary.json"))
     .pipe(
       Effect.flatMap((text) =>
         Effect.try({ try: () => JSON.parse(text) as unknown, catch: () => null }),
       ),
-      Effect.map((parsed) => aggregateBranchCoverageForFolder(parsed, folder, projectRoot)),
+      Effect.map((parsed) => aggregateBranchCoverageForFolder(parsed, args)),
       Effect.catchAll(() => Effect.succeed(null)),
     );
+};
+
+interface AggregateArgs {
+  readonly folder: string;
+  readonly projectRoot: string;
+  readonly expectedSources: ReadonlyArray<string>;
+}
 
 interface CoverageMetric {
   readonly total: number;
@@ -285,12 +299,15 @@ const extractMetric = (entry: unknown, key: "branches" | "statements"): Coverage
   return isCoverageMetric(candidate) ? candidate : undefined;
 };
 
+const toRelPosix = (p: string, rootAbs: string): string =>
+  nodePath.relative(rootAbs, nodePath.resolve(rootAbs, p)).split(nodePath.sep).join("/");
+
 const aggregateBranchCoverageForFolder = (
   parsed: unknown,
-  folder: string,
-  projectRoot: string,
+  args: AggregateArgs,
 ): number | null => {
   if (!isObject(parsed)) return null;
+  const { folder, projectRoot, expectedSources } = args;
   const summary = parsed;
   const rootAbs = nodePath.resolve(projectRoot);
   const folderPosix = folder.split(/[\\/]/).filter((s) => s.length > 0).join("/");
@@ -303,6 +320,13 @@ const aggregateBranchCoverageForFolder = (
     }))
     .filter((e) => isImmediateChild(e.rel, folderPosix));
   if (matches.length === 0) return null;
+  // Every expected source for this folder must appear in the summary —
+  // a vitest exclude or include filter that drops a file would otherwise
+  // let the gate compute a passing ratio over only the survivors, hiding
+  // uncovered code. Cross-check against the caller's known source list.
+  const presentRels = new Set(matches.map((m) => m.rel));
+  const expectedRels = expectedSources.map((s) => toRelPosix(s, rootAbs));
+  if (expectedRels.some((rel) => !presentRels.has(rel))) return null;
   // Malformed summary entry (missing branches OR statements block) →
   // null so the gate loud-fails instead of guessing.
   if (matches.some((e) => e.branches === undefined || e.statements === undefined)) return null;

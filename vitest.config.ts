@@ -30,13 +30,7 @@ export default defineConfig({
       reporter: ["json-summary"],
       reportsDirectory: "coverage",
       include: ["src/**/*.ts"],
-      exclude: [
-        "src/**/*.spec.test.ts",
-        // The reporter is the writer of execution sidecars; instrumenting
-        // it would record the very file that computes coverage, polluting
-        // the metric with reporter-internal branches.
-        "src/spec/artifact/reporter.ts",
-      ],
+      exclude: ["src/**/*.spec.test.ts"],
     },
   },
 });

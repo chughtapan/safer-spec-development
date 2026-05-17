@@ -274,7 +274,9 @@ itSpec.prop(
     Effect.runPromise(
       withFs((fs, path) =>
         Effect.gen(function* () {
-          const result = yield* loadBranchCoverage(fs, path, "src/__missing_folder__");
+          const result = yield* loadBranchCoverage(fs, path, "src/__missing_folder__", {
+            expectedSources: [],
+          });
           yield* failIf(result !== null, `expected null for missing folder`);
         }),
       ),
@@ -296,7 +298,10 @@ itSpec.prop(
       withFs((fs, path) =>
         Effect.gen(function* () {
           const exit = yield* Effect.exit(
-            loadBranchCoverage(fs, path, "src/__missing__", "/nonexistent/project/root"),
+            loadBranchCoverage(fs, path, "src/__missing__", {
+              expectedSources: [],
+              projectRoot: "/nonexistent/project/root",
+            }),
           );
           yield* failIf(!Exit.isSuccess(exit), `expected success, got failure`);
         }),
@@ -318,7 +323,9 @@ itSpec.prop(
     Effect.runPromise(
       withFs((fs, path) =>
         Effect.gen(function* () {
-          const result = yield* loadBranchCoverage(fs, path, "src/spec/grammar");
+          const result = yield* loadBranchCoverage(fs, path, "src/spec/grammar", {
+            expectedSources: [],
+          });
           if (result === null) return;
           yield* failIf(result < 0 || result > 1, `out of [0,1]: ${result}`);
         }),

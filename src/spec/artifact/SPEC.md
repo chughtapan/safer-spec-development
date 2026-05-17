@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 7ceb4da6993ec8c2a520d21f5f51b6ee7af8aa16
+generatedAtSha: 56b69414d7ec4dbfeae19f41b312aa67a42574f3
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -211,22 +211,16 @@ export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* 
 
 **Residual contract:** "internal section ordering is fixed: Purpose → Public Surface → Files → Properties" — _behavioral contract beyond the FolderAnalysis shape._
 
-### [`loadBranchCoverage`](./reporter.ts#L253)
+### [`loadBranchCoverage`](./reporter.ts#L258)
 
 ```ts
 export const loadBranchCoverage = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
   folder: string,
-  projectRoot: string = ".",
-): Effect.Effect<number | null, never> => /* ... */
+  options: LoadBranchCoverageOptions,
+): Effect.Effect<number | null, never> => { /* ... */ }
 ```
-
-**Guarantees:**
-- "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through \`ExecutionSidecarSchema\`; returns null when absent or malformed" — _validate's \`--implemented\` gate consumes the coverage values; absence is surfaced separately as a typed gap error._
-- "reads \`coverage/coverage-summary.json\` and aggregates v8 branch coverage for the folder's immediate source files; returns \`null\` when the file is absent (so consumers can loud-fail) and \`1.0\` when present-but-no-branches" — _validate's \`--implemented\` gate consumes branchCoverageFromSpecTests; the null/1.0 split lets it distinguish "user forgot --coverage" from "folder is just re-exports."_
-
-**Residual contract:** "absolute paths from v8 are rebased to project-relative via \`path.relative\` before the per-folder prefix match" — _vitest emits absolute paths; we aggregate by repo-relative folder._
 
 ### [`buildSpecArtifact`](./emit.ts#L315)
 
@@ -242,7 +236,7 @@ export const buildSpecArtifact = (
 
 **Residual contract:** "fields the codemod cannot yet compute (e.g. per-export sourceRef.sha) reuse \`meta.generatedAtSha\` as the closest stable identifier" — _per-line blame would require a separate git pass; the run-level SHA is a sound default for now._
 
-### [`loadExecutionSidecar`](./reporter.ts#L340)
+### [`loadExecutionSidecar`](./reporter.ts#L364)
 
 ```ts
 export const loadExecutionSidecar = (

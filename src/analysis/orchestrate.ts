@@ -411,7 +411,9 @@ export const validateFolder = (
       yield* checkExecutionSidecarPresent(inspection.analysis, folder, execution, currentHash);
       yield* checkImplBodies(inspection.analysis);
       const thresholds = projectCtx.thresholdsFor(inspection.analysis.folder);
-      const branchCoverage = yield* loadBranchCoverage(fs, path, folder);
+      const branchCoverage = yield* loadBranchCoverage(fs, path, folder, {
+        expectedSources: inputs.sources,
+      });
       yield* requireCoverageWhenGated(folder, thresholds.branchCoverageFromSpecTests, branchCoverage);
       yield* requireFreshCoverage({
         fs, path, folder,
