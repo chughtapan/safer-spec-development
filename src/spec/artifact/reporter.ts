@@ -31,7 +31,6 @@ interface FastCheckTaskStats {
   readonly propertyId: string;
   readonly numRuns: number;
   readonly numSkips: number;
-  readonly classifiers: ReadonlyArray<string>;
 }
 
 const sidecarSlug = (folder: string): string => {
@@ -45,7 +44,6 @@ const FastCheckTaskStatsSchema = Schema.Struct({
   propertyId: Schema.String,
   numRuns: Schema.Number,
   numSkips: Schema.Number,
-  classifiers: Schema.Array(Schema.String),
 });
 
 const ExecutionSidecarSchema = Schema.Struct({
@@ -138,23 +136,20 @@ const aggregate = (stats: ReadonlyArray<FastCheckTaskStats>): AggregatedCoverage
   if (stats.length === 0) return NO_COVERAGE;
   let runs = 0;
   let skips = 0;
-  let classifiedTests = 0;
   for (const s of stats) {
     runs += s.numRuns;
     skips += s.numSkips;
-    if (s.classifiers.length > 0) classifiedTests += 1;
   }
   const total = runs + skips;
-  // Once tests have run, both metrics return their natural rate:
-  //   classifierCoverage = tests-that-classified / total-tests
-  //     (0 when none classified — a `classifierCoverage > 0` threshold
-  //      forces project-wide adoption rather than silently bypassing
-  //      folders that haven't opted in)
-  //   preconditionPassRate = samples-that-passed / total-samples
-  //     (1.0 when no fc.pre was used — 100% of samples ran because
-  //      there were no preconditions to fail)
+  // `preconditionPassRate` reports samples-that-passed / total-samples
+  // (1.0 when no `fc.pre` was used — 100% of samples ran because there
+  // were no preconditions to fail). `classifierCoverage` stays null:
+  // fast-check has no canonical project-wide classifier coverage notion
+  // (`fc.statistics` is an ad-hoc debugging tool); inventing one here
+  // gates on adoption rather than quality. Schema field stays for forward
+  // compat with any future per-test classifier observability.
   return {
-    classifierCoverage: classifiedTests / stats.length,
+    classifierCoverage: null,
     preconditionPassRate: total === 0 ? null : runs / total,
     branchCoverageFromSpecTests: null,
   };

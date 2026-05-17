@@ -1,7 +1,7 @@
 ---
 folder: src
 format-version: 0.1.0
-generatedAtSha: 9860ef0625416af1e4c3b228ae8390d8c59c2df8
+generatedAtSha: 9806601226a216ea4924c08c8f0b3a9254d86977
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.6666666666666666
+  typeCoverage: 0.5555555555555556
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -57,7 +57,7 @@ export const PROPERTY_TYPES = [
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 ```
 
-### [`ItSpec`](./spec/grammar/it-spec.ts#L55)
+### [`ItSpec`](./spec/grammar/it-spec.ts#L53)
 
 ```ts
 export interface ItSpec {
@@ -74,21 +74,9 @@ export interface ItSpec {
   todo(id: string, meta: PropertyMeta): void;
 
   /**
-   * @spec.guarantee "tags the currently-running fast-check sample with a classifier label; labels are aggregated per-property by the reporter and surfaced as `classifierCoverage` in the execution sidecar"
-   *   reason: gives authors a way to declare input-distribution buckets
-   *           (`"empty"`, `"large"`, `"happy-path"`, ...) so the validate
-   *           gate can require tests to actually exercise multiple regions
-   *           of the input space, not just pass at one fixed value.
-   * @spec.residual-contract "calls outside of an `itSpec.prop` body are silently ignored; classifier capture only takes effect within an active fast-check run"
-   *   reason: lifecycle; a no-op outside the property body keeps the API
-   *           safe to import at module scope without runtime errors.
-   */
-  classify(label: string): void;
-
-  /**
    * @spec.assume "JSDoc directives above this call match `id`, `meta.type`, and `meta.exports` member names"
    *   reason: cross-check enforced by `validate --implemented`.
-   * @spec.guarantee "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`; on completion attaches `{numRuns, numSkips, classifiers}` to the Vitest task's `meta.fastCheck` slot"
+   * @spec.guarantee "registers a fast-check property under `id` that runs `body` against samples drawn from `arb`; on completion attaches `{numRuns, numSkips}` to the Vitest task's `meta.fastCheck` slot"
    *   reason: side-effect contract; reporter reads `meta.fastCheck` to
    *           build per-folder execution sidecars.
    * @spec.residual-contract "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override"
@@ -111,12 +99,11 @@ export interface ItSpec {
 
 **Guarantees:**
 - "registers the property as a Vitest todo placeholder under \`id\`" — _side-effect contract; the call mutates Vitest's collector, observable only at runtime._
-- "tags the currently-running fast-check sample with a classifier label; labels are aggregated per-property by the reporter and surfaced as \`classifierCoverage\` in the execution sidecar" — _gives authors a way to declare input-distribution buckets (\`"empty"\`, \`"large"\`, \`"happy-path"\`, ...) so the validate gate can require tests to actually exercise multiple regions of the input space, not just pass at one fixed value._
-- "registers a fast-check property under \`id\` that runs \`body\` against samples drawn from \`arb\`; on completion attaches \`{numRuns, numSkips, classifiers}\` to the Vitest task's \`meta.fastCheck\` slot" — _side-effect contract; reporter reads \`meta.fastCheck\` to build per-folder execution sidecars._
+- "registers a fast-check property under \`id\` that runs \`body\` against samples drawn from \`arb\`; on completion attaches \`{numRuns, numSkips}\` to the Vitest task's \`meta.fastCheck\` slot" — _side-effect contract; reporter reads \`meta.fastCheck\` to build per-folder execution sidecars._
 
 **Residual contract:** "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override" — _behavioral residue beyond the call signature; downstream authors need to know the property runner is not configured through Vitest._
 
-### [`itSpec`](./spec/grammar/it-spec.ts#L145)
+### [`itSpec`](./spec/grammar/it-spec.ts#L122)
 
 ```ts
 export const itSpec: ItSpec = {
@@ -134,10 +121,6 @@ export const itSpec: ItSpec = {
     it(id, (ctx) =>
       Effect.runPromise(runProperty(id, property, ctx.task.meta as TaskMetaSlot)),
     );
-  },
-  classify(label: string): void {
-    const set = classifierContext.getStore();
-    if (set !== undefined) set.add(label);
   },
 };
 ```
@@ -167,5 +150,3 @@ export const itSpec: ItSpec = {
 | `itspec-todo-takes-two-args` | `Constant Equality` | `itSpec` | \`itSpec.todo\` has arity 2: \`(id, meta)\` — the stub-mode helper that doesn't take an arbitrary or body | implemented |
 | `itspec-prop-takes-four-args` | `Constant Equality` | `itSpec` | \`itSpec.prop\` has arity 4: \`(id, meta, arb, body)\` — the implemented-mode helper that takes a fast-check arbitrary and a property body | implemented |
 | `itspec-todo-and-prop-bounded-arity` | `Constant Bounds Checking` | `itSpec` | both \`itSpec.todo\` and \`itSpec.prop\` accept ≤4 args — the codemod's \`@spec.exports\` list correctness assumes the function-style signature, not an options-bag | implemented |
-| `itspec-classify-tags-input-buckets` | `Inclusion` | `itSpec` | \`itSpec.classify(label)\` inside a property body declares that the current sample falls in the named input-distribution bucket — the reporter aggregates distinct labels per-property into the execution sidecar's \`classifierCoverage\` metric | implemented |
-| `itspec-classify-no-throw-outside-prop-body` | `Exception Raising` | `itSpec` | calling \`itSpec.classify(label)\` outside an active fast-check run is a no-op (no throw) — the API is safe to import at module scope or call from helpers that may run outside a property body | implemented |
