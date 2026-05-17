@@ -320,13 +320,19 @@ const aggregateBranchCoverageForFolder = (
     }))
     .filter((e) => isImmediateChild(e.rel, folderPosix));
   if (matches.length === 0) return null;
-  // Every expected source for this folder must appear in the summary —
-  // a vitest exclude or include filter that drops a file would otherwise
-  // let the gate compute a passing ratio over only the survivors, hiding
-  // uncovered code. Cross-check against the caller's known source list.
+  // Coverage entries and the on-disk source list must match exactly:
+  //  - Missing expected source: vitest exclude/include filter dropped a
+  //    file, so the gate would compute a passing ratio over only the
+  //    survivors and hide uncovered code.
+  //  - Extra coverage entry: file was deleted or renamed after coverage
+  //    was generated, so the aggregate would include stats for code that
+  //    no longer exists (mtime freshness can't catch deletions because
+  //    the removed file has no current mtime).
+  // Either asymmetry → null so the gate loud-fails.
   const presentRels = new Set(matches.map((m) => m.rel));
-  const expectedRels = expectedSources.map((s) => toRelPosix(s, rootAbs));
-  if (expectedRels.some((rel) => !presentRels.has(rel))) return null;
+  const expectedRelsSet = new Set(expectedSources.map((s) => toRelPosix(s, rootAbs)));
+  if ([...expectedRelsSet].some((rel) => !presentRels.has(rel))) return null;
+  if ([...presentRels].some((rel) => !expectedRelsSet.has(rel))) return null;
   // Malformed summary entry (missing any of branches/statements/functions)
   // → null so the gate loud-fails instead of guessing.
   if (matches.some((e) => e.branches === undefined || e.statements === undefined || e.functions === undefined)) {
