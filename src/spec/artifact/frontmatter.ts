@@ -30,7 +30,10 @@ const CoverageBlockSchema = Schema.Struct({
 const ThresholdsBlockSchema = Schema.Struct({
   typeCoverage: Schema.Number,
   preconditionPassRate: Schema.Number,
-  branchCoverageFromSpecTests: Schema.Number,
+  // Optional + default 0 so SPEC.md files written by older 0.1.0
+  // emitters (without this threshold field) still decode cleanly —
+  // backwards compat within the same SPEC_FORMAT_VERSION boundary.
+  branchCoverageFromSpecTests: Schema.optionalWith(Schema.Number, { default: () => 0 }),
 });
 
 const SpecFrontmatterSchemaInner = Schema.Struct({

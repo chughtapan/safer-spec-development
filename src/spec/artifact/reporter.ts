@@ -266,41 +266,51 @@ export const loadBranchCoverage = (
       Effect.catchAll(() => Effect.succeed(null)),
     );
 
-interface BranchSummary {
-  readonly branches?: { readonly total: number; readonly covered: number };
+interface BranchTotal {
+  readonly total: number;
+  readonly covered: number;
 }
+
+const isObject = (v: unknown): v is Record<string, unknown> =>
+  v !== null && typeof v === "object";
+
+const isBranchTotal = (v: unknown): v is BranchTotal =>
+  isObject(v)
+  && typeof v.total === "number"
+  && typeof v.covered === "number";
 
 const aggregateBranchCoverageForFolder = (
   parsed: unknown,
   folder: string,
   projectRoot: string,
 ): number | null => {
-  if (typeof parsed !== "object" || parsed === null) return null;
-  const summary = parsed as Record<string, BranchSummary>;
+  if (!isObject(parsed)) return null;
+  const summary = parsed;
   const rootAbs = nodePath.resolve(projectRoot);
   const folderPosix = folder.split(/[\\/]/).filter((s) => s.length > 0).join("/");
   const matches = Object.entries(summary)
     .filter(([key]) => key !== "total")
     .map(([key, value]) => ({
       rel: nodePath.relative(rootAbs, key).split(nodePath.sep).join("/"),
-      // Guard against `"src/x.ts": null` / non-object entries — a thrown
-      // TypeError inside Effect.map becomes a defect, bypassing the
-      // outer catchAll's null fallback.
-      branches: value !== null && typeof value === "object" ? value.branches : undefined,
+      // Guard the entry shape end-to-end. Anything that isn't a
+      // `{ branches: { total: number, covered: number } }` object —
+      // including `null`, strings, missing branches, branches: null,
+      // or branches with non-number total/covered — becomes undefined
+      // here and gets treated as malformed below.
+      branches: isObject(value) && isBranchTotal((value as { branches?: unknown }).branches)
+        ? ((value as { branches: BranchTotal }).branches)
+        : undefined,
     }))
     .filter((e) => isImmediateChild(e.rel, folderPosix));
   // No matching source files in the coverage summary at all — folder
   // wasn't instrumented. Return null so the gate can loud-fail.
   if (matches.length === 0) return null;
-  // Any matching entry MISSING its branches block means the summary is
-  // malformed for this folder (unsupported reporter output, partial
-  // run). Return null — not "vacuously 1.0" — so the gate loud-fails
-  // instead of bypassing on bad data.
+  // Any matching entry MISSING a well-shaped branches block means the
+  // summary is malformed for this folder. Return null so the gate
+  // loud-fails instead of bypassing on bad data.
   const missingBranches = matches.some((e) => e.branches === undefined);
   if (missingBranches) return null;
-  const branches = matches.map(
-    (e) => e.branches as { readonly total: number; readonly covered: number },
-  );
+  const branches = matches.map((e) => e.branches as BranchTotal);
   const total = branches.reduce((sum, b) => sum + b.total, 0);
   // All matching entries had branches blocks with total=0 (pure
   // re-exports etc.). Vacuously covered; parallels typeCoverage's

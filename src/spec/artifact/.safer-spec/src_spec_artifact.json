@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e",
+  "generatedAtSha": "b3f4d3441855571fcb660733e258665dfeb3055c",
   "exports": [
     {
       "name": "ExportKind",
@@ -15,7 +15,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -51,7 +51,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 43,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -66,7 +66,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 47,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -107,7 +107,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 50,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -122,7 +122,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 62,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -137,7 +137,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 68,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -172,7 +172,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
         "line": 76,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -187,7 +187,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 80,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -227,7 +227,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 93,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -242,7 +242,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 187,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -280,7 +280,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 221,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -319,7 +319,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 249,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -362,7 +362,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 253,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -402,7 +402,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 315,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     },
     {
@@ -430,8 +430,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
-        "line": 323,
-        "sha": "2b7892b4604c11e2eba1044831e98271a0ce8a4e"
+        "line": 333,
+        "sha": "b3f4d3441855571fcb660733e258665dfeb3055c"
       }
     }
   ],
