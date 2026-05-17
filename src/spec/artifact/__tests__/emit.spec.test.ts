@@ -32,7 +32,7 @@ const FIXED_META: SpecMeta = {
     preconditionPassRate: null,
     branchCoverageFromSpecTests: null,
   },
-  thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
+  thresholds: { typeCoverage: 0, preconditionPassRate: 0, branchCoverageFromSpecTests: 0 },
   generatedFrom: {
     jsdoc: "@spec.*",
     exports: "ts-morph",
@@ -142,7 +142,7 @@ const yamlToShape = (yaml: string): unknown => {
   const obj: Record<string, unknown> = {
     generatedFrom: { jsdoc: "@spec.*", exports: "ts-morph", schemas: [], properties: [], eslint: "agent-code-guard" },
     coverage: { typeCoverage: 0, classifierCoverage: null, preconditionPassRate: null, branchCoverageFromSpecTests: null },
-    thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
+    thresholds: { typeCoverage: 0, preconditionPassRate: 0, branchCoverageFromSpecTests: 0 },
   };
   for (const line of yaml.split("\n")) {
     const m = /^([a-zA-Z-]+): (.*)$/.exec(line);

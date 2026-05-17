@@ -58,7 +58,7 @@ export const buildSpecMeta = (
 });
 
 export interface ThresholdShortfall {
-  readonly metric: "typeCoverage" | "preconditionPassRate";
+  readonly metric: "typeCoverage" | "preconditionPassRate" | "branchCoverageFromSpecTests";
   readonly observed: number;
   readonly threshold: number;
   readonly missingPropertyTypes: ReadonlyArray<string>;
@@ -96,5 +96,11 @@ export const findThresholdShortfall = (
     "preconditionPassRate",
     meta.coverage.preconditionPassRate,
     meta.thresholds.preconditionPassRate,
+    [],
+  ) ??
+  checkOne(
+    "branchCoverageFromSpecTests",
+    meta.coverage.branchCoverageFromSpecTests,
+    meta.thresholds.branchCoverageFromSpecTests,
     [],
   );

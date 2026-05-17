@@ -76,7 +76,7 @@ const buildArtifact = (s: ArtifactSeed): SpecArtifact => ({
     sourceRef: { path: `${s.folder}/index.ts`, line: 1, sha: s.sha },
   })),
   coverage: { typeCoverage: 0.5 },
-  thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
+  thresholds: { typeCoverage: 0, preconditionPassRate: 0, branchCoverageFromSpecTests: 0 },
 });
 
 /**

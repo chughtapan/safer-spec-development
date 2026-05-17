@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/analysis",
-  "generatedAtSha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15",
+  "generatedAtSha": "42007e2afcd65af5da5fa8b4af7cb9b0e9e7c8b9",
   "exports": [
     {
       "name": "GenerateFolderError",
@@ -30,8 +30,23 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 68,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 70,
+        "sha": "42007e2afcd65af5da5fa8b4af7cb9b0e9e7c8b9"
+      }
+    },
+    {
+      "name": "ValidateGapError",
+      "shape": "type",
+      "requiredPropertyTypes": [],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/checks.ts",
+        "line": 74,
+        "sha": "42007e2afcd65af5da5fa8b4af7cb9b0e9e7c8b9"
       }
     },
     {
@@ -61,23 +76,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 73,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
-      }
-    },
-    {
-      "name": "ValidateGapError",
-      "shape": "type",
-      "requiredPropertyTypes": [],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/checks.ts",
-        "line": 74,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 75,
+        "sha": "42007e2afcd65af5da5fa8b4af7cb9b0e9e7c8b9"
       }
     },
     {
@@ -91,8 +91,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 84,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 86,
+        "sha": "42007e2afcd65af5da5fa8b4af7cb9b0e9e7c8b9"
       }
     },
     {
@@ -121,8 +121,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 183,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 185,
+        "sha": "42007e2afcd65af5da5fa8b4af7cb9b0e9e7c8b9"
       }
     },
     {
@@ -160,8 +160,8 @@
       ],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 267,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 288,
+        "sha": "42007e2afcd65af5da5fa8b4af7cb9b0e9e7c8b9"
       }
     },
     {
@@ -189,8 +189,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 299,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "line": 320,
+        "sha": "42007e2afcd65af5da5fa8b4af7cb9b0e9e7c8b9"
       }
     },
     {
@@ -221,7 +221,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 334,
-        "sha": "03afe5978639e89c12d5a38a7bae8ab2f97eec15"
+        "sha": "42007e2afcd65af5da5fa8b4af7cb9b0e9e7c8b9"
       }
     }
   ],
@@ -230,6 +230,7 @@
   },
   "thresholds": {
     "typeCoverage": 0.4,
-    "preconditionPassRate": 0
+    "preconditionPassRate": 0,
+    "branchCoverageFromSpecTests": 0.75
   }
 }

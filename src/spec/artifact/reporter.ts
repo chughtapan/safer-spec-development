@@ -241,6 +241,69 @@ export const computeTestTreeHash = (
  *   reason: validate's `--implemented` gate consumes the coverage values;
  *           absence is surfaced separately as a typed gap error.
  */
+
+/**
+ * @spec.guarantee "reads `coverage/coverage-summary.json` and aggregates v8 branch coverage for the folder's immediate source files; returns `null` when the file is absent (so consumers can loud-fail) and `1.0` when present-but-no-branches"
+ *   reason: validate's `--implemented` gate consumes branchCoverageFromSpecTests;
+ *           the null/1.0 split lets it distinguish "user forgot --coverage"
+ *           from "folder is just re-exports."
+ * @spec.residual-contract "absolute paths from v8 are rebased to project-relative via `path.relative` before the per-folder prefix match"
+ *   reason: vitest emits absolute paths; we aggregate by repo-relative folder.
+ */
+export const loadBranchCoverage = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  folder: string,
+  projectRoot: string = ".",
+): Effect.Effect<number | null, never> =>
+  fs
+    .readFileString(path.join(projectRoot, "coverage", "coverage-summary.json"))
+    .pipe(
+      Effect.flatMap((text) =>
+        Effect.try({ try: () => JSON.parse(text) as unknown, catch: () => null }),
+      ),
+      Effect.map((parsed) => aggregateBranchCoverageForFolder(parsed, folder, projectRoot)),
+      Effect.catchAll(() => Effect.succeed(null)),
+    );
+
+interface BranchSummary {
+  readonly branches?: { readonly total: number; readonly covered: number };
+}
+
+const aggregateBranchCoverageForFolder = (
+  parsed: unknown,
+  folder: string,
+  projectRoot: string,
+): number => {
+  if (typeof parsed !== "object" || parsed === null) return 1;
+  const summary = parsed as Record<string, BranchSummary>;
+  const rootAbs = nodePath.resolve(projectRoot);
+  const branches = Object.entries(summary)
+    .filter(([key]) => key !== "total")
+    .map(([key, value]) => ({
+      rel: nodePath.relative(rootAbs, key).split(nodePath.sep).join("/"),
+      branches: value.branches,
+    }))
+    .filter((e) => e.branches !== undefined && isImmediateChild(e.rel, folder))
+    .map((e) => e.branches as { readonly total: number; readonly covered: number });
+  const total = branches.reduce((sum, b) => sum + b.total, 0);
+  // Folder has no branchable code (pure re-exports etc.) — vacuously
+  // covered. Parallels typeCoverage's no-value-exports degenerate case.
+  if (total === 0) return 1;
+  const covered = branches.reduce((sum, b) => sum + b.covered, 0);
+  return covered / total;
+};
+
+// Immediate child of `folder` (non-recursive): the relative path must
+// start with `folder/` AND have no further `/` segments. Folder "." (the
+// project-root sentinel) matches any top-level source file.
+const isImmediateChild = (rel: string, folder: string): boolean => {
+  if (folder === ".") return !rel.includes("/");
+  const prefix = `${folder}/`;
+  if (!rel.startsWith(prefix)) return false;
+  return !rel.slice(prefix.length).includes("/");
+};
+
 export const loadExecutionSidecar = (
   fs: FileSystem.FileSystem,
   path: Path.Path,

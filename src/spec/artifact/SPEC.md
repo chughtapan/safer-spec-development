@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 03afe5978639e89c12d5a38a7bae8ab2f97eec15
+generatedAtSha: 42007e2afcd65af5da5fa8b4af7cb9b0e9e7c8b9
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,13 +10,14 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.4444444444444444
+  typeCoverage: 0.44444444444444453
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
   typeCoverage: 0.4
   preconditionPassRate: 0
+  branchCoverageFromSpecTests: 0.75
 ---
 
 # SPEC
@@ -96,7 +97,7 @@ export interface ExportEntry {
 
 ```ts
 export interface ThresholdShortfall {
-  readonly metric: "typeCoverage" | "preconditionPassRate";
+  readonly metric: "typeCoverage" | "preconditionPassRate" | "branchCoverageFromSpecTests";
   readonly observed: number;
   readonly threshold: number;
   readonly missingPropertyTypes: ReadonlyArray<string>;
@@ -173,6 +174,7 @@ export interface SpecMeta {
   readonly thresholds: {
     readonly typeCoverage: number;
     readonly preconditionPassRate: number;
+    readonly branchCoverageFromSpecTests: number;
   };
   readonly generatedFrom: {
     readonly jsdoc: string;
@@ -198,20 +200,7 @@ export const computeTestTreeHash = (
 
 **Residual contract:** "unreadable test files contribute the empty string to the hash; the reporter applies the same convention so a transient read failure doesn't poison the hash" — _byte-equality contract; missing-file -&gt; empty-bytes._
 
-### [`loadExecutionSidecar`](./reporter.ts#L244)
-
-```ts
-export const loadExecutionSidecar = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  folder: string,
-): Effect.Effect<ExecutionSidecar | null, never> => /* ... */
-```
-
-**Guarantees:**
-- "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through \`ExecutionSidecarSchema\`; returns null when absent or malformed" — _validate's \`--implemented\` gate consumes the coverage values; absence is surfaced separately as a typed gap error._
-
-### [`emitMarkdown`](./emit.ts#L247)
+### [`emitMarkdown`](./emit.ts#L249)
 
 ```ts
 export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* ... */ }
@@ -222,7 +211,34 @@ export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* 
 
 **Residual contract:** "internal section ordering is fixed: Purpose → Public Surface → Files → Properties" — _behavioral contract beyond the FolderAnalysis shape._
 
-### [`buildSpecArtifact`](./emit.ts#L313)
+### [`loadBranchCoverage`](./reporter.ts#L253)
+
+```ts
+export const loadBranchCoverage = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  folder: string,
+  projectRoot: string = ".",
+): Effect.Effect<number | null, never> => /* ... */
+```
+
+**Guarantees:**
+- "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through \`ExecutionSidecarSchema\`; returns null when absent or malformed" — _validate's \`--implemented\` gate consumes the coverage values; absence is surfaced separately as a typed gap error._
+- "reads \`coverage/coverage-summary.json\` and aggregates v8 branch coverage for the folder's immediate source files; returns \`null\` when the file is absent (so consumers can loud-fail) and \`1.0\` when present-but-no-branches" — _validate's \`--implemented\` gate consumes branchCoverageFromSpecTests; the null/1.0 split lets it distinguish "user forgot --coverage" from "folder is just re-exports."_
+
+**Residual contract:** "absolute paths from v8 are rebased to project-relative via \`path.relative\` before the per-folder prefix match" — _vitest emits absolute paths; we aggregate by repo-relative folder._
+
+### [`loadExecutionSidecar`](./reporter.ts#L307)
+
+```ts
+export const loadExecutionSidecar = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  folder: string,
+): Effect.Effect<ExecutionSidecar | null, never> => /* ... */
+```
+
+### [`buildSpecArtifact`](./emit.ts#L315)
 
 ```ts
 export const buildSpecArtifact = (
@@ -301,6 +317,10 @@ export const buildSpecArtifact = (
 | `load-execution-sidecar-typecheck` | `Typechecking` | `loadExecutionSidecar` | returns an Effect that yields \`ExecutionSidecar \| null\` — \`null\` when the sidecar file is absent or malformed | implemented |
 | `load-execution-sidecar-missing-yields-null` | `Constant Equality` | `loadExecutionSidecar` | a folder that has no execution sidecar on disk resolves to \`null\` — absence is a typed signal, not an error | implemented |
 | `load-execution-sidecar-graceful-on-bogus-folder` | `Exception Raising` | `loadExecutionSidecar` | \`loadExecutionSidecar\` never fails on the Effect error channel — missing/malformed sidecars resolve to \`null\`, not a typed error | implemented |
+| `load-branch-coverage-typecheck` | `Typechecking` | `loadBranchCoverage` | returns an Effect that yields a number in \`\[0, 1\]\` or \`null\` — the per-folder branch ratio v8 coverage attributes to spec tests, null when coverage-summary.json is absent or has no branch data for the folder | implemented |
+| `load-branch-coverage-missing-folder-yields-null` | `Constant Equality` | `loadBranchCoverage` | asking for branch coverage of a folder that has no entries in coverage-summary.json resolves to \`null\` — folder absence is a typed signal, not an error | implemented |
+| `load-branch-coverage-graceful-on-bogus-input` | `Exception Raising` | `loadBranchCoverage` | \`loadBranchCoverage\` never fails on the Effect error channel — coverage-summary.json absence or malformation resolves to \`null\`, not a typed error | implemented |
+| `load-branch-coverage-bounded-in-zero-one` | `Constant Bounds Checking` | `loadBranchCoverage` | when not null, the returned ratio is in \`\[0, 1\]\` — branch coverage is a ratio of covered / total | implemented |
 | `sidecar-writer-roundtrip` | `Roundtrip` | `serializeSidecar`, `decodeSpecArtifact` | decode(parse(serialize(artifact))) returns the original artifact at every well-formed input | implemented |
 | `sidecar-writer-atomic-on-failure` | `Exception Raising` | `writeSidecar` | partial sidecars are not left on disk on filesystem failures | implemented |
 | `sidecar-writer-maps-root-folder-to-root-slug` | `Constant Equality` | `writeSidecar`, `sidecarSlug` | folder \`"."\` (project root sentinel) writes to \`.safer-spec/root.json\`; the writer's slug helper agrees with \`generate.ts\`/\`validate-pipeline.ts\` so write and validate never disagree on the on-disk path | implemented |

@@ -34,6 +34,7 @@ import {
   buildSpecMeta,
   computeTestTreeHash,
   emitMarkdown,
+  loadBranchCoverage,
   loadExecutionSidecar,
   regenerateSidecar,
   sidecarSlug,
@@ -60,6 +61,7 @@ import {
   checkSidecarDrift,
   checkThresholds,
   failOnIssues,
+  MissingImplError,
   type ValidateGapError,
 } from "@safer/analysis/checks.js";
 
@@ -249,6 +251,25 @@ const buildAnalysis = (
     };
   });
 
+const requireCoverageWhenGated = (
+  folder: string,
+  threshold: number,
+  branchCoverage: number | null,
+): Effect.Effect<void, MissingImplError> => {
+  if (threshold <= 0 || branchCoverage !== null) return Effect.void;
+  return Effect.fail(
+    new MissingImplError({
+      location: folder,
+      diagnostic: {
+        problem: `branchCoverageFromSpecTests threshold ${threshold} set, but coverage-summary.json not found`,
+        cause: "vitest's v8 coverage report is missing — tests likely ran without --coverage",
+        fix: "run `pnpm test --coverage` before `pnpm safer-spec validate --implemented`, or drop the branchCoverageFromSpecTests threshold to 0",
+        docsLink: "https://github.com/chughtapan/safer-spec-development/blob/main/docs/errors.md#missing-impl",
+      },
+    }),
+  );
+};
+
 const driftMetaFor = (
   analysis: FolderAnalysis,
   projectCtx: ProjectContext,
@@ -321,10 +342,16 @@ export const validateFolder = (
       );
       yield* checkExecutionSidecarPresent(inspection.analysis, folder, execution, currentHash);
       yield* checkImplBodies(inspection.analysis);
+      const thresholds = projectCtx.thresholdsFor(inspection.analysis.folder);
+      const branchCoverage = yield* loadBranchCoverage(fs, path, folder);
+      yield* requireCoverageWhenGated(folder, thresholds.branchCoverageFromSpecTests, branchCoverage);
+      const executionWithBranch = execution === null
+        ? null
+        : { ...execution, branchCoverageFromSpecTests: branchCoverage };
       const gateMeta = buildSpecMeta(inspection.analysis, {
         generatedAtSha: projectCtx.generatedAtSha,
-        thresholds: projectCtx.thresholdsFor(inspection.analysis.folder),
-        execution,
+        thresholds,
+        execution: executionWithBranch,
       });
       yield* checkThresholds(folder, inspection.analysis, gateMeta);
     } else {

@@ -42,7 +42,7 @@ const sampleArtifact = (folder: string): SpecArtifact => ({
     },
   ],
   coverage: { typeCoverage: 0 },
-  thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
+  thresholds: { typeCoverage: 0, preconditionPassRate: 0, branchCoverageFromSpecTests: 0 },
 });
 
 /**

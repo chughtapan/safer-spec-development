@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: 03afe5978639e89c12d5a38a7bae8ab2f97eec15
+generatedAtSha: 42007e2afcd65af5da5fa8b4af7cb9b0e9e7c8b9
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -17,6 +17,7 @@ coverage:
 thresholds:
   typeCoverage: 0.4
   preconditionPassRate: 0
+  branchCoverageFromSpecTests: 0.75
 ---
 
 # SPEC
@@ -31,22 +32,12 @@ Barrel for the `analysis/` layer. Exposes two high-level per-folder operations â
 
 ## Public surface
 
-### [`GenerateFolderError`](./orchestrate.ts#L68)
+### [`GenerateFolderError`](./orchestrate.ts#L70)
 
 ```ts
 export class GenerateFolderError extends Data.TaggedError("GenerateFolderError")<{
   readonly folder: string;
   readonly reason: string;
-}> { /* ... */ }
-```
-
-### [`GenerateFolderIOError`](./orchestrate.ts#L73)
-
-```ts
-export class GenerateFolderIOError extends Data.TaggedError("GenerateFolderIOError")<{
-  readonly folder: string;
-  readonly path: string;
-  readonly cause: string;
 }> { /* ... */ }
 ```
 
@@ -59,7 +50,17 @@ export type ValidateGapError =
   | MissingImplError;
 ```
 
-### [`GenerateFolderAnyError`](./orchestrate.ts#L84)
+### [`GenerateFolderIOError`](./orchestrate.ts#L75)
+
+```ts
+export class GenerateFolderIOError extends Data.TaggedError("GenerateFolderIOError")<{
+  readonly folder: string;
+  readonly path: string;
+  readonly cause: string;
+}> { /* ... */ }
+```
+
+### [`GenerateFolderAnyError`](./orchestrate.ts#L86)
 
 ```ts
 export type GenerateFolderAnyError =
@@ -68,7 +69,7 @@ export type GenerateFolderAnyError =
   | DirectiveParseError;
 ```
 
-### [`buildKnownExports`](./orchestrate.ts#L183)
+### [`buildKnownExports`](./orchestrate.ts#L185)
 
 ```ts
 export const buildKnownExports = (ctx: ProjectContext): ReadonlySet<string> => { /* ... */ }
@@ -79,7 +80,7 @@ Project-wide symbol existence set. Pass through to `generateFolder` so
 while still rejecting non-existent names. Compute once per `generate`
 run; reusable across folders.
 
-### [`generateFolder`](./orchestrate.ts#L267)
+### [`generateFolder`](./orchestrate.ts#L288)
 
 ```ts
 export const generateFolder = (
@@ -92,7 +93,7 @@ export const generateFolder = (
 
 **Residual contract:** "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally" â€” _drift-check byte-equality contract._
 
-### [`validateFolder`](./orchestrate.ts#L299)
+### [`validateFolder`](./orchestrate.ts#L320)
 
 ```ts
 export const validateFolder = (

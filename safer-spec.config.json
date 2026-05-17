@@ -1,5 +1,6 @@
 {
   "defaultThresholds": {
-    "typeCoverage": 0.4
+    "typeCoverage": 0.4,
+    "branchCoverageFromSpecTests": 0.75
   }
 }

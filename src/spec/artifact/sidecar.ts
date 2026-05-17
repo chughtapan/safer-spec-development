@@ -79,6 +79,7 @@ const CoverageSchema = Schema.Struct({
 const ThresholdsSchema = Schema.Struct({
   typeCoverage: Schema.Number,
   preconditionPassRate: Schema.Number,
+  branchCoverageFromSpecTests: Schema.Number,
 });
 
 const SpecArtifactSchemaInner = Schema.Struct({

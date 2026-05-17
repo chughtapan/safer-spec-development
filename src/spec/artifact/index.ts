@@ -35,6 +35,7 @@ export { regenerateSidecar, sidecarSlug } from "@safer/spec/artifact/sidecar-wri
 
 export {
   computeTestTreeHash,
+  loadBranchCoverage,
   loadExecutionSidecar,
 } from "@safer/spec/artifact/reporter.js";
 

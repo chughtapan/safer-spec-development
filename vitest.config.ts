@@ -25,5 +25,18 @@ export default defineConfig({
     ],
     reporters: ["default", new SaferSpecExecutionReporter()],
     testTimeout: 15_000,
+    coverage: {
+      provider: "v8",
+      reporter: ["json-summary"],
+      reportsDirectory: "coverage",
+      include: ["src/**/*.ts"],
+      exclude: [
+        "src/**/*.spec.test.ts",
+        // The reporter is the writer of execution sidecars; instrumenting
+        // it would record the very file that computes coverage, polluting
+        // the metric with reporter-internal branches.
+        "src/spec/artifact/reporter.ts",
+      ],
+    },
   },
 });

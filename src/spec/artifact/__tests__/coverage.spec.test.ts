@@ -39,7 +39,7 @@ const EMPTY_ANALYSIS: FolderAnalysis = {
 
 const META_NO_GATE: SpecMeta = buildSpecMeta(EMPTY_ANALYSIS, {
   generatedAtSha: "deadbee",
-  thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
+  thresholds: { typeCoverage: 0, preconditionPassRate: 0, branchCoverageFromSpecTests: 0 },
 });
 
 /* ---------- buildSpecMeta ---------- */
@@ -95,7 +95,7 @@ itSpec.prop(
       failIf(
         buildSpecMeta(EMPTY_ANALYSIS, {
           generatedAtSha: sha,
-          thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
+          thresholds: { typeCoverage: 0, preconditionPassRate: 0, branchCoverageFromSpecTests: 0 },
         }).generatedAtSha !== sha,
         `sha not stamped`,
       ),
@@ -121,7 +121,7 @@ itSpec.prop(
       Effect.gen(function* () {
         const meta = buildSpecMeta(EMPTY_ANALYSIS, {
           generatedAtSha: "x",
-          thresholds: { typeCoverage: 0, preconditionPassRate: 0 },
+          thresholds: { typeCoverage: 0, preconditionPassRate: 0, branchCoverageFromSpecTests: 0 },
           execution: {
             formatVersion: "1",
             folder: "src/x",
@@ -195,7 +195,7 @@ itSpec.prop(
       Effect.gen(function* () {
         const meta = buildSpecMeta({ ...EMPTY_ANALYSIS, exports: [] }, {
           generatedAtSha: "x",
-          thresholds: { typeCoverage: 0.5, preconditionPassRate: 0 },
+          thresholds: { typeCoverage: 0.5, preconditionPassRate: 0, branchCoverageFromSpecTests: 0 },
           execution: {
             formatVersion: "1",
             folder: "src/x",
