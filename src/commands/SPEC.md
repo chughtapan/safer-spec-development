@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: bc88c54b9b875392ee50305dc1a24a16d13bbb18
+generatedAtSha: 0ef093e21c2d6f9abd7859c019a1f6f003e47e09
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.5555555555555556
+  typeCoverage: 1
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -39,7 +39,7 @@ Tagged errors `CliExitCode` and `CliUsageError` are co-located here.
 
 ## Public surface
 
-### [`CliExitCode`](./index.ts#L46)
+### [`CliExitCode`](./index.ts#L58)
 
 ```ts
 export class CliExitCode extends Data.TaggedError("CliExitCode")<{
@@ -47,7 +47,16 @@ export class CliExitCode extends Data.TaggedError("CliExitCode")<{
 }> { /* ... */ }
 ```
 
-### [`CliUsageError`](./index.ts#L50)
+**Guarantees:**
+- "carries a POSIX exit code in \`.code\`; the runtime boundary unwraps it via \`process.exit(code)\`" — _cli-final translation of validation outcomes to OS-visible signals._
+
+**Skipped property types:**
+- `Roundtrip` — _an error class carrying an integer; no encode/decode pair._
+- `Partial Roundtrip` — _no normalize-then-recover relation._
+- `Commutative Paths` — _a single tagged-error class; no alternative path constructs it._
+- `Inclusion` — _not a collection._
+
+### [`CliUsageError`](./index.ts#L75)
 
 ```ts
 export class CliUsageError extends Data.TaggedError("CliUsageError")<{
@@ -55,6 +64,15 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
   readonly reason: string;
 }> { /* ... */ }
 ```
+
+**Guarantees:**
+- "carries the offending subcommand and a human-readable reason; routed to POSIX exit code 2 (usage error)" — _cli convention; downstream automation greps the tag and the subcommand name._
+
+**Skipped property types:**
+- `Roundtrip` — _a tagged-error class; no encode/decode pair._
+- `Partial Roundtrip` — _no normalize-then-recover relation._
+- `Commutative Paths` — _a single tagged-error class; no alternative path constructs it._
+- `Inclusion` — _not a collection._
 
 ## Children
 

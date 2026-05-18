@@ -43,10 +43,35 @@ import {
   SPEC_FORMAT_VERSION,
 } from "@safer/project/index.js";
 
+/**
+ * @spec.guarantee "carries a POSIX exit code in `.code`; the runtime boundary unwraps it via `process.exit(code)`"
+ *   reason: cli-final translation of validation outcomes to OS-visible signals.
+ * @spec.skip "Roundtrip"
+ *   reason: an error class carrying an integer; no encode/decode pair.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: no normalize-then-recover relation.
+ * @spec.skip "Commutative Paths"
+ *   reason: a single tagged-error class; no alternative path constructs it.
+ * @spec.skip "Inclusion"
+ *   reason: not a collection.
+ */
 export class CliExitCode extends Data.TaggedError("CliExitCode")<{
   readonly code: number;
 }> {}
 
+/**
+ * @spec.guarantee "carries the offending subcommand and a human-readable reason; routed to POSIX exit code 2 (usage error)"
+ *   reason: cli convention; downstream automation greps the tag and the
+ *           subcommand name.
+ * @spec.skip "Roundtrip"
+ *   reason: a tagged-error class; no encode/decode pair.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: no normalize-then-recover relation.
+ * @spec.skip "Commutative Paths"
+ *   reason: a single tagged-error class; no alternative path constructs it.
+ * @spec.skip "Inclusion"
+ *   reason: not a collection.
+ */
 export class CliUsageError extends Data.TaggedError("CliUsageError")<{
   readonly subcommand: string;
   readonly reason: string;

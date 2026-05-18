@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec",
-  "generatedAtSha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18",
+  "generatedAtSha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09",
   "exports": [
     {
       "name": "ItSpec",
@@ -37,7 +37,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
         "line": 53,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -45,13 +45,7 @@
       "shape": "unknown",
       "requiredPropertyTypes": [
         "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
         "Exception Raising"
       ],
       "observedPropertyTypes": [
@@ -62,19 +56,49 @@
         "Constant Bounds Checking",
         "Roundtrip"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "registration sink only; there is no companion that decodes a registered test back to its metadata."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "two methods (`todo` and `prop`) cover orthogonal lifecycle states (stub vs implemented), not commuting paths."
+        },
+        {
+          "propertyType": "Constant Equality",
+          "reason": "the object is a constant export; `itSpec === itSpec` is trivially true and not a property worth gating."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "no anti-collision invariant between todo and prop methods."
+        },
+        {
+          "propertyType": "Constant Bounds Checking",
+          "reason": "not a numeric/length output."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "a method record, not a collection."
+        }
+      ],
       "residualContract": null,
       "residualAssumes": [],
-      "residualGuarantees": [],
+      "residualGuarantees": [
+        {
+          "claim": "`itSpec.todo(id, meta)` registers a Vitest todo carrying property metadata; `itSpec.prop(id, meta, arb, body)` registers a Vitest property with stats sink",
+          "reason": "the runtime encoding of `@spec.*` directive metadata; the JSDoc shape and the runtime arg shape must agree, enforced by extractProperties."
+        }
+      ],
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
-        "line": 122,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 138,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.6666666666666666
+    "typeCoverage": 0.8888888888888888
   },
   "thresholds": {
     "typeCoverage": 0.4,

@@ -119,6 +119,22 @@ const runProperty = <T>(
     }),
   );
 
+/**
+ * @spec.guarantee "`itSpec.todo(id, meta)` registers a Vitest todo carrying property metadata; `itSpec.prop(id, meta, arb, body)` registers a Vitest property with stats sink"
+ *   reason: the runtime encoding of `@spec.*` directive metadata; the JSDoc shape and the runtime arg shape must agree, enforced by extractProperties.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: registration sink only; there is no companion that decodes a registered test back to its metadata.
+ * @spec.skip "Commutative Paths"
+ *   reason: two methods (`todo` and `prop`) cover orthogonal lifecycle states (stub vs implemented), not commuting paths.
+ * @spec.skip "Constant Equality"
+ *   reason: the object is a constant export; `itSpec === itSpec` is trivially true and not a property worth gating.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: no anti-collision invariant between todo and prop methods.
+ * @spec.skip "Constant Bounds Checking"
+ *   reason: not a numeric/length output.
+ * @spec.skip "Inclusion"
+ *   reason: a method record, not a collection.
+ */
 export const itSpec: ItSpec = {
   todo(id: string, _meta: PropertyMeta): void {
     it.todo(id);

@@ -1,7 +1,7 @@
 ---
 folder: src/spec/grammar
 format-version: 0.1.0
-generatedAtSha: bc88c54b9b875392ee50305dc1a24a16d13bbb18
+generatedAtSha: 0ef093e21c2d6f9abd7859c019a1f6f003e47e09
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.46296296296296297
+  typeCoverage: 0.7037037037037037
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -32,17 +32,23 @@ Barrel for `spec/grammar/`. Re-exports the `@spec.*` directive parsers and the c
 
 ## Public surface
 
-### [`DIRECTIVE_BODY_MAX_CHARS`](./shared.ts#L17)
+### [`DIRECTIVE_BODY_MAX_CHARS`](./shared.ts#L27)
 
 ```ts
 export const DIRECTIVE_BODY_MAX_CHARS = 500;
 ```
 
-Trust-boundary cap on directive bodies routed as agent context
-(assume / guarantee / residual-contract / skip reasons / per-test
-claim).
+**Guarantees:**
+- "the value is 500 — the documented trust-boundary cap on directive bodies (assume/guarantee/residual-contract/skip reasons/claim) routed as agent context" — _stable across the codemod and downstream consumers; the cap is enforced by the \`Capped\` schema in the same file._
 
-### [`PROPERTY_TYPES`](./property-types.ts#L27)
+**Skipped property types:**
+- `Roundtrip` — _numeric constant; no encode/decode pair._
+- `Partial Roundtrip` — _numeric constant; no normalize-then-recover relation._
+- `Commutative Paths` — _constant value; no alternative path to derive it._
+- `Constant Non-Equality` — _a single constant value; no distinct-output invariant applies._
+- `Exception Raising` — _a constant; cannot fail._
+
+### [`PROPERTY_TYPES`](./property-types.ts#L35)
 
 ```ts
 export const PROPERTY_TYPES = [
@@ -63,7 +69,13 @@ export const PROPERTY_TYPES = [
 
 **Residual contract:** none — _shape captured by \`as const\` tuple._
 
-### [`JsDocDirectiveOverflowError`](./shared.ts#L28)
+**Skipped property types:**
+- `Partial Roundtrip` — _a constant tuple; no encode/decode pair._
+- `Commutative Paths` — _a constant; no alternative path to derive it._
+- `Constant Equality` — _handled by Roundtrip — calling the constant twice trivially returns the same value._
+- `Exception Raising` — _a constant; cannot fail._
+
+### [`JsDocDirectiveOverflowError`](./shared.ts#L38)
 
 ```ts
 export class JsDocDirectiveOverflowError extends Data.TaggedError(
@@ -77,7 +89,13 @@ export class JsDocDirectiveOverflowError extends Data.TaggedError(
 }> { /* ... */ }
 ```
 
-### [`JsDocDirectiveParseError`](./shared.ts#L38)
+### [`PropertyType`](./property-types.ts#L47)
+
+```ts
+export type PropertyType = (typeof PROPERTY_TYPES)[number];
+```
+
+### [`JsDocDirectiveParseError`](./shared.ts#L48)
 
 ```ts
 export class JsDocDirectiveParseError extends Data.TaggedError(
@@ -90,13 +108,7 @@ export class JsDocDirectiveParseError extends Data.TaggedError(
 }> { /* ... */ }
 ```
 
-### [`PropertyType`](./property-types.ts#L39)
-
-```ts
-export type PropertyType = (typeof PROPERTY_TYPES)[number];
-```
-
-### [`JsDocUnknownDirectiveError`](./shared.ts#L47)
+### [`JsDocUnknownDirectiveError`](./shared.ts#L57)
 
 ```ts
 export class JsDocUnknownDirectiveError extends Data.TaggedError(
@@ -134,7 +146,7 @@ export interface LocatedDirective {
 }
 ```
 
-### [`parseFileDirectives`](./directives.ts#L284)
+### [`parseFileDirectives`](./directives.ts#L292)
 
 ```ts
 export const parseFileDirectives = (
@@ -145,6 +157,12 @@ export const parseFileDirectives = (
 
 **Guarantees:**
 - "every emitted directive validates against the closed grammar before downstream consumption" — _trust-boundary; agents consume parsed directive bodies as context._
+
+**Skipped property types:**
+- `Roundtrip` — _parser-only; no \`unparseDirectives\` companion (SPEC.md is emitted by \`emitMarkdown\`, not from raw directives)._
+- `Partial Roundtrip` — _source comments carry formatting (indentation, line breaks) the parser intentionally normalizes away; no partial-recover relation._
+- `Commutative Paths` — _single entry point; no alternative API yields the same directive list._
+- `Constant Non-Equality` — _two distinct sources can intentionally produce identical directive lists (e.g., whitespace-only diffs)._
 
 ## Children
 

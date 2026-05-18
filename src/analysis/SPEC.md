@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: bc88c54b9b875392ee50305dc1a24a16d13bbb18
+generatedAtSha: 0ef093e21c2d6f9abd7859c019a1f6f003e47e09
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.4126984126984127
+  typeCoverage: 0.7142857142857143
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -69,18 +69,23 @@ export type GenerateFolderAnyError =
   | DirectiveParseError;
 ```
 
-### [`buildKnownExports`](./orchestrate.ts#L185)
+### [`buildKnownExports`](./orchestrate.ts#L195)
 
 ```ts
 export const buildKnownExports = (ctx: ProjectContext): ReadonlySet<string> => { /* ... */ }
 ```
 
-Project-wide symbol existence set. Pass through to `generateFolder` so
-`extractProperties`'s typo gate accepts cross-folder symbol references
-while still rejecting non-existent names. Compute once per `generate`
-run; reusable across folders.
+**Guarantees:**
+- "returns a ReadonlySet containing every value-bearing export name from the project's source tree, including both the exported name and any rename-declared name; computed once per generate run and reused across folders" — _\`extractProperties\`'s typo gate looks up names via this set; a misspelled name in \`@spec.exports\` must fail the gate, not silently inherit some other symbol's metadata._
 
-### [`diagnosticLines`](./checks.ts#L343)
+**Skipped property types:**
+- `Partial Roundtrip` — _a Set is the projection of a name iterator; no normalize-then-recover relation._
+- `Commutative Paths` — _single entry point; no equivalent API path produces the same set._
+- `Constant Bounds Checking` — _set size is unbounded; depends on project source count._
+- `Constant Non-Equality` — _no anti-collision invariant; two distinct projects can have overlapping export names._
+- `Exception Raising` — _total function on a fully-loaded ProjectContext; nothing inside throws._
+
+### [`diagnosticLines`](./checks.ts#L356)
 
 ```ts
 export const diagnosticLines = (
@@ -89,7 +94,16 @@ export const diagnosticLines = (
 ): ReadonlyArray<string> => /* ... */
 ```
 
-### [`computeProjectNewestMtime`](./orchestrate.ts#L345)
+**Guarantees:**
+- "returns a 5-line array: \[Tag\] header, location, cause, fix, docs link — the canonical stderr renderer for gap-class errors" — _cli's stderr output is byte-stable for downstream automation that greps the exit code + first line._
+
+**Skipped property types:**
+- `Partial Roundtrip` — _one-way formatter; no parser back from the rendered lines._
+- `Commutative Paths` — _single entry point; no equivalent renderer._
+- `Constant Non-Equality` — _distinct tag/payload pairs can produce identical lines when payload fields collide._
+- `Exception Raising` — _pure synchronous formatter; cannot fail._
+
+### [`computeProjectNewestMtime`](./orchestrate.ts#L369)
 
 ```ts
 export const computeProjectNewestMtime = (
@@ -102,7 +116,16 @@ export const computeProjectNewestMtime = (
 **Guarantees:**
 - "returns the max mtime across every project source file, every spec.test.ts discovered under each folder, and the runner/codemod config files (vitest.config.ts, safer-spec.config.json); 0 when nothing exists" — _validate's branchCoverage freshness check needs a project-wide reference; config files can shift coverage attribution without touching sources or tests._
 
-### [`generateFolder`](./orchestrate.ts#L385)
+**Skipped property types:**
+- `Roundtrip` — _reduces a file-set to a scalar; the reduction is one-way (no inverse)._
+- `Partial Roundtrip` — _no normalize-then-recover semantics; the function projects to a single number._
+- `Commutative Paths` — _single entry point; no equivalent API path produces the same mtime._
+- `Constant Equality` — _filesystem-dependent; two calls can return different numbers as files are touched._
+- `Constant Non-Equality` — _no distinct-output invariant; different inputs can produce equal mtimes when files share atimes._
+- `Inclusion` — _returns a scalar, not a collection._
+- `Exception Raising` — _typed as \`Effect of number with never error\` — error channel is \`never\` by construction._
+
+### [`generateFolder`](./orchestrate.ts#L417)
 
 ```ts
 export const generateFolder = (
@@ -115,7 +138,13 @@ export const generateFolder = (
 
 **Residual contract:** "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally" — _drift-check byte-equality contract._
 
-### [`validateFolder`](./orchestrate.ts#L423)
+**Skipped property types:**
+- `Partial Roundtrip` — _no normalize-then-recover semantics; this is an orchestrator that emits artifacts._
+- `Commutative Paths` — _single entry point; no equivalent API path produces the same artifacts._
+- `Constant Non-Equality` — _different folders can intentionally produce identical artifacts when sources collapse to the same shape (e.g., two empty folders)._
+- `Inclusion` — _returns a record of artifacts; no set/membership semantics._
+
+### [`validateFolder`](./orchestrate.ts#L465)
 
 ```ts
 export const validateFolder = (

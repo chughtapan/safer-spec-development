@@ -1,7 +1,7 @@
 ---
 folder: src/project
 format-version: 0.1.0
-generatedAtSha: bc88c54b9b875392ee50305dc1a24a16d13bbb18
+generatedAtSha: 0ef093e21c2d6f9abd7859c019a1f6f003e47e09
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.44444444444444436
+  typeCoverage: 0.6
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -28,7 +28,16 @@ Barrel for the `project/` layer. Exposes the fully-resolved `ProjectContext` sna
 
 ## Public surface
 
-### [`SPEC_FORMAT_VERSION`](./version.ts#L16)
+### [`ConfigError`](./config.ts#L18)
+
+```ts
+export class ConfigError extends Data.TaggedError("ConfigError")<{
+  readonly path: string;
+  readonly cause: string;
+}> { /* ... */ }
+```
+
+### [`SPEC_FORMAT_VERSION`](./version.ts#L26)
 
 ```ts
 export const SPEC_FORMAT_VERSION = "0.1.0" as const;
@@ -39,14 +48,12 @@ export const SPEC_FORMAT_VERSION = "0.1.0" as const;
 
 **Residual contract:** "callers must treat as opaque; cross-version comparisons go through the safer-spec-migrate skill" — _comparison logic is migrate's responsibility; the skill walks SPEC.md + sidecar artifacts during format-version transitions._
 
-### [`ConfigError`](./config.ts#L18)
-
-```ts
-export class ConfigError extends Data.TaggedError("ConfigError")<{
-  readonly path: string;
-  readonly cause: string;
-}> { /* ... */ }
-```
+**Skipped property types:**
+- `Roundtrip` — _a string constant; no encode/decode pair._
+- `Partial Roundtrip` — _a string constant; no normalize-then-recover relation._
+- `Commutative Paths` — _a constant; no alternative path to derive it._
+- `Constant Non-Equality` — _a single string value; no distinct-output invariant applies._
+- `Exception Raising` — _a constant; cannot fail._
 
 ### [`SourceFile`](./context.ts#L38)
 
@@ -122,7 +129,7 @@ export interface ProjectContext {
 }
 ```
 
-### [`loadProjectContext`](./context.ts#L321)
+### [`loadProjectContext`](./context.ts#L325)
 
 ```ts
 export const loadProjectContext = (
@@ -136,6 +143,10 @@ export const loadProjectContext = (
 - "loads project-wide context (every non-test \`.ts\` under \`root\`, tsconfig \`paths\`, git HEAD SHA, \`safer-spec.config.json\`); the returned ProjectContext precomputes folder discovery and per-folder thresholds so downstream layers READ from the snapshot instead of re-walking the project tree per folder" — _ts-morph cannot follow \`export ... from\` without target files registered; precomputing folder structure removes O(N²) re-discovery in the per-folder loops._
 
 **Residual contract:** "missing tsconfig.json yields empty \`paths\`; missing \`.git/HEAD\` yields \`generatedAtSha = 'uncommitted'\`; missing safer-spec.config.json yields permissive all-zero thresholds; root defaults to the cwd-relative \\".\\"" — _projects without aliases, git history, or per-folder gate configuration still load with no false failures._
+
+**Skipped property types:**
+- `Partial Roundtrip` — _loader-only; no \`serializeProjectContext\` companion._
+- `Commutative Paths` — _single entry point; no equivalent API path yields the same context._
 
 ## Children
 

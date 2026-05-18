@@ -1,47 +1,8 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/project",
-  "generatedAtSha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18",
+  "generatedAtSha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09",
   "exports": [
-    {
-      "name": "SPEC_FORMAT_VERSION",
-      "shape": "unknown",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Typechecking",
-        "Inclusion"
-      ],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "some",
-        "body": "callers must treat as opaque; cross-version comparisons go through the safer-spec-migrate skill",
-        "reason": "comparison logic is migrate's responsibility; the skill walks SPEC.md + sidecar artifacts during format-version transitions."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "value is a stable string literal across all calls within one process",
-          "reason": "declared `as const` in source; re-evaluation cannot drift."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/project/version.ts",
-        "line": 16,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
-      }
-    },
     {
       "name": "ConfigError",
       "shape": "type",
@@ -68,7 +29,62 @@
       "sourceRef": {
         "path": "src/project/config.ts",
         "line": 18,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+      }
+    },
+    {
+      "name": "SPEC_FORMAT_VERSION",
+      "shape": "unknown",
+      "requiredPropertyTypes": [
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Typechecking",
+        "Inclusion"
+      ],
+      "observedPropertyTypes": [
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Typechecking",
+        "Inclusion"
+      ],
+      "skipped": [
+        {
+          "propertyType": "Roundtrip",
+          "reason": "a string constant; no encode/decode pair."
+        },
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "a string constant; no normalize-then-recover relation."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "a constant; no alternative path to derive it."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "a single string value; no distinct-output invariant applies."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "a constant; cannot fail."
+        }
+      ],
+      "residualContract": {
+        "_tag": "some",
+        "body": "callers must treat as opaque; cross-version comparisons go through the safer-spec-migrate skill",
+        "reason": "comparison logic is migrate's responsibility; the skill walks SPEC.md + sidecar artifacts during format-version transitions."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "value is a stable string literal across all calls within one process",
+          "reason": "declared `as const` in source; re-evaluation cannot drift."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/project/version.ts",
+        "line": 26,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -83,7 +99,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 38,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -112,7 +128,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 43,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -141,7 +157,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 48,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -156,7 +172,7 @@
       "sourceRef": {
         "path": "src/project/config.ts",
         "line": 51,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -171,7 +187,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 52,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -179,8 +195,6 @@
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
         "Constant Bounds Checking",
         "Constant Non-Equality",
@@ -197,7 +211,16 @@
         "Constant Bounds Checking",
         "Roundtrip"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "loader-only; no `serializeProjectContext` companion."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point; no equivalent API path yields the same context."
+        }
+      ],
       "residualContract": {
         "_tag": "some",
         "body": "missing tsconfig.json yields empty `paths`; missing `.git/HEAD` yields `generatedAtSha = 'uncommitted'`; missing safer-spec.config.json yields permissive all-zero thresholds; root defaults to the cwd-relative \\\".\\\"",
@@ -212,13 +235,13 @@
       ],
       "sourceRef": {
         "path": "src/project/context.ts",
-        "line": 321,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 325,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.44444444444444436
+    "typeCoverage": 0.6
   },
   "thresholds": {
     "typeCoverage": 0.4,

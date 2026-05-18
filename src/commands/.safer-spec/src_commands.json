@@ -1,20 +1,16 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/commands",
-  "generatedAtSha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18",
+  "generatedAtSha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09",
   "exports": [
     {
       "name": "CliExitCode",
       "shape": "type",
       "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
         "Constant Bounds Checking",
         "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
         "Exception Raising"
       ],
       "observedPropertyTypes": [
@@ -24,28 +20,46 @@
         "Constant Equality",
         "Exception Raising"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Roundtrip",
+          "reason": "an error class carrying an integer; no encode/decode pair."
+        },
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "no normalize-then-recover relation."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "a single tagged-error class; no alternative path constructs it."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "not a collection."
+        }
+      ],
       "residualContract": null,
       "residualAssumes": [],
-      "residualGuarantees": [],
+      "residualGuarantees": [
+        {
+          "claim": "carries a POSIX exit code in `.code`; the runtime boundary unwraps it via `process.exit(code)`",
+          "reason": "cli-final translation of validation outcomes to OS-visible signals."
+        }
+      ],
       "sourceRef": {
         "path": "src/commands/index.ts",
-        "line": 46,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 58,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
       "name": "CliUsageError",
       "shape": "type",
       "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
         "Constant Bounds Checking",
         "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
         "Exception Raising"
       ],
       "observedPropertyTypes": [
@@ -55,19 +69,41 @@
         "Exception Raising",
         "Constant Equality"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Roundtrip",
+          "reason": "a tagged-error class; no encode/decode pair."
+        },
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "no normalize-then-recover relation."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "a single tagged-error class; no alternative path constructs it."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "not a collection."
+        }
+      ],
       "residualContract": null,
       "residualAssumes": [],
-      "residualGuarantees": [],
+      "residualGuarantees": [
+        {
+          "claim": "carries the offending subcommand and a human-readable reason; routed to POSIX exit code 2 (usage error)",
+          "reason": "cli convention; downstream automation greps the tag and the subcommand name."
+        }
+      ],
       "sourceRef": {
         "path": "src/commands/index.ts",
-        "line": 50,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 75,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.5555555555555556
+    "typeCoverage": 1
   },
   "thresholds": {
     "typeCoverage": 0.4,

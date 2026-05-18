@@ -23,6 +23,14 @@
  *   reason: per-repo `propertyTypesExtension` appends only; never reorders.
  * @spec.residual-contract none
  *   reason: shape captured by `as const` tuple.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: a constant tuple; no encode/decode pair.
+ * @spec.skip "Commutative Paths"
+ *   reason: a constant; no alternative path to derive it.
+ * @spec.skip "Constant Equality"
+ *   reason: handled by Roundtrip — calling the constant twice trivially returns the same value.
+ * @spec.skip "Exception Raising"
+ *   reason: a constant; cannot fail.
  */
 export const PROPERTY_TYPES = [
   "Roundtrip",

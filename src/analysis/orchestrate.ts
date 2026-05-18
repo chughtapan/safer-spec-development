@@ -177,10 +177,20 @@ const parseTests = (
   });
 
 /**
- * Project-wide symbol existence set. Pass through to `generateFolder` so
- * `extractProperties`'s typo gate accepts cross-folder symbol references
- * while still rejecting non-existent names. Compute once per `generate`
- * run; reusable across folders.
+ * @spec.guarantee "returns a ReadonlySet containing every value-bearing export name from the project's source tree, including both the exported name and any rename-declared name; computed once per generate run and reused across folders"
+ *   reason: `extractProperties`'s typo gate looks up names via this set;
+ *           a misspelled name in `@spec.exports` must fail the gate, not
+ *           silently inherit some other symbol's metadata.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: a Set is the projection of a name iterator; no normalize-then-recover relation.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point; no equivalent API path produces the same set.
+ * @spec.skip "Constant Bounds Checking"
+ *   reason: set size is unbounded; depends on project source count.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: no anti-collision invariant; two distinct projects can have overlapping export names.
+ * @spec.skip "Exception Raising"
+ *   reason: total function on a fully-loaded ProjectContext; nothing inside throws.
  */
 export const buildKnownExports = (ctx: ProjectContext): ReadonlySet<string> => {
   const out = new Set<string>();
@@ -341,6 +351,20 @@ const newestFileMtime = (
  *   reason: validate's branchCoverage freshness check needs a
  *           project-wide reference; config files can shift coverage
  *           attribution without touching sources or tests.
+ * @spec.skip "Roundtrip"
+ *   reason: reduces a file-set to a scalar; the reduction is one-way (no inverse).
+ * @spec.skip "Partial Roundtrip"
+ *   reason: no normalize-then-recover semantics; the function projects to a single number.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point; no equivalent API path produces the same mtime.
+ * @spec.skip "Constant Equality"
+ *   reason: filesystem-dependent; two calls can return different numbers as files are touched.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: no distinct-output invariant; different inputs can produce equal mtimes when files share atimes.
+ * @spec.skip "Inclusion"
+ *   reason: returns a scalar, not a collection.
+ * @spec.skip "Exception Raising"
+ *   reason: typed as `Effect of number with never error` — error channel is `never` by construction.
  */
 export const computeProjectNewestMtime = (
   fs: FileSystem.FileSystem,
@@ -381,6 +405,14 @@ const driftMetaFor = (
  *   reason: separation of pipeline (here) from I/O policy (commands/).
  * @spec.residual-contract "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally"
  *   reason: drift-check byte-equality contract.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: no normalize-then-recover semantics; this is an orchestrator that emits artifacts.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point; no equivalent API path produces the same artifacts.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: different folders can intentionally produce identical artifacts when sources collapse to the same shape (e.g., two empty folders).
+ * @spec.skip "Inclusion"
+ *   reason: returns a record of artifacts; no set/membership semantics.
  */
 export const generateFolder = (
   args: GenerateFolderArgs,
@@ -405,6 +437,16 @@ export const generateFolder = (
  * @spec.residual-contract "in `--implemented` mode, a Vitest execution sidecar must already exist on disk for the folder; absence is reported as MissingImplError"
  *   reason: implementation-tier gate; planned-mode doesn't read execution
  *           sidecars at all.
+ * @spec.skip "Roundtrip"
+ *   reason: validate is a gate, not a transform; no encode/decode pair.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: no normalize-then-recover semantics; validate either succeeds or fails on a tagged error.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point; no equivalent API path for the same gate decision.
+ * @spec.skip "Constant Bounds Checking"
+ *   reason: returns a folder string (success) or a tagged error; no numeric/length bound.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: different folders can pass the gate identically (same folder string return); no anti-collision invariant.
  */
 export interface ValidateFolderArgs {
   readonly fs: FileSystem.FileSystem;

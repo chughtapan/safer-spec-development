@@ -1,21 +1,16 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/grammar",
-  "generatedAtSha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18",
+  "generatedAtSha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09",
   "exports": [
     {
       "name": "DIRECTIVE_BODY_MAX_CHARS",
       "shape": "unknown",
       "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
         "Constant Bounds Checking",
-        "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
-        "Exception Raising"
+        "Inclusion"
       ],
       "observedPropertyTypes": [
         "Constant Equality",
@@ -23,14 +18,40 @@
         "Typechecking",
         "Inclusion"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Roundtrip",
+          "reason": "numeric constant; no encode/decode pair."
+        },
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "numeric constant; no normalize-then-recover relation."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "constant value; no alternative path to derive it."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "a single constant value; no distinct-output invariant applies."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "a constant; cannot fail."
+        }
+      ],
       "residualContract": null,
       "residualAssumes": [],
-      "residualGuarantees": [],
+      "residualGuarantees": [
+        {
+          "claim": "the value is 500 — the documented trust-boundary cap on directive bodies (assume/guarantee/residual-contract/skip reasons/claim) routed as agent context",
+          "reason": "stable across the codemod and downstream consumers; the cap is enforced by the `Capped` schema in the same file."
+        }
+      ],
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
-        "line": 17,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 27,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -38,14 +59,10 @@
       "shape": "unknown",
       "requiredPropertyTypes": [
         "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
         "Constant Bounds Checking",
         "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
-        "Exception Raising"
+        "Inclusion"
       ],
       "observedPropertyTypes": [
         "Typechecking",
@@ -53,7 +70,24 @@
         "Constant Non-Equality",
         "Roundtrip"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "a constant tuple; no encode/decode pair."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "a constant; no alternative path to derive it."
+        },
+        {
+          "propertyType": "Constant Equality",
+          "reason": "handled by Roundtrip — calling the constant twice trivially returns the same value."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "a constant; cannot fail."
+        }
+      ],
       "residualContract": {
         "_tag": "none",
         "reason": "shape captured by `as const` tuple."
@@ -67,8 +101,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
-        "line": 27,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 35,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -97,8 +131,23 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
-        "line": 28,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 38,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+      }
+    },
+    {
+      "name": "PropertyType",
+      "shape": "type",
+      "requiredPropertyTypes": [],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/grammar/property-types.ts",
+        "line": 47,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -127,23 +176,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
-        "line": 38,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
-      }
-    },
-    {
-      "name": "PropertyType",
-      "shape": "type",
-      "requiredPropertyTypes": [],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/grammar/property-types.ts",
-        "line": 39,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 48,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -172,8 +206,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
-        "line": 47,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 57,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -188,7 +222,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 69,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -203,19 +237,15 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 89,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
       "name": "parseFileDirectives",
       "shape": "function",
       "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
         "Constant Bounds Checking",
-        "Constant Non-Equality",
         "Typechecking",
         "Inclusion",
         "Exception Raising"
@@ -227,7 +257,24 @@
         "Constant Equality",
         "Inclusion"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Roundtrip",
+          "reason": "parser-only; no `unparseDirectives` companion (SPEC.md is emitted by `emitMarkdown`, not from raw directives)."
+        },
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "source comments carry formatting (indentation, line breaks) the parser intentionally normalizes away; no partial-recover relation."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point; no alternative API yields the same directive list."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "two distinct sources can intentionally produce identical directive lists (e.g., whitespace-only diffs)."
+        }
+      ],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [
@@ -238,13 +285,13 @@
       ],
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
-        "line": 284,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 292,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.46296296296296297
+    "typeCoverage": 0.7037037037037037
   },
   "thresholds": {
     "typeCoverage": 0.4,

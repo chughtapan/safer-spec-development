@@ -39,6 +39,18 @@ interface SidecarWritePayload {
  *   reason: single source of truth for the sidecar slug across generate, validate, and reporter. Three call sites previously inlined this logic; agreement is the contract.
  * @spec.residual-contract none
  *   reason: pure transformation captured by signature.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: no normalization-with-preservation semantics; this is a one-way name flattening.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point; no alternative API path produces the same slug.
+ * @spec.skip "Constant Bounds Checking"
+ *   reason: output length is bounded by input length and not gated; no numeric/length contract.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct folder strings can intentionally collapse to the same slug (`foo/bar` and `foo_bar` both map to `foo_bar`); no anti-collision guarantee.
+ * @spec.skip "Inclusion"
+ *   reason: returns a single string, not a collection; no membership relation.
+ * @spec.skip "Exception Raising"
+ *   reason: total function on string input; cannot fail.
  */
 export const sidecarSlug = (folder: string): string => {
   if (folder === ".") return "root";
@@ -72,6 +84,16 @@ export const serializeSidecar = (
  * @spec.guarantee "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; a `SidecarSchemaError` here is a defect (the artifact came from our own emitter)"
  *   reason: validate's sidecar-drift cross-check needs the byte-for-byte
  *           regenerated form; the schema must succeed on artifacts we emit.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: writer-only; the symmetric path is `decodeSpecArtifact`.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point.
+ * @spec.skip "Constant Equality"
+ *   reason: output JSON byte sequence depends on the `generatedAtSha` carried in meta; not a constant.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct (analysis, meta) inputs can produce identical sidecars when the captured fields collapse.
+ * @spec.skip "Exception Raising"
+ *   reason: typed `Effect of string with never error` — internal schema errors die rather than failing the channel.
  */
 export const regenerateSidecar = (
   analysis: FolderAnalysis,

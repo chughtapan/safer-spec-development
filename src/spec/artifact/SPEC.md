@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: bc88c54b9b875392ee50305dc1a24a16d13bbb18
+generatedAtSha: 0ef093e21c2d6f9abd7859c019a1f6f003e47e09
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.4444444444444444
+  typeCoverage: 0.9876543209876544
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -49,17 +49,6 @@ export type ExportKind =
   | "other";
 ```
 
-### [`sidecarSlug`](./sidecar-writer.ts#L43)
-
-```ts
-export const sidecarSlug = (folder: string): string => { /* ... */ }
-```
-
-**Guarantees:**
-- "folder \`.\` maps to \`\\"root\\"\`; folders with \`/\` or \`\\\\\` are coalesced into a single-segment slug with \`\_\` separators; otherwise the folder string is returned unchanged after stripping leading \`./\`" — _single source of truth for the sidecar slug across generate, validate, and reporter. Three call sites previously inlined this logic; agreement is the contract._
-
-**Residual contract:** none — _pure transformation captured by signature._
-
 ### [`ExportEntry`](./emit.ts#L47)
 
 ```ts
@@ -79,7 +68,26 @@ export interface ExportEntry {
 }
 ```
 
-### [`buildSpecMeta`](./coverage.ts#L51)
+### [`sidecarSlug`](./sidecar-writer.ts#L55)
+
+```ts
+export const sidecarSlug = (folder: string): string => { /* ... */ }
+```
+
+**Guarantees:**
+- "folder \`.\` maps to \`\\"root\\"\`; folders with \`/\` or \`\\\\\` are coalesced into a single-segment slug with \`\_\` separators; otherwise the folder string is returned unchanged after stripping leading \`./\`" — _single source of truth for the sidecar slug across generate, validate, and reporter. Three call sites previously inlined this logic; agreement is the contract._
+
+**Residual contract:** none — _pure transformation captured by signature._
+
+**Skipped property types:**
+- `Partial Roundtrip` — _no normalization-with-preservation semantics; this is a one-way name flattening._
+- `Commutative Paths` — _single entry point; no alternative API path produces the same slug._
+- `Constant Bounds Checking` — _output length is bounded by input length and not gated; no numeric/length contract._
+- `Constant Non-Equality` — _distinct folder strings can intentionally collapse to the same slug (\`foo/bar\` and \`foo\_bar\` both map to \`foo\_bar\`); no anti-collision guarantee._
+- `Inclusion` — _returns a single string, not a collection; no membership relation._
+- `Exception Raising` — _total function on string input; cannot fail._
+
+### [`buildSpecMeta`](./coverage.ts#L57)
 
 ```ts
 export const buildSpecMeta = (
@@ -92,6 +100,11 @@ export const buildSpecMeta = (
 - "builds a \`SpecMeta\` from analysis-derived type coverage + run-level args (generatedAtSha, thresholds); populates classifierCoverage/preconditionPassRate/branchCoverageFromSpecTests from \`execution\` when present" — _emit's frontmatter + sidecar both require meta; \`--implemented\` mode merges Vitest reporter stats into the gate inputs._
 
 **Residual contract:** "branchCoverageFromSpecTests is null when coverage-summary.json is absent or inconsistent with the folder's source files (loud-fail signal for the gate); never null after a clean pnpm test --coverage run" — _lifecycle contract; null is the gate's only stale-data channel because v8 reports per-file totals, not per-test._
+
+**Skipped property types:**
+- `Partial Roundtrip` — _pure builder; no partial-recover relation back from SpecMeta to analysis + args._
+- `Commutative Paths` — _single entry point; no equivalent API yields the same SpecMeta._
+- `Exception Raising` — _pure synchronous transformation; cannot fail._
 
 ### [`PropertyRow`](./emit.ts#L62)
 
@@ -106,7 +119,7 @@ export interface PropertyRow {
 }
 ```
 
-### [`ThresholdShortfall`](./coverage.ts#L69)
+### [`ThresholdShortfall`](./coverage.ts#L75)
 
 ```ts
 export interface ThresholdShortfall {
@@ -116,18 +129,6 @@ export interface ThresholdShortfall {
   readonly missingPropertyTypes: ReadonlyArray<string>;
 }
 ```
-
-### [`regenerateSidecar`](./sidecar-writer.ts#L76)
-
-```ts
-export const regenerateSidecar = (
-  analysis: FolderAnalysis,
-  meta: SpecMeta,
-): Effect.Effect<string, never> => /* ... */
-```
-
-**Guarantees:**
-- "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; a \`SidecarSchemaError\` here is a defect (the artifact came from our own emitter)" — _validate's sidecar-drift cross-check needs the byte-for-byte regenerated form; the schema must succeed on artifacts we emit._
 
 ### [`FolderAnalysis`](./emit.ts#L80)
 
@@ -146,7 +147,26 @@ export interface FolderAnalysis {
 }
 ```
 
-### [`findThresholdShortfall`](./coverage.ts#L94)
+### [`regenerateSidecar`](./sidecar-writer.ts#L98)
+
+```ts
+export const regenerateSidecar = (
+  analysis: FolderAnalysis,
+  meta: SpecMeta,
+): Effect.Effect<string, never> => /* ... */
+```
+
+**Guarantees:**
+- "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; a \`SidecarSchemaError\` here is a defect (the artifact came from our own emitter)" — _validate's sidecar-drift cross-check needs the byte-for-byte regenerated form; the schema must succeed on artifacts we emit._
+
+**Skipped property types:**
+- `Partial Roundtrip` — _writer-only; the symmetric path is \`decodeSpecArtifact\`._
+- `Commutative Paths` — _single entry point._
+- `Constant Equality` — _output JSON byte sequence depends on the \`generatedAtSha\` carried in meta; not a constant._
+- `Constant Non-Equality` — _distinct (analysis, meta) inputs can produce identical sidecars when the captured fields collapse._
+- `Exception Raising` — _typed \`Effect of string with never error\` — internal schema errors die rather than failing the channel._
+
+### [`findThresholdShortfall`](./coverage.ts#L108)
 
 ```ts
 export const findThresholdShortfall = (
@@ -159,6 +179,12 @@ export const findThresholdShortfall = (
 - "returns the first observed-below-threshold metric (typeCoverage to precondition order) or null when all gates pass" — _validate emits one MissingImplError per folder; first failing gate is the surfaced one._
 
 **Residual contract:** "metrics whose threshold is 0 are not gated regardless of observed value" — _zero-threshold is the explicit no-gate marker used by the permissive default config._
+
+**Skipped property types:**
+- `Partial Roundtrip` — _classifier-only; no recover-from-shortfall semantics._
+- `Commutative Paths` — _single entry point; no equivalent API yields the same shortfall record._
+- `Constant Non-Equality` — _distinct (analysis, meta) inputs can produce identical shortfalls or both-null outcomes._
+- `Exception Raising` — _pure synchronous function; cannot fail._
 
 ### [`SpecMeta`](./emit.ts#L187)
 
@@ -186,7 +212,7 @@ export interface SpecMeta {
 }
 ```
 
-### [`computeTestTreeHash`](./reporter.ts#L221)
+### [`computeTestTreeHash`](./reporter.ts#L233)
 
 ```ts
 export const computeTestTreeHash = (
@@ -200,7 +226,15 @@ export const computeTestTreeHash = (
 
 **Residual contract:** "unreadable test files contribute the empty string to the hash; the reporter applies the same convention so a transient read failure doesn't poison the hash" — _byte-equality contract; missing-file -&gt; empty-bytes._
 
-### [`emitMarkdown`](./emit.ts#L249)
+**Skipped property types:**
+- `Partial Roundtrip` — _cryptographic hash is one-way by design; no inverse._
+- `Commutative Paths` — _single entry point; no equivalent API yields the same hash._
+- `Constant Bounds Checking` — _hash length is bounded by the digest algorithm and not gated as a property._
+- `Constant Non-Equality` — _hash collisions are theoretically possible (different inputs → same digest) and intentionally not gated._
+- `Inclusion` — _returns a scalar string, not a collection._
+- `Exception Raising` — _typed \`Effect of string with never error\` — error channel is \`never\` by construction; read failures absorb to empty strings._
+
+### [`emitMarkdown`](./emit.ts#L259)
 
 ```ts
 export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* ... */ }
@@ -211,7 +245,14 @@ export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => { /* 
 
 **Residual contract:** "internal section ordering is fixed: Purpose → Public Surface → Files → Properties" — _behavioral contract beyond the FolderAnalysis shape._
 
-### [`loadBranchCoverage`](./reporter.ts#L254)
+**Skipped property types:**
+- `Partial Roundtrip` — _emitter-only; no companion parser back from rendered markdown._
+- `Commutative Paths` — _single entry point._
+- `Constant Non-Equality` — _distinct (analysis, meta) inputs can produce identical markdown when fields collapse._
+- `Typechecking` — _pure synchronous function returning string; the FolderAnalysis / SpecMeta shapes are the type contract._
+- `Exception Raising` — _pure synchronous transformation; cannot fail._
+
+### [`loadBranchCoverage`](./reporter.ts#L276)
 
 ```ts
 export const loadBranchCoverage = (
@@ -227,7 +268,14 @@ export const loadBranchCoverage = (
 
 **Residual contract:** "spec-test attribution holds only if coverage-summary.json came from a vitest run restricted to \*.spec.test.ts files; this repo enforces it via vitest.config.ts test.include" — _v8 coverage attributes per-file, not per-test; without the include narrowing the aggregate would credit ordinary tests toward branchCoverageFromSpecTests._
 
-### [`buildSpecArtifact`](./emit.ts#L315)
+**Skipped property types:**
+- `Roundtrip` — _reader-only; no companion writer that takes a ratio back to a coverage-summary.json._
+- `Partial Roundtrip` — _aggregates many file-level numbers to a single scalar; no partial-recover relation._
+- `Commutative Paths` — _single entry point; no equivalent API yields the same ratio._
+- `Constant Non-Equality` — _distinct folders can intentionally produce identical ratios._
+- `Inclusion` — _returns a scalar (or null), not a collection._
+
+### [`buildSpecArtifact`](./emit.ts#L333)
 
 ```ts
 export const buildSpecArtifact = (
@@ -241,7 +289,13 @@ export const buildSpecArtifact = (
 
 **Residual contract:** "fields the codemod cannot yet compute (e.g. per-export sourceRef.sha) reuse \`meta.generatedAtSha\` as the closest stable identifier" — _per-line blame would require a separate git pass; the run-level SHA is a sound default for now._
 
-### [`loadExecutionSidecar`](./reporter.ts#L381)
+**Skipped property types:**
+- `Partial Roundtrip` — _builder-only; the decode side is \`decodeSpecArtifact\`._
+- `Commutative Paths` — _single entry point._
+- `Constant Bounds Checking` — _the artifact carries an exports array whose length is unbounded by intent; no numeric bound to gate._
+- `Exception Raising` — _pure synchronous transformation; cannot fail._
+
+### [`loadExecutionSidecar`](./reporter.ts#L415)
 
 ```ts
 export const loadExecutionSidecar = (
@@ -253,6 +307,14 @@ export const loadExecutionSidecar = (
 
 **Guarantees:**
 - "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through \`ExecutionSidecarSchema\`; returns null when absent or malformed" — _validate's \`--implemented\` gate consumes the coverage values; absence is surfaced separately as a typed gap error._
+
+**Skipped property types:**
+- `Roundtrip` — _reader-only; writer side lives in the Vitest reporter (\`onTestRunEnd\`), not this function._
+- `Partial Roundtrip` — _decode is total; no normalize-then-recover relation._
+- `Commutative Paths` — _single entry point._
+- `Constant Bounds Checking` — _sidecar shape (object | null) is not numeric; no bound to gate._
+- `Constant Non-Equality` — _distinct folders can intentionally produce identical sidecars (e.g., two folders with the same property set and stats)._
+- `Inclusion` — _returns an object or null, not a collection._
 
 ## Children
 

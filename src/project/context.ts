@@ -317,6 +317,10 @@ const readGitSha = (
  * @spec.residual-contract "missing tsconfig.json yields empty `paths`; missing `.git/HEAD` yields `generatedAtSha = 'uncommitted'`; missing safer-spec.config.json yields permissive all-zero thresholds; root defaults to the cwd-relative \".\""
  *   reason: projects without aliases, git history, or per-folder gate
  *           configuration still load with no false failures.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: loader-only; no `serializeProjectContext` companion.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point; no equivalent API path yields the same context.
  */
 export const loadProjectContext = (
   fs: FileSystem.FileSystem,
