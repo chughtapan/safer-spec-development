@@ -273,3 +273,103 @@ itSpec.prop(
     ),
 );
 
+
+/**
+ * @spec.property parse-property-rejects-empty-id
+ * @spec.type Exception Raising
+ * @spec.exports parseFileDirectives
+ * @spec.claim `@spec.property` with empty body fails parse — property ids must be non-empty so cross-check has something to match against
+ */
+itSpec.prop(
+  "parse-property-rejects-empty-id",
+  { type: "Exception Raising", exports: [parseFileDirectives] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const src = [
+          `/**`,
+          ` * @spec.property `,
+          ` */`,
+          `itSpec.todo("x", { type: "Roundtrip", exports: [x] });`,
+        ].join("\n");
+        const exit = yield* Effect.exit(parseFileDirectives("test.spec.test.ts", src));
+        yield* expectFailureWithTag(exit, "JsDocDirectiveParseError");
+      }),
+    ),
+);
+
+/**
+ * @spec.property parse-type-rejects-unknown-property-type
+ * @spec.type Exception Raising
+ * @spec.exports parseFileDirectives
+ * @spec.claim `@spec.type` with a value outside `PROPERTY_TYPES` fails parse — the closed grammar rejects ad-hoc strings
+ */
+itSpec.prop(
+  "parse-type-rejects-unknown-property-type",
+  { type: "Exception Raising", exports: [parseFileDirectives] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const src = [
+          `/**`,
+          ` * @spec.type NotARealPropertyType`,
+          ` */`,
+          `itSpec.todo("x", { type: "NotARealPropertyType", exports: [x] });`,
+        ].join("\n");
+        const exit = yield* Effect.exit(parseFileDirectives("test.spec.test.ts", src));
+        yield* expectFailureWithTag(exit, "JsDocDirectiveParseError");
+      }),
+    ),
+);
+
+/**
+ * @spec.property parse-exports-rejects-empty-list
+ * @spec.type Exception Raising
+ * @spec.exports parseFileDirectives
+ * @spec.claim `@spec.exports` with no symbol names fails parse — at least one export name is required
+ */
+itSpec.prop(
+  "parse-exports-rejects-empty-list",
+  { type: "Exception Raising", exports: [parseFileDirectives] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const src = [
+          `/**`,
+          ` * @spec.exports `,
+          ` */`,
+          `itSpec.todo("x", { type: "Roundtrip", exports: [] });`,
+        ].join("\n");
+        const exit = yield* Effect.exit(parseFileDirectives("test.spec.test.ts", src));
+        yield* expectFailureWithTag(exit, "JsDocDirectiveParseError");
+      }),
+    ),
+);
+
+/**
+ * @spec.property parse-claim-rejects-empty-body
+ * @spec.type Exception Raising
+ * @spec.exports parseFileDirectives
+ * @spec.claim `@spec.claim` with empty body fails parse — claims are the SPEC.md row text and cannot be empty
+ */
+itSpec.prop(
+  "parse-claim-rejects-empty-body",
+  { type: "Exception Raising", exports: [parseFileDirectives] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const src = [
+          `/**`,
+          ` * @spec.claim `,
+          ` */`,
+          `itSpec.todo("x", { type: "Roundtrip", exports: [x] });`,
+        ].join("\n");
+        const exit = yield* Effect.exit(parseFileDirectives("test.spec.test.ts", src));
+        yield* expectFailureWithTag(exit, "JsDocDirectiveParseError");
+      }),
+    ),
+);
