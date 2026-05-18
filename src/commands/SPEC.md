@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: 5a241b0acc0e61eb13be108f6977411c737fbeb4
+generatedAtSha: bc88c54b9b875392ee50305dc1a24a16d13bbb18
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -86,6 +86,7 @@ export class CliUsageError extends Data.TaggedError("CliUsageError")<{
 | `generate-dryrun-yields-folders-touched` | `Inclusion` | `generate` | \`generate({folder: Some("src/spec/grammar"), dryRun: true})\` succeeds with \`foldersTouched\` containing the requested folder and \`filesWritten\` empty — the dry-run branch logs without touching disk | implemented |
 | `generate-watch-mode-fails-fast` | `Exception Raising` | `generate` | \`generate({watch: true})\` fails with a \`GenerateFolderError\` whose reason names "--watch not yet implemented" — the cli's watch flag is documented but unimplemented, so the failure mode is loud | implemented |
 | `generate-bogus-folder-fails-with-folder-not-found` | `Exception Raising` | `generate` | \`generate({folder: Some("\_\_bogus\_\_")})\` fails with a \`FolderNotFoundError\` carrying the user's requested string — the cli's exit-1 path | implemented |
+| `generate-write-mode-writes-spec-and-sidecar` | `Inclusion` | `generate` | \`generate({write: true})\` succeeds with \`filesWritten\` containing both the SPEC.md and the sidecar JSON path — drives the writeArtifacts branch absent from the dry-run path | implemented |
 | `cli-exit-code-bounded-by-posix-range` | `Constant Bounds Checking` | `CliExitCode` | \`CliExitCode.code\` accepts any number in \`\[0, 255\]\` — the POSIX exit-code range; values outside this range get truncated by the OS at \`process.exit(code)\` time | implemented |
 | `cli-exit-code-non-equal-codes` | `Constant Non-Equality` | `CliExitCode` | two \`CliExitCode\` instances with different \`code\` values expose different \`code\` fields — no payload aliasing across instances | implemented |
 | `cli-exit-code-typecheck` | `Typechecking` | `CliExitCode` | \`CliExitCode\` instances extend \`Error\` and expose \`code\` as a \`number\` — the runtime shape \`process.exit(e.code)\` consumes at the cli boundary | implemented |

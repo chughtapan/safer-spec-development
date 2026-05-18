@@ -1,7 +1,7 @@
 ---
 folder: src/spec/grammar
 format-version: 0.1.0
-generatedAtSha: 5a241b0acc0e61eb13be108f6977411c737fbeb4
+generatedAtSha: bc88c54b9b875392ee50305dc1a24a16d13bbb18
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -179,6 +179,10 @@ export const parseFileDirectives = (
 | `parser-accepts-bare-newline-reason-form` | `Inclusion` | `parseFileDirectives` | the multi-line form \`\* \\@spec.guarantee "x"\\n\* reason: y\` (no horizontal whitespace before \`reason:\`) parses successfully — head and reason split exactly as in the inline / indented forms | implemented |
 | `parser-binds-member-directives-to-containing-export` | `Constant Equality` | `parseFileDirectives` | a \`@spec.assume\`/\`@spec.guarantee\` JSDoc on an interface method / property signature / class member binds to the enclosing exportable declaration, not the member itself | implemented |
 | `parser-routes-aliased-reexport-directives-to-public-name` | `Constant Equality` | `parseFileDirectives` | JSDoc directives on \`foo\` reach the export entry keyed by the public alias \`bar\` when the barrel re-exports as \`export { foo as bar }\`; \`@spec.ignore-export foo\` also drops the aliased export | implemented |
+| `parse-property-rejects-empty-id` | `Exception Raising` | `parseFileDirectives` | \`@spec.property\` with empty body fails parse — property ids must be non-empty so cross-check has something to match against | implemented |
+| `parse-type-rejects-unknown-property-type` | `Exception Raising` | `parseFileDirectives` | \`@spec.type\` with a value outside \`PROPERTY\_TYPES\` fails parse — the closed grammar rejects ad-hoc strings | implemented |
+| `parse-exports-rejects-empty-list` | `Exception Raising` | `parseFileDirectives` | \`@spec.exports\` with no symbol names fails parse — at least one export name is required | implemented |
+| `parse-claim-rejects-empty-body` | `Exception Raising` | `parseFileDirectives` | \`@spec.claim\` with empty body fails parse — claims are the SPEC.md row text and cannot be empty | implemented |
 | `directive-body-max-chars-typechecks-as-number` | `Typechecking` | `DIRECTIVE\_BODY\_MAX\_CHARS` | \`DIRECTIVE\_BODY\_MAX\_CHARS\` is a \`number\` literal — the typed const directive parsers compare body lengths against | implemented |
 | `directive-body-max-chars-bounded-range` | `Inclusion` | `DIRECTIVE\_BODY\_MAX\_CHARS` | the cap sits in the practical range 100..2000 — caps below 100 disable expressive prose; caps above 2000 invite an editor-window-breaking diagnostic that authors won't read | implemented |
 | `property-types-bounded-by-paper-rounding` | `Constant Bounds Checking` | `PROPERTY\_TYPES` | \`PROPERTY\_TYPES.length\` stays in 8..12 — the OOPSLA paper's 9-category vocabulary is the documented target; future per-repo extensions append a few more, never reduce | implemented |

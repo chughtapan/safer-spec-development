@@ -162,3 +162,46 @@ itSpec.prop(
       ),
     ),
 );
+
+// Drive writeArtifacts by running generate() against a real folder with
+// write=true. The reporter sidecars and SPEC.md it rewrites are
+// idempotent on unchanged source — the same operation `pnpm safer-spec
+// generate --write` does in CI before validate.
+const GENERATE_WRITE_EXIT = await Effect.runPromise(
+  Effect.exit(
+    generate({
+      folder: Option.some("src/spec/grammar"),
+      write: true,
+      dryRun: false,
+      watch: false,
+    }).pipe(Effect.provide(NodeContext.layer)),
+  ),
+);
+
+/**
+ * @spec.property generate-write-mode-writes-spec-and-sidecar
+ * @spec.type Inclusion
+ * @spec.exports generate
+ * @spec.claim `generate({write: true})` succeeds with `filesWritten` containing both the SPEC.md and the sidecar JSON path — drives the writeArtifacts branch absent from the dry-run path
+ */
+itSpec.prop(
+  "generate-write-mode-writes-spec-and-sidecar",
+  { type: "Inclusion", exports: [generate] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        yield* failIf(!Exit.isSuccess(GENERATE_WRITE_EXIT), `write mode should succeed`);
+        if (!Exit.isSuccess(GENERATE_WRITE_EXIT)) return;
+        const result = GENERATE_WRITE_EXIT.value;
+        yield* failIf(
+          !result.filesWritten.some((p) => p.endsWith("SPEC.md")),
+          `expected SPEC.md in filesWritten; got ${JSON.stringify(result.filesWritten)}`,
+        );
+        yield* failIf(
+          !result.filesWritten.some((p) => p.endsWith(".json")),
+          `expected sidecar JSON in filesWritten`,
+        );
+      }),
+    ),
+);
