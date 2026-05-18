@@ -340,6 +340,19 @@ export const failOnIssues = (
   return Effect.fail(issueToError(filtered[0]!));
 };
 
+/**
+ * @spec.guarantee "returns a 5-line array: [Tag] header, location, cause, fix, docs link — the canonical stderr renderer for gap-class errors"
+ *   reason: cli's stderr output is byte-stable for downstream automation
+ *           that greps the exit code + first line.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: one-way formatter; no parser back from the rendered lines.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point; no equivalent renderer.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct tag/payload pairs can produce identical lines when payload fields collide.
+ * @spec.skip "Exception Raising"
+ *   reason: pure synchronous formatter; cannot fail.
+ */
 export const diagnosticLines = (
   tag: ValidateGapError["_tag"],
   payload: GapErrorPayload,

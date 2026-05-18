@@ -245,6 +245,16 @@ const emitFrontmatter = (a: FolderAnalysis, meta: SpecMeta): ReadonlyArray<strin
  *   reason: roundtrip contract on the emit step.
  * @spec.residual-contract "internal section ordering is fixed: Purpose → Public Surface → Files → Properties"
  *   reason: behavioral contract beyond the FolderAnalysis shape.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: emitter-only; no companion parser back from rendered markdown.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct (analysis, meta) inputs can produce identical markdown when fields collapse.
+ * @spec.skip "Typechecking"
+ *   reason: pure synchronous function returning string; the FolderAnalysis / SpecMeta shapes are the type contract.
+ * @spec.skip "Exception Raising"
+ *   reason: pure synchronous transformation; cannot fail.
  */
 export const emitMarkdown = (a: FolderAnalysis, meta: SpecMeta): string => {
   const lines: string[] = [
@@ -311,6 +321,14 @@ const requiredPropertyTypesFor = (e: ExportEntry): ReadonlyArray<PropertyType> =
  * @spec.residual-contract "fields the codemod cannot yet compute (e.g. per-export sourceRef.sha) reuse `meta.generatedAtSha` as the closest stable identifier"
  *   reason: per-line blame would require a separate git pass; the run-level
  *           SHA is a sound default for now.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: builder-only; the decode side is `decodeSpecArtifact`.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point.
+ * @spec.skip "Constant Bounds Checking"
+ *   reason: the artifact carries an exports array whose length is unbounded by intent; no numeric bound to gate.
+ * @spec.skip "Exception Raising"
+ *   reason: pure synchronous transformation; cannot fail.
  */
 export const buildSpecArtifact = (
   a: FolderAnalysis,

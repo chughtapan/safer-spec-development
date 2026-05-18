@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/analysis",
-  "generatedAtSha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18",
+  "generatedAtSha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09",
   "exports": [
     {
       "name": "GenerateFolderError",
@@ -31,7 +31,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 70,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -46,7 +46,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 74,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -77,7 +77,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 75,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -92,7 +92,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 86,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -100,14 +100,9 @@
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
-        "Exception Raising"
+        "Inclusion"
       ],
       "observedPropertyTypes": [
         "Inclusion",
@@ -115,14 +110,40 @@
         "Roundtrip",
         "Constant Equality"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "a Set is the projection of a name iterator; no normalize-then-recover relation."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point; no equivalent API path produces the same set."
+        },
+        {
+          "propertyType": "Constant Bounds Checking",
+          "reason": "set size is unbounded; depends on project source count."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "no anti-collision invariant; two distinct projects can have overlapping export names."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "total function on a fully-loaded ProjectContext; nothing inside throws."
+        }
+      ],
       "residualContract": null,
       "residualAssumes": [],
-      "residualGuarantees": [],
+      "residualGuarantees": [
+        {
+          "claim": "returns a ReadonlySet containing every value-bearing export name from the project's source tree, including both the exported name and any rename-declared name; computed once per generate run and reused across folders",
+          "reason": "`extractProperties`'s typo gate looks up names via this set; a misspelled name in `@spec.exports` must fail the gate, not silently inherit some other symbol's metadata."
+        }
+      ],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 185,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 195,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -130,14 +151,10 @@
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
         "Constant Bounds Checking",
-        "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
-        "Exception Raising"
+        "Inclusion"
       ],
       "observedPropertyTypes": [
         "Inclusion",
@@ -146,32 +163,76 @@
         "Constant Bounds Checking",
         "Roundtrip"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "one-way formatter; no parser back from the rendered lines."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point; no equivalent renderer."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "distinct tag/payload pairs can produce identical lines when payload fields collide."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "pure synchronous formatter; cannot fail."
+        }
+      ],
       "residualContract": null,
       "residualAssumes": [],
-      "residualGuarantees": [],
+      "residualGuarantees": [
+        {
+          "claim": "returns a 5-line array: [Tag] header, location, cause, fix, docs link — the canonical stderr renderer for gap-class errors",
+          "reason": "cli's stderr output is byte-stable for downstream automation that greps the exit code + first line."
+        }
+      ],
       "sourceRef": {
         "path": "src/analysis/checks.ts",
-        "line": 343,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 356,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
       "name": "computeProjectNewestMtime",
       "shape": "function",
       "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
         "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
+        "Typechecking"
       ],
       "observedPropertyTypes": [],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Roundtrip",
+          "reason": "reduces a file-set to a scalar; the reduction is one-way (no inverse)."
+        },
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "no normalize-then-recover semantics; the function projects to a single number."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point; no equivalent API path produces the same mtime."
+        },
+        {
+          "propertyType": "Constant Equality",
+          "reason": "filesystem-dependent; two calls can return different numbers as files are touched."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "no distinct-output invariant; different inputs can produce equal mtimes when files share atimes."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "returns a scalar, not a collection."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "typed as `Effect of number with never error` — error channel is `never` by construction."
+        }
+      ],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [
@@ -182,8 +243,8 @@
       ],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 345,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 369,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -191,13 +252,9 @@
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
         "Constant Bounds Checking",
-        "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
         "Exception Raising"
       ],
       "observedPropertyTypes": [
@@ -206,7 +263,24 @@
         "Constant Non-Equality",
         "Constant Bounds Checking"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "no normalize-then-recover semantics; this is an orchestrator that emits artifacts."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point; no equivalent API path produces the same artifacts."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "different folders can intentionally produce identical artifacts when sources collapse to the same shape (e.g., two empty folders)."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "returns a record of artifacts; no set/membership semantics."
+        }
+      ],
       "residualContract": {
         "_tag": "some",
         "body": "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally",
@@ -221,8 +295,8 @@
       ],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 385,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 417,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -250,13 +324,13 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 423,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 465,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.4126984126984127
+    "typeCoverage": 0.7142857142857143
   },
   "thresholds": {
     "typeCoverage": 0.4,

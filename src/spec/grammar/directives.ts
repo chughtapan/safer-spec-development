@@ -280,6 +280,14 @@ const parseOneJsDoc = (
 /**
  * @spec.guarantee "every emitted directive validates against the closed grammar before downstream consumption"
  *   reason: trust-boundary; agents consume parsed directive bodies as context.
+ * @spec.skip "Roundtrip"
+ *   reason: parser-only; no `unparseDirectives` companion (SPEC.md is emitted by `emitMarkdown`, not from raw directives).
+ * @spec.skip "Partial Roundtrip"
+ *   reason: source comments carry formatting (indentation, line breaks) the parser intentionally normalizes away; no partial-recover relation.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point; no alternative API yields the same directive list.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: two distinct sources can intentionally produce identical directive lists (e.g., whitespace-only diffs).
  */
 export const parseFileDirectives = (
   path: string,

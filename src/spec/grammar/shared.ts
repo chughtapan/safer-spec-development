@@ -10,9 +10,19 @@
 import { Data, Effect, Schema } from "effect";
 
 /**
- * Trust-boundary cap on directive bodies routed as agent context
- * (assume / guarantee / residual-contract / skip reasons / per-test
- * claim).
+ * @spec.guarantee "the value is 500 — the documented trust-boundary cap on directive bodies (assume/guarantee/residual-contract/skip reasons/claim) routed as agent context"
+ *   reason: stable across the codemod and downstream consumers; the
+ *           cap is enforced by the `Capped` schema in the same file.
+ * @spec.skip "Roundtrip"
+ *   reason: numeric constant; no encode/decode pair.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: numeric constant; no normalize-then-recover relation.
+ * @spec.skip "Commutative Paths"
+ *   reason: constant value; no alternative path to derive it.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: a single constant value; no distinct-output invariant applies.
+ * @spec.skip "Exception Raising"
+ *   reason: a constant; cannot fail.
  */
 export const DIRECTIVE_BODY_MAX_CHARS = 500;
 

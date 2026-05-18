@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18",
+  "generatedAtSha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09",
   "exports": [
     {
       "name": "ExportKind",
@@ -15,43 +15,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
-      }
-    },
-    {
-      "name": "sidecarSlug",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Constant Equality",
-        "Roundtrip"
-      ],
-      "skipped": [],
-      "residualContract": {
-        "_tag": "none",
-        "reason": "pure transformation captured by signature."
-      },
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "folder `.` maps to `\\\"root\\\"`; folders with `/` or `\\\\` are coalesced into a single-segment slug with `_` separators; otherwise the folder string is returned unchanged after stripping leading `./`",
-          "reason": "single source of truth for the sidecar slug across generate, validate, and reporter. Three call sites previously inlined this logic; agreement is the contract."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/artifact/sidecar-writer.ts",
-        "line": 43,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -66,7 +30,62 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 47,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+      }
+    },
+    {
+      "name": "sidecarSlug",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Constant Equality",
+        "Typechecking"
+      ],
+      "observedPropertyTypes": [
+        "Constant Equality",
+        "Roundtrip"
+      ],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "no normalization-with-preservation semantics; this is a one-way name flattening."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point; no alternative API path produces the same slug."
+        },
+        {
+          "propertyType": "Constant Bounds Checking",
+          "reason": "output length is bounded by input length and not gated; no numeric/length contract."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "distinct folder strings can intentionally collapse to the same slug (`foo/bar` and `foo_bar` both map to `foo_bar`); no anti-collision guarantee."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "returns a single string, not a collection; no membership relation."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "total function on string input; cannot fail."
+        }
+      ],
+      "residualContract": {
+        "_tag": "none",
+        "reason": "pure transformation captured by signature."
+      },
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "folder `.` maps to `\\\"root\\\"`; folders with `/` or `\\\\` are coalesced into a single-segment slug with `_` separators; otherwise the folder string is returned unchanged after stripping leading `./`",
+          "reason": "single source of truth for the sidecar slug across generate, validate, and reporter. Three call sites previously inlined this logic; agreement is the contract."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/sidecar-writer.ts",
+        "line": 55,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -74,14 +93,11 @@
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
         "Constant Bounds Checking",
         "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
-        "Exception Raising"
+        "Inclusion"
       ],
       "observedPropertyTypes": [
         "Typechecking",
@@ -91,7 +107,20 @@
         "Constant Bounds Checking",
         "Constant Non-Equality"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "pure builder; no partial-recover relation back from SpecMeta to analysis + args."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point; no equivalent API yields the same SpecMeta."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "pure synchronous transformation; cannot fail."
+        }
+      ],
       "residualContract": {
         "_tag": "some",
         "body": "branchCoverageFromSpecTests is null when coverage-summary.json is absent or inconsistent with the folder's source files (loud-fail signal for the gate); never null after a clean pnpm test --coverage run",
@@ -106,8 +135,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
-        "line": 51,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 57,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -122,7 +151,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 62,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -136,43 +165,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
-        "line": 69,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
-      }
-    },
-    {
-      "name": "regenerateSidecar",
-      "shape": "function",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Typechecking",
-        "Roundtrip",
-        "Constant Bounds Checking",
-        "Inclusion"
-      ],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; a `SidecarSchemaError` here is a defect (the artifact came from our own emitter)",
-          "reason": "validate's sidecar-drift cross-check needs the byte-for-byte regenerated form; the schema must succeed on artifacts we emit."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/artifact/sidecar-writer.ts",
-        "line": 76,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 75,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -187,7 +181,58 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 80,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+      }
+    },
+    {
+      "name": "regenerateSidecar",
+      "shape": "function",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Constant Bounds Checking",
+        "Typechecking",
+        "Inclusion"
+      ],
+      "observedPropertyTypes": [
+        "Typechecking",
+        "Roundtrip",
+        "Constant Bounds Checking",
+        "Inclusion"
+      ],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "writer-only; the symmetric path is `decodeSpecArtifact`."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point."
+        },
+        {
+          "propertyType": "Constant Equality",
+          "reason": "output JSON byte sequence depends on the `generatedAtSha` carried in meta; not a constant."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "distinct (analysis, meta) inputs can produce identical sidecars when the captured fields collapse."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "typed `Effect of string with never error` — internal schema errors die rather than failing the channel."
+        }
+      ],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [
+        {
+          "claim": "regenerates the SpecArtifact and returns the pretty-printed JSON used for on-disk diff; a `SidecarSchemaError` here is a defect (the artifact came from our own emitter)",
+          "reason": "validate's sidecar-drift cross-check needs the byte-for-byte regenerated form; the schema must succeed on artifacts we emit."
+        }
+      ],
+      "sourceRef": {
+        "path": "src/spec/artifact/sidecar-writer.ts",
+        "line": 98,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -195,14 +240,10 @@
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
         "Constant Bounds Checking",
-        "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
-        "Exception Raising"
+        "Inclusion"
       ],
       "observedPropertyTypes": [
         "Constant Equality",
@@ -211,7 +252,24 @@
         "Constant Bounds Checking",
         "Roundtrip"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "classifier-only; no recover-from-shortfall semantics."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point; no equivalent API yields the same shortfall record."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "distinct (analysis, meta) inputs can produce identical shortfalls or both-null outcomes."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "pure synchronous function; cannot fail."
+        }
+      ],
       "residualContract": {
         "_tag": "some",
         "body": "metrics whose threshold is 0 are not gated regardless of observed value",
@@ -226,8 +284,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
-        "line": 94,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 108,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -242,7 +300,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 187,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -250,21 +308,40 @@
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
+        "Typechecking"
       ],
       "observedPropertyTypes": [
         "Typechecking",
         "Constant Equality",
         "Roundtrip"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "cryptographic hash is one-way by design; no inverse."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point; no equivalent API yields the same hash."
+        },
+        {
+          "propertyType": "Constant Bounds Checking",
+          "reason": "hash length is bounded by the digest algorithm and not gated as a property."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "hash collisions are theoretically possible (different inputs → same digest) and intentionally not gated."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "returns a scalar string, not a collection."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "typed `Effect of string with never error` — error channel is `never` by construction; read failures absorb to empty strings."
+        }
+      ],
       "residualContract": {
         "_tag": "some",
         "body": "unreadable test files contribute the empty string to the hash; the reporter applies the same convention so a transient read failure doesn't poison the hash",
@@ -279,8 +356,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
-        "line": 221,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 233,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -288,14 +365,9 @@
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
         "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
+        "Inclusion"
       ],
       "observedPropertyTypes": [
         "Inclusion",
@@ -303,7 +375,28 @@
         "Constant Bounds Checking",
         "Roundtrip"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "emitter-only; no companion parser back from rendered markdown."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "distinct (analysis, meta) inputs can produce identical markdown when fields collapse."
+        },
+        {
+          "propertyType": "Typechecking",
+          "reason": "pure synchronous function returning string; the FolderAnalysis / SpecMeta shapes are the type contract."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "pure synchronous transformation; cannot fail."
+        }
+      ],
       "residualContract": {
         "_tag": "some",
         "body": "internal section ordering is fixed: Purpose → Public Surface → Files → Properties",
@@ -318,22 +411,17 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 249,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 259,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
       "name": "loadBranchCoverage",
       "shape": "function",
       "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
         "Constant Bounds Checking",
-        "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
         "Exception Raising"
       ],
       "observedPropertyTypes": [
@@ -342,7 +430,28 @@
         "Exception Raising",
         "Constant Bounds Checking"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Roundtrip",
+          "reason": "reader-only; no companion writer that takes a ratio back to a coverage-summary.json."
+        },
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "aggregates many file-level numbers to a single scalar; no partial-recover relation."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point; no equivalent API yields the same ratio."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "distinct folders can intentionally produce identical ratios."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "returns a scalar (or null), not a collection."
+        }
+      ],
       "residualContract": {
         "_tag": "some",
         "body": "spec-test attribution holds only if coverage-summary.json came from a vitest run restricted to *.spec.test.ts files; this repo enforces it via vitest.config.ts test.include",
@@ -357,8 +466,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
-        "line": 254,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 276,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
@@ -366,14 +475,10 @@
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
-        "Constant Bounds Checking",
         "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
-        "Exception Raising"
+        "Inclusion"
       ],
       "observedPropertyTypes": [
         "Typechecking",
@@ -382,7 +487,24 @@
         "Constant Equality",
         "Constant Non-Equality"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "builder-only; the decode side is `decodeSpecArtifact`."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point."
+        },
+        {
+          "propertyType": "Constant Bounds Checking",
+          "reason": "the artifact carries an exports array whose length is unbounded by intent; no numeric bound to gate."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "pure synchronous transformation; cannot fail."
+        }
+      ],
       "residualContract": {
         "_tag": "some",
         "body": "fields the codemod cannot yet compute (e.g. per-export sourceRef.sha) reuse `meta.generatedAtSha` as the closest stable identifier",
@@ -397,22 +519,16 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
-        "line": 315,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 333,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     },
     {
       "name": "loadExecutionSidecar",
       "shape": "function",
       "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
         "Exception Raising"
       ],
       "observedPropertyTypes": [
@@ -420,7 +536,32 @@
         "Constant Equality",
         "Exception Raising"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Roundtrip",
+          "reason": "reader-only; writer side lives in the Vitest reporter (`onTestRunEnd`), not this function."
+        },
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "decode is total; no normalize-then-recover relation."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single entry point."
+        },
+        {
+          "propertyType": "Constant Bounds Checking",
+          "reason": "sidecar shape (object | null) is not numeric; no bound to gate."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "distinct folders can intentionally produce identical sidecars (e.g., two folders with the same property set and stats)."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "returns an object or null, not a collection."
+        }
+      ],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [
@@ -431,13 +572,13 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
-        "line": 381,
-        "sha": "bc88c54b9b875392ee50305dc1a24a16d13bbb18"
+        "line": 415,
+        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.4444444444444444
+    "typeCoverage": 0.9876543209876544
   },
   "thresholds": {
     "typeCoverage": 0.4,

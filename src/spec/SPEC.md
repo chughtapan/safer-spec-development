@@ -1,7 +1,7 @@
 ---
 folder: src/spec
 format-version: 0.1.0
-generatedAtSha: bc88c54b9b875392ee50305dc1a24a16d13bbb18
+generatedAtSha: 0ef093e21c2d6f9abd7859c019a1f6f003e47e09
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.6666666666666666
+  typeCoverage: 0.8888888888888888
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -74,7 +74,7 @@ export interface ItSpec {
 
 **Residual contract:** "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override" — _behavioral residue beyond the call signature; downstream authors need to know the property runner is not configured through Vitest._
 
-### [`itSpec`](./grammar/it-spec.ts#L122)
+### [`itSpec`](./grammar/it-spec.ts#L138)
 
 ```ts
 export const itSpec: ItSpec = {
@@ -95,6 +95,17 @@ export const itSpec: ItSpec = {
   },
 };
 ```
+
+**Guarantees:**
+- "\`itSpec.todo(id, meta)\` registers a Vitest todo carrying property metadata; \`itSpec.prop(id, meta, arb, body)\` registers a Vitest property with stats sink" — _the runtime encoding of \`@spec.\*\` directive metadata; the JSDoc shape and the runtime arg shape must agree, enforced by extractProperties._
+
+**Skipped property types:**
+- `Partial Roundtrip` — _registration sink only; there is no companion that decodes a registered test back to its metadata._
+- `Commutative Paths` — _two methods (\`todo\` and \`prop\`) cover orthogonal lifecycle states (stub vs implemented), not commuting paths._
+- `Constant Equality` — _the object is a constant export; \`itSpec === itSpec\` is trivially true and not a property worth gating._
+- `Constant Non-Equality` — _no anti-collision invariant between todo and prop methods._
+- `Constant Bounds Checking` — _not a numeric/length output._
+- `Inclusion` — _a method record, not a collection._
 
 ## Children
 

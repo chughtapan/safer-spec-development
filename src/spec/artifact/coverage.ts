@@ -47,6 +47,12 @@ const DEFAULT_GENERATED_FROM = {
  * @spec.residual-contract "branchCoverageFromSpecTests is null when coverage-summary.json is absent or inconsistent with the folder's source files (loud-fail signal for the gate); never null after a clean pnpm test --coverage run"
  *   reason: lifecycle contract; null is the gate's only stale-data
  *           channel because v8 reports per-file totals, not per-test.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: pure builder; no partial-recover relation back from SpecMeta to analysis + args.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point; no equivalent API yields the same SpecMeta.
+ * @spec.skip "Exception Raising"
+ *   reason: pure synchronous transformation; cannot fail.
  */
 export const buildSpecMeta = (
   analysis: FolderAnalysis,
@@ -90,6 +96,14 @@ const checkOne = (
  * @spec.residual-contract "metrics whose threshold is 0 are not gated regardless of observed value"
  *   reason: zero-threshold is the explicit no-gate marker used by the
  *           permissive default config.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: classifier-only; no recover-from-shortfall semantics.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point; no equivalent API yields the same shortfall record.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct (analysis, meta) inputs can produce identical shortfalls or both-null outcomes.
+ * @spec.skip "Exception Raising"
+ *   reason: pure synchronous function; cannot fail.
  */
 export const findThresholdShortfall = (
   analysis: FolderAnalysis,

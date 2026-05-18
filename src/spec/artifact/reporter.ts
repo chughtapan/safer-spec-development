@@ -217,6 +217,18 @@ const toPosix = (p: string): string => p.split("\\").join("/");
  *           comparison stable across hosts.
  * @spec.residual-contract "unreadable test files contribute the empty string to the hash; the reporter applies the same convention so a transient read failure doesn't poison the hash"
  *   reason: byte-equality contract; missing-file -> empty-bytes.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: cryptographic hash is one-way by design; no inverse.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point; no equivalent API yields the same hash.
+ * @spec.skip "Constant Bounds Checking"
+ *   reason: hash length is bounded by the digest algorithm and not gated as a property.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: hash collisions are theoretically possible (different inputs → same digest) and intentionally not gated.
+ * @spec.skip "Inclusion"
+ *   reason: returns a scalar string, not a collection.
+ * @spec.skip "Exception Raising"
+ *   reason: typed `Effect of string with never error` — error channel is `never` by construction; read failures absorb to empty strings.
  */
 export const computeTestTreeHash = (
   fs: FileSystem.FileSystem,
@@ -242,6 +254,16 @@ export interface LoadBranchCoverageOptions {
 }
 
 /**
+ * @spec.skip "Roundtrip"
+ *   reason: reader-only; no companion writer that takes a ratio back to a coverage-summary.json.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: aggregates many file-level numbers to a single scalar; no partial-recover relation.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point; no equivalent API yields the same ratio.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct folders can intentionally produce identical ratios.
+ * @spec.skip "Inclusion"
+ *   reason: returns a scalar (or null), not a collection.
  * @spec.guarantee "aggregates v8 branch coverage for the folder's immediate sources; null when coverage-summary.json is absent, an expected source has no entry, or a matching file did not execute; 1.0 when present-and-fully-branchless"
  *   reason: validate's `--implemented` gate consumes branchCoverageFromSpecTests;
  *           the null/1.0 split lets it distinguish "user forgot --coverage"
@@ -377,6 +399,18 @@ const isImmediateChild = (rel: string, folder: string): boolean => {
  * @spec.guarantee "loads the per-folder execution sidecar emitted by the Vitest reporter, decoded through `ExecutionSidecarSchema`; returns null when absent or malformed"
  *   reason: validate's `--implemented` gate consumes the coverage values;
  *           absence is surfaced separately as a typed gap error.
+ * @spec.skip "Roundtrip"
+ *   reason: reader-only; writer side lives in the Vitest reporter (`onTestRunEnd`), not this function.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: decode is total; no normalize-then-recover relation.
+ * @spec.skip "Commutative Paths"
+ *   reason: single entry point.
+ * @spec.skip "Constant Bounds Checking"
+ *   reason: sidecar shape (object | null) is not numeric; no bound to gate.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct folders can intentionally produce identical sidecars (e.g., two folders with the same property set and stats).
+ * @spec.skip "Inclusion"
+ *   reason: returns an object or null, not a collection.
  */
 export const loadExecutionSidecar = (
   fs: FileSystem.FileSystem,
