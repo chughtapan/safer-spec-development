@@ -1,7 +1,7 @@
 ---
 folder: src/project
 format-version: 0.1.0
-generatedAtSha: 0e9aabfcef9ce6f3539caf1ac2effa225f87e487
+generatedAtSha: 5a241b0acc0e61eb13be108f6977411c737fbeb4
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -143,6 +143,7 @@ export const loadProjectContext = (
 - [`context.ts`](./context.ts) — Project-wide loader for the codemod. Walks the project tree once at startup and produces a \`ProjectContext\` snapshot that downstream layers (analysis, commands) READ from instead of calling pure helpers per folder. The snapshot carries the sources ts-morph needs, the tsconfig \`paths\` map, the git HEAD SHA, the parsed config, plus precomputed:  - \`folders\`: every directory under root that has an \`index.ts\` barrel - \`subfoldersOf(folder)\`: immediate SPEC'd subfolders of \`folder\` - \`thresholdsFor(folder)\`: resolved coverage thresholds for \`folder\` - \`resolveFolder(input)\`: maps a user-supplied \`--folder X\` to a known canonical folder, failing with \`FolderNotFoundError\` if \`X\` doesn't match anything discovered  Tagged errors \`ProjectContextError\`, \`ConfigError\`, and \`FolderNotFoundError\` live here and at \`config.ts\`; the cli at \`commands/index.ts\` catches each by tag.
 - [`index.ts`](./index.ts) — Barrel for the \`project/\` layer. Exposes the fully-resolved \`ProjectContext\` snapshot (with precomputed folder list, per-folder subfolder map, and threshold resolver), the one loader that builds it, the stable format version, and the three tagged errors the cli routes. Folder-discovery primitives, the threshold resolver, and the path normalizer are implementation details behind \`ProjectContext\` methods.
 - [`version.ts`](./version.ts) — Format version constant for SPEC.md frontmatter and the \`.safer-spec/&lt;folder&gt;.json\` sidecar JSON. Co-located with the commands because \`generate.ts\` stamps it onto every emitted SPEC.md. CHANGELOG signposts bumps before they ship; the \`safer-spec-migrate\` skill walks committed artifacts across the bump.
+- [`__tests__/config.spec.test.ts`](./__tests__/config.spec.test.ts) — Branch coverage for the \`safer-spec.config.json\` loader and per-folder threshold resolver in \`project/config.ts\`. The resolver tests exercise the three-layer fallback (override &gt; defaultThresholds &gt; 0); the loader tests exercise the four real-world outcomes a project boot hits (missing file, malformed JSON, unknown key at root, unknown threshold key, valid).
 - [`__tests__/context.spec.test.ts`](./__tests__/context.spec.test.ts) — Property tests for \`loadProjectContext\` and the \`ProjectContext\` snapshot it produces (\`folders\`, \`subfoldersOf\`, \`thresholdsFor\`, \`resolveFolder\`). The fixture is the codemod's own source tree — module-load runs the heavy ts-morph + FS work once, then fc-property bodies assert on the cached snapshot.
 - [`__tests__/errors.spec.test.ts`](./__tests__/errors.spec.test.ts) — Property tests for \`project/\`'s three tagged error classes — \`ProjectContextError\` (tsconfig/git/source-walk failures), \`ConfigError\` (\`safer-spec.config.json\` decode failures), and \`FolderNotFoundError\` (\`--folder X\` doesn't match a discovered folder). Plus \`SPEC\_FORMAT\_VERSION\` property types.
 
@@ -150,6 +151,17 @@ export const loadProjectContext = (
 
 | Property | Type | Exports | Claim | Status |
 |---|---|---|---|---|
+| `resolve-thresholds-falls-back-to-zero-when-no-config` | `Constant Equality` | `resolveThresholdsFor` | with empty config, every metric resolves to 0 — the bottom of the three-layer fallback | implemented |
+| `resolve-thresholds-baseline-applies-when-no-override` | `Constant Equality` | `resolveThresholdsFor` | defaultThresholds applies for any folder lacking a folderOverrides entry | implemented |
+| `resolve-thresholds-folder-override-wins` | `Constant Equality` | `resolveThresholdsFor` | folderOverrides\[folder\] beats defaultThresholds for the matching folder | implemented |
+| `resolve-thresholds-non-matching-folder-uses-baseline` | `Constant Equality` | `resolveThresholdsFor` | folderOverrides only apply on exact-string match; non-matching folder falls back to defaultThresholds | implemented |
+| `load-config-missing-file-yields-empty-config` | `Constant Equality` | `loadConfig` | a missing \`safer-spec.config.json\` resolves to an empty Config (permissive defaults), not an error | implemented |
+| `load-config-valid-file-decodes` | `Roundtrip` | `loadConfig` | a valid \`safer-spec.config.json\` round-trips through the loader with thresholds and folderOverrides intact | implemented |
+| `load-config-invalid-json-fails-with-config-error` | `Exception Raising` | `loadConfig` | a malformed JSON file fails with \`ConfigError\` whose cause names "invalid JSON" | implemented |
+| `load-config-unknown-root-key-fails` | `Exception Raising` | `loadConfig` | an unknown top-level key fails with \`ConfigError\` — Schema.Struct would silently strip it | implemented |
+| `load-config-unknown-threshold-key-fails` | `Exception Raising` | `loadConfig` | a misspelled threshold key (e.g. \`typecoverage\` lowercase) fails with \`ConfigError\` | implemented |
+| `load-config-unknown-folder-override-key-fails` | `Exception Raising` | `loadConfig` | an unknown key inside a \`folderOverrides\["src/x"\]\` block fails with \`ConfigError\` | implemented |
+| `load-config-out-of-range-ratio-fails` | `Exception Raising` | `loadConfig` | a ratio outside \[0, 1\] fails through the schema decode → ConfigError | implemented |
 | `load-project-context-typecheck` | `Typechecking` | `loadProjectContext` | \`loadProjectContext\` returns a \`ProjectContext\` whose precomputed fields are populated — sources array, paths record, baseUrl string, generatedAtSha string, folders array, subfoldersOf/thresholdsFor/resolveFolder functions | implemented |
 | `load-project-context-arity` | `Constant Equality` | `loadProjectContext` | \`loadProjectContext\` accepts 2-3 positional args (fs, path, root=".")\` — fs and path are required, root defaults | implemented |
 | `project-context-folders-non-empty-for-self-host` | `Inclusion` | `loadProjectContext` | the codemod's own project tree resolves to a non-empty \`folders\` list and includes the codemod's well-known folders (\`src/spec/grammar\`, \`src/analysis\`) — the precomputed list both commands consume | implemented |

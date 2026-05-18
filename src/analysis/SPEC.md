@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: 0e9aabfcef9ce6f3539caf1ac2effa225f87e487
+generatedAtSha: 5a241b0acc0e61eb13be108f6977411c737fbeb4
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -132,13 +132,36 @@ export const validateFolder = (
 - [`orchestrate.ts`](./orchestrate.ts) — Per-folder pipeline orchestration. \`generateFolder\` and \`validateFolder\` are the public entry points that compose the parsers, pipeline helpers, and gap-class checks under one call. Commands at \`commands/{generate,validate}.ts\` consume these two functions plus folder discovery from \`project/\`; the pipeline primitives (\`buildSpecMeta\`, \`regenerateMarkdown\`, \`checkDrift\`, etc.) stay internal to this folder.  \`generateFolder\`: walks one folder's source + test + immediate subfolder index.ts; parses directives; builds the \`FolderAnalysis\`; emits the markdown + sidecar JSON. Returns the artifacts; callers own the on-disk write step (so \`--dry-run\` works at the cli boundary).  \`validateFolder\`: walks the same pipeline, then diffs the regenerated markdown + sidecar against the on-disk artifacts, enforces coverage thresholds, and runs the per-test directive cross-checks. Returns the folder string on success; fails with a \`ValidateGapError\` whose tag the cli maps to a POSIX exit code.
 - [`pipeline.ts`](./pipeline.ts) — Shared analysis pipeline for \`validate\`. Walks the same inputs as \`generate\` (sources, tests, index barrel) and returns the \`FolderAnalysis\` that the markdown emitter consumes plus the per-test issues list (\`ItSpecIssue\[\]\`) that \`validate.ts\` maps to its gap-class exit codes.
 - [`properties.ts`](./properties.ts) — Walks \`\*.spec.test.ts\` source via ts-morph and extracts each \`itSpec.todo\` / \`itSpec.prop\` call site plus the four Amendment-6 directives (\`@spec.property\`, \`@spec.type\`, \`@spec.exports\`, \`@spec.claim\`) that should immediately precede it.  Per-test directives bind to the JSDoc block IMMEDIATELY preceding the call (via ts-morph's \`Statement.getJsDocs()\` on the call's enclosing statement); the previous "closest earlier" search across the whole file silently inherited directives from unrelated blocks.  Returns rows for downstream emit + an \`issues\` list. Issues are surfaced to \`validate\` as MissingStub / MissingSpecProperty / MissingImpl gap errors with stable exit codes.
+- [`__tests__/checks.spec.test.ts`](./__tests__/checks.spec.test.ts) — Branch coverage for the gap-class check functions in \`analysis/checks.ts\`. Each itSpec.prop targets one untested branch so the per-folder \`branchCoverageFromSpecTests\` gate stops loud- failing on the analysis layer's failure paths.
 - [`__tests__/orchestrate.spec.test.ts`](./__tests__/orchestrate.spec.test.ts) — Property tests for the \`analysis/\` public surface — \`generateFolder\`, \`validateFolder\`, \`buildKnownExports\`, \`diagnosticLines\`, and the two \`GenerateFolder\*\` tagged errors. The orchestrate functions' end-to-end behavior is exercised by \`commands/\_\_tests\_\_/validate.spec.test.ts\` (self-host); this file covers the shape contracts at the analysis layer without re-walking the whole project tree.
+- [`__tests__/properties.spec.test.ts`](./__tests__/properties.spec.test.ts) — Branch coverage for \`analysis/properties.ts\` — the \`extractProperties\` ts-morph walk that turns spec.test.ts source into \`PropertyRow\[\]\` and the \`ItSpecIssue\[\]\` validate routes to gap-class errors. Each property targets one untested branch (missing directive, JSDoc↔runtime mismatch on property/type/ exports, empty-body detection, declaredExports membership).
 - [`__tests__/sweep.spec.test.ts`](./__tests__/sweep.spec.test.ts) — Coverage-sweep tests for \`analysis/\`. Adds the remaining property-type rows beyond \`orchestrate.spec.test.ts\` so each export crosses the gate threshold.
 
 ## Properties
 
 | Property | Type | Exports | Claim | Status |
 |---|---|---|---|---|
+| `catch-directive-errors-overflow-maps-to-missing-stub` | `Exception Raising` | `catchDirectiveErrors` | \`catchDirectiveErrors\` maps \`JsDocDirectiveOverflowError\` to \`MissingStubError\` | implemented |
+| `catch-directive-errors-parse-maps-to-missing-stub` | `Exception Raising` | `catchDirectiveErrors` | \`catchDirectiveErrors\` maps \`JsDocDirectiveParseError\` to \`MissingStubError\` | implemented |
+| `catch-directive-errors-unknown-maps-to-missing-stub` | `Exception Raising` | `catchDirectiveErrors` | \`catchDirectiveErrors\` maps \`JsDocUnknownDirectiveError\` to \`MissingStubError\` | implemented |
+| `catch-directive-errors-passes-success-through` | `Roundtrip` | `catchDirectiveErrors` | \`catchDirectiveErrors\` is identity on the success channel | implemented |
+| `check-drift-missing-file-fails-with-missing-spec-property` | `Exception Raising` | `checkDrift` | a missing SPEC.md on disk fails with \`MissingSpecPropertyError\` | implemented |
+| `check-drift-matching-content-succeeds` | `Constant Equality` | `checkDrift` | on-disk bytes equal to regenerated bytes (modulo SHA line) succeeds | implemented |
+| `check-sidecar-drift-missing-file-fails` | `Exception Raising` | `checkSidecarDrift` | a missing sidecar JSON on disk fails with \`MissingSpecPropertyError\` | implemented |
+| `check-thresholds-zero-thresholds-pass` | `Constant Equality` | `checkThresholds` | threshold=0 across the board never trips; the function returns success | implemented |
+| `check-thresholds-typecoverage-shortfall-fails` | `Exception Raising` | `checkThresholds` | a \`typeCoverage\` observed below threshold fails with \`MissingImplError\` | implemented |
+| `check-impl-bodies-stubbed-fails` | `Exception Raising` | `checkImplBodies` | an analysis with a stubbed property row fails with \`MissingImplError\` | implemented |
+| `check-impl-bodies-no-stub-succeeds` | `Constant Equality` | `checkImplBodies` | an analysis with only implemented rows passes | implemented |
+| `check-execution-sidecar-vacuous-when-no-impl-properties` | `Constant Equality` | `checkExecutionSidecarPresent` | a folder whose properties are all stubs passes vacuously even with no sidecar | implemented |
+| `check-execution-sidecar-missing-fails` | `Exception Raising` | `checkExecutionSidecarPresent` | a folder with implemented properties but no sidecar on disk fails with \`MissingImplError\` | implemented |
+| `check-execution-sidecar-stale-propertyids-fails` | `Exception Raising` | `checkExecutionSidecarPresent` | a sidecar covering a different property set fails with \`MissingImplError\` | implemented |
+| `check-execution-sidecar-stale-hash-fails` | `Exception Raising` | `checkExecutionSidecarPresent` | matching propertyIds but mismatching \`testTreeHash\` fails with \`MissingImplError\` | implemented |
+| `check-execution-sidecar-matching-succeeds` | `Constant Equality` | `checkExecutionSidecarPresent` | matching propertyIds + matching \`testTreeHash\` succeeds | implemented |
+| `fail-on-issues-planned-mode-ignores-empty-body` | `Constant Equality` | `failOnIssues` | in \`--planned\` mode \`empty-body\` issues are filtered out (only \`--implemented\` enforces non-empty bodies) | implemented |
+| `fail-on-issues-missing-directive-maps-to-missing-stub` | `Exception Raising` | `failOnIssues` | a \`missing-directive\` issue maps to \`MissingStubError\` | implemented |
+| `fail-on-issues-directive-mismatch-maps-to-missing-spec-property` | `Exception Raising` | `failOnIssues` | a \`directive-mismatch\` issue maps to \`MissingSpecPropertyError\` | implemented |
+| `fail-on-issues-implemented-mode-flags-empty-body` | `Exception Raising` | `failOnIssues` | in \`--implemented\` mode an \`empty-body\` issue maps to \`MissingImplError\` | implemented |
+| `diagnostic-lines-includes-tag-and-location` | `Inclusion` | `diagnosticLines` | the rendered diagnostic begins with \`\[Tag\]\` and includes the location, cause, fix, and docs link | implemented |
 | `generate-folder-is-callable` | `Typechecking` | `generateFolder` | \`generateFolder\` is exported as a callable function whose return type is an Effect — the typed channel commands compose | implemented |
 | `generate-folder-arity` | `Constant Equality` | `generateFolder` | \`generateFolder\` has arity 1: \`(args: GenerateFolderArgs) =&gt; Effect\` — the signature commands depend on | implemented |
 | `validate-folder-is-callable` | `Typechecking` | `validateFolder` | \`validateFolder\` is exported as a callable function — the typed channel commands compose for the per-folder gate run | implemented |
@@ -155,6 +178,17 @@ export const validateFolder = (
 | `diagnostic-lines-header-carries-tag-and-problem` | `Inclusion` | `diagnosticLines` | the first emitted line carries both the \`\_tag\` (in brackets) and the diagnostic's \`problem\` body — readers grep stderr by tag | implemented |
 | `diagnostic-lines-typecheck` | `Typechecking` | `diagnosticLines` | returns a ReadonlyArray of strings — the shape the cli's stderr renderer iterates | implemented |
 | `diagnostic-lines-bounded-line-count` | `Constant Bounds Checking` | `diagnosticLines` | emitted line count is exactly 5 regardless of payload content size — stable for stderr framing | implemented |
+| `extract-happy-path-produces-row` | `Roundtrip` | `extractProperties` | a fully-formed itSpec.prop with matching JSDoc directives produces a PropertyRow and no issues | implemented |
+| `extract-stub-row-is-stubbed` | `Constant Equality` | `extractProperties` | an itSpec.todo call produces a row with \`stubbed: true\` | implemented |
+| `extract-missing-directive-issue` | `Exception Raising` | `extractProperties` | an itSpec call without JSDoc directives raises a missing-directive issue | implemented |
+| `extract-id-mismatch-flagged` | `Exception Raising` | `extractProperties` | a JSDoc id ≠ runtime id produces a directive-mismatch issue | implemented |
+| `extract-type-mismatch-flagged` | `Exception Raising` | `extractProperties` | a JSDoc \`@spec.type\` ≠ runtime opts.type produces a directive-mismatch issue | implemented |
+| `extract-non-literal-type-flagged` | `Exception Raising` | `extractProperties` | a non-literal opts.type (variable, expression) produces a directive-mismatch — the validate cross-check requires a string literal | implemented |
+| `extract-empty-runtime-exports-flagged` | `Exception Raising` | `extractProperties` | opts.exports = \[\] (empty array) produces a directive-mismatch — masks missing metadata | implemented |
+| `extract-unknown-export-flagged` | `Exception Raising` | `extractProperties` | opts.exports references a symbol not in declaredExports → directive-mismatch | implemented |
+| `extract-empty-body-flagged` | `Exception Raising` | `extractProperties` | itSpec.prop with \`() =&gt; {}\` body produces an empty-body issue | implemented |
+| `extract-effect-die-body-flagged` | `Exception Raising` | `extractProperties` | itSpec.prop with \`() =&gt; Effect.die(...)\` body counts as empty (stub-tier body) | implemented |
+| `extract-empty-declared-exports-skips-membership-check` | `Constant Equality` | `extractProperties` | with empty declaredExports the symbol-membership check is skipped (back-compat for callers that haven't computed the set) | implemented |
 | `generate-folder-non-equal-distinct-functions` | `Constant Non-Equality` | `generateFolder` | \`generateFolder\` and \`validateFolder\` are different function references — the codemod composes both at distinct call sites | implemented |
 | `generate-folder-bounded-name-length` | `Constant Bounds Checking` | `generateFolder` | \`generateFolder.name\` is "generateFolder" (length 14) — the stable export identity that the package's facade keys on | implemented |
 | `validate-folder-distinct-name` | `Constant Equality` | `validateFolder` | \`validateFolder.name === "validateFolder"\` — the stable export identity | implemented |

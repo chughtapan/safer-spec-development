@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 0e9aabfcef9ce6f3539caf1ac2effa225f87e487
+generatedAtSha: 5a241b0acc0e61eb13be108f6977411c737fbeb4
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -310,6 +310,13 @@ export const loadExecutionSidecar = (
 | `frontmatter-decode-preserves-format-version` | `Inclusion` | `decodeSpecFrontmatter` | every emitted SPEC.md carries \`format-version: &lt;SPEC\_FORMAT\_VERSION&gt;\` in its YAML block and the decode boundary preserves that field on the decoded value (no silent strip during the schema decode) | implemented |
 | `link-resolver-intra-file-anchor-pinned` | `Inclusion` | `resolveSymbol` | every intra-file resolution returns an href with the \`#\`-prefixed anchor form; the anchor sha is null at resolve time and the emit step stamps the git short-sha when it renders the anchor | implemented |
 | `link-resolver-fails-internal-misses` | `Exception Raising` | `resolveSymbol` | external package references (scoped \`@scope/name\` or bare \`package-name\`) return UnresolvedExternal (no Effect failure); the resolver classifies by shape, leaving fail-closed checking of internal misses to the build-time validate gate | implemented |
+| `resolve-symbol-cross-spec-emits-relative-md-link` | `Constant Equality` | `resolveSymbol` | the \`@safer/FOLDER/...\` shape resolves to cross-spec origin with href \`../FOLDER/SPEC.md\` | implemented |
+| `resolve-symbol-cross-spec-without-subpath` | `Constant Equality` | `resolveSymbol` | \`@safer/FOLDER\` (no trailing slash) still emits href \`../FOLDER/SPEC.md\` | implemented |
+| `resolve-symbol-agent-code-guard-rule` | `Inclusion` | `resolveSymbol` | \`agent-code-guard/\\&lt;rule&gt;\` resolves to agent-code-guard-rule with a GitHub URL containing the rule name | implemented |
+| `relative-to-folder-root-sentinel` | `Constant Equality` | `relativeToFolder` | from folder "." (project root sentinel), target is rebased onto \`./TARGET\` rather than \`../TARGET\` | implemented |
+| `relative-to-folder-same-folder-prefix` | `Constant Equality` | `relativeToFolder` | a target prefixed by the folder rebases to \`./REMAINDER\` | implemented |
+| `relative-to-folder-absolute-passthrough` | `Constant Equality` | `relativeToFolder` | absolute paths and URL schemes pass through unchanged | implemented |
+| `relative-to-folder-sibling-folders` | `Constant Equality` | `relativeToFolder` | sibling-folder targets emit a \`../OTHER/...\` link | implemented |
 | `regenerate-sidecar-typecheck` | `Typechecking` | `regenerateSidecar` | returns an Effect — the typed channel the sidecar-drift check composes around | implemented |
 | `regenerate-sidecar-deterministic` | `Roundtrip` | `regenerateSidecar` | two consecutive calls produce byte-identical JSON — the freshness-check contract sidecar-drift compares against | implemented |
 | `regenerate-sidecar-non-empty-output` | `Constant Bounds Checking` | `regenerateSidecar` | emitted JSON is non-empty for any well-formed analysis — the sidecar file always has content | implemented |

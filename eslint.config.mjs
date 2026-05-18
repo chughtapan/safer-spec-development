@@ -271,6 +271,7 @@ export default [
       "jsdoc/check-tag-names": ["error", { definedTags: SPEC_DIRECTIVE_TAGS }],
       "import/no-relative-parent-imports": "error",
       "import/no-relative-packages": "error",
+      "max-lines": ["error", { max: 500, skipBlankLines: true, skipComments: true }],
     },
   },
 ];
