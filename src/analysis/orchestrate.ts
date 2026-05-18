@@ -438,7 +438,7 @@ const driftMetaFor = (
  * @spec.skip "Inclusion"
  *   reason: returns a record of artifacts; no set/membership semantics.
  * @spec.skip "Roundtrip"
- *   reason: pipeline-orchestration only; SPEC.md and sidecar are downstream artifacts, not encoded inputs.
+ *   reason: pipeline-orchestration only; MODULE.md and sidecar are downstream artifacts, not encoded inputs.
  * @spec.skip "Exception Raising"
  *   reason: parser failures inside the per-folder pipeline are surfaced through `catchDirectiveErrors` to `MissingStubError` at the `validateFolder` boundary, not at `generateFolder` — the generate path treats them as defects.
  */

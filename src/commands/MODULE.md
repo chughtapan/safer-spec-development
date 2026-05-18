@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: 75561895e57fc9d15eb53d7b83ce777fa707cefc
+generatedAtSha: 16cc46e7ee40c94f6db070cdd56ce038bc78114f
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -15,9 +15,9 @@ coverage:
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
-  typeCoverage: 0.4
-  preconditionPassRate: 0
-  branchCoverageFromSpecTests: 0.75
+  typeCoverage: 0.9
+  preconditionPassRate: 0.95
+  branchCoverageFromSpecTests: 0.85
 ---
 
 # SPEC

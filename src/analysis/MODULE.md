@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: 75561895e57fc9d15eb53d7b83ce777fa707cefc
+generatedAtSha: 16cc46e7ee40c94f6db070cdd56ce038bc78114f
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,14 +10,14 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.7142857142857143
+  typeCoverage: 1
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
-  typeCoverage: 0.4
-  preconditionPassRate: 0
-  branchCoverageFromSpecTests: 0.75
+  typeCoverage: 0.9
+  preconditionPassRate: 0.95
+  branchCoverageFromSpecTests: 0.85
 ---
 
 # SPEC
@@ -32,15 +32,6 @@ Barrel for the `analysis/` layer. Exposes two high-level per-folder operations �
 
 ## Public surface
 
-### [`GenerateFolderError`](./orchestrate.ts#L70)
-
-```ts
-export class GenerateFolderError extends Data.TaggedError("GenerateFolderError")<{
-  readonly folder: string;
-  readonly reason: string;
-}> { /* ... */ }
-```
-
 ### [`ValidateGapError`](./checks.ts#L74)
 
 ```ts
@@ -50,7 +41,22 @@ export type ValidateGapError =
   | MissingImplError;
 ```
 
-### [`GenerateFolderIOError`](./orchestrate.ts#L75)
+### [`GenerateFolderError`](./orchestrate.ts#L80)
+
+```ts
+export class GenerateFolderError extends Data.TaggedError("GenerateFolderError")<{
+  readonly folder: string;
+  readonly reason: string;
+}> { /* ... */ }
+```
+
+**Skipped property types:**
+- `Partial Roundtrip` — _tagged error class; no normalize-then-recover relation on the carried fields._
+- `Commutative Paths` — _single constructor; no alternative path produces the same error._
+- `Constant Equality` — _instances carry per-failure \`folder\`/\`reason\` strings; equality is per-instance, not constant._
+- `Constant Non-Equality` — _distinct failure inputs can produce identical messages when folder and reason collapse._
+
+### [`GenerateFolderIOError`](./orchestrate.ts#L95)
 
 ```ts
 export class GenerateFolderIOError extends Data.TaggedError("GenerateFolderIOError")<{
@@ -60,7 +66,13 @@ export class GenerateFolderIOError extends Data.TaggedError("GenerateFolderIOErr
 }> { /* ... */ }
 ```
 
-### [`GenerateFolderAnyError`](./orchestrate.ts#L86)
+**Skipped property types:**
+- `Partial Roundtrip` — _tagged error class; no normalize-then-recover relation._
+- `Commutative Paths` — _single constructor._
+- `Constant Equality` — _instances carry per-IO-failure fields; equality is per-instance._
+- `Constant Non-Equality` — _distinct IO failures can produce identical cause strings._
+
+### [`GenerateFolderAnyError`](./orchestrate.ts#L106)
 
 ```ts
 export type GenerateFolderAnyError =
@@ -69,7 +81,7 @@ export type GenerateFolderAnyError =
   | DirectiveParseError;
 ```
 
-### [`buildKnownExports`](./orchestrate.ts#L195)
+### [`buildKnownExports`](./orchestrate.ts#L215)
 
 ```ts
 export const buildKnownExports = (ctx: ProjectContext): ReadonlySet<string> => { /* ... */ }
@@ -103,7 +115,7 @@ export const diagnosticLines = (
 - `Constant Non-Equality` — _distinct tag/payload pairs can produce identical lines when payload fields collide._
 - `Exception Raising` — _pure synchronous formatter; cannot fail._
 
-### [`computeProjectNewestMtime`](./orchestrate.ts#L369)
+### [`computeProjectNewestMtime`](./orchestrate.ts#L393)
 
 ```ts
 export const computeProjectNewestMtime = (
@@ -124,8 +136,10 @@ export const computeProjectNewestMtime = (
 - `Constant Non-Equality` — _no distinct-output invariant; different inputs can produce equal mtimes when files share atimes._
 - `Inclusion` — _returns a scalar, not a collection._
 - `Exception Raising` — _typed as \`Effect of number with never error\` — error channel is \`never\` by construction._
+- `Typechecking` — _return type is captured by the explicit \`Effect.Effect of number with never error\` signature; no separate type-level claim to gate._
+- `Constant Bounds Checking` — _the value is a unix-epoch millis number; gating on the &gt;=0 bound would add nothing observable beyond what the type already guarantees._
 
-### [`generateFolder`](./orchestrate.ts#L417)
+### [`generateFolder`](./orchestrate.ts#L445)
 
 ```ts
 export const generateFolder = (
@@ -143,14 +157,31 @@ export const generateFolder = (
 - `Commutative Paths` — _single entry point; no equivalent API path produces the same artifacts._
 - `Constant Non-Equality` — _different folders can intentionally produce identical artifacts when sources collapse to the same shape (e.g., two empty folders)._
 - `Inclusion` — _returns a record of artifacts; no set/membership semantics._
+- `Roundtrip` — _pipeline-orchestration only; MODULE.md and sidecar are downstream artifacts, not encoded inputs._
+- `Exception Raising` — _parser failures inside the per-folder pipeline are surfaced through \`catchDirectiveErrors\` to \`MissingStubError\` at the \`validateFolder\` boundary, not at \`generateFolder\` — the generate path treats them as defects._
 
-### [`validateFolder`](./orchestrate.ts#L465)
+### [`validateFolder`](./orchestrate.ts#L493)
 
 ```ts
 export const validateFolder = (
   args: ValidateFolderArgs,
 ): Effect.Effect<string | null, ValidateGapError> => /* ... */
 ```
+
+**Assumes:**
+- "the underlying generate-tier pipeline is deterministic at the same tree SHA" — _drift cross-checks rely on byte-equality between on-disk and regenerated artifacts._
+
+**Guarantees:**
+- "first failing check short-circuits and emits exactly one of the four gap-class errors; success returns the folder string" — _the cli's catchTags routing acts on the tag; batched failures would obscure routing._
+
+**Residual contract:** "in \`--implemented\` mode, a Vitest execution sidecar must already exist on disk for the folder; absence is reported as MissingImplError" — _implementation-tier gate; planned-mode doesn't read execution sidecars at all._
+
+**Skipped property types:**
+- `Roundtrip` — _validate is a gate, not a transform; no encode/decode pair._
+- `Partial Roundtrip` — _no normalize-then-recover semantics; validate either succeeds or fails on a tagged error._
+- `Commutative Paths` — _single entry point; no equivalent API path for the same gate decision._
+- `Constant Bounds Checking` — _returns a folder string (success) or a tagged error; no numeric/length bound._
+- `Constant Non-Equality` — _different folders can pass the gate identically (same folder string return); no anti-collision invariant._
 
 ## Children
 
@@ -210,6 +241,7 @@ export const validateFolder = (
 | `diagnostic-lines-header-carries-tag-and-problem` | `Inclusion` | `diagnosticLines` | the first emitted line carries both the \`\_tag\` (in brackets) and the diagnostic's \`problem\` body — readers grep stderr by tag | implemented |
 | `diagnostic-lines-typecheck` | `Typechecking` | `diagnosticLines` | returns a ReadonlyArray of strings — the shape the cli's stderr renderer iterates | implemented |
 | `diagnostic-lines-bounded-line-count` | `Constant Bounds Checking` | `diagnosticLines` | emitted line count is exactly 5 regardless of payload content size — stable for stderr framing | implemented |
+| `validate-folder-can-fail-on-gap-class-errors` | `Exception Raising` | `validateFolder` | \`validateFolder\` has a typed \`ValidateGapError\` error channel — the four documented gap-class tagged errors (MissingSpecPropertyError, MissingStubError, MissingImplError, FolderNotFoundError) | implemented |
 | `extract-skips-non-itspec-calls` | `Constant Equality` | `extractProperties` | non-itSpec call expressions (console.log, IIFEs, other library calls) are silently skipped — they yield no rows and no issues | implemented |
 | `extract-non-literal-id-is-mismatch` | `Exception Raising` | `extractProperties` | a non-string-literal id (e.g. variable reference) produces a directive-mismatch issue because the validate cross-check cannot read it | implemented |
 | `extract-absent-opts-type-is-mismatch` | `Exception Raising` | `extractProperties` | an itSpec call whose opts object omits \`type:\` produces a directive-mismatch — the JSDoc \`@spec.type\` cannot ship as truth without runtime corroboration | implemented |

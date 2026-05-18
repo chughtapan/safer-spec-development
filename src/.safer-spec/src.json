@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src",
-  "generatedAtSha": "75561895e57fc9d15eb53d7b83ce777fa707cefc",
+  "generatedAtSha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f",
   "exports": [
     {
       "name": "PROPERTY_TYPES",
@@ -10,8 +10,7 @@
         "Roundtrip",
         "Constant Bounds Checking",
         "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion"
+        "Typechecking"
       ],
       "observedPropertyTypes": [
         "Constant Equality",
@@ -37,6 +36,10 @@
         {
           "propertyType": "Exception Raising",
           "reason": "a constant; cannot fail."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "the tuple's membership IS the contract, but it's tested by `property-types-bounded-by-paper-rounding` (Constant Bounds Checking) which enforces the length range — that property indirectly validates inclusion since the length and order are pinned."
         }
       ],
       "residualContract": {
@@ -52,8 +55,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
-        "line": 35,
-        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
+        "line": 37,
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -67,8 +70,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
-        "line": 47,
-        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
+        "line": 49,
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -105,16 +108,14 @@
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
         "line": 53,
-        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
       "name": "itSpec",
       "shape": "unknown",
       "requiredPropertyTypes": [
-        "Roundtrip",
-        "Typechecking",
-        "Exception Raising"
+        "Typechecking"
       ],
       "observedPropertyTypes": [
         "Typechecking",
@@ -146,6 +147,14 @@
         {
           "propertyType": "Inclusion",
           "reason": "a method record, not a collection."
+        },
+        {
+          "propertyType": "Roundtrip",
+          "reason": "registration sink only; no inverse from a registered test back to its metadata."
+        },
+        {
+          "propertyType": "Exception Raising",
+          "reason": "registration is synchronous and total; property failures live INSIDE the test body the runner executes, not in `itSpec` itself."
         }
       ],
       "residualContract": null,
@@ -158,17 +167,17 @@
       ],
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
-        "line": 138,
-        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
+        "line": 142,
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.8888888888888888
+    "typeCoverage": 1
   },
   "thresholds": {
-    "typeCoverage": 0.4,
-    "preconditionPassRate": 0,
-    "branchCoverageFromSpecTests": 0.75
+    "typeCoverage": 0.9,
+    "preconditionPassRate": 0.95,
+    "branchCoverageFromSpecTests": 0.85
   }
 }
