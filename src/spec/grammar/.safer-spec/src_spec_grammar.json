@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/grammar",
-  "generatedAtSha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487",
+  "generatedAtSha": "5a241b0acc0e61eb13be108f6977411c737fbeb4",
   "exports": [
     {
       "name": "DIRECTIVE_BODY_MAX_CHARS",
@@ -30,7 +30,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 17,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -68,7 +68,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 27,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -98,7 +98,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 28,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -128,7 +128,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 38,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -143,7 +143,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 39,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -173,7 +173,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 47,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -188,7 +188,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 69,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -203,7 +203,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 89,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -239,7 +239,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 284,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     }
   ],

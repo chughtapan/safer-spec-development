@@ -7,7 +7,7 @@
 import { Data, Effect } from "effect";
 import * as fc from "fast-check";
 import { itSpec } from "@safer/spec/grammar/it-spec.js";
-import { resolveSymbol } from "@safer/spec/artifact/link-resolver.js";
+import { resolveSymbol, relativeToFolder } from "@safer/spec/artifact/link-resolver.js";
 
 class LinkAssertionError extends Data.TaggedError("LinkAssertionError")<{
   readonly detail: string;
@@ -75,6 +75,145 @@ itSpec.prop(
           outcome.origin !== "external-package",
           `expected external-package origin for ${JSON.stringify(symbol)}, got ${outcome.origin}`,
         );
+      }),
+    ),
+);
+
+/**
+ * @spec.property resolve-symbol-cross-spec-emits-relative-md-link
+ * @spec.type Constant Equality
+ * @spec.exports resolveSymbol
+ * @spec.claim the `@safer/FOLDER/...` shape resolves to cross-spec origin with href `../FOLDER/SPEC.md`
+ */
+itSpec.prop(
+  "resolve-symbol-cross-spec-emits-relative-md-link",
+  { type: "Constant Equality", exports: [resolveSymbol] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const out = yield* resolveSymbol("@safer/analysis/checks", "any.md");
+        yield* failIf(out.origin !== "cross-spec", `expected cross-spec; got ${out.origin}`);
+        if (out.origin !== "cross-spec") return;
+        yield* failIf(out.href !== "../analysis/SPEC.md", `expected ../analysis/SPEC.md; got ${out.href}`);
+      }),
+    ),
+);
+
+/**
+ * @spec.property resolve-symbol-cross-spec-without-subpath
+ * @spec.type Constant Equality
+ * @spec.exports resolveSymbol
+ * @spec.claim `@safer/FOLDER` (no trailing slash) still emits href `../FOLDER/SPEC.md`
+ */
+itSpec.prop(
+  "resolve-symbol-cross-spec-without-subpath",
+  { type: "Constant Equality", exports: [resolveSymbol] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const out = yield* resolveSymbol("@safer/project", "any.md");
+        yield* failIf(out.origin !== "cross-spec", `expected cross-spec`);
+        if (out.origin !== "cross-spec") return;
+        yield* failIf(out.href !== "../project/SPEC.md", `expected ../project/SPEC.md; got ${out.href}`);
+      }),
+    ),
+);
+
+/**
+ * @spec.property resolve-symbol-agent-code-guard-rule
+ * @spec.type Inclusion
+ * @spec.exports resolveSymbol
+ * @spec.claim `agent-code-guard/\<rule>` resolves to agent-code-guard-rule with a GitHub URL containing the rule name
+ */
+itSpec.prop(
+  "resolve-symbol-agent-code-guard-rule",
+  { type: "Inclusion", exports: [resolveSymbol] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const out = yield* resolveSymbol("agent-code-guard/no-throw", "any.md");
+        yield* failIf(out.origin !== "agent-code-guard-rule", `expected agent-code-guard-rule`);
+        if (out.origin !== "agent-code-guard-rule") return;
+        yield* failIf(!out.href.includes("#no-throw"), `expected anchor; got ${out.href}`);
+      }),
+    ),
+);
+
+/**
+ * @spec.property relative-to-folder-root-sentinel
+ * @spec.type Constant Equality
+ * @spec.exports relativeToFolder
+ * @spec.claim from folder "." (project root sentinel), target is rebased onto `./TARGET` rather than `../TARGET`
+ */
+itSpec.prop(
+  "relative-to-folder-root-sentinel",
+  { type: "Constant Equality", exports: [relativeToFolder] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const out = relativeToFolder(".", "src/foo.ts");
+        yield* failIf(out !== "./src/foo.ts", `expected ./src/foo.ts; got ${out}`);
+      }),
+    ),
+);
+
+/**
+ * @spec.property relative-to-folder-same-folder-prefix
+ * @spec.type Constant Equality
+ * @spec.exports relativeToFolder
+ * @spec.claim a target prefixed by the folder rebases to `./REMAINDER`
+ */
+itSpec.prop(
+  "relative-to-folder-same-folder-prefix",
+  { type: "Constant Equality", exports: [relativeToFolder] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const out = relativeToFolder("src/foo", "src/foo/bar.ts");
+        yield* failIf(out !== "./bar.ts", `expected ./bar.ts; got ${out}`);
+      }),
+    ),
+);
+
+/**
+ * @spec.property relative-to-folder-absolute-passthrough
+ * @spec.type Constant Equality
+ * @spec.exports relativeToFolder
+ * @spec.claim absolute paths and URL schemes pass through unchanged
+ */
+itSpec.prop(
+  "relative-to-folder-absolute-passthrough",
+  { type: "Constant Equality", exports: [relativeToFolder] },
+  fc.constantFrom("/abs/path/foo.ts", "https://x/y"),
+  (target) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const out = relativeToFolder("src/x", target);
+        yield* failIf(out !== target, `expected ${target} unchanged; got ${out}`);
+      }),
+    ),
+);
+
+/**
+ * @spec.property relative-to-folder-sibling-folders
+ * @spec.type Constant Equality
+ * @spec.exports relativeToFolder
+ * @spec.claim sibling-folder targets emit a `../OTHER/...` link
+ */
+itSpec.prop(
+  "relative-to-folder-sibling-folders",
+  { type: "Constant Equality", exports: [relativeToFolder] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const out = relativeToFolder("src/a", "src/b/x.ts");
+        yield* failIf(out !== "../b/x.ts", `expected ../b/x.ts; got ${out}`);
       }),
     ),
 );

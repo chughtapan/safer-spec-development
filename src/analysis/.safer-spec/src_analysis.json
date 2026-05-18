@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/analysis",
-  "generatedAtSha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487",
+  "generatedAtSha": "5a241b0acc0e61eb13be108f6977411c737fbeb4",
   "exports": [
     {
       "name": "GenerateFolderError",
@@ -31,7 +31,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 70,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -46,7 +46,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 74,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -77,7 +77,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 75,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -92,7 +92,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 86,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -122,7 +122,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 185,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -140,8 +140,8 @@
         "Exception Raising"
       ],
       "observedPropertyTypes": [
-        "Constant Equality",
         "Inclusion",
+        "Constant Equality",
         "Typechecking",
         "Constant Bounds Checking",
         "Roundtrip"
@@ -153,7 +153,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 343,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -183,7 +183,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 345,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -222,7 +222,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 385,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     },
     {
@@ -251,7 +251,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 423,
-        "sha": "0e9aabfcef9ce6f3539caf1ac2effa225f87e487"
+        "sha": "5a241b0acc0e61eb13be108f6977411c737fbeb4"
       }
     }
   ],
