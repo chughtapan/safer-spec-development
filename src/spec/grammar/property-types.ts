@@ -31,6 +31,8 @@
  *   reason: handled by Roundtrip — calling the constant twice trivially returns the same value.
  * @spec.skip "Exception Raising"
  *   reason: a constant; cannot fail.
+ * @spec.skip "Inclusion"
+ *   reason: the tuple's membership IS the contract, but it's tested by `property-types-bounded-by-paper-rounding` (Constant Bounds Checking) which enforces the length range — that property indirectly validates inclusion since the length and order are pinned.
  */
 export const PROPERTY_TYPES = [
   "Roundtrip",

@@ -40,11 +40,39 @@ export interface SourceFile {
   readonly source: string;
 }
 
+/**
+ * @spec.skip "Partial Roundtrip"
+ *   reason: tagged error class; no normalize-then-recover relation.
+ * @spec.skip "Commutative Paths"
+ *   reason: single constructor.
+ * @spec.skip "Constant Equality"
+ *   reason: instances carry per-failure path + cause; equality is per-instance.
+ * @spec.skip "Constant Bounds Checking"
+ *   reason: cause strings are not length-bounded.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct context-load failures can produce identical cause strings.
+ * @spec.skip "Inclusion"
+ *   reason: not a collection.
+ */
 export class ProjectContextError extends Data.TaggedError("ProjectContextError")<{
   readonly path: string;
   readonly cause: string;
 }> {}
 
+/**
+ * @spec.skip "Partial Roundtrip"
+ *   reason: tagged error class; no normalize-then-recover relation.
+ * @spec.skip "Commutative Paths"
+ *   reason: single constructor.
+ * @spec.skip "Constant Equality"
+ *   reason: instances carry the user's per-call requested folder string; equality is per-instance.
+ * @spec.skip "Constant Bounds Checking"
+ *   reason: requested folder string is user-controlled and length-unbounded.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct mistyped folders can collapse to the same requested string.
+ * @spec.skip "Inclusion"
+ *   reason: not a collection.
+ */
 export class FolderNotFoundError extends Data.TaggedError("FolderNotFoundError")<{
   readonly requested: string;
 }> {}

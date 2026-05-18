@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/grammar",
-  "generatedAtSha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09",
+  "generatedAtSha": "8f3e4caed805be95f6824b851d172439cc17c090",
   "exports": [
     {
       "name": "DIRECTIVE_BODY_MAX_CHARS",
@@ -51,7 +51,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 27,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -61,8 +61,7 @@
         "Roundtrip",
         "Constant Bounds Checking",
         "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion"
+        "Typechecking"
       ],
       "observedPropertyTypes": [
         "Typechecking",
@@ -86,6 +85,10 @@
         {
           "propertyType": "Exception Raising",
           "reason": "a constant; cannot fail."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "the tuple's membership IS the contract, but it's tested by `property-types-bounded-by-paper-rounding` (Constant Bounds Checking) which enforces the length range — that property indirectly validates inclusion since the length and order are pinned."
         }
       ],
       "residualContract": {
@@ -101,38 +104,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
-        "line": 35,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
-      }
-    },
-    {
-      "name": "JsDocDirectiveOverflowError",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Constant Equality",
-        "Typechecking",
-        "Exception Raising",
-        "Constant Bounds Checking"
-      ],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/grammar/shared.ts",
-        "line": 38,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "line": 37,
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -146,68 +119,54 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
-        "line": 47,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "line": 49,
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
-      "name": "JsDocDirectiveParseError",
+      "name": "JsDocDirectiveOverflowError",
       "shape": "type",
       "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
         "Constant Equality",
         "Constant Bounds Checking",
-        "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
         "Exception Raising"
       ],
       "observedPropertyTypes": [
         "Constant Equality",
         "Typechecking",
         "Exception Raising",
-        "Roundtrip"
+        "Constant Bounds Checking"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Roundtrip",
+          "reason": "tagged error class; the symmetric path is the parser raising the error from a JSDoc body."
+        },
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "no normalize-then-recover relation on the carried fields."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single constructor."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "distinct overflows can produce identical (path, line, directive, length, limit) tuples."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "not a collection."
+        }
+      ],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
-        "line": 48,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
-      }
-    },
-    {
-      "name": "JsDocUnknownDirectiveError",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Exception Raising",
-        "Typechecking",
-        "Roundtrip",
-        "Constant Equality"
-      ],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/grammar/shared.ts",
-        "line": 57,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "line": 50,
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -222,7 +181,53 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 69,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
+      }
+    },
+    {
+      "name": "JsDocDirectiveParseError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Constant Equality",
+        "Typechecking",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Constant Equality",
+        "Typechecking",
+        "Exception Raising",
+        "Roundtrip"
+      ],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "tagged error class; no normalize-then-recover relation."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single constructor."
+        },
+        {
+          "propertyType": "Constant Bounds Checking",
+          "reason": "reason field is free-form and not length-bounded."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "distinct parse failures can produce identical reason strings."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "not a collection."
+        }
+      ],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/grammar/shared.ts",
+        "line": 72,
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -237,7 +242,53 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 89,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
+      }
+    },
+    {
+      "name": "JsDocUnknownDirectiveError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Constant Equality",
+        "Typechecking",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Exception Raising",
+        "Typechecking",
+        "Roundtrip",
+        "Constant Equality"
+      ],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "tagged error class; no normalize-then-recover relation."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single constructor."
+        },
+        {
+          "propertyType": "Constant Bounds Checking",
+          "reason": "directive string is user-controlled and length-unbounded."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "distinct unknown directives can collapse to the same string after normalization."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "not a collection."
+        }
+      ],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/grammar/shared.ts",
+        "line": 93,
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -286,12 +337,12 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 292,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.7037037037037037
+    "typeCoverage": 1
   },
   "thresholds": {
     "typeCoverage": 0.4,

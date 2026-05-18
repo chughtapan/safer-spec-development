@@ -35,6 +35,18 @@ export const PURPOSE_BODY_MAX_CHARS = 5000;
 export const Capped = Schema.String.pipe(Schema.maxLength(DIRECTIVE_BODY_MAX_CHARS));
 export const CappedPurpose = Schema.String.pipe(Schema.maxLength(PURPOSE_BODY_MAX_CHARS));
 
+/**
+ * @spec.skip "Roundtrip"
+ *   reason: tagged error class; the symmetric path is the parser raising the error from a JSDoc body.
+ * @spec.skip "Partial Roundtrip"
+ *   reason: no normalize-then-recover relation on the carried fields.
+ * @spec.skip "Commutative Paths"
+ *   reason: single constructor.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct overflows can produce identical (path, line, directive, length, limit) tuples.
+ * @spec.skip "Inclusion"
+ *   reason: not a collection.
+ */
 export class JsDocDirectiveOverflowError extends Data.TaggedError(
   "JsDocDirectiveOverflowError",
 )<{
@@ -45,6 +57,18 @@ export class JsDocDirectiveOverflowError extends Data.TaggedError(
   readonly limit: number;
 }> {}
 
+/**
+ * @spec.skip "Partial Roundtrip"
+ *   reason: tagged error class; no normalize-then-recover relation.
+ * @spec.skip "Commutative Paths"
+ *   reason: single constructor.
+ * @spec.skip "Constant Bounds Checking"
+ *   reason: reason field is free-form and not length-bounded.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct parse failures can produce identical reason strings.
+ * @spec.skip "Inclusion"
+ *   reason: not a collection.
+ */
 export class JsDocDirectiveParseError extends Data.TaggedError(
   "JsDocDirectiveParseError",
 )<{
@@ -54,6 +78,18 @@ export class JsDocDirectiveParseError extends Data.TaggedError(
   readonly reason: string;
 }> {}
 
+/**
+ * @spec.skip "Partial Roundtrip"
+ *   reason: tagged error class; no normalize-then-recover relation.
+ * @spec.skip "Commutative Paths"
+ *   reason: single constructor.
+ * @spec.skip "Constant Bounds Checking"
+ *   reason: directive string is user-controlled and length-unbounded.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct unknown directives can collapse to the same string after normalization.
+ * @spec.skip "Inclusion"
+ *   reason: not a collection.
+ */
 export class JsDocUnknownDirectiveError extends Data.TaggedError(
   "JsDocUnknownDirectiveError",
 )<{

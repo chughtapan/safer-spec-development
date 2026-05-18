@@ -1,7 +1,7 @@
 ---
 folder: src/project
 format-version: 0.1.0
-generatedAtSha: 0ef093e21c2d6f9abd7859c019a1f6f003e47e09
+generatedAtSha: 8f3e4caed805be95f6824b851d172439cc17c090
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.6
+  typeCoverage: 1
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -27,15 +27,6 @@ thresholds:
 Barrel for the `project/` layer. Exposes the fully-resolved `ProjectContext` snapshot (with precomputed folder list, per-folder subfolder map, and threshold resolver), the one loader that builds it, the stable format version, and the three tagged errors the cli routes. Folder-discovery primitives, the threshold resolver, and the path normalizer are implementation details behind `ProjectContext` methods.
 
 ## Public surface
-
-### [`ConfigError`](./config.ts#L18)
-
-```ts
-export class ConfigError extends Data.TaggedError("ConfigError")<{
-  readonly path: string;
-  readonly cause: string;
-}> { /* ... */ }
-```
 
 ### [`SPEC_FORMAT_VERSION`](./version.ts#L26)
 
@@ -55,6 +46,23 @@ export const SPEC_FORMAT_VERSION = "0.1.0" as const;
 - `Constant Non-Equality` — _a single string value; no distinct-output invariant applies._
 - `Exception Raising` — _a constant; cannot fail._
 
+### [`ConfigError`](./config.ts#L32)
+
+```ts
+export class ConfigError extends Data.TaggedError("ConfigError")<{
+  readonly path: string;
+  readonly cause: string;
+}> { /* ... */ }
+```
+
+**Skipped property types:**
+- `Partial Roundtrip` — _tagged error class; no normalize-then-recover relation._
+- `Commutative Paths` — _single constructor._
+- `Constant Equality` — _instances carry per-failure path + cause; equality is per-instance._
+- `Constant Bounds Checking` — _cause strings are not length-bounded._
+- `Constant Non-Equality` — _distinct config failures can produce identical cause strings._
+- `Inclusion` — _not a collection._
+
 ### [`SourceFile`](./context.ts#L38)
 
 ```ts
@@ -69,7 +77,7 @@ project registers so cross-file `export ... from` resolves. Produced
 by `loadProjectContext` and consumed by `analysis/exports.ts`'s
 `collectExports`.
 
-### [`ProjectContextError`](./context.ts#L43)
+### [`ProjectContextError`](./context.ts#L57)
 
 ```ts
 export class ProjectContextError extends Data.TaggedError("ProjectContextError")<{
@@ -78,15 +86,15 @@ export class ProjectContextError extends Data.TaggedError("ProjectContextError")
 }> { /* ... */ }
 ```
 
-### [`FolderNotFoundError`](./context.ts#L48)
+**Skipped property types:**
+- `Partial Roundtrip` — _tagged error class; no normalize-then-recover relation._
+- `Commutative Paths` — _single constructor._
+- `Constant Equality` — _instances carry per-failure path + cause; equality is per-instance._
+- `Constant Bounds Checking` — _cause strings are not length-bounded._
+- `Constant Non-Equality` — _distinct context-load failures can produce identical cause strings._
+- `Inclusion` — _not a collection._
 
-```ts
-export class FolderNotFoundError extends Data.TaggedError("FolderNotFoundError")<{
-  readonly requested: string;
-}> { /* ... */ }
-```
-
-### [`Thresholds`](./config.ts#L51)
+### [`Thresholds`](./config.ts#L65)
 
 ```ts
 export interface Thresholds {
@@ -96,7 +104,23 @@ export interface Thresholds {
 }
 ```
 
-### [`ProjectContext`](./context.ts#L52)
+### [`FolderNotFoundError`](./context.ts#L76)
+
+```ts
+export class FolderNotFoundError extends Data.TaggedError("FolderNotFoundError")<{
+  readonly requested: string;
+}> { /* ... */ }
+```
+
+**Skipped property types:**
+- `Partial Roundtrip` — _tagged error class; no normalize-then-recover relation._
+- `Commutative Paths` — _single constructor._
+- `Constant Equality` — _instances carry the user's per-call requested folder string; equality is per-instance._
+- `Constant Bounds Checking` — _requested folder string is user-controlled and length-unbounded._
+- `Constant Non-Equality` — _distinct mistyped folders can collapse to the same requested string._
+- `Inclusion` — _not a collection._
+
+### [`ProjectContext`](./context.ts#L80)
 
 ```ts
 export interface ProjectContext {
@@ -129,7 +153,7 @@ export interface ProjectContext {
 }
 ```
 
-### [`loadProjectContext`](./context.ts#L325)
+### [`loadProjectContext`](./context.ts#L353)
 
 ```ts
 export const loadProjectContext = (

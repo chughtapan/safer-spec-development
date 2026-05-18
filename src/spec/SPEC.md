@@ -1,7 +1,7 @@
 ---
 folder: src/spec
 format-version: 0.1.0
-generatedAtSha: 0ef093e21c2d6f9abd7859c019a1f6f003e47e09
+generatedAtSha: 8f3e4caed805be95f6824b851d172439cc17c090
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,7 +10,7 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.8888888888888888
+  typeCoverage: 1
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
@@ -74,7 +74,7 @@ export interface ItSpec {
 
 **Residual contract:** "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override" — _behavioral residue beyond the call signature; downstream authors need to know the property runner is not configured through Vitest._
 
-### [`itSpec`](./grammar/it-spec.ts#L138)
+### [`itSpec`](./grammar/it-spec.ts#L142)
 
 ```ts
 export const itSpec: ItSpec = {
@@ -106,6 +106,8 @@ export const itSpec: ItSpec = {
 - `Constant Non-Equality` — _no anti-collision invariant between todo and prop methods._
 - `Constant Bounds Checking` — _not a numeric/length output._
 - `Inclusion` — _a method record, not a collection._
+- `Roundtrip` — _registration sink only; no inverse from a registered test back to its metadata._
+- `Exception Raising` — _registration is synchronous and total; property failures live INSIDE the test body the runner executes, not in \`itSpec\` itself._
 
 ## Children
 

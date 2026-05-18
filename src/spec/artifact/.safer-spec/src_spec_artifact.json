@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/artifact",
-  "generatedAtSha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09",
+  "generatedAtSha": "8f3e4caed805be95f6824b851d172439cc17c090",
   "exports": [
     {
       "name": "ExportKind",
@@ -15,7 +15,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 26,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -30,7 +30,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 47,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -38,8 +38,7 @@
       "shape": "function",
       "requiredPropertyTypes": [
         "Roundtrip",
-        "Constant Equality",
-        "Typechecking"
+        "Constant Equality"
       ],
       "observedPropertyTypes": [
         "Constant Equality",
@@ -69,6 +68,10 @@
         {
           "propertyType": "Exception Raising",
           "reason": "total function on string input; cannot fail."
+        },
+        {
+          "propertyType": "Typechecking",
+          "reason": "`(string) => string` is captured by the explicit signature; no separate type-level claim worth gating."
         }
       ],
       "residualContract": {
@@ -84,8 +87,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
-        "line": 55,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "line": 57,
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -136,7 +139,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 57,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -151,7 +154,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 62,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -166,7 +169,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 75,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -181,7 +184,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 80,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -231,8 +234,8 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
-        "line": 98,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "line": 100,
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -285,7 +288,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/coverage.ts",
         "line": 108,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -300,7 +303,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 187,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -357,7 +360,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 233,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -412,7 +415,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 259,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -467,7 +470,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 276,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -520,7 +523,7 @@
       "sourceRef": {
         "path": "src/spec/artifact/emit.ts",
         "line": 333,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     },
     {
@@ -573,12 +576,12 @@
       "sourceRef": {
         "path": "src/spec/artifact/reporter.ts",
         "line": 415,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "8f3e4caed805be95f6824b851d172439cc17c090"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.9876543209876544
+    "typeCoverage": 1
   },
   "thresholds": {
     "typeCoverage": 0.4,
