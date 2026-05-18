@@ -1,37 +1,8 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/project",
-  "generatedAtSha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09",
+  "generatedAtSha": "1154b4b8249204fa34505892bd114bed18c178f1",
   "exports": [
-    {
-      "name": "ConfigError",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Roundtrip",
-        "Exception Raising",
-        "Typechecking"
-      ],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/project/config.ts",
-        "line": 18,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
-      }
-    },
     {
       "name": "SPEC_FORMAT_VERSION",
       "shape": "unknown",
@@ -84,7 +55,55 @@
       "sourceRef": {
         "path": "src/project/version.ts",
         "line": 26,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+      }
+    },
+    {
+      "name": "ConfigError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Typechecking",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Roundtrip",
+        "Exception Raising",
+        "Typechecking"
+      ],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "tagged error class; no normalize-then-recover relation."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single constructor."
+        },
+        {
+          "propertyType": "Constant Equality",
+          "reason": "instances carry per-failure path + cause; equality is per-instance."
+        },
+        {
+          "propertyType": "Constant Bounds Checking",
+          "reason": "cause strings are not length-bounded."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "distinct config failures can produce identical cause strings."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "not a collection."
+        }
+      ],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/project/config.ts",
+        "line": 32,
+        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
       }
     },
     {
@@ -99,7 +118,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 38,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
       }
     },
     {
@@ -107,13 +126,7 @@
       "shape": "type",
       "requiredPropertyTypes": [
         "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
         "Typechecking",
-        "Inclusion",
         "Exception Raising"
       ],
       "observedPropertyTypes": [
@@ -121,43 +134,39 @@
         "Exception Raising",
         "Typechecking"
       ],
-      "skipped": [],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "tagged error class; no normalize-then-recover relation."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single constructor."
+        },
+        {
+          "propertyType": "Constant Equality",
+          "reason": "instances carry per-failure path + cause; equality is per-instance."
+        },
+        {
+          "propertyType": "Constant Bounds Checking",
+          "reason": "cause strings are not length-bounded."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "distinct context-load failures can produce identical cause strings."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "not a collection."
+        }
+      ],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/project/context.ts",
-        "line": 43,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
-      }
-    },
-    {
-      "name": "FolderNotFoundError",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Partial Roundtrip",
-        "Commutative Paths",
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Constant Non-Equality",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Roundtrip",
-        "Exception Raising",
-        "Typechecking"
-      ],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/project/context.ts",
-        "line": 48,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "line": 57,
+        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
       }
     },
     {
@@ -171,8 +180,56 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/project/config.ts",
-        "line": 51,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "line": 65,
+        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+      }
+    },
+    {
+      "name": "FolderNotFoundError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Typechecking",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Roundtrip",
+        "Exception Raising",
+        "Typechecking"
+      ],
+      "skipped": [
+        {
+          "propertyType": "Partial Roundtrip",
+          "reason": "tagged error class; no normalize-then-recover relation."
+        },
+        {
+          "propertyType": "Commutative Paths",
+          "reason": "single constructor."
+        },
+        {
+          "propertyType": "Constant Equality",
+          "reason": "instances carry the user's per-call requested folder string; equality is per-instance."
+        },
+        {
+          "propertyType": "Constant Bounds Checking",
+          "reason": "requested folder string is user-controlled and length-unbounded."
+        },
+        {
+          "propertyType": "Constant Non-Equality",
+          "reason": "distinct mistyped folders can collapse to the same requested string."
+        },
+        {
+          "propertyType": "Inclusion",
+          "reason": "not a collection."
+        }
+      ],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/project/context.ts",
+        "line": 76,
+        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
       }
     },
     {
@@ -186,8 +243,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/project/context.ts",
-        "line": 52,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "line": 80,
+        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
       }
     },
     {
@@ -235,17 +292,17 @@
       ],
       "sourceRef": {
         "path": "src/project/context.ts",
-        "line": 325,
-        "sha": "0ef093e21c2d6f9abd7859c019a1f6f003e47e09"
+        "line": 353,
+        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 0.6
+    "typeCoverage": 1
   },
   "thresholds": {
-    "typeCoverage": 0.4,
-    "preconditionPassRate": 0,
-    "branchCoverageFromSpecTests": 0.75
+    "typeCoverage": 0.9,
+    "preconditionPassRate": 0.95,
+    "branchCoverageFromSpecTests": 0.85
   }
 }

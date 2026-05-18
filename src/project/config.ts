@@ -15,6 +15,20 @@
 import { FileSystem, Path } from "@effect/platform";
 import { Data, Effect, Schema } from "effect";
 
+/**
+ * @spec.skip "Partial Roundtrip"
+ *   reason: tagged error class; no normalize-then-recover relation.
+ * @spec.skip "Commutative Paths"
+ *   reason: single constructor.
+ * @spec.skip "Constant Equality"
+ *   reason: instances carry per-failure path + cause; equality is per-instance.
+ * @spec.skip "Constant Bounds Checking"
+ *   reason: cause strings are not length-bounded.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct config failures can produce identical cause strings.
+ * @spec.skip "Inclusion"
+ *   reason: not a collection.
+ */
 export class ConfigError extends Data.TaggedError("ConfigError")<{
   readonly path: string;
   readonly cause: string;

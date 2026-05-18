@@ -1,7 +1,7 @@
 ---
 folder: src
 format-version: 0.1.0
-generatedAtSha: 0ef093e21c2d6f9abd7859c019a1f6f003e47e09
+generatedAtSha: 1154b4b8249204fa34505892bd114bed18c178f1
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,14 +10,14 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.8888888888888888
+  typeCoverage: 1
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
-  typeCoverage: 0.4
-  preconditionPassRate: 0
-  branchCoverageFromSpecTests: 0.75
+  typeCoverage: 0.9
+  preconditionPassRate: 0.95
+  branchCoverageFromSpecTests: 0.85
 ---
 
 # SPEC
@@ -30,7 +30,7 @@ This barrel carries `@spec.purpose` only. Per-export `@spec.assume`, `@spec.guar
 
 ## Public surface
 
-### [`PROPERTY_TYPES`](./spec/grammar/property-types.ts#L35)
+### [`PROPERTY_TYPES`](./spec/grammar/property-types.ts#L37)
 
 ```ts
 export const PROPERTY_TYPES = [
@@ -56,8 +56,9 @@ export const PROPERTY_TYPES = [
 - `Commutative Paths` — _a constant; no alternative path to derive it._
 - `Constant Equality` — _handled by Roundtrip — calling the constant twice trivially returns the same value._
 - `Exception Raising` — _a constant; cannot fail._
+- `Inclusion` — _the tuple's membership IS the contract, but it's tested by \`property-types-bounded-by-paper-rounding\` (Constant Bounds Checking) which enforces the length range — that property indirectly validates inclusion since the length and order are pinned._
 
-### [`PropertyType`](./spec/grammar/property-types.ts#L47)
+### [`PropertyType`](./spec/grammar/property-types.ts#L49)
 
 ```ts
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
@@ -109,7 +110,7 @@ export interface ItSpec {
 
 **Residual contract:** "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override" — _behavioral residue beyond the call signature; downstream authors need to know the property runner is not configured through Vitest._
 
-### [`itSpec`](./spec/grammar/it-spec.ts#L138)
+### [`itSpec`](./spec/grammar/it-spec.ts#L142)
 
 ```ts
 export const itSpec: ItSpec = {
@@ -141,6 +142,8 @@ export const itSpec: ItSpec = {
 - `Constant Non-Equality` — _no anti-collision invariant between todo and prop methods._
 - `Constant Bounds Checking` — _not a numeric/length output._
 - `Inclusion` — _a method record, not a collection._
+- `Roundtrip` — _registration sink only; no inverse from a registered test back to its metadata._
+- `Exception Raising` — _registration is synchronous and total; property failures live INSIDE the test body the runner executes, not in \`itSpec\` itself._
 
 ## Children
 

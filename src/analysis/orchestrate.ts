@@ -67,11 +67,31 @@ import {
 
 /* ---------- shared error union for generateFolder ---------- */
 
+/**
+ * @spec.skip "Partial Roundtrip"
+ *   reason: tagged error class; no normalize-then-recover relation on the carried fields.
+ * @spec.skip "Commutative Paths"
+ *   reason: single constructor; no alternative path produces the same error.
+ * @spec.skip "Constant Equality"
+ *   reason: instances carry per-failure `folder`/`reason` strings; equality is per-instance, not constant.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct failure inputs can produce identical messages when folder and reason collapse.
+ */
 export class GenerateFolderError extends Data.TaggedError("GenerateFolderError")<{
   readonly folder: string;
   readonly reason: string;
 }> {}
 
+/**
+ * @spec.skip "Partial Roundtrip"
+ *   reason: tagged error class; no normalize-then-recover relation.
+ * @spec.skip "Commutative Paths"
+ *   reason: single constructor.
+ * @spec.skip "Constant Equality"
+ *   reason: instances carry per-IO-failure fields; equality is per-instance.
+ * @spec.skip "Constant Non-Equality"
+ *   reason: distinct IO failures can produce identical cause strings.
+ */
 export class GenerateFolderIOError extends Data.TaggedError("GenerateFolderIOError")<{
   readonly folder: string;
   readonly path: string;
@@ -365,6 +385,10 @@ const newestFileMtime = (
  *   reason: returns a scalar, not a collection.
  * @spec.skip "Exception Raising"
  *   reason: typed as `Effect of number with never error` — error channel is `never` by construction.
+ * @spec.skip "Typechecking"
+ *   reason: return type is captured by the explicit `Effect.Effect of number with never error` signature; no separate type-level claim to gate.
+ * @spec.skip "Constant Bounds Checking"
+ *   reason: the value is a unix-epoch millis number; gating on the >=0 bound would add nothing observable beyond what the type already guarantees.
  */
 export const computeProjectNewestMtime = (
   fs: FileSystem.FileSystem,
@@ -413,6 +437,10 @@ const driftMetaFor = (
  *   reason: different folders can intentionally produce identical artifacts when sources collapse to the same shape (e.g., two empty folders).
  * @spec.skip "Inclusion"
  *   reason: returns a record of artifacts; no set/membership semantics.
+ * @spec.skip "Roundtrip"
+ *   reason: pipeline-orchestration only; SPEC.md and sidecar are downstream artifacts, not encoded inputs.
+ * @spec.skip "Exception Raising"
+ *   reason: parser failures inside the per-folder pipeline are surfaced through `catchDirectiveErrors` to `MissingStubError` at the `validateFolder` boundary, not at `generateFolder` — the generate path treats them as defects.
  */
 export const generateFolder = (
   args: GenerateFolderArgs,
@@ -426,6 +454,20 @@ export const generateFolder = (
     const sidecarRelPath = path.join(folder, ".safer-spec", `${sidecarSlug(folder)}.json`);
     return { analysis, markdown, sidecarJson, sidecarRelPath };
   }).pipe(Effect.withSpan("analysis/generateFolder"));
+
+export interface ValidateFolderArgs {
+  readonly fs: FileSystem.FileSystem;
+  readonly path: Path.Path;
+  readonly folder: string;
+  readonly projectCtx: ProjectContext;
+  readonly mode: "planned" | "implemented";
+  // Newest mtime among every project source + spec-test file. Used as
+  // the freshness reference for branchCoverage staleness, since
+  // coverage-summary.json is a project-wide aggregate — an edit to a
+  // spec-test in folder B can invalidate coverage for folder A.
+  // Optional so single-folder validate calls (tests) need not compute it.
+  readonly projectNewestMtime?: number;
+}
 
 /**
  * @spec.guarantee "first failing check short-circuits and emits exactly one of the four gap-class errors; success returns the folder string"
@@ -448,20 +490,6 @@ export const generateFolder = (
  * @spec.skip "Constant Non-Equality"
  *   reason: different folders can pass the gate identically (same folder string return); no anti-collision invariant.
  */
-export interface ValidateFolderArgs {
-  readonly fs: FileSystem.FileSystem;
-  readonly path: Path.Path;
-  readonly folder: string;
-  readonly projectCtx: ProjectContext;
-  readonly mode: "planned" | "implemented";
-  // Newest mtime among every project source + spec-test file. Used as
-  // the freshness reference for branchCoverage staleness, since
-  // coverage-summary.json is a project-wide aggregate — an edit to a
-  // spec-test in folder B can invalidate coverage for folder A.
-  // Optional so single-folder validate calls (tests) need not compute it.
-  readonly projectNewestMtime?: number;
-}
-
 export const validateFolder = (
   args: ValidateFolderArgs,
 ): Effect.Effect<string | null, ValidateGapError> =>

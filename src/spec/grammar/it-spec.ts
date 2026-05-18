@@ -134,6 +134,10 @@ const runProperty = <T>(
  *   reason: not a numeric/length output.
  * @spec.skip "Inclusion"
  *   reason: a method record, not a collection.
+ * @spec.skip "Roundtrip"
+ *   reason: registration sink only; no inverse from a registered test back to its metadata.
+ * @spec.skip "Exception Raising"
+ *   reason: registration is synchronous and total; property failures live INSIDE the test body the runner executes, not in `itSpec` itself.
  */
 export const itSpec: ItSpec = {
   todo(id: string, _meta: PropertyMeta): void {

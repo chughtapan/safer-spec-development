@@ -1,7 +1,7 @@
 ---
 folder: src/spec/grammar
 format-version: 0.1.0
-generatedAtSha: 0ef093e21c2d6f9abd7859c019a1f6f003e47e09
+generatedAtSha: 1154b4b8249204fa34505892bd114bed18c178f1
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,14 +10,14 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.7037037037037037
+  typeCoverage: 1
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
-  typeCoverage: 0.4
-  preconditionPassRate: 0
-  branchCoverageFromSpecTests: 0.75
+  typeCoverage: 0.9
+  preconditionPassRate: 0.95
+  branchCoverageFromSpecTests: 0.85
 ---
 
 # SPEC
@@ -48,7 +48,7 @@ export const DIRECTIVE_BODY_MAX_CHARS = 500;
 - `Constant Non-Equality` — _a single constant value; no distinct-output invariant applies._
 - `Exception Raising` — _a constant; cannot fail._
 
-### [`PROPERTY_TYPES`](./property-types.ts#L35)
+### [`PROPERTY_TYPES`](./property-types.ts#L37)
 
 ```ts
 export const PROPERTY_TYPES = [
@@ -74,8 +74,15 @@ export const PROPERTY_TYPES = [
 - `Commutative Paths` — _a constant; no alternative path to derive it._
 - `Constant Equality` — _handled by Roundtrip — calling the constant twice trivially returns the same value._
 - `Exception Raising` — _a constant; cannot fail._
+- `Inclusion` — _the tuple's membership IS the contract, but it's tested by \`property-types-bounded-by-paper-rounding\` (Constant Bounds Checking) which enforces the length range — that property indirectly validates inclusion since the length and order are pinned._
 
-### [`JsDocDirectiveOverflowError`](./shared.ts#L38)
+### [`PropertyType`](./property-types.ts#L49)
+
+```ts
+export type PropertyType = (typeof PROPERTY_TYPES)[number];
+```
+
+### [`JsDocDirectiveOverflowError`](./shared.ts#L50)
 
 ```ts
 export class JsDocDirectiveOverflowError extends Data.TaggedError(
@@ -89,36 +96,12 @@ export class JsDocDirectiveOverflowError extends Data.TaggedError(
 }> { /* ... */ }
 ```
 
-### [`PropertyType`](./property-types.ts#L47)
-
-```ts
-export type PropertyType = (typeof PROPERTY_TYPES)[number];
-```
-
-### [`JsDocDirectiveParseError`](./shared.ts#L48)
-
-```ts
-export class JsDocDirectiveParseError extends Data.TaggedError(
-  "JsDocDirectiveParseError",
-)<{
-  readonly path: string;
-  readonly line: number;
-  readonly directive: string;
-  readonly reason: string;
-}> { /* ... */ }
-```
-
-### [`JsDocUnknownDirectiveError`](./shared.ts#L57)
-
-```ts
-export class JsDocUnknownDirectiveError extends Data.TaggedError(
-  "JsDocUnknownDirectiveError",
-)<{
-  readonly path: string;
-  readonly line: number;
-  readonly directive: string;
-}> { /* ... */ }
-```
+**Skipped property types:**
+- `Roundtrip` — _tagged error class; the symmetric path is the parser raising the error from a JSDoc body._
+- `Partial Roundtrip` — _no normalize-then-recover relation on the carried fields._
+- `Commutative Paths` — _single constructor._
+- `Constant Non-Equality` — _distinct overflows can produce identical (path, line, directive, length, limit) tuples._
+- `Inclusion` — _not a collection._
 
 ### [`Directive`](./directives.ts#L69)
 
@@ -137,6 +120,26 @@ export type Directive =
   | ClaimDirective;
 ```
 
+### [`JsDocDirectiveParseError`](./shared.ts#L72)
+
+```ts
+export class JsDocDirectiveParseError extends Data.TaggedError(
+  "JsDocDirectiveParseError",
+)<{
+  readonly path: string;
+  readonly line: number;
+  readonly directive: string;
+  readonly reason: string;
+}> { /* ... */ }
+```
+
+**Skipped property types:**
+- `Partial Roundtrip` — _tagged error class; no normalize-then-recover relation._
+- `Commutative Paths` — _single constructor._
+- `Constant Bounds Checking` — _reason field is free-form and not length-bounded._
+- `Constant Non-Equality` — _distinct parse failures can produce identical reason strings._
+- `Inclusion` — _not a collection._
+
 ### [`LocatedDirective`](./directives.ts#L89)
 
 ```ts
@@ -145,6 +148,25 @@ export interface LocatedDirective {
   readonly location: DirectiveLocation;
 }
 ```
+
+### [`JsDocUnknownDirectiveError`](./shared.ts#L93)
+
+```ts
+export class JsDocUnknownDirectiveError extends Data.TaggedError(
+  "JsDocUnknownDirectiveError",
+)<{
+  readonly path: string;
+  readonly line: number;
+  readonly directive: string;
+}> { /* ... */ }
+```
+
+**Skipped property types:**
+- `Partial Roundtrip` — _tagged error class; no normalize-then-recover relation._
+- `Commutative Paths` — _single constructor._
+- `Constant Bounds Checking` — _directive string is user-controlled and length-unbounded._
+- `Constant Non-Equality` — _distinct unknown directives can collapse to the same string after normalization._
+- `Inclusion` — _not a collection._
 
 ### [`parseFileDirectives`](./directives.ts#L292)
 

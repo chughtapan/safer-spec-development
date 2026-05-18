@@ -51,6 +51,8 @@ interface SidecarWritePayload {
  *   reason: returns a single string, not a collection; no membership relation.
  * @spec.skip "Exception Raising"
  *   reason: total function on string input; cannot fail.
+ * @spec.skip "Typechecking"
+ *   reason: `(string) => string` is captured by the explicit signature; no separate type-level claim worth gating.
  */
 export const sidecarSlug = (folder: string): string => {
   if (folder === ".") return "root";

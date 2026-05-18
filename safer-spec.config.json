@@ -1,6 +1,7 @@
 {
   "defaultThresholds": {
-    "typeCoverage": 0.4,
-    "branchCoverageFromSpecTests": 0.75
+    "typeCoverage": 0.9,
+    "preconditionPassRate": 0.95,
+    "branchCoverageFromSpecTests": 0.85
   }
 }

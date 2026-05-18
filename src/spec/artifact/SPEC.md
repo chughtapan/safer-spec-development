@@ -1,7 +1,7 @@
 ---
 folder: src/spec/artifact
 format-version: 0.1.0
-generatedAtSha: 0ef093e21c2d6f9abd7859c019a1f6f003e47e09
+generatedAtSha: 1154b4b8249204fa34505892bd114bed18c178f1
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,14 +10,14 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 0.9876543209876544
+  typeCoverage: 1
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
-  typeCoverage: 0.4
-  preconditionPassRate: 0
-  branchCoverageFromSpecTests: 0.75
+  typeCoverage: 0.9
+  preconditionPassRate: 0.95
+  branchCoverageFromSpecTests: 0.85
 ---
 
 # SPEC
@@ -68,7 +68,7 @@ export interface ExportEntry {
 }
 ```
 
-### [`sidecarSlug`](./sidecar-writer.ts#L55)
+### [`sidecarSlug`](./sidecar-writer.ts#L57)
 
 ```ts
 export const sidecarSlug = (folder: string): string => { /* ... */ }
@@ -86,6 +86,7 @@ export const sidecarSlug = (folder: string): string => { /* ... */ }
 - `Constant Non-Equality` — _distinct folder strings can intentionally collapse to the same slug (\`foo/bar\` and \`foo\_bar\` both map to \`foo\_bar\`); no anti-collision guarantee._
 - `Inclusion` — _returns a single string, not a collection; no membership relation._
 - `Exception Raising` — _total function on string input; cannot fail._
+- `Typechecking` — _\`(string) =&gt; string\` is captured by the explicit signature; no separate type-level claim worth gating._
 
 ### [`buildSpecMeta`](./coverage.ts#L57)
 
@@ -147,7 +148,7 @@ export interface FolderAnalysis {
 }
 ```
 
-### [`regenerateSidecar`](./sidecar-writer.ts#L98)
+### [`regenerateSidecar`](./sidecar-writer.ts#L100)
 
 ```ts
 export const regenerateSidecar = (
