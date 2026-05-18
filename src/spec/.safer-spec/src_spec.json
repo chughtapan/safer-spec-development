@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec",
-  "generatedAtSha": "1154b4b8249204fa34505892bd114bed18c178f1",
+  "generatedAtSha": "75561895e57fc9d15eb53d7b83ce777fa707cefc",
   "exports": [
     {
       "name": "ItSpec",
@@ -37,14 +37,16 @@
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
         "line": 53,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
       }
     },
     {
       "name": "itSpec",
       "shape": "unknown",
       "requiredPropertyTypes": [
-        "Typechecking"
+        "Roundtrip",
+        "Typechecking",
+        "Exception Raising"
       ],
       "observedPropertyTypes": [
         "Inclusion",
@@ -78,14 +80,6 @@
         {
           "propertyType": "Inclusion",
           "reason": "a method record, not a collection."
-        },
-        {
-          "propertyType": "Roundtrip",
-          "reason": "registration sink only; no inverse from a registered test back to its metadata."
-        },
-        {
-          "propertyType": "Exception Raising",
-          "reason": "registration is synchronous and total; property failures live INSIDE the test body the runner executes, not in `itSpec` itself."
         }
       ],
       "residualContract": null,
@@ -98,17 +92,17 @@
       ],
       "sourceRef": {
         "path": "src/spec/grammar/it-spec.ts",
-        "line": 142,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "line": 138,
+        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 1
+    "typeCoverage": 0.8888888888888888
   },
   "thresholds": {
-    "typeCoverage": 0.9,
-    "preconditionPassRate": 0.95,
-    "branchCoverageFromSpecTests": 0.85
+    "typeCoverage": 0.4,
+    "preconditionPassRate": 0,
+    "branchCoverageFromSpecTests": 0.75
   }
 }

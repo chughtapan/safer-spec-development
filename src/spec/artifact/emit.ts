@@ -1,5 +1,5 @@
 /**
- * @spec.purpose Canonical SPEC.md serializer + `SpecArtifact` builder. Emits
+ * @spec.purpose Canonical MODULE.md serializer + `SpecArtifact` builder. Emits
  *   the `SpecFrontmatter`-shaped block and the typed sidecar value from a
  *   `FolderAnalysis` + `SpecMeta`. Canonical form: LF endings, lex-sort for
  *   file lists, source-order for exports; re-emission is byte-identical.
@@ -71,7 +71,7 @@ export interface PropertyRow {
 interface ChildEntry {
   /** Display label inside the backticks (e.g. `directives/`, `emit.ts`). */
   readonly display: string;
-  /** Link target relative to the folder's SPEC.md (`./directives/SPEC.md`, `./emit.ts`). */
+  /** Link target relative to the folder's MODULE.md (`./directives/MODULE.md`, `./emit.ts`). */
   readonly link: string;
   /** First-block JSDoc `@spec.purpose` body, or null when the child has none. */
   readonly purpose: string | null;
@@ -85,7 +85,7 @@ export interface FolderAnalysis {
 
   /**
    * Merged list of immediate files AND immediate subfolders that have
-   * their own SPEC. Sorted by `display`. Renders as `## Children`.
+   * their own MODULE.md. Sorted by `display`. Renders as `## Children`.
    */
   readonly children: ReadonlyArray<ChildEntry>;
 }
@@ -129,7 +129,7 @@ const emitSkipped = (
 };
 
 /**
- * Compute a relative anchor link from the SPEC.md (at `&lt;folder>/SPEC.md`)
+ * Compute a relative anchor link from the MODULE.md (at `&lt;folder>/MODULE.md`)
  * to the declaration's source file + line. `#Lnnn` is GitHub/IDE-style.
  */
 const sourceLink = (folder: string, path: string, line: number): string =>

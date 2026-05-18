@@ -84,7 +84,7 @@ itSpec.prop(
  * @spec.property build-spec-meta-stamps-sha-from-args
  * @spec.type Inclusion
  * @spec.exports buildSpecMeta
- * @spec.claim `meta.generatedAtSha` carries the `generatedAtSha` value passed in args — the audit trail every SPEC.md frontmatter stamps
+ * @spec.claim `meta.generatedAtSha` carries the `generatedAtSha` value passed in args — the audit trail every MODULE.md frontmatter stamps
  */
 itSpec.prop(
   "build-spec-meta-stamps-sha-from-args",

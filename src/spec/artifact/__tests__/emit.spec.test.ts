@@ -1,5 +1,5 @@
 /**
- * @spec.purpose Property stubs for the canonical SPEC.md section emitter.
+ * @spec.purpose Property stubs for the canonical MODULE.md section emitter.
  *   Covers section ordering, line-ending canonicalization, roundtrip
  *   through frontmatter decode, lex-sort guarantees, and code-span safety.
  *   Children-section + per-file rendering properties live in

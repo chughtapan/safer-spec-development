@@ -49,7 +49,7 @@ const writeArtifacts = (
 ): Effect.Effect<ReadonlyArray<string>, GenerateFolderIOError> =>
   Effect.gen(function* () {
     const { fs, path, folder, markdown, sidecarJson, sidecarRelPath } = args;
-    const specPath = path.join(folder, "SPEC.md");
+    const specPath = path.join(folder, "MODULE.md");
     const sidecarDir = path.dirname(sidecarRelPath);
     yield* fs.makeDirectory(sidecarDir, { recursive: true })
       .pipe(Effect.catchAll(() => Effect.succeed(void 0)));
@@ -93,7 +93,7 @@ const loadProjectCtxOrDie = (
   );
 
 /**
- * @spec.guarantee "emits one SPEC.md + one sidecar JSON per resolved folder; --dry-run logs both without touching disk"
+ * @spec.guarantee "emits one MODULE.md + one sidecar JSON per resolved folder; --dry-run logs both without touching disk"
  *   reason: contract for commands/index.ts to translate --write / --dry-run
  *           at the cli boundary.
  */
@@ -123,7 +123,7 @@ export const generate = (
       const { markdown, sidecarJson, sidecarRelPath } =
         yield* generateFolder({ fs, path, folder, projectCtx: ctx, knownExports });
       if (!input.write || input.dryRun) {
-        yield* Effect.log(`--- SPEC.md (${folder}) ---\n${markdown}`);
+        yield* Effect.log(`--- MODULE.md (${folder}) ---\n${markdown}`);
         yield* Effect.log(`--- sidecar (${folder}) ---\n${sidecarJson}`);
       } else {
         const w = yield* writeArtifacts({ fs, path, folder, markdown, sidecarJson, sidecarRelPath });

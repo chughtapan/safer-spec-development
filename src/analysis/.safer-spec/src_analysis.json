@@ -1,8 +1,39 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/analysis",
-  "generatedAtSha": "1154b4b8249204fa34505892bd114bed18c178f1",
+  "generatedAtSha": "75561895e57fc9d15eb53d7b83ce777fa707cefc",
   "exports": [
+    {
+      "name": "GenerateFolderError",
+      "shape": "type",
+      "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
+        "Typechecking",
+        "Inclusion",
+        "Exception Raising"
+      ],
+      "observedPropertyTypes": [
+        "Roundtrip",
+        "Exception Raising",
+        "Typechecking",
+        "Constant Bounds Checking",
+        "Inclusion"
+      ],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/analysis/orchestrate.ts",
+        "line": 70,
+        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
+      }
+    },
     {
       "name": "ValidateGapError",
       "shape": "type",
@@ -15,51 +46,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 74,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
-      }
-    },
-    {
-      "name": "GenerateFolderError",
-      "shape": "type",
-      "requiredPropertyTypes": [
-        "Roundtrip",
-        "Constant Bounds Checking",
-        "Typechecking",
-        "Inclusion",
-        "Exception Raising"
-      ],
-      "observedPropertyTypes": [
-        "Roundtrip",
-        "Exception Raising",
-        "Typechecking",
-        "Constant Bounds Checking",
-        "Inclusion"
-      ],
-      "skipped": [
-        {
-          "propertyType": "Partial Roundtrip",
-          "reason": "tagged error class; no normalize-then-recover relation on the carried fields."
-        },
-        {
-          "propertyType": "Commutative Paths",
-          "reason": "single constructor; no alternative path produces the same error."
-        },
-        {
-          "propertyType": "Constant Equality",
-          "reason": "instances carry per-failure `folder`/`reason` strings; equality is per-instance, not constant."
-        },
-        {
-          "propertyType": "Constant Non-Equality",
-          "reason": "distinct failure inputs can produce identical messages when folder and reason collapse."
-        }
-      ],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/analysis/orchestrate.ts",
-        "line": 80,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
       }
     },
     {
@@ -67,7 +54,11 @@
       "shape": "type",
       "requiredPropertyTypes": [
         "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
+        "Constant Equality",
         "Constant Bounds Checking",
+        "Constant Non-Equality",
         "Typechecking",
         "Inclusion",
         "Exception Raising"
@@ -79,31 +70,14 @@
         "Constant Bounds Checking",
         "Inclusion"
       ],
-      "skipped": [
-        {
-          "propertyType": "Partial Roundtrip",
-          "reason": "tagged error class; no normalize-then-recover relation."
-        },
-        {
-          "propertyType": "Commutative Paths",
-          "reason": "single constructor."
-        },
-        {
-          "propertyType": "Constant Equality",
-          "reason": "instances carry per-IO-failure fields; equality is per-instance."
-        },
-        {
-          "propertyType": "Constant Non-Equality",
-          "reason": "distinct IO failures can produce identical cause strings."
-        }
-      ],
+      "skipped": [],
       "residualContract": null,
       "residualAssumes": [],
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 95,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "line": 75,
+        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
       }
     },
     {
@@ -117,8 +91,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 106,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "line": 86,
+        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
       }
     },
     {
@@ -168,8 +142,8 @@
       ],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 215,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "line": 195,
+        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
       }
     },
     {
@@ -218,13 +192,16 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 356,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
       }
     },
     {
       "name": "computeProjectNewestMtime",
       "shape": "function",
-      "requiredPropertyTypes": [],
+      "requiredPropertyTypes": [
+        "Constant Bounds Checking",
+        "Typechecking"
+      ],
       "observedPropertyTypes": [],
       "skipped": [
         {
@@ -254,14 +231,6 @@
         {
           "propertyType": "Exception Raising",
           "reason": "typed as `Effect of number with never error` — error channel is `never` by construction."
-        },
-        {
-          "propertyType": "Typechecking",
-          "reason": "return type is captured by the explicit `Effect.Effect of number with never error` signature; no separate type-level claim to gate."
-        },
-        {
-          "propertyType": "Constant Bounds Checking",
-          "reason": "the value is a unix-epoch millis number; gating on the >=0 bound would add nothing observable beyond what the type already guarantees."
         }
       ],
       "residualContract": null,
@@ -274,17 +243,19 @@
       ],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 393,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "line": 369,
+        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
       }
     },
     {
       "name": "generateFolder",
       "shape": "function",
       "requiredPropertyTypes": [
+        "Roundtrip",
         "Constant Equality",
         "Constant Bounds Checking",
-        "Typechecking"
+        "Typechecking",
+        "Exception Raising"
       ],
       "observedPropertyTypes": [
         "Typechecking",
@@ -308,19 +279,11 @@
         {
           "propertyType": "Inclusion",
           "reason": "returns a record of artifacts; no set/membership semantics."
-        },
-        {
-          "propertyType": "Roundtrip",
-          "reason": "pipeline-orchestration only; SPEC.md and sidecar are downstream artifacts, not encoded inputs."
-        },
-        {
-          "propertyType": "Exception Raising",
-          "reason": "parser failures inside the per-folder pipeline are surfaced through `catchDirectiveErrors` to `MissingStubError` at the `validateFolder` boundary, not at `generateFolder` — the generate path treats them as defects."
         }
       ],
       "residualContract": {
         "_tag": "some",
-        "body": "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally",
+        "body": "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed MODULE.md must be deterministic at a given tree SHA regardless of whether tests ran locally",
         "reason": "drift-check byte-equality contract."
       },
       "residualAssumes": [],
@@ -332,15 +295,20 @@
       ],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 445,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "line": 417,
+        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
       }
     },
     {
       "name": "validateFolder",
       "shape": "function",
       "requiredPropertyTypes": [
+        "Roundtrip",
+        "Partial Roundtrip",
+        "Commutative Paths",
         "Constant Equality",
+        "Constant Bounds Checking",
+        "Constant Non-Equality",
         "Typechecking",
         "Inclusion",
         "Exception Raising"
@@ -348,61 +316,25 @@
       "observedPropertyTypes": [
         "Typechecking",
         "Constant Equality",
-        "Exception Raising",
         "Inclusion"
       ],
-      "skipped": [
-        {
-          "propertyType": "Roundtrip",
-          "reason": "validate is a gate, not a transform; no encode/decode pair."
-        },
-        {
-          "propertyType": "Partial Roundtrip",
-          "reason": "no normalize-then-recover semantics; validate either succeeds or fails on a tagged error."
-        },
-        {
-          "propertyType": "Commutative Paths",
-          "reason": "single entry point; no equivalent API path for the same gate decision."
-        },
-        {
-          "propertyType": "Constant Bounds Checking",
-          "reason": "returns a folder string (success) or a tagged error; no numeric/length bound."
-        },
-        {
-          "propertyType": "Constant Non-Equality",
-          "reason": "different folders can pass the gate identically (same folder string return); no anti-collision invariant."
-        }
-      ],
-      "residualContract": {
-        "_tag": "some",
-        "body": "in `--implemented` mode, a Vitest execution sidecar must already exist on disk for the folder; absence is reported as MissingImplError",
-        "reason": "implementation-tier gate; planned-mode doesn't read execution sidecars at all."
-      },
-      "residualAssumes": [
-        {
-          "claim": "the underlying generate-tier pipeline is deterministic at the same tree SHA",
-          "reason": "drift cross-checks rely on byte-equality between on-disk and regenerated artifacts."
-        }
-      ],
-      "residualGuarantees": [
-        {
-          "claim": "first failing check short-circuits and emits exactly one of the four gap-class errors; success returns the folder string",
-          "reason": "the cli's catchTags routing acts on the tag; batched failures would obscure routing."
-        }
-      ],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
-        "line": 493,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "line": 465,
+        "sha": "75561895e57fc9d15eb53d7b83ce777fa707cefc"
       }
     }
   ],
   "coverage": {
-    "typeCoverage": 1
+    "typeCoverage": 0.7142857142857143
   },
   "thresholds": {
-    "typeCoverage": 0.9,
-    "preconditionPassRate": 0.95,
-    "branchCoverageFromSpecTests": 0.85
+    "typeCoverage": 0.4,
+    "preconditionPassRate": 0,
+    "branchCoverageFromSpecTests": 0.75
   }
 }

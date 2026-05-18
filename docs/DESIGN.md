@@ -1,12 +1,12 @@
 # Design
 
 `@chughtapan/safer-spec-development` is a TypeScript codemod for keeping
-per-folder `SPEC.md` files synchronized with source code, JSDoc directives,
+per-folder `MODULE.md` files synchronized with source code, JSDoc directives,
 and property-test metadata.
 
 The tool has two outputs:
 
-- `SPEC.md` for human readers.
+- `MODULE.md` for human readers.
 - `.safer-spec/<folder>.json` for tools and agents that need structured,
   sanitized context.
 
@@ -16,7 +16,7 @@ generated artifacts drift from either source of truth.
 
 ## Goals
 
-- Generate one `SPEC.md` for each source folder that exposes an `index.ts`.
+- Generate one `MODULE.md` for each source folder that exposes an `index.ts`.
 - Keep behavioral contracts close to the export they describe through
   `@spec.*` JSDoc directives.
 - Default every export to requiring all property types; opting out of a
@@ -27,7 +27,7 @@ generated artifacts drift from either source of truth.
 
 ## Artifacts
 
-### `SPEC.md`
+### `MODULE.md`
 
 The markdown file is the reader-facing artifact. It contains frontmatter and
 canonical sections:
@@ -63,7 +63,7 @@ single-job; lower layers don't depend on higher.
 | Commands | `commands/` | `safer-spec` binary entrypoint + the four @effect/cli Commands (`generate`, `validate`, `doctor`, `explain`). Folder onboarding (`init`) and format-version migration (`migrate`) ship as coding-agent skills, not CLI code. |
 | Project | `project/` | Project-wide setup. `context.ts` (sources/paths/SHA/config loader), `config.ts` (`safer-spec.config.json` schema + per-folder threshold resolver), `version.ts` (`SPEC_FORMAT_VERSION`), `folders.ts` (folder walks). What the codemod knows about the target project before doing work. |
 | Analysis | `analysis/` | How commands ingest the project + cross-check. `pipeline.ts` (the shared analysis driving generate + validate), `checks.ts` (validate's gap-class cross-checks + tagged errors), `exports.ts` (ts-morph export collector), `properties.ts` (itSpec call extractor). |
-| Domain | `spec/` | The spec format itself. `spec/artifact/` owns the on-disk artifacts (SPEC.md emission + frontmatter + sidecar parse/emit + atomic writer + Vitest reporter + helpers). `spec/grammar/` owns the `@spec.*` directive language + closed `PropertyType` vocabulary + the `itSpec` runtime encoding. |
+| Domain | `spec/` | The spec format itself. `spec/artifact/` owns the on-disk artifacts (MODULE.md emission + frontmatter + sidecar parse/emit + atomic writer + Vitest reporter + helpers). `spec/grammar/` owns the `@spec.*` directive language + closed `PropertyType` vocabulary + the `itSpec` runtime encoding. |
 
 Dependency direction: `commands → project, analysis → spec`. Each layer
 imports from the one below; never the reverse.
@@ -189,7 +189,7 @@ skills under [`skills/`](../skills/), not as CLI commands.
 
 | Skill | Job |
 |---|---|
-| [`safer-spec-init`](../skills/safer-spec-init/SKILL.md) | Scaffold a folder's first `SPEC.md` + property-test stub. The agent reads the existing `index.ts` (if any), picks the right runtime-named export to bind the stub to, and writes both files. |
+| [`safer-spec-init`](../skills/safer-spec-init/SKILL.md) | Scaffold a folder's first `MODULE.md` + property-test stub. The agent reads the existing `index.ts` (if any), picks the right runtime-named export to bind the stub to, and writes both files. |
 | [`safer-spec-migrate`](../skills/safer-spec-migrate/SKILL.md) | Walk committed SPEC artifacts for `SPEC_FORMAT_VERSION` transitions. Regenerate via `generate --write`, then diff for human review. |
 
 The rationale for keeping these out of the CLI: both depend on judgment
@@ -205,7 +205,7 @@ codes:
 
 | Error | Exit | Meaning |
 |---|---:|---|
-| `MissingSpecPropertyError` | 11 | Committed `SPEC.md` or property table drifted from test metadata. |
+| `MissingSpecPropertyError` | 11 | Committed `MODULE.md` or property table drifted from test metadata. |
 | `MissingStubError` | 12 | A required `itSpec` call or its JSDoc directives are missing. |
 | `MissingImplError` | 13 | A property is still a placeholder or has no meaningful body. |
 

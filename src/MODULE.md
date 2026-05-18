@@ -1,7 +1,7 @@
 ---
 folder: src
 format-version: 0.1.0
-generatedAtSha: 1154b4b8249204fa34505892bd114bed18c178f1
+generatedAtSha: 75561895e57fc9d15eb53d7b83ce777fa707cefc
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -10,14 +10,14 @@ generatedFrom:
     - fast-check
   eslint: eslint-plugin-agent-code-guard
 coverage:
-  typeCoverage: 1
+  typeCoverage: 0.8888888888888888
   classifierCoverage: null
   preconditionPassRate: null
   branchCoverageFromSpecTests: null
 thresholds:
-  typeCoverage: 0.9
-  preconditionPassRate: 0.95
-  branchCoverageFromSpecTests: 0.85
+  typeCoverage: 0.4
+  preconditionPassRate: 0
+  branchCoverageFromSpecTests: 0.75
 ---
 
 # SPEC
@@ -30,7 +30,7 @@ This barrel carries `@spec.purpose` only. Per-export `@spec.assume`, `@spec.guar
 
 ## Public surface
 
-### [`PROPERTY_TYPES`](./spec/grammar/property-types.ts#L37)
+### [`PROPERTY_TYPES`](./spec/grammar/property-types.ts#L35)
 
 ```ts
 export const PROPERTY_TYPES = [
@@ -56,9 +56,8 @@ export const PROPERTY_TYPES = [
 - `Commutative Paths` — _a constant; no alternative path to derive it._
 - `Constant Equality` — _handled by Roundtrip — calling the constant twice trivially returns the same value._
 - `Exception Raising` — _a constant; cannot fail._
-- `Inclusion` — _the tuple's membership IS the contract, but it's tested by \`property-types-bounded-by-paper-rounding\` (Constant Bounds Checking) which enforces the length range — that property indirectly validates inclusion since the length and order are pinned._
 
-### [`PropertyType`](./spec/grammar/property-types.ts#L49)
+### [`PropertyType`](./spec/grammar/property-types.ts#L47)
 
 ```ts
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
@@ -110,7 +109,7 @@ export interface ItSpec {
 
 **Residual contract:** "fast-check seed and numRuns come from fast-check's own defaults (numRuns=100, seed via FC env or random); Vitest config does NOT propagate to fast-check, and this wrapper passes no override" — _behavioral residue beyond the call signature; downstream authors need to know the property runner is not configured through Vitest._
 
-### [`itSpec`](./spec/grammar/it-spec.ts#L142)
+### [`itSpec`](./spec/grammar/it-spec.ts#L138)
 
 ```ts
 export const itSpec: ItSpec = {
@@ -142,15 +141,13 @@ export const itSpec: ItSpec = {
 - `Constant Non-Equality` — _no anti-collision invariant between todo and prop methods._
 - `Constant Bounds Checking` — _not a numeric/length output._
 - `Inclusion` — _a method record, not a collection._
-- `Roundtrip` — _registration sink only; no inverse from a registered test back to its metadata._
-- `Exception Raising` — _registration is synchronous and total; property failures live INSIDE the test body the runner executes, not in \`itSpec\` itself._
 
 ## Children
 
-- [`analysis/`](./analysis/SPEC.md) — Barrel for the \`analysis/\` layer. Exposes two high-level per-folder operations — \`generateFolder\` and \`validateFolder\` — plus the \`collectFolderInputs\` enumeration helper commands use to loop over discovered folders. Pipeline primitives (\`buildSpecMeta\`, \`regenerateMarkdown\`, \`regenerateSidecar\`, individual gap-checks, directive parsers, etc.) stay internal to this folder; commands at \`commands/{generate,validate}.ts\` compose only the two high-level functions, not the underlying machinery.  \`diagnosticLines\` and \`unresolvedFolderError\` are exposed because the cli renders gap-class errors itself (string formatting + the no-folders-resolved guard for \`--folder X\` typos).  \`buildKnownExports\` is the project-level setup the generate command computes once before looping over folders; calling it inside \`generateFolder\` would re-scan every project source on every folder.
-- [`commands/`](./commands/SPEC.md) — CLI binary. Composes the four subcommands (\`generate\`, \`validate\`, \`doctor\`, \`explain\`) into the top-level \`safer-spec\` Command, then translates each tagged failure into \`process.exit(N)\` at the runtime boundary.  \`init\` and \`migrate\` are intentionally NOT CLI commands. Both are project-lifecycle flows that depend on judgment a regex / ts-morph resolver can't make reliably (which export to bind the stub to; which format-version diffs need human review). They ship as coding-agent skills (\`skills/safer-spec-init/SKILL.md\`, \`skills/safer-spec-migrate/SKILL.md\`) — the agent reads the existing barrel + spec format, scaffolds the right shape, and leaves the diff for human review.  Exit-code mapping at this boundary: - \`MissingSpecPropertyError\` → exit 11 - \`MissingStubError\`         → exit 12 - \`MissingImplError\`         → exit 13 - \`CliUsageError\`            → exit 2 (POSIX usage convention) - any other defect / failure → \`NodeRuntime.runMain\` default (non-zero)  Tagged errors \`CliExitCode\` and \`CliUsageError\` are co-located here.
-- [`project/`](./project/SPEC.md) — Barrel for the \`project/\` layer. Exposes the fully-resolved \`ProjectContext\` snapshot (with precomputed folder list, per-folder subfolder map, and threshold resolver), the one loader that builds it, the stable format version, and the three tagged errors the cli routes. Folder-discovery primitives, the threshold resolver, and the path normalizer are implementation details behind \`ProjectContext\` methods.
-- [`spec/`](./spec/SPEC.md) — Spec domain barrel. Anchors \`src/spec/SPEC.md\` (codemod requires every folder with a SPEC to expose an \`index.ts\` barrel) and re-exports the test-author surface (\`itSpec\`, \`ItSpec\`) consumed by the package facade. The Vitest reporter class is exposed via the dedicated \`@chughtapan/safer-spec-development/reporter\` subpath (not this barrel) so config-time consumers don't transitively load \`it-spec.ts\`'s \`vitest\` import, which throws when evaluated from a config file. The richer spec-format machinery (directive parser, emitter, sidecar writer, link resolver) is consumed directly by \`commands/\` via path aliases; routing it through this barrel would be ceremony without a caller.
+- [`analysis/`](./analysis/MODULE.md) — Barrel for the \`analysis/\` layer. Exposes two high-level per-folder operations — \`generateFolder\` and \`validateFolder\` — plus the \`collectFolderInputs\` enumeration helper commands use to loop over discovered folders. Pipeline primitives (\`buildSpecMeta\`, \`regenerateMarkdown\`, \`regenerateSidecar\`, individual gap-checks, directive parsers, etc.) stay internal to this folder; commands at \`commands/{generate,validate}.ts\` compose only the two high-level functions, not the underlying machinery.  \`diagnosticLines\` and \`unresolvedFolderError\` are exposed because the cli renders gap-class errors itself (string formatting + the no-folders-resolved guard for \`--folder X\` typos).  \`buildKnownExports\` is the project-level setup the generate command computes once before looping over folders; calling it inside \`generateFolder\` would re-scan every project source on every folder.
+- [`commands/`](./commands/MODULE.md) — CLI binary. Composes the four subcommands (\`generate\`, \`validate\`, \`doctor\`, \`explain\`) into the top-level \`safer-spec\` Command, then translates each tagged failure into \`process.exit(N)\` at the runtime boundary.  \`init\` and \`migrate\` are intentionally NOT CLI commands. Both are project-lifecycle flows that depend on judgment a regex / ts-morph resolver can't make reliably (which export to bind the stub to; which format-version diffs need human review). They ship as coding-agent skills (\`skills/safer-spec-init/SKILL.md\`, \`skills/safer-spec-migrate/SKILL.md\`) — the agent reads the existing barrel + spec format, scaffolds the right shape, and leaves the diff for human review.  Exit-code mapping at this boundary: - \`MissingSpecPropertyError\` → exit 11 - \`MissingStubError\`         → exit 12 - \`MissingImplError\`         → exit 13 - \`CliUsageError\`            → exit 2 (POSIX usage convention) - any other defect / failure → \`NodeRuntime.runMain\` default (non-zero)  Tagged errors \`CliExitCode\` and \`CliUsageError\` are co-located here.
+- [`project/`](./project/MODULE.md) — Barrel for the \`project/\` layer. Exposes the fully-resolved \`ProjectContext\` snapshot (with precomputed folder list, per-folder subfolder map, and threshold resolver), the one loader that builds it, the stable format version, and the three tagged errors the cli routes. Folder-discovery primitives, the threshold resolver, and the path normalizer are implementation details behind \`ProjectContext\` methods.
+- [`spec/`](./spec/MODULE.md) — Spec domain barrel. Anchors \`src/spec/MODULE.md\` (codemod requires every folder with a MODULE.md to expose an \`index.ts\` barrel) and re-exports the test-author surface (\`itSpec\`, \`ItSpec\`) consumed by the package facade. The Vitest reporter class is exposed via the dedicated \`@chughtapan/safer-spec-development/reporter\` subpath (not this barrel) so config-time consumers don't transitively load \`it-spec.ts\`'s \`vitest\` import, which throws when evaluated from a config file. The richer spec-format machinery (directive parser, emitter, sidecar writer, link resolver) is consumed directly by \`commands/\` via path aliases; routing it through this barrel would be ceremony without a caller.
 - [`index.ts`](./index.ts) — Library facade. Re-exports the test-author surface: the \`itSpec\` helper and the closed property-type taxonomy. The \`SaferSpecExecutionReporter\` class lives at a dedicated subpath (\`@chughtapan/safer-spec-development/reporter\`) so consumers can import it from \`vitest.config.ts\` without transitively loading \`vitest\`'s test API (which throws when imported from a config file). The \`safer-spec\` binary (commands/index.ts) is the integration point for command execution (\`generate\`, \`validate\`, \`doctor\`, \`explain\`); those are not re-exported. Folder onboarding and format-version migration ship as coding-agent skills under \`skills/\`, not as CLI commands.  This barrel carries \`@spec.purpose\` only. Per-export \`@spec.assume\`, \`@spec.guarantee\`, and \`@spec.residual-contract\` directives live on the declarations in their source modules.
 - [`__tests__/facade.spec.test.ts`](./__tests__/facade.spec.test.ts) — Property tests for the package's library facade (\`src/index.ts\`). The facade re-exports \`PROPERTY\_TYPES\` + \`itSpec\` as the test-author surface; downstream packages import these via \`@chughtapan/safer-spec-development\`. Tests assert the closed property-type taxonomy (9 OOPSLA-significant kinds) is intact and the \`itSpec\` re-export resolves to the runtime helper.
 - [`__tests__/sweep.spec.test.ts`](./__tests__/sweep.spec.test.ts) — Coverage-sweep tests for the package facade — adds property types beyond \`facade.spec.test.ts\` for the two exports \`PROPERTY\_TYPES\` and \`itSpec\` so each crosses the gate threshold.

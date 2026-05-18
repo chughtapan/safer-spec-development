@@ -1,17 +1,17 @@
 ---
 name: safer-spec-init
-description: Scaffold the first `SPEC.md` + property-test stub for a single folder. Use this when an existing or fresh folder needs to be onboarded to the safer-spec contract — the agent reads the folder's `index.ts` (if any), picks the right runtime-named export to bind a placeholder test against, and writes both files. Targets TTHW < 10 minutes.
+description: Scaffold the first `MODULE.md` + property-test stub for a single folder. Use this when an existing or fresh folder needs to be onboarded to the safer-spec contract — the agent reads the folder's `index.ts` (if any), picks the right runtime-named export to bind a placeholder test against, and writes both files. Targets TTHW < 10 minutes.
 ---
 
 # safer-spec-init
 
-You are scaffolding a folder's first `SPEC.md` + property-test stub. The codemod ships `generate` and `validate` as CLI commands; `init` is a SKILL because picking the right export to bind the stub to requires reading TypeScript correctly, and a coding agent does that more reliably than a regex / ts-morph picker baked into the CLI.
+You are scaffolding a folder's first `MODULE.md` + property-test stub. The codemod ships `generate` and `validate` as CLI commands; `init` is a SKILL because picking the right export to bind the stub to requires reading TypeScript correctly, and a coding agent does that more reliably than a regex / ts-morph picker baked into the CLI.
 
 ## Inputs
 
-- **Folder** the user is onboarding. If the user did not say which folder, pick a leaf folder containing an `index.ts` but no `SPEC.md`. "Leaf" means no descendant folder also lacks `SPEC.md`; the project root (`./index.ts`) loses to any descendant candidate.
+- **Folder** the user is onboarding. If the user did not say which folder, pick a leaf folder containing an `index.ts` but no `MODULE.md`. "Leaf" means no descendant folder also lacks `MODULE.md`; the project root (`./index.ts`) loses to any descendant candidate.
 - **Existing `index.ts`** (if any). If it doesn't exist, scaffold the placeholder template below. If it does exist, read it and pick the **first runtime-named export** (see *Picking the export* below).
-- **Existing `SPEC.md`** in the folder → REFUSE. Tell the user "SPEC.md already exists; run `pnpm safer-spec generate --folder <folder> --write` to refresh it."
+- **Existing `MODULE.md`** in the folder → REFUSE. Tell the user "MODULE.md already exists; run `pnpm safer-spec generate --folder <folder> --write` to refresh it."
 
 ## Picking the export
 
@@ -130,7 +130,7 @@ The `@spec.exports` directive still names `itSpec` — the cross-check matches t
 
 Refuse the scaffold (do NOT write any file) when:
 
-1. `<folder>/SPEC.md` already exists.
+1. `<folder>/MODULE.md` already exists.
 2. `<folder>/__tests__/<slug>.spec.test.ts` already exists. The test stub path collides with a real test file — overwriting it would clobber the user's work. Refuse even when `index.ts` is missing.
 3. `<folder>/index.ts` exists AND `<folder>/__tests__/<slug>.spec.test.ts` exists (redundant with #2 but kept as documentation: "the folder is already scaffolded; refresh with `pnpm safer-spec generate --folder <folder> --write`").
 4. `<folder>/index.ts` exists but contains no acceptable runtime-named export (see *Picking the export* above).
@@ -146,7 +146,7 @@ pnpm safer-spec generate --folder <folder> --write
 pnpm safer-spec validate --folder <folder> --planned
 ```
 
-`generate` produces the canonical `SPEC.md` from the source + JSDoc + test stub. `validate --planned` verifies the directive set + drift cross-check passes. If `validate` reports a gap-class error, STOP and tell the user what it says — do not patch around it.
+`generate` produces the canonical `MODULE.md` from the source + JSDoc + test stub. `validate --planned` verifies the directive set + drift cross-check passes. If `validate` reports a gap-class error, STOP and tell the user what it says — do not patch around it.
 
 ## Why this is a skill, not a CLI command
 

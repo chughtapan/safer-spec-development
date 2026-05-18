@@ -1,7 +1,7 @@
 /**
  * @spec.purpose Property stubs for the `validate` command entrypoint. Validate
  *   enforces four cross-checks: JSDoc directives exist on every itSpec call,
- *   JSDoc values match runtime metadata, committed SPEC.md equals regenerated
+ *   JSDoc values match runtime metadata, committed MODULE.md equals regenerated
  *   output, and every implemented property has a non-empty body.
  *
  *   Each test memoizes its heavy I/O once at module load (fc runs the test
@@ -133,7 +133,7 @@ itSpec.prop(
  * @spec.property properties-table-self-host
  * @spec.type Inclusion
  * @spec.exports validate
- * @spec.claim the codemod's own SPEC.md ## Properties table equals what generate would emit from this codemod's test JSDoc
+ * @spec.claim the codemod's own MODULE.md ## Properties table equals what generate would emit from this codemod's test JSDoc
  */
 itSpec.prop(
   "properties-table-self-host",

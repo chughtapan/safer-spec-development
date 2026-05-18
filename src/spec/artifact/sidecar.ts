@@ -1,6 +1,6 @@
 /**
  * @spec.purpose Sidecar JSON contract — the canonical artifact for LLM-agent
- *   consumption. Markdown SPEC.md is for humans; the sidecar is for tools.
+ *   consumption. Markdown MODULE.md is for humans; the sidecar is for tools.
  *   The Schema constructor stays private; `decodeSpecArtifact` is the public
  *   boundary.
  *

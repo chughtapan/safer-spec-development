@@ -1,6 +1,6 @@
 /**
- * @spec.purpose Spec domain barrel. Anchors `src/spec/SPEC.md` (codemod
- *   requires every folder with a SPEC to expose an `index.ts` barrel) and
+ * @spec.purpose Spec domain barrel. Anchors `src/spec/MODULE.md` (codemod
+ *   requires every folder with a MODULE.md to expose an `index.ts` barrel) and
  *   re-exports the test-author surface (`itSpec`, `ItSpec`) consumed by the
  *   package facade. The Vitest reporter class is exposed via the dedicated
  *   `@chughtapan/safer-spec-development/reporter` subpath (not this barrel)

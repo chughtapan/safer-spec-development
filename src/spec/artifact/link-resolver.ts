@@ -1,8 +1,8 @@
 /**
  * @spec.purpose
- *   Resolves backticked symbol references in SPEC.md body prose. Local
+ *   Resolves backticked symbol references in MODULE.md body prose. Local
  *   source references use declaration locations; workspace references can
- *   resolve to sibling SPEC.md anchors. Cross-file source resolution is a
+ *   resolve to sibling MODULE.md anchors. Cross-file source resolution is a
  *   separate resolver capability.
  *
  *   Tagged error `LinkResolutionError` is co-located here.
@@ -73,7 +73,7 @@ const hrefFor = (symbol: string, origin: ResolutionOrigin): string => {
       const after = symbol.slice(CROSS_SPEC_PREFIX.length);
       const folderEnd = after.indexOf("/");
       const folder = folderEnd === -1 ? after : after.slice(0, folderEnd);
-      return `../${folder}/SPEC.md`;
+      return `../${folder}/MODULE.md`;
     }
     case "agent-code-guard-rule": {
       const rule = symbol.slice(AGENT_RULE_PREFIX.length);
@@ -118,12 +118,12 @@ export const resolveSymbol = (
   });
 
 /**
- * Path-relative-to-folder for source links inside `&lt;folder>/SPEC.md`.
+ * Path-relative-to-folder for source links inside `&lt;folder>/MODULE.md`.
  * Same-folder: `./name.ts`. Cross-folder: `../...`. Absolute/external:
  * passthrough.
  */
 export const relativeToFolder = (folder: string, target: string): string => {
-  // Project-root sentinel: a SPEC.md at the repo root reaches every file
+  // Project-root sentinel: a MODULE.md at the repo root reaches every file
   // via `./<target>`. Treating `.` as one path segment would emit `../…`
   // and point outside the repo.
   if (folder === ".") return "./" + target.replace(/^\.?\/?/, "");

@@ -1,6 +1,6 @@
 # @chughtapan/safer-spec-development
 
-Per-folder `SPEC.md` codemod for TypeScript codebases. Generates structured specs from source + JSDoc directives + Effect Schema + fast-check property tests. Validates type-coverage, precondition-pass-rate, and branch-coverage-from-spec-tests as hard CI gates.
+Per-folder `MODULE.md` codemod for TypeScript codebases. Generates structured specs from source + JSDoc directives + Effect Schema + fast-check property tests. Validates type-coverage, precondition-pass-rate, and branch-coverage-from-spec-tests as hard CI gates.
 
 **Status: early package.** Public contracts, CLI surface, and property metadata
 are defined; mode implementations may still be incomplete.
@@ -10,7 +10,7 @@ are defined; mode implementations may still be incomplete.
 ```bash
 pnpm add -D @chughtapan/safer-spec-development
 # Onboard the first folder via the safer-spec-init coding-agent skill (see below).
-pnpm safer-spec generate                       # regenerate SPEC.md per folder
+pnpm safer-spec generate                       # regenerate MODULE.md per folder
 pnpm test                                      # property tests; reporter writes execution sidecars
 pnpm safer-spec validate --implemented         # CI gate (consumes execution sidecars)
 ```
@@ -59,7 +59,7 @@ Folder onboarding (`init`) and format-version migration (`migrate`) are not
 CLI commands — they ship as coding-agent skills in [`skills/`](./skills/):
 
 - [`skills/safer-spec-init`](./skills/safer-spec-init/SKILL.md) — scaffold a
-  folder's first `SPEC.md` + property-test stub. The agent reads the
+  folder's first `MODULE.md` + property-test stub. The agent reads the
   existing `index.ts` (if any), picks the right runtime-named export to
   bind the stub against, and writes both files.
 - [`skills/safer-spec-migrate`](./skills/safer-spec-migrate/SKILL.md) — walk

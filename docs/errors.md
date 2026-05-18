@@ -23,14 +23,14 @@ The gate's purpose is to validate every spec-emitting folder. Silently accepting
 
 **Exit code:** 11
 **Tag:** `MissingSpecPropertyError`
-**Routes to:** the spec author (the test JSDoc, or the committed `SPEC.md`)
+**Routes to:** the spec author (the test JSDoc, or the committed `MODULE.md`)
 
-The committed `SPEC.md` or `.safer-spec/<slug>.json` sidecar drifted from what `safer-spec generate` would emit right now. Either:
+The committed `MODULE.md` or `.safer-spec/<slug>.json` sidecar drifted from what `safer-spec generate` would emit right now. Either:
 
 - A source `@spec.*` directive was added, removed, or edited and the artifact wasn't regenerated.
 - A test JSDoc `@spec.property` / `@spec.type` / `@spec.exports` / `@spec.claim` value disagrees with the runtime `itSpec` argument.
 - An `itSpec` call's runtime `opts.exports` is empty or omitted.
-- An `@spec.skip` was added or removed and the SPEC.md `## Public Surface` section wasn't regenerated.
+- An `@spec.skip` was added or removed and the MODULE.md `## Public Surface` section wasn't regenerated.
 
 ### Fix
 

@@ -427,7 +427,7 @@ const driftMetaFor = (
 /**
  * @spec.guarantee "returns the artifacts (markdown + sidecar JSON) for one folder; folder writes are the caller's responsibility so --dry-run / --write decisions stay at the CLI boundary"
  *   reason: separation of pipeline (here) from I/O policy (commands/).
- * @spec.residual-contract "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally"
+ * @spec.residual-contract "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed MODULE.md must be deterministic at a given tree SHA regardless of whether tests ran locally"
  *   reason: drift-check byte-equality contract.
  * @spec.skip "Partial Roundtrip"
  *   reason: no normalize-then-recover semantics; this is an orchestrator that emits artifacts.
@@ -503,7 +503,7 @@ export const validateFolder = (
     yield* failOnIssues(inspection.issues, mode);
     const driftMeta = driftMetaFor(inspection.analysis, projectCtx);
     const regenerated = emitMarkdown(inspection.analysis, driftMeta);
-    yield* checkDrift(fs, path.join(folder, "SPEC.md"), regenerated);
+    yield* checkDrift(fs, path.join(folder, "MODULE.md"), regenerated);
     const sidecarJson = yield* regenerateSidecar(inspection.analysis, driftMeta);
     const sidecarPath = path.join(folder, ".safer-spec", `${sidecarSlug(folder)}.json`);
     yield* checkSidecarDrift(fs, sidecarPath, sidecarJson);
