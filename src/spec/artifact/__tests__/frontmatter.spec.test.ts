@@ -1,5 +1,5 @@
 /**
- * @spec.purpose Property stubs for the SPEC.md frontmatter contract.
+ * @spec.purpose Property stubs for the MODULE.md frontmatter contract.
  *   Tests reference the public `decodeSpecFrontmatter` boundary; the
  *   underlying Schema constructor stays private to spec/frontmatter.ts.
  */
@@ -138,7 +138,7 @@ itSpec.prop(
  * @spec.property frontmatter-decode-preserves-format-version
  * @spec.type Inclusion
  * @spec.exports decodeSpecFrontmatter
- * @spec.claim every emitted SPEC.md carries `format-version: &lt;SPEC_FORMAT_VERSION>` in its YAML block and the decode boundary preserves that field on the decoded value (no silent strip during the schema decode)
+ * @spec.claim every emitted MODULE.md carries `format-version: &lt;SPEC_FORMAT_VERSION>` in its YAML block and the decode boundary preserves that field on the decoded value (no silent strip during the schema decode)
  */
 itSpec.prop(
   "frontmatter-decode-preserves-format-version",

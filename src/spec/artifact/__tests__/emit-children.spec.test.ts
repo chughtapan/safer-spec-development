@@ -1,5 +1,5 @@
 /**
- * @spec.purpose Property stubs for the SPEC.md `## Children` section and
+ * @spec.purpose Property stubs for the MODULE.md `## Children` section and
  *   the per-file rendering invariants. Splits out of `emit.spec.test.ts`
  *   to stay under the per-file line cap; both files cover `emitMarkdown`.
  */
@@ -67,7 +67,7 @@ const childSeedArb: fc.Arbitrary<ChildSeed> = fc.record({
  * @spec.property emit-children-section-mixes-subfolders-files-tests
  * @spec.type Inclusion
  * @spec.exports emitMarkdown
- * @spec.claim `## Children` lists immediate SPEC'd subfolders (linking to `&lt;sub>/SPEC.md`) before source files before tests; each row carries the file or subfolder `@spec.purpose` body when present
+ * @spec.claim `## Children` lists immediate SPEC'd subfolders (linking to `&lt;sub>/MODULE.md`) before source files before tests; each row carries the file or subfolder `@spec.purpose` body when present
  */
 itSpec.prop(
   "emit-children-section-mixes-subfolders-files-tests",
@@ -79,7 +79,7 @@ itSpec.prop(
         const analysis: FolderAnalysis = {
           ...baseAnalysis("src/sample"),
           children: [
-            { display: `${s.subfolderName}/`, link: `./${s.subfolderName}/SPEC.md`, purpose: s.purpose },
+            { display: `${s.subfolderName}/`, link: `./${s.subfolderName}/MODULE.md`, purpose: s.purpose },
             { display: s.sourceFile, link: `./${s.sourceFile}`, purpose: null },
             { display: s.testFile, link: `./${s.testFile}`, purpose: null },
           ],
@@ -102,7 +102,7 @@ itSpec.prop(
  * @spec.property emit-root-folder-spec-links-stay-in-repo
  * @spec.type Constant Equality
  * @spec.exports emitMarkdown
- * @spec.claim a SPEC.md at the repo root (`folder === "."`) reaches every file via `./&lt;target>`; `relativeToFolder` never emits `../...` for the root sentinel
+ * @spec.claim a MODULE.md at the repo root (`folder === "."`) reaches every file via `./&lt;target>`; `relativeToFolder` never emits `../...` for the root sentinel
  */
 itSpec.prop(
   "emit-root-folder-spec-links-stay-in-repo",
@@ -124,7 +124,7 @@ itSpec.prop(
         const out = emitMarkdown(analysis, FIXED_META);
         yield* failIf(
           out.includes("../"),
-          `root SPEC.md emitted ../ link: ${out.split("\n").find((l) => l.includes("../")) ?? ""}`,
+          `root MODULE.md emitted ../ link: ${out.split("\n").find((l) => l.includes("../")) ?? ""}`,
         );
       }),
     ),

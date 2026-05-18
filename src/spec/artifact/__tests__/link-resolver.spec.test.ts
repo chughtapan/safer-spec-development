@@ -83,7 +83,7 @@ itSpec.prop(
  * @spec.property resolve-symbol-cross-spec-emits-relative-md-link
  * @spec.type Constant Equality
  * @spec.exports resolveSymbol
- * @spec.claim the `@safer/FOLDER/...` shape resolves to cross-spec origin with href `../FOLDER/SPEC.md`
+ * @spec.claim the `@safer/FOLDER/...` shape resolves to cross-spec origin with href `../FOLDER/MODULE.md`
  */
 itSpec.prop(
   "resolve-symbol-cross-spec-emits-relative-md-link",
@@ -95,7 +95,7 @@ itSpec.prop(
         const out = yield* resolveSymbol("@safer/analysis/checks", "any.md");
         yield* failIf(out.origin !== "cross-spec", `expected cross-spec; got ${out.origin}`);
         if (out.origin !== "cross-spec") return;
-        yield* failIf(out.href !== "../analysis/SPEC.md", `expected ../analysis/SPEC.md; got ${out.href}`);
+        yield* failIf(out.href !== "../analysis/MODULE.md", `expected ../analysis/MODULE.md; got ${out.href}`);
       }),
     ),
 );
@@ -104,7 +104,7 @@ itSpec.prop(
  * @spec.property resolve-symbol-cross-spec-without-subpath
  * @spec.type Constant Equality
  * @spec.exports resolveSymbol
- * @spec.claim `@safer/FOLDER` (no trailing slash) still emits href `../FOLDER/SPEC.md`
+ * @spec.claim `@safer/FOLDER` (no trailing slash) still emits href `../FOLDER/MODULE.md`
  */
 itSpec.prop(
   "resolve-symbol-cross-spec-without-subpath",
@@ -116,7 +116,7 @@ itSpec.prop(
         const out = yield* resolveSymbol("@safer/project", "any.md");
         yield* failIf(out.origin !== "cross-spec", `expected cross-spec`);
         if (out.origin !== "cross-spec") return;
-        yield* failIf(out.href !== "../project/SPEC.md", `expected ../project/SPEC.md; got ${out.href}`);
+        yield* failIf(out.href !== "../project/MODULE.md", `expected ../project/MODULE.md; got ${out.href}`);
       }),
     ),
 );

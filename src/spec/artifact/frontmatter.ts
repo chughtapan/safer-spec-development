@@ -1,6 +1,6 @@
 /**
- * @spec.purpose SPEC.md frontmatter contract — Effect Schema for the YAML
- *   block emitted at the top of each generated SPEC.md. Coverage fields are
+ * @spec.purpose MODULE.md frontmatter contract — Effect Schema for the YAML
+ *   block emitted at the top of each generated MODULE.md. Coverage fields are
  *   nullable for `--planned` state where classifier and
  *   precondition numbers are not yet observable.
  *
@@ -30,7 +30,7 @@ const CoverageBlockSchema = Schema.Struct({
 const ThresholdsBlockSchema = Schema.Struct({
   typeCoverage: Schema.Number,
   preconditionPassRate: Schema.Number,
-  // Optional + default 0 so SPEC.md files written by older 0.1.0
+  // Optional + default 0 so MODULE.md files written by older 0.1.0
   // emitters (without this threshold field) still decode cleanly —
   // backwards compat within the same SPEC_FORMAT_VERSION boundary.
   branchCoverageFromSpecTests: Schema.optionalWith(Schema.Number, { default: () => 0 }),

@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: 1154b4b8249204fa34505892bd114bed18c178f1
+generatedAtSha: 16cc46e7ee40c94f6db070cdd56ce038bc78114f
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -150,14 +150,14 @@ export const generateFolder = (
 **Guarantees:**
 - "returns the artifacts (markdown + sidecar JSON) for one folder; folder writes are the caller's responsibility so --dry-run / --write decisions stay at the CLI boundary" — _separation of pipeline (here) from I/O policy (commands/)._
 
-**Residual contract:** "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally" — _drift-check byte-equality contract._
+**Residual contract:** "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed MODULE.md must be deterministic at a given tree SHA regardless of whether tests ran locally" — _drift-check byte-equality contract._
 
 **Skipped property types:**
 - `Partial Roundtrip` — _no normalize-then-recover semantics; this is an orchestrator that emits artifacts._
 - `Commutative Paths` — _single entry point; no equivalent API path produces the same artifacts._
 - `Constant Non-Equality` — _different folders can intentionally produce identical artifacts when sources collapse to the same shape (e.g., two empty folders)._
 - `Inclusion` — _returns a record of artifacts; no set/membership semantics._
-- `Roundtrip` — _pipeline-orchestration only; SPEC.md and sidecar are downstream artifacts, not encoded inputs._
+- `Roundtrip` — _pipeline-orchestration only; MODULE.md and sidecar are downstream artifacts, not encoded inputs._
 - `Exception Raising` — _parser failures inside the per-folder pipeline are surfaced through \`catchDirectiveErrors\` to \`MissingStubError\` at the \`validateFolder\` boundary, not at \`generateFolder\` — the generate path treats them as defects._
 
 ### [`validateFolder`](./orchestrate.ts#L493)
@@ -186,8 +186,8 @@ export const validateFolder = (
 ## Children
 
 - [`checks.ts`](./checks.ts) — Validate's gap-class cross-checks. Co-locates the four tagged errors (MissingSpecPropertyError, MissingStubError, MissingImplError, NoFoldersResolvedError) with the check effects that emit them and the diagnostic-builder helpers that shape their bodies.  Extracted from \`validate.ts\` to keep the orchestration file under the strict max-lines cap; the public surface still routes through \`validate.ts\` (this module is internal to the commands layer).
-- [`exports.ts`](./exports.ts) — Walks a TypeScript source file via ts-morph and returns the list of exported declaration names plus their source lines. Used by \`generate.ts\` to build the SPEC.md \`## Public surface\` rows and match per-export \`@spec\*\` directives to their declarations.  \`collectExports\` accepts sibling source files + tsconfig \`paths\` via \`CollectExportsOptions\` so it can follow barrel re-exports across files and aliases. The caller (commands/validate-pipeline.ts's \`loadProjectContext\`) supplies that input.
-- [`folders.ts`](./folders.ts) — Pure helper for the \`## Children\` section of an emitted SPEC.md. Merges immediate SPEC'd subfolders with the folder's sources and tests into a flat, alphabetically-sorted entry list. Consumed by \`analysis/pipeline.ts\`'s \`inspectFolder\` and \`analysis/orchestrate.ts\`'s \`buildAnalysis\`; not re-exported via the analysis barrel since \`FolderAnalysis.children\` is the public-facing data shape.
+- [`exports.ts`](./exports.ts) — Walks a TypeScript source file via ts-morph and returns the list of exported declaration names plus their source lines. Used by \`generate.ts\` to build the MODULE.md \`## Public surface\` rows and match per-export \`@spec\*\` directives to their declarations.  \`collectExports\` accepts sibling source files + tsconfig \`paths\` via \`CollectExportsOptions\` so it can follow barrel re-exports across files and aliases. The caller (commands/validate-pipeline.ts's \`loadProjectContext\`) supplies that input.
+- [`folders.ts`](./folders.ts) — Pure helper for the \`## Children\` section of an emitted MODULE.md. Merges immediate SPEC'd subfolders with the folder's sources and tests into a flat, alphabetically-sorted entry list. Consumed by \`analysis/pipeline.ts\`'s \`inspectFolder\` and \`analysis/orchestrate.ts\`'s \`buildAnalysis\`; not re-exported via the analysis barrel since \`FolderAnalysis.children\` is the public-facing data shape.
 - [`index.ts`](./index.ts) — Barrel for the \`analysis/\` layer. Exposes two high-level per-folder operations — \`generateFolder\` and \`validateFolder\` — plus the \`collectFolderInputs\` enumeration helper commands use to loop over discovered folders. Pipeline primitives (\`buildSpecMeta\`, \`regenerateMarkdown\`, \`regenerateSidecar\`, individual gap-checks, directive parsers, etc.) stay internal to this folder; commands at \`commands/{generate,validate}.ts\` compose only the two high-level functions, not the underlying machinery.  \`diagnosticLines\` and \`unresolvedFolderError\` are exposed because the cli renders gap-class errors itself (string formatting + the no-folders-resolved guard for \`--folder X\` typos).  \`buildKnownExports\` is the project-level setup the generate command computes once before looping over folders; calling it inside \`generateFolder\` would re-scan every project source on every folder.
 - [`orchestrate.ts`](./orchestrate.ts) — Per-folder pipeline orchestration. \`generateFolder\` and \`validateFolder\` are the public entry points that compose the parsers, pipeline helpers, and gap-class checks under one call. Commands at \`commands/{generate,validate}.ts\` consume these two functions plus folder discovery from \`project/\`; the pipeline primitives (\`buildSpecMeta\`, \`regenerateMarkdown\`, \`checkDrift\`, etc.) stay internal to this folder.  \`generateFolder\`: walks one folder's source + test + immediate subfolder index.ts; parses directives; builds the \`FolderAnalysis\`; emits the markdown + sidecar JSON. Returns the artifacts; callers own the on-disk write step (so \`--dry-run\` works at the cli boundary).  \`validateFolder\`: walks the same pipeline, then diffs the regenerated markdown + sidecar against the on-disk artifacts, enforces coverage thresholds, and runs the per-test directive cross-checks. Returns the folder string on success; fails with a \`ValidateGapError\` whose tag the cli maps to a POSIX exit code.
 - [`pipeline.ts`](./pipeline.ts) — Shared analysis pipeline for \`validate\`. Walks the same inputs as \`generate\` (sources, tests, index barrel) and returns the \`FolderAnalysis\` that the markdown emitter consumes plus the per-test issues list (\`ItSpecIssue\[\]\`) that \`validate.ts\` maps to its gap-class exit codes.
@@ -206,7 +206,7 @@ export const validateFolder = (
 | `catch-directive-errors-parse-maps-to-missing-stub` | `Exception Raising` | `catchDirectiveErrors` | \`catchDirectiveErrors\` maps \`JsDocDirectiveParseError\` to \`MissingStubError\` | implemented |
 | `catch-directive-errors-unknown-maps-to-missing-stub` | `Exception Raising` | `catchDirectiveErrors` | \`catchDirectiveErrors\` maps \`JsDocUnknownDirectiveError\` to \`MissingStubError\` | implemented |
 | `catch-directive-errors-passes-success-through` | `Roundtrip` | `catchDirectiveErrors` | \`catchDirectiveErrors\` is identity on the success channel | implemented |
-| `check-drift-missing-file-fails-with-missing-spec-property` | `Exception Raising` | `checkDrift` | a missing SPEC.md on disk fails with \`MissingSpecPropertyError\` | implemented |
+| `check-drift-missing-file-fails-with-missing-spec-property` | `Exception Raising` | `checkDrift` | a missing MODULE.md on disk fails with \`MissingSpecPropertyError\` | implemented |
 | `check-drift-matching-content-succeeds` | `Constant Equality` | `checkDrift` | on-disk bytes equal to regenerated bytes (modulo SHA line) succeeds | implemented |
 | `check-sidecar-drift-missing-file-fails` | `Exception Raising` | `checkSidecarDrift` | a missing sidecar JSON on disk fails with \`MissingSpecPropertyError\` | implemented |
 | `check-thresholds-zero-thresholds-pass` | `Constant Equality` | `checkThresholds` | threshold=0 across the board never trips; the function returns success | implemented |
@@ -223,7 +223,7 @@ export const validateFolder = (
 | `fail-on-issues-directive-mismatch-maps-to-missing-spec-property` | `Exception Raising` | `failOnIssues` | a \`directive-mismatch\` issue maps to \`MissingSpecPropertyError\` | implemented |
 | `fail-on-issues-implemented-mode-flags-empty-body` | `Exception Raising` | `failOnIssues` | in \`--implemented\` mode an \`empty-body\` issue maps to \`MissingImplError\` | implemented |
 | `diagnostic-lines-includes-tag-and-location` | `Inclusion` | `diagnosticLines` | the rendered diagnostic begins with \`\[Tag\]\` and includes the location, cause, fix, and docs link | implemented |
-| `check-drift-bytes-match-after-sha-strip-succeeds` | `Roundtrip` | `checkDrift` | a SPEC.md whose bytes equal the regenerated bytes (with the \`generatedAtSha:\` line normalized away) succeeds — the SHA line is volatile and excluded from the byte-equality check | implemented |
+| `check-drift-bytes-match-after-sha-strip-succeeds` | `Roundtrip` | `checkDrift` | a MODULE.md whose bytes equal the regenerated bytes (with the \`generatedAtSha:\` line normalized away) succeeds — the SHA line is volatile and excluded from the byte-equality check | implemented |
 | `check-sidecar-drift-bytes-match-succeeds` | `Roundtrip` | `checkSidecarDrift` | a sidecar JSON whose bytes equal the regenerated bytes (with sha fields normalized) succeeds | implemented |
 | `generate-folder-is-callable` | `Typechecking` | `generateFolder` | \`generateFolder\` is exported as a callable function whose return type is an Effect — the typed channel commands compose | implemented |
 | `generate-folder-arity` | `Constant Equality` | `generateFolder` | \`generateFolder\` has arity 1: \`(args: GenerateFolderArgs) =&gt; Effect\` — the signature commands depend on | implemented |

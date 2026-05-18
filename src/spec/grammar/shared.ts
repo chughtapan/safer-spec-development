@@ -153,7 +153,7 @@ export const unquote = (s: string): string => {
  *
  * Parts are normalized to single-line form: continuation indentation
  * from JSDoc source (extra spaces after `* `) is collapsed so the
- * rendered SPEC.md doesn't carry whitespace residue from the comment
+ * rendered MODULE.md doesn't carry whitespace residue from the comment
  * formatting.
  */
 export const splitReason = (

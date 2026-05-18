@@ -2,7 +2,7 @@
  * @spec.purpose
  *   Walks a TypeScript source file via ts-morph and returns the list of
  *   exported declaration names plus their source lines. Used by
- *   `generate.ts` to build the SPEC.md `## Public surface` rows and
+ *   `generate.ts` to build the MODULE.md `## Public surface` rows and
  *   match per-export `@spec*` directives to their declarations.
  *
  *   `collectExports` accepts sibling source files + tsconfig `paths` via
@@ -90,7 +90,7 @@ const factsFromVariable = (
   // Both `export const f = (x) => …` and `export const f = function (x) { … }`
   // are functional exports; without the function-expression branch the
   // second form fell through to the `const` case and emitted the whole
-  // body into SPEC.md / sidecar.
+  // body into MODULE.md / sidecar.
   if (init !== undefined && (Node.isArrowFunction(init) || Node.isFunctionExpression(init))) {
     const body = init.getBody();
     const offset = body.getStart() - anchor.getStart();
@@ -177,7 +177,7 @@ export interface CollectExportsOptions {
 }
 
 // ts-morph's in-memory FileSystem reports paths with a leading "/" (the
-// virtual root). Strip it so committed SPEC.md links + sidecar sourceRef
+// virtual root). Strip it so committed MODULE.md links + sidecar sourceRef
 // paths are repo-relative (e.g. `src/commands/index.ts`, not
 // `/src/commands/index.ts`).
 const stripLeadingSlash = (p: string): string =>
@@ -434,7 +434,7 @@ export const buildExportEntries = (
 /**
  * Per-file `@spec.purpose` index. First occurrence wins (matches emit's
  * source-order convention). Callers read the folder's index.ts purpose
- * as `map.get(indexFilePath) ?? null`; the SPEC.md Files section reads
+ * as `map.get(indexFilePath) ?? null`; the MODULE.md Files section reads
  * per-file purposes the same way.
  */
 export const indexFilePurposes = (

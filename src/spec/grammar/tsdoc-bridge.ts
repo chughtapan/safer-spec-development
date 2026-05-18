@@ -221,7 +221,7 @@ const hyphensToCamel = (body: string): string =>
  * first non-whitespace token on a JSDoc continuation line (after `* `) or
  * immediately after the `/**` opener. Mentions inside prose (e.g.
  * `` `@spec.skip` `` in a Purpose paragraph) are left intact so the
- * rendered SPEC.md prose stays faithful to the author's text.
+ * rendered MODULE.md prose stays faithful to the author's text.
  *
  * The rewrite is length-reducing; byte offsets shift left but newline
  * positions are preserved. Downstream `offsetToLine` and `rawBodyBetween`

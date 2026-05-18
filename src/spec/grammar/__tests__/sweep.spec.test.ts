@@ -92,7 +92,7 @@ itSpec.prop(
  * @spec.property property-types-no-empty-entries
  * @spec.type Constant Non-Equality
  * @spec.exports PROPERTY_TYPES
- * @spec.claim no entry is empty or whitespace-only — every member is a renderable label the SPEC.md `## Properties` table uses verbatim
+ * @spec.claim no entry is empty or whitespace-only — every member is a renderable label the MODULE.md `## Properties` table uses verbatim
  */
 itSpec.prop(
   "property-types-no-empty-entries",

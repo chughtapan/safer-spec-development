@@ -8,7 +8,7 @@
  *   Every `itSpec.prop`/`itSpec.todo` call carries four required JSDoc
  *   directives above it (`@spec.property`, `@spec.type`, `@spec.exports`,
  *   `@spec.claim`). `generate` walks `*.spec.test.ts` files, parses these
- *   directives, and emits the colocated SPEC.md `## Properties` table from
+ *   directives, and emits the colocated MODULE.md `## Properties` table from
  *   the tests. The runtime `meta` argument carries the same metadata for
  *   `validate --implemented` to cross-check JSDoc against runtime opts.
  *

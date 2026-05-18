@@ -7,7 +7,7 @@
  *   this file owns folder discovery, project-context loading, and the
  *   stderr diagnostic formatter.
  *
- *   `--planned`: regenerate SPEC.md + sidecar, diff on-disk; enforce
+ *   `--planned`: regenerate MODULE.md + sidecar, diff on-disk; enforce
  *   per-folder coverage thresholds; per-test directive completeness is
  *   enforced via `extractProperties` issues + the diff check.
  *

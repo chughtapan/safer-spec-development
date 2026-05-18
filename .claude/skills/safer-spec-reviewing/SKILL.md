@@ -1,6 +1,6 @@
 ---
 name: safer-spec-reviewing
-description: Use when reviewing generated or hand-written code, SPEC.md output, sidecar JSON, @spec.* JSDoc, or itSpec property tests in any project using safer-spec-development for spec-driven development.
+description: Use when reviewing generated or hand-written code, MODULE.md output, sidecar JSON, @spec.* JSDoc, or itSpec property tests in any project using safer-spec-development for spec-driven development.
 ---
 
 # safer-spec-reviewing
@@ -16,7 +16,7 @@ first question is:
 Which explicit contract or property would fail if this implementation were
 wrong?
 
-Generated `SPEC.md` and sidecar JSON are summaries. The reviewable sources of
+Generated `MODULE.md` and sidecar JSON are summaries. The reviewable sources of
 truth are source JSDoc, test JSDoc, and `itSpec` runtime metadata.
 
 Assume the author or generated-code agent may be new to property-based
@@ -27,7 +27,7 @@ metadata explains which behavior is being tested over those samples.
 
 ## Review Order
 
-1. Read generated `SPEC.md` or sidecar JSON only to discover the public
+1. Read generated `MODULE.md` or sidecar JSON only to discover the public
    surface, residual contracts, properties, and skips.
 2. Trace every important claim back to source JSDoc, Effect Schema/refinement
    definitions, or test JSDoc.
@@ -92,7 +92,7 @@ implementation be brought back under the existing contract.
   `@spec.skip`, and `@spec.ignore-export` belong on exported declarations.
 - `@spec.property`, `@spec.type`, `@spec.exports`, and `@spec.claim` belong
   immediately above `itSpec.todo` or `itSpec.prop`.
-- Generated `SPEC.md` property rows should not be hand-edited.
+- Generated `MODULE.md` property rows should not be hand-edited.
 
 ### Metadata Consistency
 
@@ -167,7 +167,7 @@ failure mode is specific.
 
 ## Generated Artifacts
 
-For `SPEC.md` or `.safer-spec/<folder>.json` changes:
+For `MODULE.md` or `.safer-spec/<folder>.json` changes:
 
 - Review source JSDoc and test JSDoc first.
 - Confirm artifacts were regenerated instead of hand-edited.
@@ -216,7 +216,7 @@ the existing contract.
 
 | Mistake | Better review behavior |
 |---|---|
-| Reviewing generated `SPEC.md` as hand-authored prose | Trace confusing output to the directive that produced it. |
+| Reviewing generated `MODULE.md` as hand-authored prose | Trace confusing output to the directive that produced it. |
 | Approving generated code because it looks plausible | Identify the contract and property that constrain it. |
 | Accepting broad claims like "handles valid input" | Require a falsifiable behavior statement. |
 | Treating skipped property types as harmless | Require a specific semantic reason for every skip. |

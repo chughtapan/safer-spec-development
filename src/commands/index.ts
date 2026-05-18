@@ -192,7 +192,7 @@ const explainCommand = Command.make(
 
 // --- root ---
 const root = Command.make("safer-spec", {}, () =>
-  Effect.log("safer-spec — per-folder SPEC.md codemod. Pass --help."),
+  Effect.log("safer-spec — per-folder MODULE.md codemod. Pass --help."),
 );
 
 const command = root.pipe(

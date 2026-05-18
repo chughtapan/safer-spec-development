@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/analysis",
-  "generatedAtSha": "1154b4b8249204fa34505892bd114bed18c178f1",
+  "generatedAtSha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f",
   "exports": [
     {
       "name": "ValidateGapError",
@@ -15,7 +15,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 74,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -59,7 +59,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 80,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -103,7 +103,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 95,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -118,7 +118,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 106,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -169,7 +169,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 215,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -218,7 +218,7 @@
       "sourceRef": {
         "path": "src/analysis/checks.ts",
         "line": 356,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -275,7 +275,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 393,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -311,7 +311,7 @@
         },
         {
           "propertyType": "Roundtrip",
-          "reason": "pipeline-orchestration only; SPEC.md and sidecar are downstream artifacts, not encoded inputs."
+          "reason": "pipeline-orchestration only; MODULE.md and sidecar are downstream artifacts, not encoded inputs."
         },
         {
           "propertyType": "Exception Raising",
@@ -320,7 +320,7 @@
       ],
       "residualContract": {
         "_tag": "some",
-        "body": "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed SPEC.md must be deterministic at a given tree SHA regardless of whether tests ran locally",
+        "body": "execution metrics from the Vitest reporter are NOT folded into the emitted artifacts; committed MODULE.md must be deterministic at a given tree SHA regardless of whether tests ran locally",
         "reason": "drift-check byte-equality contract."
       },
       "residualAssumes": [],
@@ -333,7 +333,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 445,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -393,7 +393,7 @@
       "sourceRef": {
         "path": "src/analysis/orchestrate.ts",
         "line": 493,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     }
   ],

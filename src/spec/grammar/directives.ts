@@ -281,7 +281,7 @@ const parseOneJsDoc = (
  * @spec.guarantee "every emitted directive validates against the closed grammar before downstream consumption"
  *   reason: trust-boundary; agents consume parsed directive bodies as context.
  * @spec.skip "Roundtrip"
- *   reason: parser-only; no `unparseDirectives` companion (SPEC.md is emitted by `emitMarkdown`, not from raw directives).
+ *   reason: parser-only; no `unparseDirectives` companion (MODULE.md is emitted by `emitMarkdown`, not from raw directives).
  * @spec.skip "Partial Roundtrip"
  *   reason: source comments carry formatting (indentation, line breaks) the parser intentionally normalizes away; no partial-recover relation.
  * @spec.skip "Commutative Paths"

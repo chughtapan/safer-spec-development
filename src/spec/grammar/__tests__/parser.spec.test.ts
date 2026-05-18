@@ -353,7 +353,7 @@ itSpec.prop(
  * @spec.property parse-claim-rejects-empty-body
  * @spec.type Exception Raising
  * @spec.exports parseFileDirectives
- * @spec.claim `@spec.claim` with empty body fails parse — claims are the SPEC.md row text and cannot be empty
+ * @spec.claim `@spec.claim` with empty body fails parse — claims are the MODULE.md row text and cannot be empty
  */
 itSpec.prop(
   "parse-claim-rejects-empty-body",

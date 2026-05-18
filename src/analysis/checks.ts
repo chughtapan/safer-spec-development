@@ -42,7 +42,7 @@ export interface GapErrorPayload {
 }
 
 /**
- * @spec.guarantee "emitted when committed SPEC.md drifts from the regenerated output, when the sidecar JSON drifts, or when a Properties row fails its test-side directive cross-check"
+ * @spec.guarantee "emitted when committed MODULE.md drifts from the regenerated output, when the sidecar JSON drifts, or when a Properties row fails its test-side directive cross-check"
  *   reason: spec-tier ratchet; cli translates this tag to exit code 11.
  * @spec.residual-contract "diagnostic.problem is human-readable; agents read .diagnostic.fix to route remediation"
  *   reason: trust contract for diagnostic body content.
@@ -123,7 +123,7 @@ const driftError = (specPath: string, reason: string): MissingSpecPropertyError 
   new MissingSpecPropertyError({
     location: specPath,
     diagnostic: mkDiagnostic(
-      "committed SPEC.md drifted from regenerated output",
+      "committed MODULE.md drifted from regenerated output",
       reason,
       "run `safer-spec generate --write` to refresh",
       "missing-spec-property",
@@ -142,7 +142,7 @@ export const checkDrift = (
   fs.readFileString(specPath).pipe(
     Effect.matchEffect({
       onFailure: () =>
-        Effect.fail(driftError(specPath, "no SPEC.md on disk for this folder")),
+        Effect.fail(driftError(specPath, "no MODULE.md on disk for this folder")),
       onSuccess: (onDisk) =>
         stripVolatileMd(onDisk) === stripVolatileMd(regenerated)
           ? Effect.succeed(void 0)

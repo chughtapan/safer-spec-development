@@ -1,8 +1,8 @@
 /**
- * @spec.purpose Format version constant for SPEC.md frontmatter and the
+ * @spec.purpose Format version constant for MODULE.md frontmatter and the
  *   `.safer-spec/&lt;folder>.json` sidecar JSON. Co-located with the
  *   commands because `generate.ts` stamps it onto every emitted
- *   SPEC.md. CHANGELOG signposts bumps before they ship; the
+ *   MODULE.md. CHANGELOG signposts bumps before they ship; the
  *   `safer-spec-migrate` skill walks committed artifacts across the
  *   bump.
  */
@@ -11,7 +11,7 @@
  * @spec.guarantee "value is a stable string literal across all calls within one process"
  *   reason: declared `as const` in source; re-evaluation cannot drift.
  * @spec.residual-contract "callers must treat as opaque; cross-version comparisons go through the safer-spec-migrate skill"
- *   reason: comparison logic is migrate's responsibility; the skill walks SPEC.md + sidecar artifacts during format-version transitions.
+ *   reason: comparison logic is migrate's responsibility; the skill walks MODULE.md + sidecar artifacts during format-version transitions.
  * @spec.skip "Roundtrip"
  *   reason: a string constant; no encode/decode pair.
  * @spec.skip "Partial Roundtrip"

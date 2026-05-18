@@ -29,7 +29,7 @@ const stripControlChars = (input: string): string =>
 
 /**
  * @spec.guarantee "output is markdown-safe; backticks, code-fences, link syntax characters, HTML angle brackets are escaped"
- *   reason: trust contract; emitted into SPEC.md prose where attacker-controlled directive bodies could otherwise inject markup.
+ *   reason: trust contract; emitted into MODULE.md prose where attacker-controlled directive bodies could otherwise inject markup.
  * @spec.residual-contract "the escaping is one-way; round-trip through `decode` does not return the original string"
  *   reason: behavioral residue; downstream readers see escaped form.
  */
@@ -52,7 +52,7 @@ export const escapeForMarkdown = (
 
 /**
  * @spec.guarantee "output is YAML-safe; quotes, colons, dashes at line start are escaped"
- *   reason: trust contract; emitted into SPEC.md frontmatter.
+ *   reason: trust contract; emitted into MODULE.md frontmatter.
  * @spec.residual-contract "the escaping is one-way"
  *   reason: same as escapeForMarkdown.
  */

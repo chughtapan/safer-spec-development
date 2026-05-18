@@ -233,7 +233,7 @@ itSpec.prop(
  * @spec.property spec-format-version-non-empty-constant
  * @spec.type Constant Equality
  * @spec.exports SPEC_FORMAT_VERSION
- * @spec.claim `SPEC_FORMAT_VERSION === "0.1.0"` — the literal version stamp every SPEC.md frontmatter and sidecar JSON carries; the migrate skill keys committed artifacts on bumps of this string
+ * @spec.claim `SPEC_FORMAT_VERSION === "0.1.0"` — the literal version stamp every MODULE.md frontmatter and sidecar JSON carries; the migrate skill keys committed artifacts on bumps of this string
  */
 itSpec.prop(
   "spec-format-version-non-empty-constant",
@@ -268,7 +268,7 @@ itSpec.prop(
  * @spec.property spec-format-version-typechecks-as-string
  * @spec.type Typechecking
  * @spec.exports SPEC_FORMAT_VERSION
- * @spec.claim `SPEC_FORMAT_VERSION` is a non-empty string — the stable label every emitted SPEC.md frontmatter and sidecar JSON stamps
+ * @spec.claim `SPEC_FORMAT_VERSION` is a non-empty string — the stable label every emitted MODULE.md frontmatter and sidecar JSON stamps
  */
 itSpec.prop(
   "spec-format-version-typechecks-as-string",

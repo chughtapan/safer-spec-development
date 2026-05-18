@@ -1,9 +1,9 @@
 # Default: repo owner reviews everything.
 *       @chughtapan
 
-# Stage 4 (when safer-by-default architect skill gates on SPEC.md) requires
-# CODEOWNERS approval for SPEC.md changes; this is the file that makes
+# Stage 4 (when safer-by-default architect skill gates on MODULE.md) requires
+# CODEOWNERS approval for MODULE.md changes; this is the file that makes
 # `safer-approve-spec` work.
-**/SPEC.md      @chughtapan
+**/MODULE.md      @chughtapan
 **/AGENTS.md    @chughtapan
 eslint.config.mjs       @chughtapan

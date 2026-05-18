@@ -124,7 +124,7 @@ export const writeSidecar = (
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const json = yield* serializeSidecar(payload.artifact);
-    // Sidecar lives under the owning folder, alongside the SPEC.md it
+    // Sidecar lives under the owning folder, alongside the MODULE.md it
     // pairs with. validate.ts reads from <folder>/.safer-spec/<slug>.json;
     // this is the same path so the two halves agree.
     const dir = `${payload.folder}/.safer-spec`;

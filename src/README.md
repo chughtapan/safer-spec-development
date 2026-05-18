@@ -1,6 +1,6 @@
 # `@chughtapan/safer-spec-development` — package source
 
-Per-folder SPEC.md TypeScript codemod. Generates structured specs from
+Per-folder MODULE.md TypeScript codemod. Generates structured specs from
 source + JSDoc directives + Effect Schema + fast-check property tests;
 validates property-type coverage, classifier coverage, and precondition
 pass-rate gates.
@@ -63,4 +63,4 @@ Generated specs use three directive populations:
   `@spec.property` / `@spec.type` / `@spec.exports` / `@spec.claim`.
 
 The `validate --implemented` gate cross-checks JSDoc against runtime
-metadata and against the regenerated SPEC.md.
+metadata and against the regenerated MODULE.md.

@@ -153,7 +153,7 @@ itSpec.prop(
  * @spec.property folder-input-canonicalized-before-stamping
  * @spec.type Constant Equality
  * @spec.exports generate
- * @spec.claim authoring conveniences (`./src/`, trailing slashes, absolute paths) resolve to the same canonical folder string via `ctx.resolveFolder` — the SPEC.md frontmatter and sidecar slug never diverge for the same logical folder
+ * @spec.claim authoring conveniences (`./src/`, trailing slashes, absolute paths) resolve to the same canonical folder string via `ctx.resolveFolder` — the MODULE.md frontmatter and sidecar slug never diverge for the same logical folder
  */
 itSpec.prop(
   "folder-input-canonicalized-before-stamping",

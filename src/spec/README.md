@@ -3,7 +3,7 @@
 Everything about the spec format lives here: directive grammar + parser,
 escape helpers, markdown emitter + frontmatter, sidecar JSON schema +
 writer, link resolver for backticked refs in body prose, and the
-`itSpec` test-authoring helper. Markdown SPEC.md and `.safer-spec/<folder>.json`
+`itSpec` test-authoring helper. Markdown MODULE.md and `.safer-spec/<folder>.json`
 are two serializations of the same data, so they share a domain.
 
 | File                  | Role                                                                                  |
@@ -11,8 +11,8 @@ are two serializations of the same data, so they share a domain.
 | `it-spec.ts`          | Author-facing `itSpec` helper. Wraps Vitest's `it.prop` / `it.todo` with typed metadata. |
 | `directives.ts`       | Closed JSDoc directive grammar (file-level, per-export, per-test populations) + parser. Tagged error `JsDocDirectiveOverflowError` co-located. |
 | `escape.ts`           | `escapeForMarkdown` / `escapeForYaml` / `escapeForJson` + `enforceLengthCap`. Trust-boundary defense applied at both output formats. |
-| `frontmatter.ts`      | Effect Schema for SPEC.md frontmatter (private constructor); `decodeSpecFrontmatter` boundary. |
-| `emit.ts`             | Canonical SPEC.md markdown serializer.                                                |
+| `frontmatter.ts`      | Effect Schema for MODULE.md frontmatter (private constructor); `decodeSpecFrontmatter` boundary. |
+| `emit.ts`             | Canonical MODULE.md markdown serializer.                                                |
 | `sidecar.ts`          | Effect Schema for `.safer-spec/<folder>.json` (private constructor); `decodeSpecArtifact` boundary. Tagged error `SidecarSchemaError` co-located. |
 | `sidecar-writer.ts`   | `serializeSidecar` + `writeSidecar`. Tagged error `SidecarWriteError` co-located.     |
 | `link-resolver.ts`    | `resolveSymbol` — intra-file + cross-spec backticked references. Tagged error `LinkResolutionError` co-located. |

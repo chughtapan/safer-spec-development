@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/project",
-  "generatedAtSha": "1154b4b8249204fa34505892bd114bed18c178f1",
+  "generatedAtSha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f",
   "exports": [
     {
       "name": "SPEC_FORMAT_VERSION",
@@ -43,7 +43,7 @@
       "residualContract": {
         "_tag": "some",
         "body": "callers must treat as opaque; cross-version comparisons go through the safer-spec-migrate skill",
-        "reason": "comparison logic is migrate's responsibility; the skill walks SPEC.md + sidecar artifacts during format-version transitions."
+        "reason": "comparison logic is migrate's responsibility; the skill walks MODULE.md + sidecar artifacts during format-version transitions."
       },
       "residualAssumes": [],
       "residualGuarantees": [
@@ -55,7 +55,7 @@
       "sourceRef": {
         "path": "src/project/version.ts",
         "line": 26,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -103,7 +103,7 @@
       "sourceRef": {
         "path": "src/project/config.ts",
         "line": 32,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -118,7 +118,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 38,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -166,7 +166,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 57,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -181,7 +181,7 @@
       "sourceRef": {
         "path": "src/project/config.ts",
         "line": 65,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -229,7 +229,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 76,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -244,7 +244,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 80,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
     {
@@ -293,7 +293,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 353,
-        "sha": "1154b4b8249204fa34505892bd114bed18c178f1"
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     }
   ],

@@ -42,7 +42,7 @@ codes via `VALIDATE_GAP_EXIT_CODES` in `validate.ts`:
 
 | Error                       | Exit code | Triggered by                                                 |
 |-----------------------------|-----------|--------------------------------------------------------------|
-| `MissingSpecPropertyError`  | 11        | SPEC.md drift OR sidecar drift OR Properties-row directive mismatch |
+| `MissingSpecPropertyError`  | 11        | MODULE.md drift OR sidecar drift OR Properties-row directive mismatch |
 | `MissingStubError`          | 12        | `itSpec` call site missing one of the required JSDoc directives |
 | `MissingImplError`          | 13        | `itSpec.prop` body empty OR coverage metric below threshold OR execution sidecar stale/missing |
 | `NoFoldersResolvedError`    | 1         | `--folder X` resolved to zero folders containing `index.ts`  |

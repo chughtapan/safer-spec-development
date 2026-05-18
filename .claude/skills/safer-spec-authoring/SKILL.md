@@ -1,6 +1,6 @@
 ---
 name: safer-spec-authoring
-description: Use when applying safer-spec-development in any TypeScript repo to author source JSDoc directives, residual contracts, property metadata, planned or implemented itSpec tests, generated SPEC.md files, or sidecar artifacts for spec-driven development and generated-code workflows.
+description: Use when applying safer-spec-development in any TypeScript repo to author source JSDoc directives, residual contracts, property metadata, planned or implemented itSpec tests, generated MODULE.md files, or sidecar artifacts for spec-driven development and generated-code workflows.
 ---
 
 # safer-spec-authoring
@@ -12,7 +12,7 @@ It is not a guide to this repository's folder layout.
 
 Use it to make a TypeScript export answerable to an explicit contract before
 or while code is written, including code written by an agent. A cold reader
-should be able to read the generated `SPEC.md`, trace each claim to source or
+should be able to read the generated `MODULE.md`, trace each claim to source or
 test JSDoc, and know which property would fail if the implementation is wrong.
 
 Do not assume the reader is an expert in property-based testing. Teach the
@@ -26,7 +26,7 @@ The durable sources of truth are:
 - Test JSDoc above `itSpec.todo` or `itSpec.prop`.
 - Runtime metadata passed to `itSpec`.
 
-`SPEC.md` and `.safer-spec/<folder>.json` are generated projections. Do not
+`MODULE.md` and `.safer-spec/<folder>.json` are generated projections. Do not
 hand-edit them to change the contract.
 
 ## Authoring Loop
@@ -59,7 +59,7 @@ implementation can be generated or reviewed against it.
 | Targeted exports | `@spec.exports Name` and `exports: [Name]` using value references. |
 | Property claim | `@spec.claim` as a falsifiable one-line behavior statement. |
 | Intentional opt-out | `@spec.skip "<PropertyType>" reason: <why>` on the export. |
-| Human summary | Generated `SPEC.md`. |
+| Human summary | Generated `MODULE.md`. |
 | Tool summary | Generated `.safer-spec/<folder>.json`. |
 
 ## Export Contracts
@@ -213,7 +213,7 @@ export, not why nobody wrote the test yet. Use `itSpec.todo` for planned work.
 
 When using safer-spec to guide generated code:
 
-1. Give the agent the generated `SPEC.md` or sidecar as compact context.
+1. Give the agent the generated `MODULE.md` or sidecar as compact context.
 2. Require the agent to read the source and test JSDoc for touched exports.
 3. Ask for implementation that satisfies the residual contracts and property
    claims.
@@ -244,7 +244,7 @@ sidecar data.
 | Mistake | Fix |
 |---|---|
 | Writing repo-history, PR history, or chat context in directives | State the present contract only. |
-| Hand-editing generated `SPEC.md` or sidecar JSON | Edit source/test JSDoc and regenerate. |
+| Hand-editing generated `MODULE.md` or sidecar JSON | Edit source/test JSDoc and regenerate. |
 | Restating TypeScript signatures in `@spec.guarantee` | Put only residual behavior in directives. |
 | Passing string names in `itSpec` metadata | Use value references: `exports: [toUserStorageKey]`. |
 | Skipping with "not applicable" only | Explain the semantic reason the property type cannot apply. |
