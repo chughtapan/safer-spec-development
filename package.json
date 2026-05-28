@@ -28,6 +28,7 @@
   "scripts": {
     "build": "rm -rf dist tsconfig.tsbuildinfo && tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
     "prepack": "rm -rf dist tsconfig.tsbuildinfo && tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
+    "prepare": "rm -rf dist tsconfig.tsbuildinfo && tsc -p tsconfig.json && tsc-alias -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
     "lint": "eslint . && agent-code-guard-knip",
     "lint:fix": "eslint . --fix",
