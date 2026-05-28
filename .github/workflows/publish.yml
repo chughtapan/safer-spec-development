@@ -1,14 +1,25 @@
 name: publish
 
-# Publish @chughtapan/safer-spec-development to npm when a vX.Y.Z tag is pushed.
-# Consumers (brief, safer-by-default) then `bun add -D @chughtapan/safer-spec-development`
-# instead of vendoring a plain copy. Requires an NPM_TOKEN repo secret with publish
-# rights to the @chughtapan scope. `publishConfig.access` in package.json is "public",
-# so the scoped package publishes publicly without an extra flag.
+# Publish @chughtapan/safer-spec-development to npm when a vX.Y.Z tag is pushed,
+# via npm Trusted Publishing (OIDC) — no NPM_TOKEN secret. GitHub Actions mints a
+# short-lived OIDC token that npm exchanges for publish auth, and provenance
+# attestation is generated automatically. Consumers (brief, safer-by-default) then
+# `bun add -D @chughtapan/safer-spec-development` instead of vendoring a copy.
+#
+# ONE-TIME npm-side setup (no package exists yet, so bootstrap first):
+#   1. Do the initial publish once to create the package + claim @chughtapan/safer-spec-development
+#      (manual `npm publish` with a granular token, OR an `npm login` from a trusted machine).
+#   2. On npmjs.com -> the package -> Settings -> Trusted Publishers -> add a GitHub Actions
+#      publisher: org `chughtapan`, repo `safer-spec-development`, workflow `publish.yml`.
+#   After that, every `vX.Y.Z` tag publishes via OIDC with zero stored secrets.
 on:
   push:
     tags:
       - "v*.*.*"
+
+permissions:
+  contents: read
+  id-token: write # required for npm OIDC trusted publishing + provenance
 
 jobs:
   npm-publish:
@@ -19,6 +30,8 @@ jobs:
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
+      - name: Upgrade npm (OIDC trusted publishing needs npm >= 11.5.1)
+        run: npm install -g npm@latest
       - name: Install deps
         run: npm install
       - name: Build (emits dist/ that main/bin/exports point at)
@@ -30,7 +43,5 @@ jobs:
           if [ "$PKG" != "$TAG" ]; then
             echo "::error::tag v$TAG does not match package.json version $PKG"; exit 1
           fi
-      - name: Publish
+      - name: Publish (OIDC; provenance is automatic, no NODE_AUTH_TOKEN)
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
