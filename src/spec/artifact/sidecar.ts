@@ -17,25 +17,30 @@ import { PROPERTY_TYPES } from "@safer/spec/grammar/index.js";
 
 const KindSchema = Schema.Literal(...PROPERTY_TYPES);
 
+// Every user-controlled string field is capped at the directive body limit
+// (500 chars, matching grammar's DIRECTIVE_BODY_MAX_CHARS) — the sidecar stores
+// directive bodies, so the caps are the same contract.
+const CappedString = Schema.String.pipe(Schema.maxLength(500));
+
 const ResidualEntrySchema = Schema.Struct({
-  claim: Schema.String.pipe(Schema.maxLength(500)),
-  reason: Schema.String.pipe(Schema.maxLength(500)),
+  claim: CappedString,
+  reason: CappedString,
 });
 
 const SkippedEntrySchema = Schema.Struct({
   propertyType: KindSchema,
-  reason: Schema.String.pipe(Schema.maxLength(500)),
+  reason: CappedString,
 });
 
 const ResidualContractSchema = Schema.Union(
   Schema.Struct({
     _tag: Schema.Literal("none"),
-    reason: Schema.String.pipe(Schema.maxLength(500)),
+    reason: CappedString,
   }),
   Schema.Struct({
     _tag: Schema.Literal("some"),
-    body: Schema.String.pipe(Schema.maxLength(500)),
-    reason: Schema.String.pipe(Schema.maxLength(500)),
+    body: CappedString,
+    reason: CappedString,
   }),
 );
 

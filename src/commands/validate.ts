@@ -23,6 +23,7 @@ import {
   type ProjectContext,
 } from "@safer/project/index.js";
 import {
+  buildKnownExports,
   computeProjectNewestMtime,
   diagnosticLines,
   validateFolder,
@@ -127,13 +128,15 @@ const buildFolderArgsBase = (
     readonly fs: FileSystem.FileSystem;
     readonly path: Path.Path;
     readonly projectCtx: ProjectContext;
+    readonly knownExports: ReadonlySet<string>;
     readonly mode: "planned" | "implemented";
     readonly projectNewestMtime?: number;
   },
   never
 > =>
   Effect.gen(function* () {
-    const base = { fs, path, projectCtx, mode };
+    const knownExports = buildKnownExports(projectCtx);
+    const base = { fs, path, projectCtx, knownExports, mode };
     if (mode !== "implemented") return base;
     const projectNewestMtime = yield* computeProjectNewestMtime(fs, path, projectCtx);
     return { ...base, projectNewestMtime };

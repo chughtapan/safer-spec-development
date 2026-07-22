@@ -104,6 +104,7 @@ Default thresholds: `typeCoverage: 0.4`, `preconditionPassRate: 0`, `branchCover
 
 ```json
 {
+  "excludeRootPrefixes": ["vendor", "generated/sdk"],
   "defaultThresholds": { "typeCoverage": 0.5, "branchCoverageFromSpecTests": 0.8 },
   "folderOverrides": {
     "src/commands": { "branchCoverageFromSpecTests": 0 }
@@ -112,3 +113,7 @@ Default thresholds: `typeCoverage: 0.4`, `preconditionPassRate: 0`, `branchCover
 ```
 
 The validate gate compares the per-folder computed coverage against the resolved threshold (folder override > defaultThresholds > 0). Non-zero thresholds gate on shortfall; setting a threshold to `0` disables that gate for the folder. Use folder overrides for legitimate exceptions — e.g., cli entry-point files that nothing tests directly.
+
+`excludeRootPrefixes` removes matching root-relative path segments from both
+source collection and folder discovery. Use it for independent vendored or
+generated trees that own their own safer-spec configuration.

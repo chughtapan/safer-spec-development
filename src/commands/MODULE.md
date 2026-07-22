@@ -1,7 +1,7 @@
 ---
 folder: src/commands
 format-version: 0.1.0
-generatedAtSha: 16cc46e7ee40c94f6db070cdd56ce038bc78114f
+generatedAtSha: uncommitted
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -39,7 +39,7 @@ Tagged errors `CliExitCode` and `CliUsageError` are co-located here.
 
 ## Public surface
 
-### [`CliExitCode`](./index.ts#L58)
+### [`CliExitCode`](./index.ts#L63)
 
 ```ts
 export class CliExitCode extends Data.TaggedError("CliExitCode")<{
@@ -56,7 +56,7 @@ export class CliExitCode extends Data.TaggedError("CliExitCode")<{
 - `Commutative Paths` — _a single tagged-error class; no alternative path constructs it._
 - `Inclusion` — _not a collection._
 
-### [`CliUsageError`](./index.ts#L75)
+### [`CliUsageError`](./index.ts#L80)
 
 ```ts
 export class CliUsageError extends Data.TaggedError("CliUsageError")<{

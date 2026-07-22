@@ -61,7 +61,7 @@ single-job; lower layers don't depend on higher.
 | Layer | Folder | Owns |
 |---|---|---|
 | Commands | `commands/` | `safer-spec` binary entrypoint + the four @effect/cli Commands (`generate`, `validate`, `doctor`, `explain`). Folder onboarding (`init`) and format-version migration (`migrate`) ship as coding-agent skills, not CLI code. |
-| Project | `project/` | Project-wide setup. `context.ts` (sources/paths/SHA/config loader), `config.ts` (`safer-spec.config.json` schema + per-folder threshold resolver), `version.ts` (`SPEC_FORMAT_VERSION`), `folders.ts` (folder walks). What the codemod knows about the target project before doing work. |
+| Project | `project/` | Project-wide setup. `context.ts` (config-aware source/folder discovery plus paths/SHA loading), `config.ts` (`safer-spec.config.json` schema, root-prefix exclusions, and per-folder threshold resolver), and `version.ts` (`SPEC_FORMAT_VERSION`). What the codemod knows about the target project before doing work. |
 | Analysis | `analysis/` | How commands ingest the project + cross-check. `pipeline.ts` (the shared analysis driving generate + validate), `checks.ts` (validate's gap-class cross-checks + tagged errors), `exports.ts` (ts-morph export collector), `properties.ts` (itSpec call extractor). |
 | Domain | `spec/` | The spec format itself. `spec/artifact/` owns the on-disk artifacts (MODULE.md emission + frontmatter + sidecar parse/emit + atomic writer + Vitest reporter + helpers). `spec/grammar/` owns the `@spec.*` directive language + closed `PropertyType` vocabulary + the `itSpec` runtime encoding. |
 

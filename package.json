@@ -1,6 +1,6 @@
 {
   "name": "@chughtapan/safer-spec-development",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Per-folder MODULE.md TypeScript codemod. Generates structured specs from source + JSDoc directives; validates property-type coverage + classifier coverage + precondition pass rate against fast-check property tests.",
   "type": "module",
   "license": "MIT",

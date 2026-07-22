@@ -19,21 +19,6 @@
       }
     },
     {
-      "name": "ExportEntry",
-      "shape": "type",
-      "requiredPropertyTypes": [],
-      "observedPropertyTypes": [],
-      "skipped": [],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [],
-      "sourceRef": {
-        "path": "src/spec/artifact/emit.ts",
-        "line": 47,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
-      }
-    },
-    {
       "name": "sidecarSlug",
       "shape": "function",
       "requiredPropertyTypes": [
@@ -87,7 +72,22 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
-        "line": 57,
+        "line": 41,
+        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+      }
+    },
+    {
+      "name": "ExportEntry",
+      "shape": "type",
+      "requiredPropertyTypes": [],
+      "observedPropertyTypes": [],
+      "skipped": [],
+      "residualContract": null,
+      "residualAssumes": [],
+      "residualGuarantees": [],
+      "sourceRef": {
+        "path": "src/spec/artifact/emit.ts",
+        "line": 47,
         "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
@@ -234,7 +234,7 @@
       ],
       "sourceRef": {
         "path": "src/spec/artifact/sidecar-writer.ts",
-        "line": 100,
+        "line": 84,
         "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
       }
     },
@@ -408,7 +408,7 @@
       "residualAssumes": [],
       "residualGuarantees": [
         {
-          "claim": "two calls with the same `analysis` + `meta` produce byte-identical markdown; frontmatter decodes through `decodeSpecFrontmatter`",
+          "claim": "two calls with the same `analysis` + `meta` produce byte-identical markdown, frontmatter block included",
           "reason": "roundtrip contract on the emit step."
         }
       ],

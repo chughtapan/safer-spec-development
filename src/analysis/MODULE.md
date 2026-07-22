@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: 16cc46e7ee40c94f6db070cdd56ce038bc78114f
+generatedAtSha: uncommitted
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -32,7 +32,7 @@ Barrel for the `analysis/` layer. Exposes two high-level per-folder operations �
 
 ## Public surface
 
-### [`ValidateGapError`](./checks.ts#L74)
+### [`ValidateGapError`](./checks.ts#L73)
 
 ```ts
 export type ValidateGapError =
@@ -97,7 +97,7 @@ export const buildKnownExports = (ctx: ProjectContext): ReadonlySet<string> => {
 - `Constant Non-Equality` — _no anti-collision invariant; two distinct projects can have overlapping export names._
 - `Exception Raising` — _total function on a fully-loaded ProjectContext; nothing inside throws._
 
-### [`diagnosticLines`](./checks.ts#L356)
+### [`diagnosticLines`](./checks.ts#L359)
 
 ```ts
 export const diagnosticLines = (
@@ -160,7 +160,7 @@ export const generateFolder = (
 - `Roundtrip` — _pipeline-orchestration only; MODULE.md and sidecar are downstream artifacts, not encoded inputs._
 - `Exception Raising` — _parser failures inside the per-folder pipeline are surfaced through \`catchDirectiveErrors\` to \`MissingStubError\` at the \`validateFolder\` boundary, not at \`generateFolder\` — the generate path treats them as defects._
 
-### [`validateFolder`](./orchestrate.ts#L493)
+### [`validateFolder`](./orchestrate.ts#L494)
 
 ```ts
 export const validateFolder = (

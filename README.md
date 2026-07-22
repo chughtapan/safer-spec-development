@@ -42,6 +42,23 @@ compares the sidecar's property-id set against the folder's current
 implemented properties so a stale sidecar (test set changed since the
 last run) fails as `MissingImplError`.
 
+### Configuration
+
+`safer-spec.config.json` can keep independent trees such as vendored packages
+or generated workspaces out of the current project's source and folder graph:
+
+```json
+{
+  "excludeRootPrefixes": ["vendor", "generated/sdk"]
+}
+```
+
+Entries are non-empty root-relative POSIX paths. Matching is path-segment
+aware: `vendor` excludes `vendor` and `vendor/**`, but not `vendor-tools`.
+Absolute paths, backslashes, and `.` / `..` segments fail configuration
+loading. An excluded package can still run `safer-spec` from its own root;
+only the configuration in the current working root applies.
+
 ## CLI surface
 
 ```

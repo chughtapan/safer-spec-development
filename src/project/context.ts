@@ -155,6 +155,21 @@ const SKIP_DIRS_FOLDER_WALK = new Set([
   "__tests__", "node_modules", "dist", "build", "coverage", ".safer-spec",
 ]);
 
+interface DiscoveryScope {
+  readonly root: string;
+  readonly excludeRootPrefixes: ReadonlyArray<string>;
+}
+
+const isExcludedRootPath = (
+  scope: DiscoveryScope,
+  target: string,
+): boolean => {
+  const relative = nodePath.relative(scope.root, target).split("\\").join("/");
+  return scope.excludeRootPrefixes.some(
+    (prefix) => relative === prefix || relative.startsWith(`${prefix}/`),
+  );
+};
+
 const readDirSafe = (
   fs: FileSystem.FileSystem,
   dir: string,
@@ -187,40 +202,66 @@ const recordTsFile = (
     if (source !== null) out.push({ path: full, source });
   });
 
+interface SourceWalk extends DiscoveryScope {
+  readonly dir: string;
+  readonly out: SourceFile[];
+}
+
+const shouldSkipSourceEntry = (
+  walk: SourceWalk,
+  name: string,
+  full: string,
+): boolean =>
+  name.startsWith(".") || SKIP_DIRS.has(name) || isExcludedRootPath(walk, full);
+
 const walkSources = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
-  dir: string,
-  out: SourceFile[],
+  walk: SourceWalk,
 ): Effect.Effect<void, never> =>
   Effect.gen(function* () {
-    const entries = yield* readDirSafe(fs, dir);
+    const entries = yield* readDirSafe(fs, walk.dir);
     for (const name of entries) {
-      if (name.startsWith(".") || SKIP_DIRS.has(name)) continue;
-      const full = path.join(dir, name);
+      const full = path.join(walk.dir, name);
+      if (shouldSkipSourceEntry(walk, name, full)) continue;
       const dirCheck = yield* isDirectory(fs, full);
       yield* dirCheck
-        ? walkSources(fs, path, full, out)
-        : recordTsFile(fs, full, name, out);
+        ? walkSources(fs, path, { ...walk, dir: full })
+        : recordTsFile(fs, full, name, walk.out);
     }
   });
 
 // Walks the project tree for every directory containing an `index.ts`
 // barrel. Returns root-first depth-first order; same skip set as
 // `walkSources` plus the build/test dirs that don't host SPEC'd code.
+interface FolderWalk extends DiscoveryScope {
+  readonly dir: string;
+  readonly out: string[];
+}
+
+const shouldSkipFolderEntry = (
+  walk: FolderWalk,
+  name: string,
+  full: string,
+): boolean =>
+  name.startsWith(".") ||
+  SKIP_DIRS_FOLDER_WALK.has(name) ||
+  isExcludedRootPath(walk, full);
+
 const walkFolders = (
   fs: FileSystem.FileSystem,
   path: Path.Path,
-  dir: string,
-  out: string[],
+  walk: FolderWalk,
 ): Effect.Effect<void, never> =>
   Effect.gen(function* () {
-    const entries = yield* readDirSafe(fs, dir);
-    if (entries.includes("index.ts")) out.push(dir);
+    const entries = yield* readDirSafe(fs, walk.dir);
+    if (entries.includes("index.ts")) walk.out.push(walk.dir);
     for (const name of entries) {
-      if (name.startsWith(".") || SKIP_DIRS_FOLDER_WALK.has(name)) continue;
-      const full = path.join(dir, name);
-      if (yield* isDirectory(fs, full)) yield* walkFolders(fs, path, full, out);
+      const full = path.join(walk.dir, name);
+      if (shouldSkipFolderEntry(walk, name, full)) continue;
+      if (yield* isDirectory(fs, full)) {
+        yield* walkFolders(fs, path, { ...walk, dir: full });
+      }
     }
   });
 
@@ -338,11 +379,11 @@ const readGitSha = (
   );
 
 /**
- * @spec.guarantee "loads project-wide context (every non-test `.ts` under `root`, tsconfig `paths`, git HEAD SHA, `safer-spec.config.json`); the returned ProjectContext precomputes folder discovery and per-folder thresholds so downstream layers READ from the snapshot instead of re-walking the project tree per folder"
+ * @spec.guarantee "loads project-wide context (non-test `.ts` outside configured excludeRootPrefixes, tsconfig `paths`, git HEAD SHA, and `safer-spec.config.json`); the returned ProjectContext precomputes folder discovery and per-folder thresholds so downstream layers read one snapshot"
  *   reason: ts-morph cannot follow `export ... from` without target files
  *           registered; precomputing folder structure removes O(N²)
  *           re-discovery in the per-folder loops.
- * @spec.residual-contract "missing tsconfig.json yields empty `paths`; missing `.git/HEAD` yields `generatedAtSha = 'uncommitted'`; missing safer-spec.config.json yields permissive all-zero thresholds; root defaults to the cwd-relative \".\""
+ * @spec.residual-contract "excludeRootPrefixes use root-relative POSIX path-segment prefix matching; missing tsconfig.json yields empty `paths`; missing `.git/HEAD` yields `generatedAtSha = 'uncommitted'`; missing safer-spec.config.json yields permissive defaults; root defaults to cwd-relative \".\""
  *   reason: projects without aliases, git history, or per-folder gate
  *           configuration still load with no false failures.
  * @spec.skip "Partial Roundtrip"
@@ -356,13 +397,24 @@ export const loadProjectContext = (
   root: string = ".",
 ): Effect.Effect<ProjectContext, ProjectContextError | ConfigError> =>
   Effect.gen(function* () {
+    const config = yield* loadConfig(fs, path, root);
+    const excludeRootPrefixes = config.excludeRootPrefixes ?? [];
     const sources: SourceFile[] = [];
-    yield* walkSources(fs, path, root, sources);
+    yield* walkSources(fs, path, {
+      root,
+      dir: root,
+      excludeRootPrefixes,
+      out: sources,
+    });
     const tsconfig = yield* readTsConfigBits(fs, path.join(root, "tsconfig.json"));
     const generatedAtSha = yield* readGitSha(fs, path, root);
-    const config = yield* loadConfig(fs, path, root);
     const folderList: string[] = [];
-    yield* walkFolders(fs, path, root, folderList);
+    yield* walkFolders(fs, path, {
+      root,
+      dir: root,
+      excludeRootPrefixes,
+      out: folderList,
+    });
     const folders: ReadonlyArray<string> = folderList;
     const subfoldersMap = buildSubfoldersMap(folders, path);
     const folderSet: ReadonlySet<string> = new Set(folders);

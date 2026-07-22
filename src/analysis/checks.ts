@@ -18,7 +18,6 @@ import {
   JsDocDirectiveParseError,
   JsDocUnknownDirectiveError,
 } from "@safer/spec/grammar/index.js";
-import { stripVolatileJson } from "@safer/analysis/pipeline.js";
 import {
   findThresholdShortfall,
   type FolderAnalysis,
@@ -133,6 +132,10 @@ const driftError = (specPath: string, reason: string): MissingSpecPropertyError 
 const SHA_LINE_RE = /^generatedAtSha:.*$/m;
 const stripVolatileMd = (text: string): string =>
   text.replace(SHA_LINE_RE, "generatedAtSha: <NORMALIZED>");
+
+const SHA_LINE_JSON = /"(generatedAtSha|sha)":\s*"[^"]*"/g;
+const stripVolatileJson = (text: string): string =>
+  text.replace(SHA_LINE_JSON, '"$1": "<NORMALIZED>"');
 
 export const checkDrift = (
   fs: FileSystem.FileSystem,

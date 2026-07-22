@@ -27,7 +27,8 @@
 
 import { Args, Command, Options } from "@effect/cli";
 import { NodeContext, NodeRuntime } from "@effect/platform-node";
-import { Data, Effect } from "effect";
+import { createRequire } from "node:module";
+import { Data, Effect, Schema } from "effect";
 import { doctor } from "@safer/commands/doctor.js";
 import { explain } from "@safer/commands/explain.js";
 import { generate } from "@safer/commands/generate.js";
@@ -38,10 +39,14 @@ import {
   VALIDATE_GAP_EXIT_CODES,
   type ValidateGapError,
 } from "@safer/commands/validate.js";
-import {
-  FolderNotFoundError,
-  SPEC_FORMAT_VERSION,
-} from "@safer/project/index.js";
+import { FolderNotFoundError } from "@safer/project/index.js";
+
+const PackageMetadataSchema = Schema.Struct({
+  version: Schema.NonEmptyString,
+});
+
+const packageMetadata: unknown = createRequire(import.meta.url)("../../package.json");
+const PACKAGE_VERSION = Schema.decodeUnknownSync(PackageMetadataSchema)(packageMetadata).version;
 
 /**
  * @spec.guarantee "carries a POSIX exit code in `.code`; the runtime boundary unwraps it via `process.exit(code)`"
@@ -206,7 +211,7 @@ const command = root.pipe(
 
 const cli = Command.run(command, {
   name: "safer-spec",
-  version: SPEC_FORMAT_VERSION,
+  version: PACKAGE_VERSION,
 });
 
 // eslint-disable-next-line agent-code-guard/prefer-effect-platform -- @effect/cli's Command.run consumes argv at the bootstrap entrypoint; no Effect-native source exists before the runtime starts

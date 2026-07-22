@@ -4,7 +4,9 @@
  *   resolver tests exercise the three-layer fallback (override >
  *   defaultThresholds > 0); the loader tests exercise the four
  *   real-world outcomes a project boot hits (missing file, malformed
- *   JSON, unknown key at root, unknown threshold key, valid).
+ *   JSON, unknown key at root, unknown threshold key, valid) plus the
+ *   `excludeRootPrefixes` validation split (safe prefixes roundtrip,
+ *   unsafe shapes fail with `ConfigError`).
  */
 
 import { FileSystem, Path } from "@effect/platform";
@@ -111,6 +113,34 @@ const OUT_OF_RANGE_OUTCOME = await Effect.runPromise(fixtureLoadOutcome(
   "out-of-range",
   JSON.stringify({ defaultThresholds: { typeCoverage: 1.5 } }),
 ));
+
+const EXCLUDE_PREFIXES_VALID_OUTCOME = await Effect.runPromise(fixtureLoadOutcome(
+  "exclude-prefixes-valid",
+  JSON.stringify({ excludeRootPrefixes: ["vendor", "generated/sdk"] }),
+));
+
+// One fixture per rejected shape: empty, absolute, drive-letter, backslash,
+// NUL, and dot/dot-dot segments. Pre-resolved so the fc loop stays disk-free.
+const INVALID_EXCLUDE_PREFIXES: ReadonlyArray<string> = [
+  "",
+  "/absolute",
+  "C:generated",
+  "a\\b",
+  "nul\u0000byte",
+  ".",
+  "a/../b",
+];
+const EXCLUDE_PREFIX_INVALID_OUTCOMES: ReadonlyArray<LoadOutcome> = await Effect.runPromise(
+  Effect.forEach(
+    INVALID_EXCLUDE_PREFIXES,
+    (prefix, index) =>
+      fixtureLoadOutcome(
+        `exclude-prefixes-invalid-${index}`,
+        JSON.stringify({ excludeRootPrefixes: [prefix] }),
+      ),
+    { concurrency: 1 },
+  ),
+);
 
 /**
  * @spec.property resolve-thresholds-falls-back-to-zero-when-no-config

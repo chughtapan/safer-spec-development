@@ -1,6 +1,6 @@
 /**
  * @spec.purpose Canonical MODULE.md serializer + `SpecArtifact` builder. Emits
- *   the `SpecFrontmatter`-shaped block and the typed sidecar value from a
+ *   the YAML frontmatter block and the typed sidecar value from a
  *   `FolderAnalysis` + `SpecMeta`. Canonical form: LF endings, lex-sort for
  *   file lists, source-order for exports; re-emission is byte-identical.
  */
@@ -241,7 +241,7 @@ const emitFrontmatter = (a: FolderAnalysis, meta: SpecMeta): ReadonlyArray<strin
 ];
 
 /**
- * @spec.guarantee "two calls with the same `analysis` + `meta` produce byte-identical markdown; frontmatter decodes through `decodeSpecFrontmatter`"
+ * @spec.guarantee "two calls with the same `analysis` + `meta` produce byte-identical markdown, frontmatter block included"
  *   reason: roundtrip contract on the emit step.
  * @spec.residual-contract "internal section ordering is fixed: Purpose → Public Surface → Files → Properties"
  *   reason: behavioral contract beyond the FolderAnalysis shape.

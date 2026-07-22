@@ -1,10 +1,9 @@
 /**
- * @spec.purpose `safer-spec.config.json` schema + loader + per-folder
- *   threshold resolver. Two-layer fallback for each of the three coverage
- *   metrics: `folderOverrides[folder]` > `defaultThresholds` > 0. Extracted
- *   from `project-context.ts` to keep that file under its line cap; the
- *   loader is consumed by `loadProjectContext` so every command sees the
- *   same parsed config.
+ * @spec.purpose `safer-spec.config.json` schema + loader, root-prefix
+ *   discovery exclusions, and per-folder threshold resolver. Two-layer
+ *   fallback for each coverage metric is `folderOverrides[folder]` >
+ *   `defaultThresholds` > 0. The loader is consumed by `loadProjectContext`
+ *   so every command sees one validated configuration snapshot.
  *
  *   Tagged error `ConfigError` is co-located here. Schema rejects unknown
  *   keys at both the root level and the per-thresholds object level — a
@@ -50,11 +49,13 @@ const KNOWN_THRESHOLD_KEYS: ReadonlySet<string> = new Set([
 
 const KNOWN_CONFIG_KEYS: ReadonlySet<string> = new Set([
   "defaultThresholds",
+  "excludeRootPrefixes",
   "folderOverrides",
 ]);
 
 const ConfigSchema = Schema.Struct({
   defaultThresholds: Schema.optional(ThresholdsSchema),
+  excludeRootPrefixes: Schema.optional(Schema.Array(Schema.String)),
   folderOverrides: Schema.optional(
     Schema.Record({ key: Schema.String, value: ThresholdsSchema }),
   ),
@@ -177,6 +178,39 @@ const checkKnownKeys = (
     }
   });
 
+const isSafeRootPrefix = (prefix: string): boolean => {
+  const hasInvalidShape = [
+    prefix.length === 0,
+    prefix.startsWith("/"),
+    /^[a-zA-Z]:/.test(prefix),
+    prefix.includes("\\"),
+    prefix.includes("\0"),
+  ].some(Boolean);
+  if (hasInvalidShape) return false;
+  return prefix
+    .split("/")
+    .every((segment) => segment.length > 0 && segment !== "." && segment !== "..");
+};
+
+const validateConfig = (
+  config: Config,
+  configPath: string,
+): Effect.Effect<Config, ConfigError> => {
+  const invalid = config.excludeRootPrefixes?.find(
+    (prefix) => !isSafeRootPrefix(prefix),
+  );
+  return invalid === undefined
+    ? Effect.succeed(config)
+    : Effect.fail(
+        new ConfigError({
+          path: configPath,
+          cause:
+            `invalid excludeRootPrefixes entry ${JSON.stringify(invalid)}; ` +
+            "expected a non-empty root-relative POSIX path without '.' or '..' segments",
+        }),
+      );
+};
+
 const decodeConfigSource = (
   text: string,
   configPath: string,
@@ -194,10 +228,11 @@ const decodeConfigSource = (
         ),
       ),
     ),
+    Effect.flatMap((config) => validateConfig(config, configPath)),
   );
 
 /**
- * @spec.guarantee "reads safer-spec.config.json at the project root; missing file yields empty Config; present-but-malformed file yields ConfigError"
+ * @spec.guarantee "reads safer-spec.config.json at the project root; missing file yields empty Config; malformed values, unsafe excludeRootPrefixes, and unknown keys yield ConfigError"
  *   reason: missing config is the common case (permissive defaults); a
  *           present-but-broken config is a user error that should fail
  *           loudly, not be silently treated as missing.

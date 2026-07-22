@@ -1,7 +1,7 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/project",
-  "generatedAtSha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f",
+  "generatedAtSha": "uncommitted",
   "exports": [
     {
       "name": "SPEC_FORMAT_VERSION",
@@ -55,7 +55,7 @@
       "sourceRef": {
         "path": "src/project/version.ts",
         "line": 26,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "sha": "uncommitted"
       }
     },
     {
@@ -102,8 +102,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/project/config.ts",
-        "line": 32,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "line": 31,
+        "sha": "uncommitted"
       }
     },
     {
@@ -118,7 +118,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 38,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "sha": "uncommitted"
       }
     },
     {
@@ -166,7 +166,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 57,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "sha": "uncommitted"
       }
     },
     {
@@ -180,8 +180,8 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/project/config.ts",
-        "line": 65,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "line": 66,
+        "sha": "uncommitted"
       }
     },
     {
@@ -229,7 +229,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 76,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "sha": "uncommitted"
       }
     },
     {
@@ -244,7 +244,7 @@
       "sourceRef": {
         "path": "src/project/context.ts",
         "line": 80,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "sha": "uncommitted"
       }
     },
     {
@@ -280,20 +280,20 @@
       ],
       "residualContract": {
         "_tag": "some",
-        "body": "missing tsconfig.json yields empty `paths`; missing `.git/HEAD` yields `generatedAtSha = 'uncommitted'`; missing safer-spec.config.json yields permissive all-zero thresholds; root defaults to the cwd-relative \\\".\\\"",
+        "body": "excludeRootPrefixes use root-relative POSIX path-segment prefix matching; missing tsconfig.json yields empty `paths`; missing `.git/HEAD` yields `generatedAtSha = 'uncommitted'`; missing safer-spec.config.json yields permissive defaults; root defaults to cwd-relative \\\".\\\"",
         "reason": "projects without aliases, git history, or per-folder gate configuration still load with no false failures."
       },
       "residualAssumes": [],
       "residualGuarantees": [
         {
-          "claim": "loads project-wide context (every non-test `.ts` under `root`, tsconfig `paths`, git HEAD SHA, `safer-spec.config.json`); the returned ProjectContext precomputes folder discovery and per-folder thresholds so downstream layers READ from the snapshot instead of re-walking the project tree per folder",
+          "claim": "loads project-wide context (non-test `.ts` outside configured excludeRootPrefixes, tsconfig `paths`, git HEAD SHA, and `safer-spec.config.json`); the returned ProjectContext precomputes folder discovery and per-folder thresholds so downstream layers read one snapshot",
           "reason": "ts-morph cannot follow `export ... from` without target files registered; precomputing folder structure removes O(N²) re-discovery in the per-folder loops."
         }
       ],
       "sourceRef": {
         "path": "src/project/context.ts",
-        "line": 353,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "line": 394,
+        "sha": "uncommitted"
       }
     }
   ],

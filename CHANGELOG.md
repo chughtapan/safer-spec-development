@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.3.0
+
+### Added
+
+- `excludeRootPrefixes` config key in `safer-spec.config.json`. Root-relative
+  POSIX path prefixes listed here are removed from both source collection and
+  folder discovery, so independent vendored or generated trees that own their
+  own safer-spec configuration stay out of the current project's graph.
+  Matching is path-segment aware (`vendor` excludes `vendor` and `vendor/**`,
+  not `vendor-tools`); empty, absolute, drive-letter, backslash, NUL, `.`, and
+  `..` entries are rejected at config load with a `ConfigError`.
+
+### Removed
+
+- Dead artifact code reachable only from its own tests: `frontmatter.ts`
+  (whole module), the Effect-wrapped `escapeForMarkdown`/`escapeForYaml`
+  pair (folded into one internal escaper), the link-resolver symbol
+  classification machinery (only `relativeToFolder` was live), and
+  `writeSidecar`. `DIRECTIVE_BODY_MAX_CHARS` left the grammar barrel
+  (its only cross-folder consumer was deleted with the escape code).
+
+### Changed
+
+- Validate now precomputes the project-wide export-name set once at the command
+  boundary (`buildKnownExports`) and threads it through `inspectFolder` instead
+  of rebuilding it per folder, matching the generate path. Removes the
+  per-folder `collectKnownExports` re-scan.
+- The CLI `--version` flag now reports the package version read from
+  `package.json` rather than the internal `SPEC_FORMAT_VERSION`.
+
 ## 0.2.0
 
 ### Breaking
@@ -19,10 +49,3 @@
 
   No transitional dual-read shim ships. Per project doctrine, back-compat is
   not the default; the new shape is the only shape.
-
-### Deferred
-
-- npm publish of `@chughtapan/safer-spec-development@0.2.0` is deferred to
-  the safer-by-default v0.2.0 cleanup follow-up. v0.2.0 is consumed via git
-  submodule from safer-by-default in this release window; the published
-  package lags until the cleanup orchestration runs.
