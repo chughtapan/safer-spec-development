@@ -1,7 +1,7 @@
 ---
 folder: src/project
 format-version: 0.1.0
-generatedAtSha: 16cc46e7ee40c94f6db070cdd56ce038bc78114f
+generatedAtSha: uncommitted
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -46,7 +46,7 @@ export const SPEC_FORMAT_VERSION = "0.1.0" as const;
 - `Constant Non-Equality` — _a single string value; no distinct-output invariant applies._
 - `Exception Raising` — _a constant; cannot fail._
 
-### [`ConfigError`](./config.ts#L32)
+### [`ConfigError`](./config.ts#L31)
 
 ```ts
 export class ConfigError extends Data.TaggedError("ConfigError")<{
@@ -94,7 +94,7 @@ export class ProjectContextError extends Data.TaggedError("ProjectContextError")
 - `Constant Non-Equality` — _distinct context-load failures can produce identical cause strings._
 - `Inclusion` — _not a collection._
 
-### [`Thresholds`](./config.ts#L65)
+### [`Thresholds`](./config.ts#L66)
 
 ```ts
 export interface Thresholds {
@@ -153,7 +153,7 @@ export interface ProjectContext {
 }
 ```
 
-### [`loadProjectContext`](./context.ts#L353)
+### [`loadProjectContext`](./context.ts#L394)
 
 ```ts
 export const loadProjectContext = (
@@ -164,9 +164,9 @@ export const loadProjectContext = (
 ```
 
 **Guarantees:**
-- "loads project-wide context (every non-test \`.ts\` under \`root\`, tsconfig \`paths\`, git HEAD SHA, \`safer-spec.config.json\`); the returned ProjectContext precomputes folder discovery and per-folder thresholds so downstream layers READ from the snapshot instead of re-walking the project tree per folder" — _ts-morph cannot follow \`export ... from\` without target files registered; precomputing folder structure removes O(N²) re-discovery in the per-folder loops._
+- "loads project-wide context (non-test \`.ts\` outside configured excludeRootPrefixes, tsconfig \`paths\`, git HEAD SHA, and \`safer-spec.config.json\`); the returned ProjectContext precomputes folder discovery and per-folder thresholds so downstream layers read one snapshot" — _ts-morph cannot follow \`export ... from\` without target files registered; precomputing folder structure removes O(N²) re-discovery in the per-folder loops._
 
-**Residual contract:** "missing tsconfig.json yields empty \`paths\`; missing \`.git/HEAD\` yields \`generatedAtSha = 'uncommitted'\`; missing safer-spec.config.json yields permissive all-zero thresholds; root defaults to the cwd-relative \\".\\"" — _projects without aliases, git history, or per-folder gate configuration still load with no false failures._
+**Residual contract:** "excludeRootPrefixes use root-relative POSIX path-segment prefix matching; missing tsconfig.json yields empty \`paths\`; missing \`.git/HEAD\` yields \`generatedAtSha = 'uncommitted'\`; missing safer-spec.config.json yields permissive defaults; root defaults to cwd-relative \\".\\"" — _projects without aliases, git history, or per-folder gate configuration still load with no false failures._
 
 **Skipped property types:**
 - `Partial Roundtrip` — _loader-only; no \`serializeProjectContext\` companion._
@@ -174,7 +174,7 @@ export const loadProjectContext = (
 
 ## Children
 
-- [`config.ts`](./config.ts) — \`safer-spec.config.json\` schema + loader + per-folder threshold resolver. Two-layer fallback for each of the three coverage metrics: \`folderOverrides\[folder\]\` &gt; \`defaultThresholds\` &gt; 0. Extracted from \`project-context.ts\` to keep that file under its line cap; the loader is consumed by \`loadProjectContext\` so every command sees the same parsed config.  Tagged error \`ConfigError\` is co-located here. Schema rejects unknown keys at both the root level and the per-thresholds object level — a misspelled \`typecoverage\` (lowercase) would otherwise silently disable the intended gate.
+- [`config.ts`](./config.ts) — \`safer-spec.config.json\` schema + loader, root-prefix discovery exclusions, and per-folder threshold resolver. Two-layer fallback for each coverage metric is \`folderOverrides\[folder\]\` &gt; \`defaultThresholds\` &gt; 0. The loader is consumed by \`loadProjectContext\` so every command sees one validated configuration snapshot.  Tagged error \`ConfigError\` is co-located here. Schema rejects unknown keys at both the root level and the per-thresholds object level — a misspelled \`typecoverage\` (lowercase) would otherwise silently disable the intended gate.
 - [`context.ts`](./context.ts) — Project-wide loader for the codemod. Walks the project tree once at startup and produces a \`ProjectContext\` snapshot that downstream layers (analysis, commands) READ from instead of calling pure helpers per folder. The snapshot carries the sources ts-morph needs, the tsconfig \`paths\` map, the git HEAD SHA, the parsed config, plus precomputed:  - \`folders\`: every directory under root that has an \`index.ts\` barrel - \`subfoldersOf(folder)\`: immediate SPEC'd subfolders of \`folder\` - \`thresholdsFor(folder)\`: resolved coverage thresholds for \`folder\` - \`resolveFolder(input)\`: maps a user-supplied \`--folder X\` to a known canonical folder, failing with \`FolderNotFoundError\` if \`X\` doesn't match anything discovered  Tagged errors \`ProjectContextError\`, \`ConfigError\`, and \`FolderNotFoundError\` live here and at \`config.ts\`; the cli at \`commands/index.ts\` catches each by tag.
 - [`index.ts`](./index.ts) — Barrel for the \`project/\` layer. Exposes the fully-resolved \`ProjectContext\` snapshot (with precomputed folder list, per-folder subfolder map, and threshold resolver), the one loader that builds it, the stable format version, and the three tagged errors the cli routes. Folder-discovery primitives, the threshold resolver, and the path normalizer are implementation details behind \`ProjectContext\` methods.
 - [`version.ts`](./version.ts) — Format version constant for MODULE.md frontmatter and the \`.safer-spec/&lt;folder&gt;.json\` sidecar JSON. Co-located with the commands because \`generate.ts\` stamps it onto every emitted MODULE.md. CHANGELOG signposts bumps before they ship; the \`safer-spec-migrate\` skill walks committed artifacts across the bump.
