@@ -12,6 +12,15 @@
   not `vendor-tools`); empty, absolute, drive-letter, backslash, NUL, `.`, and
   `..` entries are rejected at config load with a `ConfigError`.
 
+### Removed
+
+- Dead artifact code reachable only from its own tests: `frontmatter.ts`
+  (whole module), the Effect-wrapped `escapeForMarkdown`/`escapeForYaml`
+  pair (folded into one internal escaper), the link-resolver symbol
+  classification machinery (only `relativeToFolder` was live), and
+  `writeSidecar`. `DIRECTIVE_BODY_MAX_CHARS` left the grammar barrel
+  (its only cross-folder consumer was deleted with the escape code).
+
 ### Changed
 
 - Validate now precomputes the project-wide export-name set once at the command
