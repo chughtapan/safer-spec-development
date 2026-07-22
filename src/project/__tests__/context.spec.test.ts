@@ -10,6 +10,9 @@ import { FileSystem, Path } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
 import { Data, Effect, Exit } from "effect";
 import * as fc from "fast-check";
+import * as nodePath from "node:path";
+import * as os from "node:os";
+import * as crypto from "node:crypto";
 import { itSpec } from "@safer/spec/grammar/it-spec.js";
 import { loadProjectContext, type ProjectContext } from "@safer/project/index.js";
 
@@ -281,6 +284,72 @@ itSpec.prop(
         const a = CTX.thresholdsFor(folder);
         const b = CTX.thresholdsFor(folder);
         yield* failIf(JSON.stringify(a) !== JSON.stringify(b), `non-deterministic`);
+      }),
+    ),
+);
+
+/* ---------- excludeRootPrefixes discovery exclusion ---------- */
+
+// Synthetic on-disk project: a config excluding `vendor`, one folder under
+// the excluded prefix, one sibling that must survive discovery.
+const EXCLUSION_ROOT = nodePath.join(
+  os.tmpdir(),
+  `safer-spec-context-exclusion-${crypto.randomBytes(4).toString("hex")}`,
+);
+
+const EXCLUSION_CTX: ProjectContext = await Effect.runPromise(
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    yield* fs.makeDirectory(path.join(EXCLUSION_ROOT, "vendor", "mod"), { recursive: true });
+    yield* fs.makeDirectory(path.join(EXCLUSION_ROOT, "core"), { recursive: true });
+    yield* fs.writeFileString(
+      path.join(EXCLUSION_ROOT, "safer-spec.config.json"),
+      JSON.stringify({ excludeRootPrefixes: ["vendor"] }),
+    );
+    yield* fs.writeFileString(
+      path.join(EXCLUSION_ROOT, "vendor", "mod", "index.ts"),
+      "export const vendored = 1;\n",
+    );
+    yield* fs.writeFileString(
+      path.join(EXCLUSION_ROOT, "core", "index.ts"),
+      "export const kept = 1;\n",
+    );
+    return yield* loadProjectContext(fs, path, EXCLUSION_ROOT);
+  }).pipe(
+    Effect.catchAll((e) =>
+      Effect.die(new Error(`exclusion fixture load failed: ${JSON.stringify(e)}`)),
+    ),
+    Effect.provide(NodeContext.layer),
+  ),
+);
+
+/**
+ * @spec.property project-context-excludes-configured-root-prefixes
+ * @spec.type Inclusion
+ * @spec.exports loadProjectContext
+ * @spec.claim folders and sources under a configured `excludeRootPrefixes` entry are absent from the snapshot while sibling folders survive discovery
+ */
+itSpec.prop(
+  "project-context-excludes-configured-root-prefixes",
+  { type: "Inclusion", exports: [loadProjectContext] },
+  fc.constant(undefined),
+  () =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const folders = EXCLUSION_CTX.folders;
+        yield* failIf(
+          folders.some((f) => f === "vendor" || f.startsWith("vendor/")),
+          `expected no vendor folders, got ${JSON.stringify(folders)}`,
+        );
+        yield* failIf(
+          !folders.some((f) => f === "core" || f.endsWith("/core")),
+          `expected core folder to survive, got ${JSON.stringify(folders)}`,
+        );
+        yield* failIf(
+          EXCLUSION_CTX.sources.some((s) => s.path.includes(`${nodePath.sep}vendor${nodePath.sep}`)),
+          `expected no sources under the excluded prefix`,
+        );
       }),
     ),
 );
