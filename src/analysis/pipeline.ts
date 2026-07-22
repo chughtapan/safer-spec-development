@@ -110,10 +110,9 @@ interface TestParseResult {
   readonly directives: ReadonlyArray<LocatedDirective>;
 }
 
-// `collectKnownExports` returns the project-wide union of export names; the
-// folder-scoped variant restricts to `sources`. Both feed validate's typo
-// gates: the project set lets cross-folder references pass, the folder set
-// flags truly-stale per-export directives.
+// The folder-scoped export-name set feeds validate's stale-directive gate.
+// The project-wide set is computed once by the command boundary and passed
+// through InspectArgs so every folder does not rebuild it.
 const exportNamesFrom = (
   ctx: ProjectContext,
   paths: ReadonlySet<string> | null,
@@ -130,9 +129,6 @@ const exportNamesFrom = (
   }
   return out;
 };
-
-const collectKnownExports = (ctx: ProjectContext): ReadonlySet<string> =>
-  exportNamesFrom(ctx, null);
 
 const folderExportNames = (
   sources: ReadonlyArray<string>,
@@ -170,13 +166,21 @@ export interface InspectArgs {
   readonly folder: string;
   readonly inputs: FolderInputs;
   readonly ctx: ProjectContext;
+  readonly knownExports: ReadonlySet<string>;
 }
 
 /**
  * @spec.guarantee "produces the same FolderAnalysis shape `generate` emits plus a per-test issues list; regenerate-and-compare on `analysis` is byte-deterministic"
  *   reason: roundtrip contract; validate's drift check relies on it.
  */
-export const inspectFolder = ({ fs, path, folder, inputs, ctx }: InspectArgs): Effect.Effect<FolderInspection, DirectiveParseError> =>
+export const inspectFolder = ({
+  fs,
+  path,
+  folder,
+  inputs,
+  ctx,
+  knownExports,
+}: InspectArgs): Effect.Effect<FolderInspection, DirectiveParseError> =>
   Effect.gen(function* () {
     const indexFile = ctx.sources.find((s) => s.path === inputs.indexFilePath);
     const indexSrc = indexFile?.source ?? (yield* readSource(fs, inputs.indexFilePath));
@@ -187,7 +191,7 @@ export const inspectFolder = ({ fs, path, folder, inputs, ctx }: InspectArgs): E
     const localDirectives = yield* parseSources(fs, inputs.sources);
     const externalDirectives = yield* parseSources(fs, externalSources);
     const directives = [...localDirectives, ...externalDirectives];
-    const tests = yield* parseTests(fs, inputs.tests, collectKnownExports(ctx));
+    const tests = yield* parseTests(fs, inputs.tests, knownExports);
     const subfolders = ctx.subfoldersOf(folder);
     const subDirectives = yield* parseSources(fs, subfolders.map((s) => path.join(s, "index.ts")));
     const purposeByPath = indexFilePurposes([
@@ -225,5 +229,4 @@ const SHA_LINE_JSON = /"(generatedAtSha|sha)":\s*"[^"]*"/g;
 /** Normalize SHA fields for byte-equality comparison between on-disk and regenerated sidecars. */
 export const stripVolatileJson = (text: string): string =>
   text.replace(SHA_LINE_JSON, '"$1": "<NORMALIZED>"');
-
 

@@ -460,6 +460,7 @@ export interface ValidateFolderArgs {
   readonly path: Path.Path;
   readonly folder: string;
   readonly projectCtx: ProjectContext;
+  readonly knownExports: ReadonlySet<string>;
   readonly mode: "planned" | "implemented";
   // Newest mtime among every project source + spec-test file. Used as
   // the freshness reference for branchCoverage staleness, since
@@ -494,11 +495,11 @@ export const validateFolder = (
   args: ValidateFolderArgs,
 ): Effect.Effect<string | null, ValidateGapError> =>
   Effect.gen(function* () {
-    const { fs, path, folder, projectCtx, mode, projectNewestMtime } = args;
+    const { fs, path, folder, projectCtx, knownExports, mode, projectNewestMtime } = args;
     const inputs = yield* collectFolderInputs(fs, path, folder);
     if (inputs === null) return null;
     const inspection = yield* catchDirectiveErrors(
-      inspectFolder({ fs, path, folder, inputs, ctx: projectCtx }),
+      inspectFolder({ fs, path, folder, inputs, ctx: projectCtx, knownExports }),
     );
     yield* failOnIssues(inspection.issues, mode);
     const driftMeta = driftMetaFor(inspection.analysis, projectCtx);

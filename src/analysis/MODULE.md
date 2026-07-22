@@ -1,7 +1,7 @@
 ---
 folder: src/analysis
 format-version: 0.1.0
-generatedAtSha: 16cc46e7ee40c94f6db070cdd56ce038bc78114f
+generatedAtSha: uncommitted
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -160,7 +160,7 @@ export const generateFolder = (
 - `Roundtrip` — _pipeline-orchestration only; MODULE.md and sidecar are downstream artifacts, not encoded inputs._
 - `Exception Raising` — _parser failures inside the per-folder pipeline are surfaced through \`catchDirectiveErrors\` to \`MissingStubError\` at the \`validateFolder\` boundary, not at \`generateFolder\` — the generate path treats them as defects._
 
-### [`validateFolder`](./orchestrate.ts#L493)
+### [`validateFolder`](./orchestrate.ts#L494)
 
 ```ts
 export const validateFolder = (
