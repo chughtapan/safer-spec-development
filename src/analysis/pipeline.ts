@@ -222,11 +222,3 @@ export const inspectFolder = ({
     };
   }).pipe(Effect.withSpan("commands/validate-pipeline/inspectFolder"));
 
-
-
-const SHA_LINE_JSON = /"(generatedAtSha|sha)":\s*"[^"]*"/g;
-
-/** Normalize SHA fields for byte-equality comparison between on-disk and regenerated sidecars. */
-export const stripVolatileJson = (text: string): string =>
-  text.replace(SHA_LINE_JSON, '"$1": "<NORMALIZED>"');
-

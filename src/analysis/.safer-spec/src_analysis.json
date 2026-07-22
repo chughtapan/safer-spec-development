@@ -14,7 +14,7 @@
       "residualGuarantees": [],
       "sourceRef": {
         "path": "src/analysis/checks.ts",
-        "line": 74,
+        "line": 73,
         "sha": "uncommitted"
       }
     },
@@ -217,7 +217,7 @@
       ],
       "sourceRef": {
         "path": "src/analysis/checks.ts",
-        "line": 356,
+        "line": 359,
         "sha": "uncommitted"
       }
     },

@@ -18,7 +18,6 @@
  */
 
 export {
-  DIRECTIVE_BODY_MAX_CHARS,
   JsDocDirectiveOverflowError,
   JsDocDirectiveParseError,
   JsDocUnknownDirectiveError,

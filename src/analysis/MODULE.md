@@ -32,7 +32,7 @@ Barrel for the `analysis/` layer. Exposes two high-level per-folder operations �
 
 ## Public surface
 
-### [`ValidateGapError`](./checks.ts#L74)
+### [`ValidateGapError`](./checks.ts#L73)
 
 ```ts
 export type ValidateGapError =
@@ -97,7 +97,7 @@ export const buildKnownExports = (ctx: ProjectContext): ReadonlySet<string> => {
 - `Constant Non-Equality` — _no anti-collision invariant; two distinct projects can have overlapping export names._
 - `Exception Raising` — _total function on a fully-loaded ProjectContext; nothing inside throws._
 
-### [`diagnosticLines`](./checks.ts#L356)
+### [`diagnosticLines`](./checks.ts#L359)
 
 ```ts
 export const diagnosticLines = (

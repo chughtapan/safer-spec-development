@@ -1,7 +1,7 @@
 ---
 folder: src/spec/grammar
 format-version: 0.1.0
-generatedAtSha: 16cc46e7ee40c94f6db070cdd56ce038bc78114f
+generatedAtSha: uncommitted
 generatedFrom:
   jsdoc: ts-morph + @microsoft/tsdoc
   exports: ts-morph getExportedDeclarations
@@ -31,22 +31,6 @@ Barrel for `spec/grammar/`. Re-exports the `@spec.*` directive parsers and the c
 `SaferSpecExecutionReporter` in `spec/artifact/index.ts` has the same exclusion for the same reason.
 
 ## Public surface
-
-### [`DIRECTIVE_BODY_MAX_CHARS`](./shared.ts#L27)
-
-```ts
-export const DIRECTIVE_BODY_MAX_CHARS = 500;
-```
-
-**Guarantees:**
-- "the value is 500 — the documented trust-boundary cap on directive bodies (assume/guarantee/residual-contract/skip reasons/claim) routed as agent context" — _stable across the codemod and downstream consumers; the cap is enforced by the \`Capped\` schema in the same file._
-
-**Skipped property types:**
-- `Roundtrip` — _numeric constant; no encode/decode pair._
-- `Partial Roundtrip` — _numeric constant; no normalize-then-recover relation._
-- `Commutative Paths` — _constant value; no alternative path to derive it._
-- `Constant Non-Equality` — _a single constant value; no distinct-output invariant applies._
-- `Exception Raising` — _a constant; cannot fail._
 
 ### [`PROPERTY_TYPES`](./property-types.ts#L37)
 
@@ -213,7 +197,7 @@ export const parseFileDirectives = (
 | `jsdoc-unknown-error-is-throwable` | `Exception Raising` | `JsDocUnknownDirectiveError` | \`JsDocUnknownDirectiveError\` round-trips through \`Effect.fail\` / \`Effect.catchTag\` without payload loss — the surface validate uses to translate \`@spec.foo\` (unknown tags) into stub-tier exits | implemented |
 | `jsdoc-parser-rejects-unknown-directive` | `Exception Raising` | `parseFileDirectives` | unknown \`@spec.\*\` directive names fail with JsDocUnknownDirectiveError on the Effect error channel | implemented |
 | `jsdoc-parser-ast-typechecks` | `Typechecking` | `parseFileDirectives` | every parsed directive matches the closed Directive union shape | implemented |
-| `jsdoc-parser-enforces-body-cap` | `Constant Bounds Checking` | `parseFileDirectives`, `enforceLengthCap` | directive bodies longer than DIRECTIVE\_BODY\_MAX\_CHARS fail with JsDocDirectiveOverflowError | implemented |
+| `jsdoc-parser-enforces-body-cap` | `Constant Bounds Checking` | `parseFileDirectives` | directive bodies longer than DIRECTIVE\_BODY\_MAX\_CHARS fail with JsDocDirectiveOverflowError | implemented |
 | `parser-rejects-malformed-dotted-spec-tags` | `Exception Raising` | `parseFileDirectives` | \`@spec.foo\_bar\`, \`@spec.foo.bar\`, \`@spec.Type\` (any dotted form the \`\[a-z\]\[a-z-\]\*\` rewriter doesn't normalize) fail with JsDocUnknownDirectiveError; the closed grammar never silently drops a misspelled directive | implemented |
 | `parser-bounds-directive-body-at-any-block-tag` | `Constant Equality` | `parseFileDirectives` | a \`@spec.\*\` directive followed by a standard JSDoc block (\`@param\`, \`@returns\`, \`@throws\`, ...) extracts its body only up to that next block tag — no absorption of unrelated comment content into the directive | implemented |
 | `parser-accepts-bare-newline-reason-form` | `Inclusion` | `parseFileDirectives` | the multi-line form \`\* \\@spec.guarantee "x"\\n\* reason: y\` (no horizontal whitespace before \`reason:\`) parses successfully — head and reason split exactly as in the inline / indented forms | implemented |

@@ -13,10 +13,10 @@
  *   - `SaferSpecExecutionReporter`: the Vitest reporter class. Exposed
  *     via the `./reporter` package subpath so the barrel isn't pulled
  *     in by CLI consumers.
- *   - `decodeSpecFrontmatter`/`decodeSpecArtifact`: internal helpers used
- *     by sidecar-writer's roundtrip property only.
- *   - `escapeFor*` / `relativeToFolder` / `SidecarWriteError` / `writeSidecar`:
- *     internal to artifact, callers use the higher-level wrappers.
+ *   - `serializeSidecar`/`decodeSpecArtifact`: the sidecar codec pair used
+ *     by `regenerateSidecar` and the roundtrip property only.
+ *   - `escapeFor*` / `relativeToFolder`: internal to artifact, callers use
+ *     the higher-level wrappers.
  */
 
 export {

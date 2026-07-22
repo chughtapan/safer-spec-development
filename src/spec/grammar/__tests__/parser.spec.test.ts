@@ -13,7 +13,6 @@ import {
   parseFileDirectives,
   type Directive,
 } from "@safer/spec/grammar/directives.js";
-import { enforceLengthCap } from "@safer/spec/artifact/escape.js";
 
 class ParserAssertionError extends Data.TaggedError("ParserAssertionError")<{
   readonly detail: string;
@@ -100,23 +99,19 @@ itSpec.prop(
 /**
  * @spec.property jsdoc-parser-enforces-body-cap
  * @spec.type Constant Bounds Checking
- * @spec.exports parseFileDirectives, enforceLengthCap
+ * @spec.exports parseFileDirectives
  * @spec.claim directive bodies longer than DIRECTIVE_BODY_MAX_CHARS fail with JsDocDirectiveOverflowError
  */
 itSpec.prop(
   "jsdoc-parser-enforces-body-cap",
-  {
-    type: "Constant Bounds Checking",
-    exports: [parseFileDirectives, enforceLengthCap],
-  },
+  { type: "Constant Bounds Checking", exports: [parseFileDirectives] },
   fc.integer({ min: DIRECTIVE_BODY_MAX_CHARS + 1, max: DIRECTIVE_BODY_MAX_CHARS + 32 }),
   (len) =>
     Effect.runPromise(
       Effect.gen(function* () {
         const body = "x".repeat(len);
-        const exit = yield* Effect.exit(
-          enforceLengthCap(body, { path: "t.ts", line: 1, directive: "guarantee" }),
-        );
+        const src = `/**\n * @spec.guarantee "${body}"\n *   reason: documented\n */\nexport const foo = 1;\n`;
+        const exit = yield* Effect.exit(parseFileDirectives("t.ts", src));
         yield* expectFailureWithTag(exit, "JsDocDirectiveOverflowError");
       }),
     ),

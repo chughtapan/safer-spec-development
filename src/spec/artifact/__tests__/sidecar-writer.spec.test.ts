@@ -4,15 +4,13 @@
  *   string field is escape-on-emit.
  */
 
-import { FileSystem, Path } from "@effect/platform";
-import { NodeContext } from "@effect/platform-node";
-import { Data, Effect, Exit } from "effect";
+import { Data, Effect } from "effect";
 import * as fc from "fast-check";
 import { itSpec } from "@safer/spec/grammar/it-spec.js";
 import { SPEC_FORMAT_VERSION } from "@safer/project/index.js";
 import { PROPERTY_TYPES } from "@safer/spec/grammar/index.js";
 import { decodeSpecArtifact, type SpecArtifact } from "@safer/spec/artifact/sidecar.js";
-import { serializeSidecar, sidecarSlug, writeSidecar } from "@safer/spec/artifact/sidecar-writer.js";
+import { serializeSidecar, sidecarSlug } from "@safer/spec/artifact/sidecar-writer.js";
 
 class SidecarWriterAssertionError extends Data.TaggedError(
   "SidecarWriterAssertionError",
@@ -73,66 +71,15 @@ itSpec.prop(
     ),
 );
 
-const writeAndCheck = (
-  tmpDir: string,
-  folder: string,
-): Effect.Effect<void, SidecarWriterAssertionError, FileSystem.FileSystem | Path.Path> =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const folderAbs = path.join(tmpDir, folder);
-    // Pre-create folder as a FILE so writeSidecar's writeFileString fails:
-    // attempting to write inside a path whose parent is a regular file
-    // returns ENOTDIR on POSIX.
-    yield* fs.makeDirectory(tmpDir, { recursive: true })
-      .pipe(Effect.catchAll(() => Effect.void));
-    yield* fs.writeFileString(folderAbs, "not-a-dir")
-      .pipe(Effect.catchAll(() => Effect.void));
-    const exit = yield* Effect.exit(
-      writeSidecar({ folder: folderAbs, artifact: sampleArtifact(folder) }),
-    );
-    yield* failIf(
-      !Exit.isFailure(exit),
-      `expected writeSidecar to fail when folder path is a file, not a dir`,
-    );
-    const sidecarPath = path.join(folderAbs, ".safer-spec", `${sidecarSlug(folder)}.json`);
-    // Parent path is a regular file; fs.exists may itself fail with ENOTDIR.
-    // Either way, the sidecar file does not exist — the atomic claim holds.
-    const exists = yield* fs.exists(sidecarPath).pipe(Effect.catchAll(() => Effect.succeed(false)));
-    yield* failIf(
-      exists,
-      `partial sidecar left on disk at ${sidecarPath} after failed write`,
-    );
-  });
-
-/**
- * @spec.property sidecar-writer-atomic-on-failure
- * @spec.type Exception Raising
- * @spec.exports writeSidecar
- * @spec.claim partial sidecars are not left on disk on filesystem failures
- */
-itSpec.prop(
-  "sidecar-writer-atomic-on-failure",
-  { type: "Exception Raising", exports: [writeSidecar] },
-  fc.stringMatching(/^[a-z][a-z0-9_-]{2,8}$/),
-  (folder) => {
-    // eslint-disable-next-line sonarjs/pseudo-random -- test fixture uniqueness only
-    const tmpDir = `/tmp/safer-spec-sidecar-writer-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    return Effect.runPromise(
-      writeAndCheck(tmpDir, folder).pipe(Effect.provide(NodeContext.layer)),
-    );
-  },
-);
-
 /**
  * @spec.property sidecar-writer-maps-root-folder-to-root-slug
  * @spec.type Constant Equality
- * @spec.exports writeSidecar, sidecarSlug
- * @spec.claim folder `"."` (project root sentinel) writes to `.safer-spec/root.json`; the writer's slug helper agrees with `generate.ts`/`validate-pipeline.ts` so write and validate never disagree on the on-disk path
+ * @spec.exports sidecarSlug
+ * @spec.claim folder `"."` (project root sentinel) maps to `root` so the sidecar writes to `.safer-spec/root.json`; the slug helper agrees with `generate.ts`/`validate-pipeline.ts` so write and validate never disagree on the on-disk path
  */
 itSpec.prop(
   "sidecar-writer-maps-root-folder-to-root-slug",
-  { type: "Constant Equality", exports: [writeSidecar, sidecarSlug] },
+  { type: "Constant Equality", exports: [sidecarSlug] },
   fc.constant("."),
   (folder) => {
     const got = sidecarSlug(folder);
@@ -145,12 +92,12 @@ itSpec.prop(
 /**
  * @spec.property sidecar-writer-coalesces-path-separators-into-slug
  * @spec.type Constant Equality
- * @spec.exports writeSidecar, sidecarSlug
+ * @spec.exports sidecarSlug
  * @spec.claim folders containing `/` and `\` (Windows-style) produce a single-segment slug (`src_spec`, not a path with separators) so the sidecar file is one filename under `.safer-spec/`, never an unintended nested directory
  */
 itSpec.prop(
   "sidecar-writer-coalesces-path-separators-into-slug",
-  { type: "Constant Equality", exports: [writeSidecar, sidecarSlug] },
+  { type: "Constant Equality", exports: [sidecarSlug] },
   fc.array(
     fc.stringMatching(/^[a-z][a-z0-9-]*$/),
     { minLength: 1, maxLength: 5 },

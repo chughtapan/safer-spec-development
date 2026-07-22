@@ -1,20 +1,17 @@
 /**
- * @spec.purpose Property stubs for the escape-on-emit helpers. Each helper
- *   defuses a different injection vector: markdown, YAML, JSON. The
- *   directive-grammar parser shares this domain because the body-length cap
- *   on directives and the escape helpers both live in `spec/escape.ts`.
+ * @spec.purpose Property stubs for the emit-time markdown escape helpers.
+ *   `escapeForMarkdownProse` guards running prose; the table-cell variant
+ *   additionally escapes pipes and maps newlines to `&lt;br>`. Both defuse the
+ *   markdown/HTML injection vector in author-controlled directive bodies.
  */
 
 import { Data, Effect } from "effect";
 import * as fc from "fast-check";
 import { itSpec } from "@safer/spec/grammar/it-spec.js";
 import {
-  escapeForJson,
-  escapeForMarkdown,
-  escapeForYaml,
+  escapeForMarkdownProse,
+  escapeForMarkdownTableCellProse,
 } from "@safer/spec/artifact/escape.js";
-
-const ESCAPE_CTX = { path: "test.ts", line: 1, directive: "test" };
 
 class EscapeAssertionError extends Data.TaggedError("EscapeAssertionError")<{
   readonly detail: string;
@@ -40,19 +37,19 @@ const failIf = (cond: boolean, detail: string): Effect.Effect<void, EscapeAssert
   cond ? Effect.fail(new EscapeAssertionError({ detail })) : Effect.void;
 
 /**
- * @spec.property jsdoc-escape-markdown-safe
+ * @spec.property jsdoc-escape-markdown-prose-safe
  * @spec.type Constant Bounds Checking
- * @spec.exports escapeForMarkdown
- * @spec.claim escaped output never introduces new markdown syntactic structure (backticks, code-fences, link syntax)
+ * @spec.exports escapeForMarkdownProse
+ * @spec.claim escaped output never introduces new markdown syntactic structure (backticks, link syntax), leaks raw angle brackets, or carries a raw newline
  */
 itSpec.prop(
-  "jsdoc-escape-markdown-safe",
-  { type: "Constant Bounds Checking", exports: [escapeForMarkdown] },
+  "jsdoc-escape-markdown-prose-safe",
+  { type: "Constant Bounds Checking", exports: [escapeForMarkdownProse] },
   fc.string(),
   (input) =>
     Effect.runPromise(
       Effect.gen(function* () {
-        const out = yield* escapeForMarkdown(input, ESCAPE_CTX);
+        const out = escapeForMarkdownProse(input);
         for (const ch of ["`", "*", "_", "[", "]"]) {
           yield* failIf(
             hasUnescapedChar(out, ch),
@@ -69,52 +66,32 @@ itSpec.prop(
 );
 
 /**
- * @spec.property jsdoc-escape-yaml-safe
+ * @spec.property jsdoc-escape-table-cell-safe
  * @spec.type Constant Bounds Checking
- * @spec.exports escapeForYaml
- * @spec.claim escaped output never introduces new YAML syntactic structure (quotes, colons, leading dashes)
+ * @spec.exports escapeForMarkdownTableCellProse
+ * @spec.claim escaped output escapes pipes (so it stays a single table cell), escapes markdown structure, leaks no raw angle bracket, and maps newlines to `&lt;br>`
  */
 itSpec.prop(
-  "jsdoc-escape-yaml-safe",
-  { type: "Constant Bounds Checking", exports: [escapeForYaml] },
+  "jsdoc-escape-table-cell-safe",
+  { type: "Constant Bounds Checking", exports: [escapeForMarkdownTableCellProse] },
   fc.string(),
   (input) =>
     Effect.runPromise(
       Effect.gen(function* () {
-        const out = yield* escapeForYaml(input, ESCAPE_CTX);
+        const out = escapeForMarkdownTableCellProse(input);
+        for (const ch of ["`", "*", "_", "[", "]", "|"]) {
+          yield* failIf(
+            hasUnescapedChar(out, ch),
+            `unescaped ${ch} in output: ${JSON.stringify(out)}`,
+          );
+        }
+        // Newlines become `<br>`; the only angle brackets allowed are those markers.
+        const withoutBr = out.replace(/<br>/g, "");
         yield* failIf(
-          !out.startsWith('"') || !out.endsWith('"'),
-          `yaml escape must wrap in double quotes: ${JSON.stringify(out)}`,
+          withoutBr.includes("<") || withoutBr.includes(">"),
+          `raw angle bracket leaked: ${JSON.stringify(out)}`,
         );
-        const inner = out.slice(1, -1);
-        yield* failIf(
-          hasUnescapedChar(inner, '"'),
-          `unescaped quote in yaml: ${JSON.stringify(out)}`,
-        );
-        yield* failIf(/[\n\r]/.test(inner), `raw newline leaked: ${JSON.stringify(out)}`);
-      }),
-    ),
-);
-
-/**
- * @spec.property jsdoc-escape-json-safe
- * @spec.type Constant Bounds Checking
- * @spec.exports escapeForJson
- * @spec.claim escaped output never introduces new JSON syntactic structure (quotes, backslashes, control chars)
- */
-itSpec.prop(
-  "jsdoc-escape-json-safe",
-  { type: "Constant Bounds Checking", exports: [escapeForJson] },
-  fc.string(),
-  (input) =>
-    Effect.runPromise(
-      Effect.gen(function* () {
-        const out = yield* escapeForJson(input, ESCAPE_CTX);
-        const decoded = JSON.parse(out) as unknown;
-        yield* failIf(
-          decoded !== input,
-          `json escape did not roundtrip: ${JSON.stringify({ input, out, decoded })}`,
-        );
+        yield* failIf(/[\n\r]/.test(out), `raw newline leaked: ${JSON.stringify(out)}`);
       }),
     ),
 );
