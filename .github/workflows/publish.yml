@@ -26,16 +26,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
       - name: Upgrade npm (OIDC trusted publishing needs npm >= 11.5.1)
         run: npm install -g npm@latest
+      # Install + build with pnpm (the toolchain CI tests with; npm's
+      # strict peer resolution rejects the @effect/cli peer range that
+      # pnpm's committed lockfile resolves fine). npm is only for publish.
       - name: Install deps
-        run: npm install
+        run: pnpm install --frozen-lockfile
       - name: Build (emits dist/ that main/bin/exports point at)
-        run: npm run build
+        run: pnpm build
       - name: Guard — tag must match package.json version
         run: |
           PKG=$(node -p "require('./package.json').version")
