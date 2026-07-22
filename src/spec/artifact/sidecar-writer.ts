@@ -1,38 +1,22 @@
 /**
- * @spec.purpose Writes `.safer-spec/&lt;folder>.json` sidecar files. Sanitizes
- *   every string field on emit (size cap + escape) at the sidecar trust
- *   boundary.
- *
- *   Tagged error `SidecarWriteError` is co-located here (this is the file
- *   that emits it via Effect.fail on filesystem failures).
- *
+ * @spec.purpose Serializes the `.safer-spec/&lt;folder>.json` sidecar payload.
  *   `serializeSidecar` encodes a `SpecArtifact` through the canonical Schema
  *   constructor (private to `sidecar.ts`), producing a JSON string with a
- *   trailing newline. `writeSidecar` writes that JSON to
- *   `.safer-spec/&lt;folder-slug>.json`, creating the directory on first run.
+ *   trailing newline; `regenerateSidecar` builds that artifact and returns
+ *   the byte-for-byte form validate's drift check compares against disk.
+ *   `sidecarSlug` is the single source of truth for the on-disk filename.
  *   Output JSON roundtrips through `decodeSpecArtifact`; the roundtrip
- *   property is enforced in the sidecar domain's `__tests__/`. Per-
- *   export guarantees are on the individual exports below.
+ *   property is enforced in the sidecar domain's `__tests__/`. Per-export
+ *   guarantees are on the individual exports below.
  */
 
-import { FileSystem } from "@effect/platform";
-import { Data, Effect, ParseResult } from "effect";
+import { Effect, ParseResult } from "effect";
 import {
   SidecarSchemaError,
   decodeSpecArtifact,
   type SpecArtifact,
 } from "@safer/spec/artifact/sidecar.js";
 import { buildSpecArtifact, type FolderAnalysis, type SpecMeta } from "@safer/spec/artifact/emit.js";
-
-export class SidecarWriteError extends Data.TaggedError("SidecarWriteError")<{
-  readonly folder: string;
-  readonly cause: unknown;
-}> {}
-
-interface SidecarWritePayload {
-  readonly folder: string;
-  readonly artifact: SpecArtifact;
-}
 
 /**
  * @spec.guarantee "folder `.` maps to `\"root\"`; folders with `/` or `\\` are coalesced into a single-segment slug with `_` separators; otherwise the folder string is returned unchanged after stripping leading `./`"
@@ -106,37 +90,3 @@ export const regenerateSidecar = (
       Effect.die(new Error(`internal sidecar schema mismatch: ${e.issues.join("; ")}`)),
     ),
   );
-
-const writeError = (folder: string, cause: unknown): SidecarWriteError =>
-  new SidecarWriteError({ folder, cause });
-
-/**
- * @spec.guarantee "atomic per-file write via @effect/platform FileSystem; no partial sidecars on failure"
- *   reason: trust contract; downstream validate gate must not see
- *           half-written sidecars.
- * @spec.residual-contract ".safer-spec/<folder>.json directory is created if missing; pre-existing sidecar is overwritten"
- *   reason: side-effect contract; users see the directory created on
- *           first run.
- */
-export const writeSidecar = (
-  payload: SidecarWritePayload,
-): Effect.Effect<void, SidecarSchemaError | SidecarWriteError, FileSystem.FileSystem> =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const json = yield* serializeSidecar(payload.artifact);
-    // Sidecar lives under the owning folder, alongside the MODULE.md it
-    // pairs with. validate.ts reads from <folder>/.safer-spec/<slug>.json;
-    // this is the same path so the two halves agree.
-    const dir = `${payload.folder}/.safer-spec`;
-    const file = `${dir}/${sidecarSlug(payload.folder)}.json`;
-    yield* fs
-      .makeDirectory(dir, { recursive: true })
-      .pipe(Effect.catchAll(() => Effect.succeed(void 0)));
-    yield* fs
-      .writeFileString(file, json)
-      .pipe(
-        Effect.catchAll((cause) =>
-          Effect.fail(writeError(payload.folder, cause)),
-        ),
-      );
-  }).pipe(Effect.withSpan("spec/sidecar-writer/writeSidecar"));

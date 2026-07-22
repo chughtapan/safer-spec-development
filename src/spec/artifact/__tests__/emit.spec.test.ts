@@ -1,7 +1,7 @@
 /**
  * @spec.purpose Property stubs for the canonical MODULE.md section emitter.
- *   Covers section ordering, line-ending canonicalization, roundtrip
- *   through frontmatter decode, lex-sort guarantees, and code-span safety.
+ *   Covers section ordering, line-ending canonicalization, frontmatter
+ *   field emission, lex-sort guarantees, and code-span safety.
  *   Children-section + per-file rendering properties live in
  *   `emit-children.spec.test.ts`.
  */
@@ -10,7 +10,6 @@ import { Data, Effect } from "effect";
 import * as fc from "fast-check";
 import { itSpec } from "@safer/spec/grammar/it-spec.js";
 import { SPEC_FORMAT_VERSION } from "@safer/project/index.js";
-import { decodeSpecFrontmatter } from "@safer/spec/artifact/frontmatter.js";
 import {
   emitMarkdown,
   type FolderAnalysis,
@@ -136,17 +135,13 @@ const yamlBlock = (out: string): string => {
   return end === -1 ? "" : out.slice(start + 4, end);
 };
 
-// Strict YAML decode is heavy; parse the emitted block as a minimal map so
-// frontmatter decode can run against an object built from the same lines.
-const yamlToShape = (yaml: string): unknown => {
-  const obj: Record<string, unknown> = {
-    generatedFrom: { jsdoc: "@spec.*", exports: "ts-morph", schemas: [], properties: [], eslint: "agent-code-guard" },
-    coverage: { typeCoverage: 0, classifierCoverage: null, preconditionPassRate: null, branchCoverageFromSpecTests: null },
-    thresholds: { typeCoverage: 0, preconditionPassRate: 0, branchCoverageFromSpecTests: 0 },
-  };
+// Parse the emitted YAML block's top-level `key: value` lines into a map so
+// assertions can read the frontmatter fields without a full YAML decoder.
+const yamlToShape = (yaml: string): Record<string, string> => {
+  const obj: Record<string, string> = {};
   for (const line of yaml.split("\n")) {
     const m = /^([a-zA-Z-]+): (.*)$/.exec(line);
-    if (m !== null) obj[m[1]!] = m[2];
+    if (m !== null) obj[m[1]!] = m[2]!;
   }
   return obj;
 };
@@ -155,7 +150,7 @@ const yamlToShape = (yaml: string): unknown => {
  * @spec.property emit-frontmatter-roundtrips
  * @spec.type Roundtrip
  * @spec.exports emitMarkdown
- * @spec.claim YAML frontmatter parsed from emitMarkdown output round-trips back to the same SpecFrontmatter shape
+ * @spec.claim YAML frontmatter parsed from emitMarkdown output carries back the folder and format-version it was emitted with
  */
 itSpec.prop(
   "emit-frontmatter-roundtrips",
@@ -167,11 +162,11 @@ itSpec.prop(
         const out = emitMarkdown(emptyAnalysis(folder), FIXED_META);
         const yaml = yamlBlock(out);
         yield* failIf(yaml.length === 0, `no YAML frontmatter in output`);
-        const decoded = yield* decodeSpecFrontmatter(yamlToShape(yaml));
+        const shape = yamlToShape(yaml);
         yield* failIf(
-          decoded.folder !== folder ||
-            decoded["format-version"] !== SPEC_FORMAT_VERSION,
-          `frontmatter mismatch: folder=${decoded.folder} fv=${decoded["format-version"]}`,
+          shape.folder !== folder ||
+            shape["format-version"] !== SPEC_FORMAT_VERSION,
+          `frontmatter mismatch: folder=${String(shape.folder)} fv=${String(shape["format-version"])}`,
         );
       }),
     ),
@@ -288,7 +283,7 @@ itSpec.prop(
  * @spec.property emit-residual-bodies-escaped
  * @spec.type Constant Bounds Checking
  * @spec.exports emitMarkdown
- * @spec.claim residual-contract bodies emitted into markdown go through escapeForMarkdown; no injection
+ * @spec.claim residual-contract bodies emitted into markdown go through escapeForMarkdownProse; no injection
  */
 itSpec.prop(
   "emit-residual-bodies-escaped",

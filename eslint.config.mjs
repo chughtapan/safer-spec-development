@@ -161,7 +161,7 @@ const ARCHITECTURE_OPTIONS = {
       maxChildrenIncludingTests: 16,
       maxUnpairedTestChildren: 16,
       reason:
-        "spec/artifact/ holds the seven files that read and write the codemod's on-disk artifacts: emit.ts (SPEC.md producer), escape.ts (markdown/YAML/JSON escape helpers), frontmatter.ts (YAML frontmatter schema + parse + emit), link-resolver.ts (internal-link helper), sidecar.ts (canonical sidecar JSON schema + parse + emit), sidecar-writer.ts (atomic write), reporter.ts (Vitest reporter that writes the execution sidecar — the second artifact validate --implemented consumes)",
+        "spec/artifact/ holds the files that read and write the codemod's on-disk artifacts: emit.ts (MODULE.md producer), escape.ts (markdown escape helpers), link-resolver.ts (source-link path rebaser), coverage.ts (threshold analysis), sidecar.ts (canonical sidecar JSON schema + parse + emit), sidecar-writer.ts (sidecar JSON serialization), reporter.ts (Vitest reporter that writes the execution sidecar — the second artifact validate --implemented consumes)",
     },
     {
       folder: "grammar",

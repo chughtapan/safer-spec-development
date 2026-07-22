@@ -1,59 +1,8 @@
 {
   "formatVersion": "0.1.0",
   "folder": "src/spec/grammar",
-  "generatedAtSha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f",
+  "generatedAtSha": "uncommitted",
   "exports": [
-    {
-      "name": "DIRECTIVE_BODY_MAX_CHARS",
-      "shape": "unknown",
-      "requiredPropertyTypes": [
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Typechecking",
-        "Inclusion"
-      ],
-      "observedPropertyTypes": [
-        "Constant Equality",
-        "Constant Bounds Checking",
-        "Typechecking",
-        "Inclusion"
-      ],
-      "skipped": [
-        {
-          "propertyType": "Roundtrip",
-          "reason": "numeric constant; no encode/decode pair."
-        },
-        {
-          "propertyType": "Partial Roundtrip",
-          "reason": "numeric constant; no normalize-then-recover relation."
-        },
-        {
-          "propertyType": "Commutative Paths",
-          "reason": "constant value; no alternative path to derive it."
-        },
-        {
-          "propertyType": "Constant Non-Equality",
-          "reason": "a single constant value; no distinct-output invariant applies."
-        },
-        {
-          "propertyType": "Exception Raising",
-          "reason": "a constant; cannot fail."
-        }
-      ],
-      "residualContract": null,
-      "residualAssumes": [],
-      "residualGuarantees": [
-        {
-          "claim": "the value is 500 — the documented trust-boundary cap on directive bodies (assume/guarantee/residual-contract/skip reasons/claim) routed as agent context",
-          "reason": "stable across the codemod and downstream consumers; the cap is enforced by the `Capped` schema in the same file."
-        }
-      ],
-      "sourceRef": {
-        "path": "src/spec/grammar/shared.ts",
-        "line": 27,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
-      }
-    },
     {
       "name": "PROPERTY_TYPES",
       "shape": "unknown",
@@ -105,7 +54,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 37,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "sha": "uncommitted"
       }
     },
     {
@@ -120,7 +69,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/property-types.ts",
         "line": 49,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "sha": "uncommitted"
       }
     },
     {
@@ -166,7 +115,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 50,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "sha": "uncommitted"
       }
     },
     {
@@ -181,7 +130,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 69,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "sha": "uncommitted"
       }
     },
     {
@@ -227,7 +176,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 72,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "sha": "uncommitted"
       }
     },
     {
@@ -242,7 +191,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 89,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "sha": "uncommitted"
       }
     },
     {
@@ -288,7 +237,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/shared.ts",
         "line": 93,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "sha": "uncommitted"
       }
     },
     {
@@ -337,7 +286,7 @@
       "sourceRef": {
         "path": "src/spec/grammar/directives.ts",
         "line": 292,
-        "sha": "16cc46e7ee40c94f6db070cdd56ce038bc78114f"
+        "sha": "uncommitted"
       }
     }
   ],
